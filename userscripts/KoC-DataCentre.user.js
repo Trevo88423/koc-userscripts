@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         KoC Data Centre
 // @namespace    trevo88423
-// @version      1.19.0
+// @version      1.20.0
 // @description  Sweet Revenge alliance tool: tracks stats, syncs to API, adds dashboards, XP→Turn calculator, mini Top Stats panel, and comprehensive recon data collection.
 // @author       Blackheart
 // @match        https://www.kingsofchaos.com/*
@@ -1918,6 +1918,9 @@
     // === WEAPONS INVENTORY COLLECTION ===
     const weapons = collectWeaponsFromArmory();
 
+    // === CALCULATE GOLD-PER-POINT EFFICIENCY ===
+    const efficiency = calculateWeaponEfficiency(weapons);
+
     const now = new Date().toISOString();
 
     // Save to TIV log
@@ -1937,6 +1940,7 @@
       ...stats,
       weapons: weapons.length > 0 ? weapons : undefined,
       weaponsTime: weapons.length > 0 ? now : undefined,
+      ...efficiency, // Add gold-per-point metrics
       lastTivTime: now,
       lastRecon: now
     };
@@ -1947,6 +1951,101 @@
     await auth.apiCall("players", { id: myId, ...payload });
 
     console.log("📊 Armory self stats captured", { id: myId, name: myName, tiv, weapons: weapons.length, ...stats });
+  }
+
+  function calculateWeaponEfficiency(weapons) {
+    // Weapon purchase prices (from armory buying table)
+    const weaponPrices = {
+      // Attack weapons
+      'Sarumans Ball': 100,
+      'Heavy Steed': 50000,
+      'Chariot': 450000,
+      'Blackpowder Missile': 1000000,
+
+      // Defense weapons
+      'Spider': 5000,
+      'Mithril': 50000,
+      'Ebony Platemail': 450000,
+      'Invisibility Shield': 1000000,
+
+      // Spy Tools
+      'Cloak': 140000,
+      'Grappling Hook': 250000,
+      'Skeleton Key': 600000,
+      'Nunchaku': 1000000,
+
+      // Sentry Tools
+      'Horn': 140000,
+      'Tripwire': 250000,
+      'Guard Dog': 600000,
+      'Lookout Tower': 1000000,
+
+      // Poison Tools
+      'Toxic Needle Dagger': 140000,
+      'Venomfang Staff': 250000,
+      'Blightbane Bow': 600000,
+      'Plaguebringer Scythe': 1000000,
+
+      // Antidote Tools
+      'Viperfang Dirk': 140000,
+      'Basiliskbane Halberd': 250000,
+      'Wyrmclaw Longsword': 600000,
+      'Serpentbane Arbalest': 1000000,
+
+      // Theft Tools
+      'Greasy Gloves': 140000,
+      'Rusty Lockpick': 250000,
+      'Shadow Cloak': 600000,
+      'Ethereal Grasp': 1000000,
+
+      // Vigilance Tools
+      'Wooden Whistle': 140000,
+      'Steel Shackles': 250000,
+      'Silver Scepter': 600000,
+      'Adamantine Bastion': 1000000
+    };
+
+    // Group weapons by category and calculate totals
+    const categoryTotals = {
+      attack: { gold: 0, strength: 0 },
+      defense: { gold: 0, strength: 0 },
+      spy: { gold: 0, strength: 0 },
+      sentry: { gold: 0, strength: 0 },
+      poison: { gold: 0, strength: 0 },
+      antidote: { gold: 0, strength: 0 },
+      theft: { gold: 0, strength: 0 },
+      vigilance: { gold: 0, strength: 0 }
+    };
+
+    weapons.forEach(weapon => {
+      const price = weaponPrices[weapon.name];
+      if (!price) {
+        console.warn(`⚠️ No price found for weapon: ${weapon.name}`);
+        return;
+      }
+
+      const category = weapon.category;
+      if (!categoryTotals[category]) return;
+
+      const avgStrength = (weapon.minStrength + weapon.maxStrength) / 2;
+      const goldInvested = weapon.quantity * price;
+      const strengthGained = weapon.quantity * avgStrength;
+
+      categoryTotals[category].gold += goldInvested;
+      categoryTotals[category].strength += strengthGained;
+    });
+
+    // Calculate gold-per-point for each category
+    const efficiency = {};
+    for (const [category, totals] of Object.entries(categoryTotals)) {
+      if (totals.strength > 0) {
+        efficiency[`goldPer${category.charAt(0).toUpperCase() + category.slice(1)}Point`] =
+          Math.round(totals.gold / totals.strength * 100) / 100; // Round to 2 decimals
+      }
+    }
+
+    console.log('📊 Weapon efficiency calculated:', efficiency);
+    return efficiency;
   }
 
   function collectWeaponsFromArmory() {
