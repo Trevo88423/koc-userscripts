@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         KoC Data Centre
 // @namespace    trevo88423
-// @version      1.11.0
+// @version      1.11.1
 // @description  Sweet Revenge alliance tool: tracks stats, syncs to API, adds dashboards, XP→Turn calculator, mini Top Stats panel, and battlefield intelligence tracking.
 // @author       Blackheart
 // @match        https://www.kingsofchaos.com/*
