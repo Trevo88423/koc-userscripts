@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         KoC Data Centre
 // @namespace    trevo88423
-// @version      1.18.2
+// @version      1.18.3
 // @description  Sweet Revenge alliance tool: tracks stats, syncs to API, adds dashboards, XP→Turn calculator, mini Top Stats panel, and comprehensive recon data collection.
 // @author       Blackheart
 // @match        https://www.kingsofchaos.com/*
@@ -1952,6 +1952,20 @@
   function collectWeaponsFromArmory() {
     const weapons = [];
 
+    // Find the inventory section headers (not the buying section)
+    const inventoryHeaders = [...document.querySelectorAll("th.head")]
+      .filter(th => {
+        const text = th.textContent.trim();
+        return text.includes('Current Weapons Inventory') || text.includes('Current Covert Tools Inventory');
+      });
+
+    if (inventoryHeaders.length === 0) {
+      console.log('⚠️ No weapon inventory sections found on armory page');
+      return weapons;
+    }
+
+    console.log(`🔍 Found ${inventoryHeaders.length} inventory section(s) in armory`);
+
     // All weapon/tool categories in armory
     const validCategories = [
       'Attack',
@@ -1964,14 +1978,23 @@
       'Vigilance Tools'
     ];
 
-    // Find all weapon category headers
-    const categoryHeaders = [...document.querySelectorAll("th.subh")]
-      .filter(th => {
-        const text = th.textContent.trim();
-        return validCategories.includes(text);
-      });
+    // For each inventory section, find category headers within it
+    inventoryHeaders.forEach(inventoryHeader => {
+      const sectionName = inventoryHeader.textContent.trim();
+      console.log(`📦 Processing: ${sectionName}`);
 
-    console.log(`🔍 Found ${categoryHeaders.length} weapon/tool categories in armory`);
+      // Find the table containing this inventory section
+      const inventoryTable = inventoryHeader.closest('table');
+      if (!inventoryTable) return;
+
+      // Find all category headers within this inventory table only
+      const categoryHeaders = [...inventoryTable.querySelectorAll("th.subh")]
+        .filter(th => {
+          const text = th.textContent.trim();
+          return validCategories.includes(text);
+        });
+
+      console.log(`  Found ${categoryHeaders.length} weapon/tool categories in this section`);
 
     categoryHeaders.forEach(categoryHeader => {
       const categoryText = categoryHeader.textContent.trim();
@@ -2051,6 +2074,7 @@
         }
       }
     });
+    }); // Close inventoryHeaders.forEach
 
     console.log(`📦 Total weapons collected: ${weapons.length}`);
     return weapons;
