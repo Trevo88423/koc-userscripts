@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         KoC Data Centre
 // @namespace    trevo88423
-// @version      1.18.3
+// @version      1.18.4
 // @description  Sweet Revenge alliance tool: tracks stats, syncs to API, adds dashboards, XP→Turn calculator, mini Top Stats panel, and comprehensive recon data collection.
 // @author       Blackheart
 // @match        https://www.kingsofchaos.com/*
@@ -1952,19 +1952,29 @@
   function collectWeaponsFromArmory() {
     const weapons = [];
 
-    // Find the inventory section headers (not the buying section)
-    const inventoryHeaders = [...document.querySelectorAll("th.head")]
-      .filter(th => {
-        const text = th.textContent.trim();
-        return text.includes('Current Weapons Inventory') || text.includes('Current Covert Tools Inventory');
-      });
+    // Find inventory tables by looking for:
+    // - Has "Quantity" and "Strength" columns (inventory indicators)
+    // - Has "Repair" or "Sell" column (inventory actions)
+    // - Does NOT have "Buy" column (distinguishes from buying tables)
+    const allTables = [...document.querySelectorAll('table')];
+    const inventoryTables = allTables.filter(table => {
+      const headers = [...table.querySelectorAll('th')];
+      const headerTexts = headers.map(th => th.textContent);
 
-    if (inventoryHeaders.length === 0) {
-      console.log('⚠️ No weapon inventory sections found on armory page');
+      const hasQuantity = headerTexts.some(text => text.includes('Quantity'));
+      const hasStrength = headerTexts.some(text => text.includes('Strength'));
+      const hasSellOrRepair = headerTexts.some(text => text.includes('Sell') || text.includes('Repair'));
+      const hasBuy = headerTexts.some(text => text.includes('Buy') && !text.includes('Sell'));
+
+      return hasQuantity && hasStrength && hasSellOrRepair && !hasBuy;
+    });
+
+    if (inventoryTables.length === 0) {
+      console.log('⚠️ No weapon inventory tables found on armory page');
       return weapons;
     }
 
-    console.log(`🔍 Found ${inventoryHeaders.length} inventory section(s) in armory`);
+    console.log(`🔍 Found ${inventoryTables.length} inventory table(s) in armory`);
 
     // All weapon/tool categories in armory
     const validCategories = [
@@ -1978,40 +1988,37 @@
       'Vigilance Tools'
     ];
 
-    // For each inventory section, find category headers within it
-    inventoryHeaders.forEach(inventoryHeader => {
-      const sectionName = inventoryHeader.textContent.trim();
-      console.log(`📦 Processing: ${sectionName}`);
-
-      // Find the table containing this inventory section
-      const inventoryTable = inventoryHeader.closest('table');
-      if (!inventoryTable) return;
+    // For each inventory table, find category headers within it
+    inventoryTables.forEach((inventoryTable, idx) => {
+      console.log(`📦 Processing inventory table ${idx + 1}`);
 
       // Find all category headers within this inventory table only
       const categoryHeaders = [...inventoryTable.querySelectorAll("th.subh")]
         .filter(th => {
-          const text = th.textContent.trim();
-          return validCategories.includes(text);
+          const text = th.textContent.replace(/<br>/gi, ' ').trim();
+          return validCategories.some(cat => text.includes(cat));
         });
 
-      console.log(`  Found ${categoryHeaders.length} weapon/tool categories in this section`);
+      console.log(`  Found ${categoryHeaders.length} weapon/tool categories in this table`);
 
     categoryHeaders.forEach(categoryHeader => {
-      const categoryText = categoryHeader.textContent.trim();
+      // Normalize text (remove line breaks and extra spaces)
+      const categoryText = categoryHeader.textContent.replace(/\s+/g, ' ').trim();
 
       // Normalize category names to match database conventions
-      const categoryMap = {
-        'Attack': 'attack',           // Attack weapons for Strike Action
-        'Defense': 'defense',         // Defense weapons for Defensive Action
-        'Spy Tools': 'spy',
-        'Sentry Tools': 'sentry',
-        'Poison Tools': 'poison',
-        'Antidote Tools': 'antidote',
-        'Theft Tools': 'theft',
-        'Vigilance Tools': 'vigilance'
-      };
+      // Check if text CONTAINS the category (to handle "Attack Weapons" etc.)
+      let category = null;
+      if (categoryText.includes('Attack')) category = 'attack';
+      else if (categoryText.includes('Defense')) category = 'defense';
+      else if (categoryText.includes('Spy Tools') || categoryText.includes('Spy')) category = 'spy';
+      else if (categoryText.includes('Sentry Tools') || categoryText.includes('Sentry')) category = 'sentry';
+      else if (categoryText.includes('Poison Tools') || categoryText.includes('Poison')) category = 'poison';
+      else if (categoryText.includes('Antidote Tools') || categoryText.includes('Antidote')) category = 'antidote';
+      else if (categoryText.includes('Theft Tools') || categoryText.includes('Theft')) category = 'theft';
+      else if (categoryText.includes('Vigilance Tools') || categoryText.includes('Vigilance')) category = 'vigilance';
+      else category = categoryText.toLowerCase();
 
-      const category = categoryMap[categoryText] || categoryText.toLowerCase();
+      if (!category) return;
 
       // Find the table following this header
       let currentNode = categoryHeader.closest('tr');
@@ -2074,7 +2081,7 @@
         }
       }
     });
-    }); // Close inventoryHeaders.forEach
+    }); // Close inventoryTables.forEach
 
     console.log(`📦 Total weapons collected: ${weapons.length}`);
     return weapons;
