@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         KoC Data Centre
 // @namespace    trevo88423
-// @version      1.18.4
+// @version      1.18.6
 // @description  Sweet Revenge alliance tool: tracks stats, syncs to API, adds dashboards, XP→Turn calculator, mini Top Stats panel, and comprehensive recon data collection.
 // @author       Blackheart
 // @match        https://www.kingsofchaos.com/*
@@ -2039,31 +2039,47 @@
 
       console.log(`  ${category}: Found ${weaponRows.length} potential weapon rows`);
 
-      // Parse weapon rows (they come in pairs: name row + stats row)
-      for (let i = 0; i < weaponRows.length; i += 2) {
-        const nameRow = weaponRows[i];
-        const statsRow = weaponRows[i + 1];
-
-        if (!nameRow || !statsRow) continue;
-
+      // Each weapon is a single row with all data
+      weaponRows.forEach((row, idx) => {
         try {
-          // Extract weapon name from first cell
-          const nameCell = nameRow.querySelector('td');
-          let weaponName = nameCell?.textContent.trim().split('\n')[0].trim();
+          const cells = row.querySelectorAll('td');
+          console.log(`    Row ${idx}: ${cells.length} cells`);
 
-          // Extract quantity and strength from stats row
-          const statsCells = statsRow.querySelectorAll('td');
-          const quantityText = statsCells[0]?.textContent.trim() || '';
-          const strengthText = statsCells[1]?.textContent.trim() || '';
+          // Debug: Log first few cells
+          if (cells.length > 0) {
+            console.log(`      Cell 0: "${cells[0]?.textContent.trim().substring(0, 50)}"`);
+            console.log(`      Cell 1: "${cells[1]?.textContent.trim().substring(0, 50)}"`);
+            console.log(`      Cell 2: "${cells[2]?.textContent.trim().substring(0, 50)}"`);
+          }
 
-          // Parse quantity (e.g., "2,675")
-          const quantityMatch = quantityText.match(/^([\d,]+)/);
-          const quantity = quantityMatch ? parseInt(quantityMatch[1].replace(/,/g, ''), 10) : 0;
+          // Expected structure:
+          // Cell 0: Weapon name + sell value
+          // Cell 1: Quantity + strength range
+          // Cell 2: Total strength
+          // Cell 3: Repair/Sell options
 
-          // Parse strength range (e.g., "278-557")
-          const strengthMatch = strengthText.match(/^([\d,]+)-([\d,]+)/);
+          if (cells.length < 3) return;
+
+          // Extract weapon name (first line of cell 0, remove sell value)
+          const nameText = cells[0]?.textContent.trim() || '';
+          let weaponName = nameText.split('\n')[0].trim();
+          // Remove "*Sell value:(number)" from name
+          weaponName = weaponName.replace(/\*Sell value:\([^\)]+\)/, '').trim();
+
+          // Extract quantity and strength from cell 1
+          // Note: textContent smashes lines together, so "2,675\n278-557" becomes "2,675278-557"
+          const cell1Text = cells[1]?.textContent.trim() || '';
+
+          // First, extract the strength range from the END (it always has a hyphen)
+          const strengthMatch = cell1Text.match(/([\d,]+)-([\d,]+)$/);
           const minStrength = strengthMatch ? parseInt(strengthMatch[1].replace(/,/g, ''), 10) : 0;
           const maxStrength = strengthMatch ? parseInt(strengthMatch[2].replace(/,/g, ''), 10) : 0;
+
+          // Remove the strength range from the string to get just the quantity
+          const quantityText = strengthMatch ? cell1Text.replace(strengthMatch[0], '') : cell1Text;
+          const quantity = parseInt(quantityText.replace(/,/g, ''), 10) || 0;
+
+          console.log(`      Parsed: name="${weaponName}", qty=${quantity}, str=${minStrength}-${maxStrength}`);
 
           if (weaponName && quantity > 0) {
             weapons.push({
@@ -2075,11 +2091,13 @@
             });
 
             console.log(`    ✅ ${weaponName}: ${quantity} qty, ${minStrength}-${maxStrength} str`);
+          } else {
+            console.log(`    ⏭️ Skipping (no name or zero quantity)`);
           }
         } catch (err) {
           console.warn(`⚠️ Failed to parse weapon row in ${category}:`, err);
         }
-      }
+      });
     });
     }); // Close inventoryTables.forEach
 
