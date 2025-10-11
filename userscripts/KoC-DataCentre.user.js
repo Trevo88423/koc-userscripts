@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         KoC Data Centre
 // @namespace    trevo88423
-// @version      1.16.0
+// @version      1.16.1
 // @description  Sweet Revenge alliance tool: tracks stats, syncs to API, adds dashboards, XP→Turn calculator, mini Top Stats panel, and battlefield intelligence tracking.
 // @author       Blackheart
 // @match        https://www.kingsofchaos.com/*
@@ -2086,7 +2086,11 @@
 
   // ==================== DATA CENTRE REDIRECT ====================
 
-  if (location.search.includes("id=datacentre")) {
+  async function handleDataCentreRedirect() {
+    if (!location.search.includes("id=datacentre")) {
+      return false; // Not a redirect request
+    }
+
     console.log("[DataCentre] Redirecting to React app...");
 
     const authData = auth.getAuthForRedirect();
@@ -2117,6 +2121,8 @@
       console.log("[DataCentre] No valid auth found, redirecting without token");
       window.location.href = "https://koc-roster-client-production.up.railway.app";
     }
+
+    return true; // Redirect was handled
   }
 
   // ==================== BUTTON INJECTION ====================
@@ -2231,8 +2237,14 @@
     try {
       const isReady = await initializeScript();
       if (isReady) {
-        await runFeatures();
-        console.log("✅ All features initialized");
+        // Check for Data Centre redirect first (before running other features)
+        const isRedirecting = await handleDataCentreRedirect();
+
+        // Only run features if we're not redirecting
+        if (!isRedirecting) {
+          await runFeatures();
+          console.log("✅ All features initialized");
+        }
       }
     } catch (error) {
       ErrorHandler.log(
