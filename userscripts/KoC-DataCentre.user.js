@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         KoC Data Centre
 // @namespace    trevo88423
-// @version      1.17.1
+// @version      1.17.2
 // @description  Sweet Revenge alliance tool: tracks stats, syncs to API, adds dashboards, XP→Turn calculator, mini Top Stats panel, and comprehensive recon data collection.
 // @author       Blackheart
 // @match        https://www.kingsofchaos.com/*
@@ -2291,26 +2291,14 @@
     console.log("[DataCentre] Auth data:", authData ? "✅ Available" : "❌ Not available");
 
     if (authData) {
-      console.log("[DataCentre] Valid auth found, using secure transfer");
+      console.log("[DataCentre] Valid auth found, using URL parameter method");
 
-      // Store auth in sessionStorage for the target window
-      const authKey = `koc_auth_${Date.now()}`;
-      sessionStorage.setItem(authKey, JSON.stringify(authData));
+      // Encode auth data as base64 for URL
+      const authEncoded = btoa(JSON.stringify(authData));
+      const redirectUrl = `https://koc-roster-client-production.up.railway.app?auth=${authEncoded}`;
 
-      // Open target window and transfer auth via postMessage (secure)
-      const targetWindow = window.open("https://koc-roster-client-production.up.railway.app", "_self");
-
-      // Use postMessage for secure auth transfer
-      setTimeout(() => {
-        if (targetWindow) {
-          targetWindow.postMessage({
-            type: 'KOC_AUTH',
-            auth: authData,
-            source: 'userscript'
-          }, 'https://koc-roster-client-production.up.railway.app');
-          console.log("[DataCentre] Auth sent via postMessage");
-        }
-      }, 1000);
+      console.log("[DataCentre] Redirecting with auth in URL");
+      window.location.href = redirectUrl;
     } else {
       console.log("[DataCentre] No valid auth found, redirecting without token");
       window.location.href = "https://koc-roster-client-production.up.railway.app";
