@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         KoC Data Centre
 // @namespace    trevo88423
-// @version      1.13.4
+// @version      1.14.0
 // @description  Sweet Revenge alliance tool: tracks stats, syncs to API, adds dashboards, XP→Turn calculator, mini Top Stats panel, and battlefield intelligence tracking.
 // @author       Blackheart
 // @match        https://www.kingsofchaos.com/*
@@ -1850,8 +1850,6 @@
   }
 
   async function collectFromReconPage() {
-    console.log("📊 Recon collector triggered");
-
     // Find player stats link, excluding the Data Centre link
     let link = null;
     const allStatsLinks = document.querySelectorAll('a[href*="stats.php?id="]');
@@ -1873,8 +1871,6 @@
       console.log("⚠️ Recon: Could not find player ID");
       return;
     }
-
-    console.log("ℹ️ Recon target ID:", id);
 
     // Check for Invalid User ID error
     if (document.body.textContent.includes("Invalid User ID")) {
