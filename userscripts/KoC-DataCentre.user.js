@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         KoC Data Centre
 // @namespace    trevo88423
-// @version      1.20.0
+// @version      1.20.1
 // @description  Sweet Revenge alliance tool: tracks stats, syncs to API, adds dashboards, XP→Turn calculator, mini Top Stats panel, and comprehensive recon data collection.
 // @author       Blackheart
 // @match        https://www.kingsofchaos.com/*
@@ -2017,7 +2017,10 @@
       vigilance: { gold: 0, strength: 0 }
     };
 
+    console.log(`🔍 Processing ${weapons.length} weapons for efficiency calculation`);
     weapons.forEach(weapon => {
+      console.log(`  Weapon: "${weapon.name}" (${weapon.category}), qty=${weapon.quantity}, str=${weapon.minStrength}-${weapon.maxStrength}`);
+
       const price = weaponPrices[weapon.name];
       if (!price) {
         console.warn(`⚠️ No price found for weapon: ${weapon.name}`);
@@ -2025,11 +2028,16 @@
       }
 
       const category = weapon.category;
-      if (!categoryTotals[category]) return;
+      if (!categoryTotals[category]) {
+        console.warn(`⚠️ Unknown category: ${category}`);
+        return;
+      }
 
       const avgStrength = (weapon.minStrength + weapon.maxStrength) / 2;
       const goldInvested = weapon.quantity * price;
       const strengthGained = weapon.quantity * avgStrength;
+
+      console.log(`    → Added to ${category}: ${goldInvested.toLocaleString()} gold, ${strengthGained.toLocaleString()} strength`);
 
       categoryTotals[category].gold += goldInvested;
       categoryTotals[category].strength += strengthGained;
