@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         KoC Data Centre
 // @namespace    trevo88423
-// @version      1.15.0
+// @version      1.16.0
 // @description  Sweet Revenge alliance tool: tracks stats, syncs to API, adds dashboards, XP→Turn calculator, mini Top Stats panel, and battlefield intelligence tracking.
 // @author       Blackheart
 // @match        https://www.kingsofchaos.com/*
@@ -57,6 +57,10 @@
   const MAX_PLAYER_FIELD_LENGTH = 200;
   const STORAGE_CLEANUP_DAYS = 30;
   const ASSUMED_STORAGE_LIMIT_MB = 5;
+
+  // Performance
+  const BATTLEFIELD_DEBOUNCE_MS = 300; // Debounce battlefield observer
+  const BATTLEFIELD_COLLECT_DELAY_MS = 200; // Delay before collecting battlefield data
 
   console.log(`✅ DataCentre+XPTool v${VERSION} loaded on`, location.pathname);
 
@@ -474,6 +478,32 @@
     }
 
     return result;
+  }
+
+  // ==================== PERFORMANCE UTILITIES ====================
+
+  /**
+   * Debounce function - delays execution until after delay has passed since last call
+   * Useful for expensive operations that shouldn't run on every event
+   *
+   * @param {Function} func - The function to debounce
+   * @param {number} delay - The delay in milliseconds
+   * @returns {Function} - The debounced function
+   */
+  function debounce(func, delay) {
+    let timeoutId = null;
+
+    return function debounced(...args) {
+      // Clear the previous timeout
+      if (timeoutId) {
+        clearTimeout(timeoutId);
+      }
+
+      // Set a new timeout
+      timeoutId = setTimeout(() => {
+        func.apply(this, args);
+      }, delay);
+    };
   }
 
   // ==================== AUTH MANAGER ====================
@@ -1349,7 +1379,7 @@
       }
 
       battlefieldTimeout = null;
-    }, 500);
+    }, BATTLEFIELD_COLLECT_DELAY_MS);
   }
 
   // ==================== ATTACK TIV COLLECTOR ====================
@@ -2160,13 +2190,18 @@
       await safeExecute('battlefieldObserver', () => {
         const table = document.querySelector("table.battlefield") || document.querySelector("table.table_lines");
         if (table) {
-          const observer = new MutationObserver(async (mutations) => {
+          // Debounce the collector to prevent excessive calls during rapid DOM updates
+          const debouncedCollect = debounce(async () => {
+            await safeExecute('collectFromBattlefield (observer)', () => collectFromBattlefield());
+          }, BATTLEFIELD_DEBOUNCE_MS);
+
+          const observer = new MutationObserver((mutations) => {
             if (mutations.length > 1) {
-              await safeExecute('collectFromBattlefield (observer)', () => collectFromBattlefield());
+              debouncedCollect();
             }
           });
           observer.observe(table, { childList: true, subtree: true });
-          console.log("[DataCentre] Battlefield observer active");
+          console.log("[DataCentre] Battlefield observer active (debounced)");
         }
       });
     }
