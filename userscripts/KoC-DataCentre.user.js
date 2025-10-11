@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         KoC Data Centre
 // @namespace    trevo88423
-// @version      1.20.2
+// @version      1.25.0
 // @description  Sweet Revenge alliance tool: tracks stats, syncs to API, adds dashboards, XP→Turn calculator, mini Top Stats panel, and comprehensive recon data collection.
 // @author       Blackheart
 // @match        https://www.kingsofchaos.com/*
@@ -1900,6 +1900,88 @@
     infoRow.parentNode.insertBefore(container, infoRow.nextSibling);
   }
 
+  // ==================== RANK-UP COST DISPLAY ====================
+
+  function displayRankUpCosts(stats, efficiency) {
+    // Find the rank progression table
+    const tables = [...document.querySelectorAll('table')];
+    const rankTable = tables.find(table => {
+      const header = table.querySelector('th');
+      return header && header.textContent.includes('Rating For Previous/Next Rank Gain');
+    });
+
+    if (!rankTable) return;
+
+    // Map action names to stat keys and efficiency keys
+    const actionMap = {
+      'Strike': { stat: 'strikeAction', efficiency: 'goldPerAttackPoint' },
+      'Defense': { stat: 'defensiveAction', efficiency: 'goldPerDefensePoint' },
+      'Spy': { stat: 'spyRating', efficiency: 'goldPerSpyPoint' },
+      'Sentry': { stat: 'sentryRating', efficiency: 'goldPerSentryPoint' },
+      'Poison': { stat: 'poisonRating', efficiency: 'goldPerPoisonPoint' },
+      'Antidote': { stat: 'antidoteRating', efficiency: 'goldPerAntidotePoint' },
+      'Theft': { stat: 'theftRating', efficiency: 'goldPerTheftPoint' },
+      'Vigilance': { stat: 'vigilanceRating', efficiency: 'goldPerVigilancePoint' }
+    };
+
+    // Parse current stat values
+    const parseStatValue = (val) => {
+      if (!val) return 0;
+      return parseInt(String(val).replace(/,/g, ''), 10) || 0;
+    };
+
+    // Process each row
+    const rows = rankTable.querySelectorAll('tr');
+    rows.forEach(row => {
+      const cells = row.querySelectorAll('td');
+      if (cells.length < 3) return;
+
+      const actionText = cells[0]?.textContent.trim();
+      const nextRatingText = cells[2]?.textContent.trim();
+
+      const mapping = actionMap[actionText];
+      if (!mapping) return;
+
+      const currentStat = parseStatValue(stats[mapping.stat]);
+      const nextRating = parseInt(nextRatingText.replace(/,/g, ''), 10);
+      const efficiencyValue = efficiency[mapping.efficiency];
+
+      if (!currentStat || !nextRating || !efficiencyValue) return;
+
+      const gap = nextRating - currentStat;
+      if (gap <= 0) return; // Already past next rank
+
+      const goldNeeded = gap * efficiencyValue;
+
+      // Format gold amount
+      const formatGold = (gold) => {
+        if (gold >= 1e9) return (gold / 1e9).toFixed(1) + 'B';
+        if (gold >= 1e6) return (gold / 1e6).toFixed(1) + 'M';
+        if (gold >= 1e3) return (gold / 1e3).toFixed(1) + 'K';
+        return gold.toFixed(0);
+      };
+
+      const goldFormatted = formatGold(goldNeeded);
+
+      // Create tooltip text
+      const tooltipText = `Gold needed for next rank:\n` +
+        `Gap: ${gap.toLocaleString()} points\n` +
+        `Efficiency: ${efficiencyValue.toFixed(3)} gold/point\n` +
+        `Cost: ${gap.toLocaleString()} × ${efficiencyValue.toFixed(3)} = ${goldNeeded.toLocaleString()} gold`;
+
+      // Add cost display to the cell
+      const costSpan = document.createElement('span');
+      costSpan.style.color = '#4CAF50';
+      costSpan.style.fontWeight = 'bold';
+      costSpan.style.marginLeft = '8px';
+      costSpan.style.cursor = 'help';
+      costSpan.textContent = `(${goldFormatted})`;
+      costSpan.title = tooltipText;
+
+      cells[2].appendChild(costSpan);
+    });
+  }
+
   // ==================== ARMORY SELF COLLECTOR ====================
 
   async function collectTIVAndStatsFromArmory() {
@@ -1919,7 +2001,10 @@
     const weapons = collectWeaponsFromArmory();
 
     // === CALCULATE GOLD-PER-POINT EFFICIENCY ===
-    const efficiency = calculateWeaponEfficiency(weapons);
+    const efficiency = calculateWeaponEfficiency(weapons, stats);
+
+    // === DISPLAY RANK-UP COSTS ===
+    displayRankUpCosts(stats, efficiency);
 
     const now = new Date().toISOString();
 
@@ -1933,12 +2018,21 @@
       await auth.apiCall("tiv", { playerId: myId, tiv, time: now });
     }
 
+    // Transform weapons array to match API schema
+    const weaponsForAPI = weapons.map(w => ({
+      weapon_name: w.name,
+      weapon_type: w.category,
+      quantity: w.quantity,
+      current_strength: w.minStrength,
+      max_strength: w.maxStrength
+    }));
+
     // Merge into NameMap + API push
     const payload = {
       name: myName,
       tiv,
       ...stats,
-      weapons: weapons.length > 0 ? weapons : undefined,
+      weapons: weaponsForAPI.length > 0 ? weaponsForAPI : undefined,
       weaponsTime: weapons.length > 0 ? now : undefined,
       ...efficiency, // Add gold-per-point metrics
       lastTivTime: now,
@@ -1953,7 +2047,7 @@
     console.log("📊 Armory self stats captured", { id: myId, name: myName, tiv, weapons: weapons.length, ...stats });
   }
 
-  function calculateWeaponEfficiency(weapons) {
+  function calculateWeaponEfficiency(weapons, stats) {
     // Weapon purchase prices (from armory buying table)
     const weaponPrices = {
       // Attack weapons
@@ -2005,54 +2099,66 @@
       'Adamantine Bastion': 1000000
     };
 
-    // Group weapons by category and calculate totals
-    const categoryTotals = {
-      attack: { gold: 0, strength: 0 },
-      defense: { gold: 0, strength: 0 },
-      spy: { gold: 0, strength: 0 },
-      sentry: { gold: 0, strength: 0 },
-      poison: { gold: 0, strength: 0 },
-      antidote: { gold: 0, strength: 0 },
-      theft: { gold: 0, strength: 0 },
-      vigilance: { gold: 0, strength: 0 }
+    // Calculate total gold invested per category
+    const categoryGold = {
+      attack: 0,
+      defense: 0,
+      spy: 0,
+      sentry: 0,
+      poison: 0,
+      antidote: 0,
+      theft: 0,
+      vigilance: 0
     };
 
-    console.log(`🔍 Processing ${weapons.length} weapons for efficiency calculation`);
     weapons.forEach(weapon => {
-      console.log(`  Weapon: "${weapon.name}" (${weapon.category}), qty=${weapon.quantity}, str=${weapon.minStrength}-${weapon.maxStrength}`);
-
       const price = weaponPrices[weapon.name];
       if (!price) {
-        console.warn(`⚠️ No price found for weapon: ${weapon.name}`);
+        console.warn(`⚠️ No price found for weapon: "${weapon.name}"`);
         return;
       }
 
       const category = weapon.category;
-      if (!categoryTotals[category]) {
+      if (!(category in categoryGold)) {
         console.warn(`⚠️ Unknown category: ${category}`);
         return;
       }
 
-      const avgStrength = (weapon.minStrength + weapon.maxStrength) / 2;
       const goldInvested = weapon.quantity * price;
-      const strengthGained = weapon.quantity * avgStrength;
-
-      console.log(`    → Added to ${category}: ${goldInvested.toLocaleString()} gold, ${strengthGained.toLocaleString()} strength`);
-
-      categoryTotals[category].gold += goldInvested;
-      categoryTotals[category].strength += strengthGained;
+      categoryGold[category] += goldInvested;
     });
 
-    // Calculate gold-per-point for each category
+    // Parse stat values (remove commas and convert to numbers)
+    const parseStatValue = (val) => {
+      if (!val) return 0;
+      return parseInt(String(val).replace(/,/g, ''), 10) || 0;
+    };
+
+    const statValues = {
+      attack: parseStatValue(stats.strikeAction),
+      defense: parseStatValue(stats.defensiveAction),
+      spy: parseStatValue(stats.spyRating),
+      sentry: parseStatValue(stats.sentryRating),
+      poison: parseStatValue(stats.poisonRating),
+      antidote: parseStatValue(stats.antidoteRating),
+      theft: parseStatValue(stats.theftRating),
+      vigilance: parseStatValue(stats.vigilanceRating)
+    };
+
+    // Calculate gold-per-point: totalGoldInvested ÷ currentStatValue
     const efficiency = {};
-    for (const [category, totals] of Object.entries(categoryTotals)) {
-      if (totals.strength > 0) {
+    for (const category in categoryGold) {
+      const gold = categoryGold[category];
+      const statValue = statValues[category];
+
+      if (gold > 0 && statValue > 0) {
+        const goldPerPoint = gold / statValue;
         efficiency[`goldPer${category.charAt(0).toUpperCase() + category.slice(1)}Point`] =
-          Math.round(totals.gold / totals.strength * 100) / 100; // Round to 2 decimals
+          Math.round(goldPerPoint * 1000) / 1000; // Round to 3 decimals
       }
     }
 
-    console.log('📊 Weapon efficiency calculated:', efficiency);
+    console.log('💰 Weapon efficiency calculated:', efficiency);
     return efficiency;
   }
 
@@ -2158,21 +2264,20 @@
           // Remove "*Sell value (number)" from name (note: space before paren, not colon)
           weaponName = weaponName.split('*Sell')[0].trim();
 
-          // Extract quantity and strength from cell 1
-          // Use innerHTML to preserve <br> tags, then split
-          const cell1HTML = cells[1]?.innerHTML || '';
-          const cell1Parts = cell1HTML.split(/<br\s*\/?>/i).map(s => s.trim());
+          // Cell 1 is ignored (has unrelated values)
 
-          // First part is quantity, second part is strength range
-          const quantityText = cell1Parts[0] || '';
-          const strengthText = cell1Parts[1] || '';
-
+          // Cell 2 contains the QUANTITY
+          const quantityText = cells[2]?.textContent.trim() || '';
           const quantity = parseInt(quantityText.replace(/,/g, ''), 10) || 0;
 
-          // Parse strength range (e.g., "278-557")
-          const strengthMatch = strengthText.match(/([\d,]+)-([\d,]+)/);
+          // Cell 3 contains the STRENGTH (format: "1,000 / 1,000")
+          const strengthText = cells[3]?.textContent.trim() || '';
+          const strengthMatch = strengthText.match(/([\d,]+)\s*\/\s*([\d,]+)/);
           const minStrength = strengthMatch ? parseInt(strengthMatch[1].replace(/,/g, ''), 10) : 0;
           const maxStrength = strengthMatch ? parseInt(strengthMatch[2].replace(/,/g, ''), 10) : 0;
+
+          // No longer need totalStrength - we calculate it from quantity × strength
+          const totalStrength = quantity * maxStrength;
 
           if (weaponName && quantity > 0) {
             weapons.push({
@@ -2180,7 +2285,8 @@
               category: category,
               quantity: quantity,
               minStrength: minStrength,
-              maxStrength: maxStrength
+              maxStrength: maxStrength,
+              totalStrength: totalStrength  // Use game's pre-calculated total
             });
           }
         } catch (err) {
