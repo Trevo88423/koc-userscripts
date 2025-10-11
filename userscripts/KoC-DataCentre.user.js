@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         KoC Data Centre
 // @namespace    trevo88423
-// @version      1.18.0
+// @version      1.18.1
 // @description  Sweet Revenge alliance tool: tracks stats, syncs to API, adds dashboards, XP→Turn calculator, mini Top Stats panel, and comprehensive recon data collection.
 // @author       Blackheart
 // @match        https://www.kingsofchaos.com/*
@@ -1915,6 +1915,9 @@
     // Military Stats - use centralized parser
     const stats = collectMilitaryStats();
 
+    // === WEAPONS INVENTORY COLLECTION ===
+    const weapons = collectWeaponsFromArmory();
+
     const now = new Date().toISOString();
 
     // Save to TIV log
@@ -1932,6 +1935,8 @@
       name: myName,
       tiv,
       ...stats,
+      weapons: weapons.length > 0 ? weapons : undefined,
+      weaponsTime: weapons.length > 0 ? now : undefined,
       lastTivTime: now,
       lastRecon: now
     };
@@ -1941,7 +1946,88 @@
     // Send self stats to API
     await auth.apiCall("players", { id: myId, ...payload });
 
-    console.log("📊 Armory self stats captured", { id: myId, name: myName, tiv, ...stats });
+    console.log("📊 Armory self stats captured", { id: myId, name: myName, tiv, weapons: weapons.length, ...stats });
+  }
+
+  function collectWeaponsFromArmory() {
+    const weapons = [];
+
+    // Find all weapon category headers (Attack, Defense, Spy, Sentry)
+    const categoryHeaders = [...document.querySelectorAll("th.subh")]
+      .filter(th => {
+        const text = th.textContent.trim();
+        return ['Attack', 'Defense', 'Spy', 'Sentry'].some(cat => text === cat);
+      });
+
+    console.log(`🔍 Found ${categoryHeaders.length} weapon categories in armory`);
+
+    categoryHeaders.forEach(categoryHeader => {
+      const category = categoryHeader.textContent.trim().toLowerCase();
+
+      // Find the table following this header
+      let currentNode = categoryHeader.closest('tr');
+      const weaponRows = [];
+
+      // Traverse siblings until we hit another category or end
+      while (currentNode && currentNode.nextElementSibling) {
+        currentNode = currentNode.nextElementSibling;
+
+        // Stop if we hit another category header
+        if (currentNode.querySelector('th.subh')) break;
+
+        const cells = currentNode.querySelectorAll('td');
+        if (cells.length >= 4) {
+          weaponRows.push(currentNode);
+        }
+      }
+
+      console.log(`  ${category}: Found ${weaponRows.length} potential weapon rows`);
+
+      // Parse weapon rows (they come in pairs: name row + stats row)
+      for (let i = 0; i < weaponRows.length; i += 2) {
+        const nameRow = weaponRows[i];
+        const statsRow = weaponRows[i + 1];
+
+        if (!nameRow || !statsRow) continue;
+
+        try {
+          // Extract weapon name from first cell
+          const nameCell = nameRow.querySelector('td');
+          let weaponName = nameCell?.textContent.trim().split('\n')[0].trim();
+
+          // Extract quantity and strength from stats row
+          const statsCells = statsRow.querySelectorAll('td');
+          const quantityText = statsCells[0]?.textContent.trim() || '';
+          const strengthText = statsCells[1]?.textContent.trim() || '';
+
+          // Parse quantity (e.g., "2,675")
+          const quantityMatch = quantityText.match(/^([\d,]+)/);
+          const quantity = quantityMatch ? parseInt(quantityMatch[1].replace(/,/g, ''), 10) : 0;
+
+          // Parse strength range (e.g., "278-557")
+          const strengthMatch = strengthText.match(/^([\d,]+)-([\d,]+)/);
+          const minStrength = strengthMatch ? parseInt(strengthMatch[1].replace(/,/g, ''), 10) : 0;
+          const maxStrength = strengthMatch ? parseInt(strengthMatch[2].replace(/,/g, ''), 10) : 0;
+
+          if (weaponName && quantity > 0) {
+            weapons.push({
+              name: weaponName,
+              category: category,
+              quantity: quantity,
+              minStrength: minStrength,
+              maxStrength: maxStrength
+            });
+
+            console.log(`    ✅ ${weaponName}: ${quantity} qty, ${minStrength}-${maxStrength} str`);
+          }
+        } catch (err) {
+          console.warn(`⚠️ Failed to parse weapon row in ${category}:`, err);
+        }
+      }
+    });
+
+    console.log(`📦 Total weapons collected: ${weapons.length}`);
+    return weapons;
   }
 
   // ==================== RECON DATA COLLECTOR ====================
