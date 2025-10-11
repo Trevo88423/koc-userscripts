@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         KoC Data Centre
 // @namespace    trevo88423
-// @version      1.18.7
+// @version      1.19.0
 // @description  Sweet Revenge alliance tool: tracks stats, syncs to API, adds dashboards, XP→Turn calculator, mini Top Stats panel, and comprehensive recon data collection.
 // @author       Blackheart
 // @match        https://www.kingsofchaos.com/*
@@ -2043,21 +2043,6 @@
       weaponRows.forEach((row, idx) => {
         try {
           const cells = row.querySelectorAll('td');
-          console.log(`    Row ${idx}: ${cells.length} cells`);
-
-          // Debug: Log first few cells
-          if (cells.length > 0) {
-            console.log(`      Cell 0: "${cells[0]?.textContent.trim().substring(0, 50)}"`);
-            console.log(`      Cell 1: "${cells[1]?.textContent.trim().substring(0, 50)}"`);
-            console.log(`      Cell 2: "${cells[2]?.textContent.trim().substring(0, 50)}"`);
-          }
-
-          // Expected structure:
-          // Cell 0: Weapon name + sell value
-          // Cell 1: Quantity + strength range
-          // Cell 2: Total strength
-          // Cell 3: Repair/Sell options
-
           if (cells.length < 3) return;
 
           // Extract weapon name (first line of cell 0, remove sell value)
@@ -2071,8 +2056,6 @@
           const cell1HTML = cells[1]?.innerHTML || '';
           const cell1Parts = cell1HTML.split(/<br\s*\/?>/i).map(s => s.trim());
 
-          console.log(`      Cell 1 parts:`, cell1Parts);
-
           // First part is quantity, second part is strength range
           const quantityText = cell1Parts[0] || '';
           const strengthText = cell1Parts[1] || '';
@@ -2084,8 +2067,6 @@
           const minStrength = strengthMatch ? parseInt(strengthMatch[1].replace(/,/g, ''), 10) : 0;
           const maxStrength = strengthMatch ? parseInt(strengthMatch[2].replace(/,/g, ''), 10) : 0;
 
-          console.log(`      Parsed: name="${weaponName}", qty=${quantity}, str=${minStrength}-${maxStrength}`);
-
           if (weaponName && quantity > 0) {
             weapons.push({
               name: weaponName,
@@ -2094,10 +2075,6 @@
               minStrength: minStrength,
               maxStrength: maxStrength
             });
-
-            console.log(`    ✅ ${weaponName}: ${quantity} qty, ${minStrength}-${maxStrength} str`);
-          } else {
-            console.log(`    ⏭️ Skipping (no name or zero quantity)`);
           }
         } catch (err) {
           console.warn(`⚠️ Failed to parse weapon row in ${category}:`, err);
