@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         KoC Data Centre
 // @namespace    trevo88423
-// @version      1.13.0
+// @version      1.13.1
 // @description  Sweet Revenge alliance tool: tracks stats, syncs to API, adds dashboards, XP→Turn calculator, mini Top Stats panel, and battlefield intelligence tracking.
 // @author       Blackheart
 // @match        https://www.kingsofchaos.com/*
@@ -1852,28 +1852,45 @@
   async function collectFromReconPage() {
     console.log("📊 Recon collector triggered");
 
-    // Try multiple selectors for player link
-    let link = document.querySelector('a[href*="stats.php?id="]');
+    let id = null;
 
-    // If not found immediately, wait a bit for page to load
-    if (!link) {
-      console.log("🔄 Recon: Link not found, waiting for page load...");
-      await new Promise(resolve => setTimeout(resolve, 500));
-      link = document.querySelector('a[href*="stats.php?id="]');
+    // Method 1: Try to get from URL parameters (report might have player_id or target_id)
+    const urlParams = new URLSearchParams(location.search);
+    id = urlParams.get('player_id') || urlParams.get('target_id') || urlParams.get('id');
+
+    // Method 2: Try to find stats.php link on page
+    if (!id) {
+      let link = document.querySelector('a[href*="stats.php?id="]');
+
+      // If not found immediately, wait a bit for page to load
+      if (!link) {
+        console.log("🔄 Recon: Link not found, waiting for page load...");
+        await new Promise(resolve => setTimeout(resolve, 500));
+        link = document.querySelector('a[href*="stats.php?id="]');
+      }
+
+      const match = link?.href.match(/id=(\d+)/);
+      id = match ? match[1] : null;
     }
 
-    const match = link?.href.match(/id=(\d+)/);
-    const id = match ? match[1] : null;
+    // Method 3: Try to extract from page text (e.g., "Report on PlayerName (ID: 12345)")
+    if (!id) {
+      const pageText = document.body.textContent;
+      const textMatch = pageText.match(/\b(?:ID|id)[:=\s]+(\d{5,})\b/);
+      id = textMatch ? textMatch[1] : null;
+    }
 
     if (!id) {
       ErrorHandler.log(
         ErrorHandler.LOG_LEVELS.WARN,
-        "Recon: Could not find player ID on inteldetail.php",
+        "Recon: Could not find player ID on inteldetail.php after trying all methods",
         null,
         {
-          hasLink: !!link,
-          linkHref: link?.href,
-          pageContent: document.body.textContent.substring(0, 200)
+          url: location.href,
+          urlParams: Object.fromEntries(urlParams),
+          hasStatsLink: !!document.querySelector('a[href*="stats.php?id="]'),
+          allLinks: Array.from(document.querySelectorAll('a')).map(a => a.href).filter(h => h.includes('stats')),
+          pageContentSample: document.body.textContent.substring(0, 300)
         }
       );
       console.log("⚠️ Recon: Could not find player ID");
