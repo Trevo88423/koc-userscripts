@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         KoC Data Centre
 // @namespace    trevo88423
-// @version      1.12.0
+// @version      1.13.0
 // @description  Sweet Revenge alliance tool: tracks stats, syncs to API, adds dashboards, XP→Turn calculator, mini Top Stats panel, and battlefield intelligence tracking.
 // @author       Blackheart
 // @match        https://www.kingsofchaos.com/*
@@ -37,6 +37,296 @@
   const RETRY_DELAY_BASE = 1000; // 1 second
 
   console.log(`✅ DataCentre+XPTool v${VERSION} loaded on`, location.pathname);
+
+  // ==================== ERROR HANDLING UTILITIES ====================
+
+  /**
+   * Error handler with user-friendly messages
+   */
+  class ErrorHandler {
+    static LOG_LEVELS = {
+      ERROR: 'error',
+      WARN: 'warn',
+      INFO: 'info',
+      DEBUG: 'debug'
+    };
+
+    static log(level, message, error = null, context = {}) {
+      const timestamp = new Date().toISOString();
+      const prefix = `[KoC-DataCentre ${timestamp}]`;
+
+      const logData = {
+        level,
+        message,
+        error: error ? {
+          message: error.message,
+          stack: error.stack,
+          name: error.name
+        } : null,
+        context
+      };
+
+      switch (level) {
+        case this.LOG_LEVELS.ERROR:
+          console.error(`${prefix} ❌`, message, logData);
+          break;
+        case this.LOG_LEVELS.WARN:
+          console.warn(`${prefix} ⚠️`, message, logData);
+          break;
+        case this.LOG_LEVELS.INFO:
+          console.info(`${prefix} ℹ️`, message, logData);
+          break;
+        case this.LOG_LEVELS.DEBUG:
+          console.log(`${prefix} 🔍`, message, logData);
+          break;
+      }
+    }
+
+    static getUserFriendlyMessage(error, context = '') {
+      if (!error) return 'An unknown error occurred';
+
+      // Network errors
+      if (error.message.includes('fetch') || error.message.includes('NetworkError') || error instanceof TypeError) {
+        return `Network error: Unable to connect to server. Please check your internet connection.`;
+      }
+
+      // Auth errors
+      if (error.message.includes('401') || error.message.includes('Unauthorized')) {
+        return `Authentication failed. Please log in again.`;
+      }
+
+      // localStorage quota
+      if (error.name === 'QuotaExceededError') {
+        return `Browser storage is full. Some features may not work properly. Try clearing old data.`;
+      }
+
+      // API errors
+      if (error.message.includes('API') || error.message.includes('500')) {
+        return `Server error. The Sweet Revenge API may be experiencing issues. Please try again later.`;
+      }
+
+      // Default
+      return context ? `${context}: ${error.message}` : error.message;
+    }
+
+    static showUserError(message, error = null) {
+      const friendlyMsg = error ? this.getUserFriendlyMessage(error) : message;
+      console.error('User error shown:', friendlyMsg, error);
+
+      // Show non-intrusive notification
+      this.showNotification(friendlyMsg, 'error');
+    }
+
+    static showNotification(message, type = 'info') {
+      // Create non-intrusive notification div
+      const notification = document.createElement('div');
+      notification.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background: ${type === 'error' ? '#f44336' : type === 'warn' ? '#ff9800' : '#4CAF50'};
+        color: white;
+        padding: 15px 20px;
+        border-radius: 4px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+        z-index: 10000;
+        max-width: 350px;
+        font-family: Arial, sans-serif;
+        font-size: 14px;
+        line-height: 1.4;
+        animation: slideIn 0.3s ease-out;
+      `;
+      notification.textContent = message;
+
+      // Add animation
+      const style = document.createElement('style');
+      style.textContent = `
+        @keyframes slideIn {
+          from { transform: translateX(400px); opacity: 0; }
+          to { transform: translateX(0); opacity: 1; }
+        }
+      `;
+      document.head.appendChild(style);
+      document.body.appendChild(notification);
+
+      // Auto-remove after 5 seconds
+      setTimeout(() => {
+        notification.style.transition = 'opacity 0.3s';
+        notification.style.opacity = '0';
+        setTimeout(() => notification.remove(), 300);
+      }, 5000);
+    }
+  }
+
+  /**
+   * Safe localStorage wrapper with quota handling
+   */
+  class SafeStorage {
+    static get(key, defaultValue = null) {
+      try {
+        const item = localStorage.getItem(key);
+        if (item === null) return defaultValue;
+
+        try {
+          return JSON.parse(item);
+        } catch {
+          return item; // Return as string if not JSON
+        }
+      } catch (error) {
+        ErrorHandler.log(ErrorHandler.LOG_LEVELS.ERROR, `Failed to read from localStorage: ${key}`, error);
+        return defaultValue;
+      }
+    }
+
+    static set(key, value) {
+      try {
+        const serialized = typeof value === 'string' ? value : JSON.stringify(value);
+        localStorage.setItem(key, serialized);
+        return true;
+      } catch (error) {
+        if (error.name === 'QuotaExceededError') {
+          ErrorHandler.log(ErrorHandler.LOG_LEVELS.ERROR, 'localStorage quota exceeded', error, { key });
+
+          // Try to free up space
+          this.cleanup();
+
+          // Try again
+          try {
+            const serialized = typeof value === 'string' ? value : JSON.stringify(value);
+            localStorage.setItem(key, serialized);
+            ErrorHandler.log(ErrorHandler.LOG_LEVELS.INFO, 'Successfully stored after cleanup', null, { key });
+            return true;
+          } catch (retryError) {
+            ErrorHandler.showUserError(null, error);
+            return false;
+          }
+        } else {
+          ErrorHandler.log(ErrorHandler.LOG_LEVELS.ERROR, `Failed to write to localStorage: ${key}`, error);
+          return false;
+        }
+      }
+    }
+
+    static remove(key) {
+      try {
+        localStorage.removeItem(key);
+        return true;
+      } catch (error) {
+        ErrorHandler.log(ErrorHandler.LOG_LEVELS.ERROR, `Failed to remove from localStorage: ${key}`, error);
+        return false;
+      }
+    }
+
+    static cleanup() {
+      ErrorHandler.log(ErrorHandler.LOG_LEVELS.INFO, 'Attempting to cleanup old localStorage data');
+
+      try {
+        // Remove old data (anything with timestamps older than 30 days)
+        const cutoff = Date.now() - (30 * 24 * 60 * 60 * 1000);
+
+        for (let i = 0; i < localStorage.length; i++) {
+          const key = localStorage.key(i);
+          if (!key) continue;
+
+          // Check if it's a timestamp key
+          if (key.includes('_time')) {
+            try {
+              const value = localStorage.getItem(key);
+              const timestamp = parseInt(value, 10) || Date.parse(value);
+              if (timestamp && timestamp < cutoff) {
+                localStorage.removeItem(key);
+                // Also remove associated data key
+                const dataKey = key.replace('_time', '');
+                localStorage.removeItem(dataKey);
+                ErrorHandler.log(ErrorHandler.LOG_LEVELS.DEBUG, `Cleaned up old data: ${key}`);
+              }
+            } catch (e) {
+              // Skip if can't parse
+            }
+          }
+        }
+      } catch (error) {
+        ErrorHandler.log(ErrorHandler.LOG_LEVELS.ERROR, 'Cleanup failed', error);
+      }
+    }
+
+    static getUsage() {
+      try {
+        let total = 0;
+        for (let key in localStorage) {
+          if (localStorage.hasOwnProperty(key)) {
+            total += localStorage[key].length + key.length;
+          }
+        }
+        return {
+          used: total,
+          usedKB: (total / 1024).toFixed(2),
+          // Most browsers allow 5-10MB, we'll assume 5MB
+          percentUsed: ((total / (5 * 1024 * 1024)) * 100).toFixed(1)
+        };
+      } catch (error) {
+        return { used: 0, usedKB: 0, percentUsed: 0 };
+      }
+    }
+  }
+
+  /**
+   * API call wrapper with offline detection
+   */
+  class ResilientAPI {
+    static isOnline = navigator.onLine;
+    static failureCount = 0;
+    static MAX_FAILURES = 3;
+
+    static {
+      // Monitor online/offline status
+      window.addEventListener('online', () => {
+        this.isOnline = true;
+        this.failureCount = 0;
+        ErrorHandler.showNotification('Connection restored', 'info');
+      });
+
+      window.addEventListener('offline', () => {
+        this.isOnline = false;
+        ErrorHandler.showNotification('You are offline. Some features may not work.', 'warn');
+      });
+    }
+
+    static async callWithFallback(apiFn, fallbackFn = null) {
+      // Check online status first
+      if (!this.isOnline) {
+        ErrorHandler.log(ErrorHandler.LOG_LEVELS.WARN, 'Offline - using fallback');
+        return fallbackFn ? fallbackFn() : null;
+      }
+
+      try {
+        const result = await apiFn();
+        this.failureCount = 0; // Reset on success
+        return result;
+      } catch (error) {
+        this.failureCount++;
+
+        ErrorHandler.log(
+          ErrorHandler.LOG_LEVELS.ERROR,
+          `API call failed (${this.failureCount}/${this.MAX_FAILURES})`,
+          error
+        );
+
+        // If too many failures, suggest offline mode
+        if (this.failureCount >= this.MAX_FAILURES) {
+          ErrorHandler.showUserError('API appears to be unavailable. Working in offline mode.', error);
+        }
+
+        // Use fallback if available
+        if (fallbackFn) {
+          ErrorHandler.log(ErrorHandler.LOG_LEVELS.INFO, 'Using fallback function');
+          return fallbackFn();
+        }
+
+        return null;
+      }
+    }
+  }
 
   // ==================== SECURITY UTILITIES ====================
 
@@ -176,11 +466,7 @@
 
     // Get stored auth from localStorage
     getStoredAuth() {
-      try {
-        return JSON.parse(localStorage.getItem(TOKEN_KEY) || "null");
-      } catch {
-        return null;
-      }
+      return SafeStorage.get(TOKEN_KEY, null);
     }
 
     // Save auth to localStorage
@@ -191,7 +477,13 @@
         name,
         expiry: Date.now() + TOKEN_EXPIRY_MS
       };
-      localStorage.setItem(TOKEN_KEY, JSON.stringify(authData));
+
+      const success = SafeStorage.set(TOKEN_KEY, authData);
+      if (!success) {
+        ErrorHandler.showUserError('Failed to save authentication data. Storage may be full.');
+        return null;
+      }
+
       this.authData = authData;
       this.token = token;
       this.emit('authChanged', authData);
@@ -290,8 +582,8 @@
         }
 
         // Final fallback: localStorage
-        if (!id) id = localStorage.getItem("KoC_MyId");
-        if (!name) name = localStorage.getItem("KoC_MyName");
+        if (!id) id = SafeStorage.get("KoC_MyId", null);
+        if (!name) name = SafeStorage.get("KoC_MyName", null);
 
         if (!id || !name) {
           throw new Error("Could not detect your KoC ID/Name on this page");
@@ -314,8 +606,8 @@
         alert("✅ SR Login successful! Refreshing…");
         location.reload();
       } catch (err) {
-        console.error("Login failed", err);
-        alert("❌ Login failed: " + err.message);
+        ErrorHandler.log(ErrorHandler.LOG_LEVELS.ERROR, 'Login failed', err);
+        ErrorHandler.showUserError(null, err);
         throw err;
       }
     }
@@ -330,7 +622,7 @@
 
     // Clear auth data
     clearAuth() {
-      localStorage.removeItem(TOKEN_KEY);
+      SafeStorage.remove(TOKEN_KEY);
       this.token = null;
       this.authData = null;
       this.initPromise = null;
@@ -436,27 +728,19 @@
   // ==================== STORAGE HELPERS ====================
 
   function getTivLog() {
-    try {
-      return JSON.parse(localStorage.getItem(TIV_KEY) || "[]");
-    } catch {
-      return [];
-    }
+    return SafeStorage.get(TIV_KEY, []);
   }
 
   function saveTivLog(arr) {
-    localStorage.setItem(TIV_KEY, JSON.stringify(arr));
+    return SafeStorage.set(TIV_KEY, arr);
   }
 
   function getNameMap() {
-    try {
-      return JSON.parse(localStorage.getItem(MAP_KEY) || "{}");
-    } catch {
-      return {};
-    }
+    return SafeStorage.get(MAP_KEY, {});
   }
 
   function saveNameMap(map) {
-    localStorage.setItem(MAP_KEY, JSON.stringify(map));
+    return SafeStorage.set(MAP_KEY, map);
   }
 
   // ==================== INITIALIZATION & GATEKEEPER ====================
@@ -639,7 +923,7 @@
       const attacksLeft = Math.floor(turnsVal / 120);
       const xpTradeAttacks = calculateXPTradeAttacks(xpVal, turnsVal);
 
-      const avgGold = parseFloat(localStorage.getItem("xpTool_avgGold")) || 0;
+      const avgGold = SafeStorage.get("xpTool_avgGold", 0);
       const totalPotential = xpTradeAttacks * avgGold;
 
       document.getElementById("xp-attacks").innerText = attacksLeft;
@@ -648,10 +932,9 @@
       document.getElementById("xp-total").innerText = formatGold(totalPotential);
 
       // Banking Efficiency
-      const goldLost = parseInt(localStorage.getItem("KoC_GoldLost24h") || "0", 10);
-      const myId = localStorage.getItem("KoC_MyId");
-      const mapRaw = localStorage.getItem("KoC_NameMap") || "{}";
-      const map = JSON.parse(mapRaw);
+      const goldLost = SafeStorage.get("KoC_GoldLost24h", 0);
+      const myId = SafeStorage.get("KoC_MyId", null);
+      const map = getNameMap();
 
       let projectedIncome = 0;
       if (map[myId]?.projectedIncome !== undefined) {
@@ -865,8 +1148,8 @@
 
                   // Save avg gold for Sidebar + Popup
                   if (txt.startsWith('Total By You Last 24 Hours')) {
-                    localStorage.setItem('xpTool_avgGold', String(avg));
-                    localStorage.setItem('xpTool_avgGold_time', String(Date.now()));
+                    SafeStorage.set('xpTool_avgGold', avg);
+                    SafeStorage.set('xpTool_avgGold_time', Date.now());
                     console.log("[XPTool] Avg Gold/Atk saved:", avg);
                   }
                 }
@@ -875,8 +1158,8 @@
               // Gold Lost (On You) for Banking Efficiency
               if (txt.startsWith('Total On You Last 24 Hours') && label === 'total') {
                 const goldLost = parseInt(cells[2].innerText.replace(/,/g, ''), 10) || 0;
-                localStorage.setItem("KoC_GoldLost24h", String(goldLost));
-                localStorage.setItem("KoC_GoldLost24h_time", new Date().toISOString());
+                SafeStorage.set("KoC_GoldLost24h", goldLost);
+                SafeStorage.set("KoC_GoldLost24h_time", new Date().toISOString());
                 console.log("📊 Banking: Gold lost (24h) saved:", goldLost);
               }
             }
@@ -1102,7 +1385,7 @@
     }
 
     const bodyText = document.body.textContent || '';
-    const myId = localStorage.getItem("KoC_MyId");
+    const myId = SafeStorage.get("KoC_MyId", null);
 
     // Extract gold stolen
     const goldMatch = bodyText.match(/you\s+stole\s+([\d,\.]+)\s*gold\s+while\s+attacking/i);
@@ -1230,16 +1513,16 @@
   // ==================== BASE PAGE COLLECTOR ====================
 
   function collectFromBasePage() {
-    let myId = localStorage.getItem("KoC_MyId");
-    let myName = localStorage.getItem("KoC_MyName");
+    let myId = SafeStorage.get("KoC_MyId", null);
+    let myName = SafeStorage.get("KoC_MyName", null);
 
     // Capture my ID/Name if missing
     const myLink = document.querySelector("a[href*='stats.php?id=']");
     if (myLink) {
       myId = myLink.href.match(/id=(\d+)/)?.[1] || myId || "self";
       myName = myLink.textContent.trim() || myName || "Me";
-      localStorage.setItem("KoC_MyId", myId);
-      localStorage.setItem("KoC_MyName", myName);
+      SafeStorage.set("KoC_MyId", myId);
+      SafeStorage.set("KoC_MyName", myName);
       console.log("📊 Stored my KoC ID/Name:", myId, myName);
     }
 
@@ -1415,7 +1698,7 @@
       checkbox.style.cssText = "vertical-align:middle; margin-right:2px;";
 
       // Load saved state (default: visible = checked)
-      const savedState = localStorage.getItem(`srStat_${def.id}`);
+      const savedState = SafeStorage.get(`srStat_${def.id}`, "visible");
       checkbox.checked = savedState !== "hidden";
 
       label.appendChild(checkbox);
@@ -1447,7 +1730,7 @@
       table.dataset.statId = def.id;
 
       // Set initial visibility
-      const savedState = localStorage.getItem(`srStat_${def.id}`);
+      const savedState = SafeStorage.get(`srStat_${def.id}`, "visible");
       if (savedState === "hidden") {
         table.style.display = "none";
       }
@@ -1483,10 +1766,10 @@
         const table = allTables.find(t => t.dataset.statId === def.id);
         if (e.target.checked) {
           table.style.display = "block";
-          localStorage.setItem(`srStat_${def.id}`, "visible");
+          SafeStorage.set(`srStat_${def.id}`, "visible");
         } else {
           table.style.display = "none";
-          localStorage.setItem(`srStat_${def.id}`, "hidden");
+          SafeStorage.set(`srStat_${def.id}`, "hidden");
         }
         redistributeTables();
       });
@@ -1502,8 +1785,8 @@
   // ==================== ARMORY SELF COLLECTOR ====================
 
   async function collectTIVAndStatsFromArmory() {
-    const myId = localStorage.getItem("KoC_MyId") || "self";
-    const myName = localStorage.getItem("KoC_MyName") || "Me";
+    const myId = SafeStorage.get("KoC_MyId", "self");
+    const myName = SafeStorage.get("KoC_MyName", "Me");
 
     // TIV
     const header = [...document.querySelectorAll("th.subh")]
@@ -1569,11 +1852,30 @@
   async function collectFromReconPage() {
     console.log("📊 Recon collector triggered");
 
-    const link = document.querySelector('a[href*="stats.php?id="]');
+    // Try multiple selectors for player link
+    let link = document.querySelector('a[href*="stats.php?id="]');
+
+    // If not found immediately, wait a bit for page to load
+    if (!link) {
+      console.log("🔄 Recon: Link not found, waiting for page load...");
+      await new Promise(resolve => setTimeout(resolve, 500));
+      link = document.querySelector('a[href*="stats.php?id="]');
+    }
+
     const match = link?.href.match(/id=(\d+)/);
     const id = match ? match[1] : null;
 
     if (!id) {
+      ErrorHandler.log(
+        ErrorHandler.LOG_LEVELS.WARN,
+        "Recon: Could not find player ID on inteldetail.php",
+        null,
+        {
+          hasLink: !!link,
+          linkHref: link?.href,
+          pageContent: document.body.textContent.substring(0, 200)
+        }
+      );
       console.log("⚠️ Recon: Could not find player ID");
       return;
     }
@@ -1795,75 +2097,101 @@
 
   // ==================== PAGE-SPECIFIC INITIALIZERS ====================
 
+  /**
+   * Safely execute a feature function with error handling
+   */
+  function safeExecute(featureName, fn) {
+    try {
+      fn();
+    } catch (error) {
+      ErrorHandler.log(
+        ErrorHandler.LOG_LEVELS.ERROR,
+        `Feature "${featureName}" failed`,
+        error,
+        { page: location.pathname }
+      );
+      // Don't show user notification for non-critical feature failures
+    }
+  }
+
   async function runFeatures() {
     // Command Center (base.php)
     if (location.pathname.includes("base.php")) {
-      addButtons();
-      initSidebarCalculator();
-      insertTopStatsPanel();
-      collectFromBasePage();
+      safeExecute('addButtons', () => addButtons());
+      safeExecute('initSidebarCalculator', () => initSidebarCalculator());
+      safeExecute('insertTopStatsPanel', () => insertTopStatsPanel());
+      safeExecute('collectFromBasePage', () => collectFromBasePage());
     }
 
     // Any page with sidebar (menu_cell)
     if (document.querySelector("td.menu_cell")) {
-      initSidebarCalculator();
-      hookSidebarPopup();
+      safeExecute('initSidebarCalculator', () => initSidebarCalculator());
+      safeExecute('hookSidebarPopup', () => hookSidebarPopup());
     }
 
     // Attack log
     if (location.pathname.includes("attacklog.php")) {
-      enhanceAttackLog();
+      safeExecute('enhanceAttackLog', () => enhanceAttackLog());
     }
 
     // Recon detail
     if (location.pathname.includes("inteldetail.php")) {
-      addMaxAttacksRecon();
+      safeExecute('addMaxAttacksRecon', () => addMaxAttacksRecon());
+      safeExecute('collectFromReconPage', () => collectFromReconPage());
     }
 
     // Battlefield
     if (location.pathname.includes("battlefield.php")) {
-      collectFromBattlefield();
-      const table = document.querySelector("table.battlefield") || document.querySelector("table.table_lines");
-      if (table) {
-        const observer = new MutationObserver((mutations) => {
-          if (mutations.length > 1) {
-            collectFromBattlefield();
-          }
-        });
-        observer.observe(table, { childList: true, subtree: true });
-        console.log("[DataCentre] Battlefield observer active");
-      }
+      safeExecute('collectFromBattlefield', () => collectFromBattlefield());
+      safeExecute('battlefieldObserver', () => {
+        const table = document.querySelector("table.battlefield") || document.querySelector("table.table_lines");
+        if (table) {
+          const observer = new MutationObserver((mutations) => {
+            if (mutations.length > 1) {
+              safeExecute('collectFromBattlefield (observer)', () => collectFromBattlefield());
+            }
+          });
+          observer.observe(table, { childList: true, subtree: true });
+          console.log("[DataCentre] Battlefield observer active");
+        }
+      });
     }
 
     // Attack page
     if (location.pathname.includes("attack.php")) {
-      collectTIVFromAttackPage();
+      safeExecute('collectTIVFromAttackPage', () => collectTIVFromAttackPage());
     }
 
     // Attack detail
     if (location.pathname.includes("detail.php") && /attack_id=/.test(location.search)) {
-      collectAttackLog();
-      setTimeout(collectAttackLog, 600);
+      safeExecute('collectAttackLog', () => {
+        collectAttackLog();
+        setTimeout(() => safeExecute('collectAttackLog (delayed)', () => collectAttackLog()), 600);
+      });
     }
 
     // Armory
     if (location.pathname.includes("armory.php")) {
-      collectTIVAndStatsFromArmory();
-    }
-
-    // Recon
-    if (location.pathname.includes("inteldetail.php")) {
-      collectFromReconPage();
+      safeExecute('collectTIVAndStatsFromArmory', () => collectTIVAndStatsFromArmory());
     }
   }
 
   // ==================== MAIN EXECUTION ====================
 
   (async () => {
-    const isReady = await initializeScript();
-    if (isReady) {
-      await runFeatures();
-      console.log("✅ All features initialized");
+    try {
+      const isReady = await initializeScript();
+      if (isReady) {
+        await runFeatures();
+        console.log("✅ All features initialized");
+      }
+    } catch (error) {
+      ErrorHandler.log(
+        ErrorHandler.LOG_LEVELS.ERROR,
+        'Critical error during initialization',
+        error
+      );
+      ErrorHandler.showUserError('DataCentre failed to initialize. Please refresh the page.', error);
     }
   })();
 
@@ -1885,8 +2213,7 @@
 
   window.showPlayer = function(id) {
     console.log("🔍 showPlayer() called with id:", id);
-    const raw = localStorage.getItem("KoC_NameMap") || "{}";
-    const map = JSON.parse(raw);
+    const map = getNameMap();
 
     if (!id) {
       console.log("📊 Full NameMap:", map);
@@ -1899,8 +2226,7 @@
 
   window.showTivLog = function() {
     console.log("📊 Full TIV log requested");
-    const raw = localStorage.getItem("KoC_DataCentre") || "[]";
-    const log = JSON.parse(raw);
+    const log = getTivLog();
     console.log("📊 Log:", log);
     return log;
   };
