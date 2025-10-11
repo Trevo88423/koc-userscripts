@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         KoC Data Centre
 // @namespace    trevo88423
-// @version      1.17.0
+// @version      1.17.1
 // @description  Sweet Revenge alliance tool: tracks stats, syncs to API, adds dashboards, XP→Turn calculator, mini Top Stats panel, and comprehensive recon data collection.
 // @author       Blackheart
 // @match        https://www.kingsofchaos.com/*
@@ -1894,7 +1894,12 @@
     if (val && val !== "???") {
       return { value: val, time: new Date().toISOString() };
     } else {
-      return { value: prev[key] || "???", time: prev[key + "Time"] };
+      // Only return cached timestamp if it's valid (contains 'T' for ISO format)
+      const cachedTime = prev[key + "Time"];
+      const validTime = cachedTime && typeof cachedTime === 'string' && cachedTime.includes('T')
+        ? cachedTime
+        : null;
+      return { value: prev[key] || "???", time: validTime };
     }
   }
 
