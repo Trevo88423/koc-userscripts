@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         KoC Data Centre
 // @namespace    trevo88423
-// @version      1.14.0
+// @version      1.15.0
 // @description  Sweet Revenge alliance tool: tracks stats, syncs to API, adds dashboards, XP→Turn calculator, mini Top Stats panel, and battlefield intelligence tracking.
 // @author       Blackheart
 // @match        https://www.kingsofchaos.com/*
@@ -24,17 +24,39 @@
   }
 
   // ==================== CONSTANTS ====================
+
+  // Version & API
   const VERSION = (typeof GM_info !== "undefined" && GM_info.script && GM_info.script.version)
     ? GM_info.script.version : "dev";
-
   const API_URL = "https://koc-roster-api-production.up.railway.app";
+
+  // LocalStorage Keys
   const TOKEN_KEY = "KoC_SRAUTH";
   const TIV_KEY = "KoC_DataCentre";
   const MAP_KEY = "KoC_NameMap";
 
+  // Authentication & API
   const TOKEN_EXPIRY_MS = 12 * 60 * 60 * 1000; // 12 hours
   const RETRY_ATTEMPTS = 2;
-  const RETRY_DELAY_BASE = 1000; // 1 second
+  const RETRY_DELAY_BASE_MS = 1000; // 1 second
+
+  // Game Mechanics
+  const TURNS_PER_ATTACK = 120;
+  const TURNS_PER_TRADE = 500;
+  const XP_REFUND_PER_ATTACK = 120;
+  const MINUTES_PER_DAY = 1440;
+
+  // Timeouts & Delays
+  const PAGE_LOAD_DELAY_MS = 500;
+  const ATTACK_LOG_DELAY_MS = 600;
+  const POPUP_REFRESH_MS = 1000;
+  const NOTIFICATION_DURATION_MS = 5000;
+
+  // Storage & Validation
+  const MAX_STRING_LENGTH = 1000;
+  const MAX_PLAYER_FIELD_LENGTH = 200;
+  const STORAGE_CLEANUP_DAYS = 30;
+  const ASSUMED_STORAGE_LIMIT_MB = 5;
 
   console.log(`✅ DataCentre+XPTool v${VERSION} loaded on`, location.pathname);
 
@@ -149,12 +171,12 @@
       document.head.appendChild(style);
       document.body.appendChild(notification);
 
-      // Auto-remove after 5 seconds
+      // Auto-remove after configured duration
       setTimeout(() => {
         notification.style.transition = 'opacity 0.3s';
         notification.style.opacity = '0';
         setTimeout(() => notification.remove(), 300);
-      }, 5000);
+      }, NOTIFICATION_DURATION_MS);
     }
   }
 
@@ -221,8 +243,8 @@
       ErrorHandler.log(ErrorHandler.LOG_LEVELS.INFO, 'Attempting to cleanup old localStorage data');
 
       try {
-        // Remove old data (anything with timestamps older than 30 days)
-        const cutoff = Date.now() - (30 * 24 * 60 * 60 * 1000);
+        // Remove old data (anything with timestamps older than configured days)
+        const cutoff = Date.now() - (STORAGE_CLEANUP_DAYS * 24 * 60 * 60 * 1000);
 
         for (let i = 0; i < localStorage.length; i++) {
           const key = localStorage.key(i);
@@ -261,8 +283,8 @@
         return {
           used: total,
           usedKB: (total / 1024).toFixed(2),
-          // Most browsers allow 5-10MB, we'll assume 5MB
-          percentUsed: ((total / (5 * 1024 * 1024)) * 100).toFixed(1)
+          // Most browsers allow 5-10MB
+          percentUsed: ((total / (ASSUMED_STORAGE_LIMIT_MB * 1024 * 1024)) * 100).toFixed(1)
         };
       } catch (error) {
         return { used: 0, usedKB: 0, percentUsed: 0 };
@@ -371,7 +393,7 @@
    * Sanitize string input
    * Removes control characters and limits length
    */
-  function sanitizeString(value, maxLength = 1000) {
+  function sanitizeString(value, maxLength = MAX_STRING_LENGTH) {
     if (value == null || value === undefined) return '';
 
     let str = String(value);
@@ -415,7 +437,7 @@
       }
       // String fields
       else if (typeof value === 'string') {
-        sanitized[key] = sanitizeString(value, 200);
+        sanitized[key] = sanitizeString(value, MAX_PLAYER_FIELD_LENGTH);
       }
       // Keep other types as-is (dates, booleans, etc.)
       else {
@@ -681,7 +703,7 @@
             console.error(`❌ API call failed → ${endpoint} after ${retries} attempts`, err);
             return null;
           }
-          const delay = RETRY_DELAY_BASE * attempt;
+          const delay = RETRY_DELAY_BASE_MS * attempt;
           console.warn(`⚠️ Retry ${attempt}/${retries} in ${delay}ms...`);
           await new Promise(r => setTimeout(r, delay));
         }
@@ -814,9 +836,6 @@
 
   function calculateXPTradeAttacks(xp, turns) {
     const XP_PER_TRADE = 1425;
-    const TURNS_PER_TRADE = 500;
-    const TURNS_PER_ATTACK = 120;
-    const XP_REFUND_PER_ATTACK = 120;
 
     let attacks = 0;
 
@@ -920,7 +939,7 @@
       const xpVal = getSidebarValue("Experience");
       const turnsVal = getSidebarValue("Turns");
 
-      const attacksLeft = Math.floor(turnsVal / 120);
+      const attacksLeft = Math.floor(turnsVal / TURNS_PER_ATTACK);
       const xpTradeAttacks = calculateXPTradeAttacks(xpVal, turnsVal);
 
       const avgGold = SafeStorage.get("xpTool_avgGold", 0);
@@ -941,7 +960,7 @@
         projectedIncome = Number(map[myId].projectedIncome) || 0;
       }
 
-      const dailyTbg = projectedIncome * 1440;
+      const dailyTbg = projectedIncome * MINUTES_PER_DAY;
       let bankedPctText = "—";
 
       if (dailyTbg > 0) {
@@ -2078,7 +2097,7 @@
 
     const infoRow = document.querySelector("a[href='info.php']")?.closest("tr");
     if (!infoRow) {
-      setTimeout(addButtons, 500);
+      setTimeout(addButtons, PAGE_LOAD_DELAY_MS);
       return;
     }
 
@@ -2161,7 +2180,7 @@
     if (location.pathname.includes("detail.php") && /attack_id=/.test(location.search)) {
       await safeExecute('collectAttackLog', async () => {
         collectAttackLog();
-        setTimeout(async () => await safeExecute('collectAttackLog (delayed)', () => collectAttackLog()), 600);
+        setTimeout(async () => await safeExecute('collectAttackLog (delayed)', () => collectAttackLog()), ATTACK_LOG_DELAY_MS);
       });
     }
 
