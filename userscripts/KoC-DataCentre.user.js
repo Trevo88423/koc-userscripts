@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         KoC Data Centre
 // @namespace    trevo88423
-// @version      1.18.1
+// @version      1.18.2
 // @description  Sweet Revenge alliance tool: tracks stats, syncs to API, adds dashboards, XP→Turn calculator, mini Top Stats panel, and comprehensive recon data collection.
 // @author       Blackheart
 // @match        https://www.kingsofchaos.com/*
@@ -1952,17 +1952,43 @@
   function collectWeaponsFromArmory() {
     const weapons = [];
 
-    // Find all weapon category headers (Attack, Defense, Spy, Sentry)
+    // All weapon/tool categories in armory
+    const validCategories = [
+      'Attack',
+      'Defense',
+      'Spy Tools',
+      'Sentry Tools',
+      'Poison Tools',
+      'Antidote Tools',
+      'Theft Tools',
+      'Vigilance Tools'
+    ];
+
+    // Find all weapon category headers
     const categoryHeaders = [...document.querySelectorAll("th.subh")]
       .filter(th => {
         const text = th.textContent.trim();
-        return ['Attack', 'Defense', 'Spy', 'Sentry'].some(cat => text === cat);
+        return validCategories.includes(text);
       });
 
-    console.log(`🔍 Found ${categoryHeaders.length} weapon categories in armory`);
+    console.log(`🔍 Found ${categoryHeaders.length} weapon/tool categories in armory`);
 
     categoryHeaders.forEach(categoryHeader => {
-      const category = categoryHeader.textContent.trim().toLowerCase();
+      const categoryText = categoryHeader.textContent.trim();
+
+      // Normalize category names to match database conventions
+      const categoryMap = {
+        'Attack': 'attack',           // Attack weapons for Strike Action
+        'Defense': 'defense',         // Defense weapons for Defensive Action
+        'Spy Tools': 'spy',
+        'Sentry Tools': 'sentry',
+        'Poison Tools': 'poison',
+        'Antidote Tools': 'antidote',
+        'Theft Tools': 'theft',
+        'Vigilance Tools': 'vigilance'
+      };
+
+      const category = categoryMap[categoryText] || categoryText.toLowerCase();
 
       // Find the table following this header
       let currentNode = categoryHeader.closest('tr');
