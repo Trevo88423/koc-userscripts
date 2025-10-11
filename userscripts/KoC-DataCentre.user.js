@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         KoC Data Centre
 // @namespace    trevo88423
-// @version      1.18.6
+// @version      1.18.7
 // @description  Sweet Revenge alliance tool: tracks stats, syncs to API, adds dashboards, XP→Turn calculator, mini Top Stats panel, and comprehensive recon data collection.
 // @author       Blackheart
 // @match        https://www.kingsofchaos.com/*
@@ -2067,17 +2067,22 @@
           weaponName = weaponName.replace(/\*Sell value:\([^\)]+\)/, '').trim();
 
           // Extract quantity and strength from cell 1
-          // Note: textContent smashes lines together, so "2,675\n278-557" becomes "2,675278-557"
-          const cell1Text = cells[1]?.textContent.trim() || '';
+          // Use innerHTML to preserve <br> tags, then split
+          const cell1HTML = cells[1]?.innerHTML || '';
+          const cell1Parts = cell1HTML.split(/<br\s*\/?>/i).map(s => s.trim());
 
-          // First, extract the strength range from the END (it always has a hyphen)
-          const strengthMatch = cell1Text.match(/([\d,]+)-([\d,]+)$/);
+          console.log(`      Cell 1 parts:`, cell1Parts);
+
+          // First part is quantity, second part is strength range
+          const quantityText = cell1Parts[0] || '';
+          const strengthText = cell1Parts[1] || '';
+
+          const quantity = parseInt(quantityText.replace(/,/g, ''), 10) || 0;
+
+          // Parse strength range (e.g., "278-557")
+          const strengthMatch = strengthText.match(/([\d,]+)-([\d,]+)/);
           const minStrength = strengthMatch ? parseInt(strengthMatch[1].replace(/,/g, ''), 10) : 0;
           const maxStrength = strengthMatch ? parseInt(strengthMatch[2].replace(/,/g, ''), 10) : 0;
-
-          // Remove the strength range from the string to get just the quantity
-          const quantityText = strengthMatch ? cell1Text.replace(strengthMatch[0], '') : cell1Text;
-          const quantity = parseInt(quantityText.replace(/,/g, ''), 10) || 0;
 
           console.log(`      Parsed: name="${weaponName}", qty=${quantity}, str=${minStrength}-${maxStrength}`);
 
