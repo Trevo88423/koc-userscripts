@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         KoC Data Centre
 // @namespace    trevo88423
-// @version      1.17.4
+// @version      1.18.0
 // @description  Sweet Revenge alliance tool: tracks stats, syncs to API, adds dashboards, XP→Turn calculator, mini Top Stats panel, and comprehensive recon data collection.
 // @author       Blackheart
 // @match        https://www.kingsofchaos.com/*
@@ -1580,6 +1580,16 @@
     let economy;
     let xpPerTurn;
     let turnsAvailable;
+    let economyLevel;
+    let goldPerTurn;
+    let technologyLevel;
+    let technologyMultiplier;
+    let soldiersPerTurn;
+    let covertSkill;
+    let sentrySkill;
+    let toxicInfusionLevel;
+    let viperbaneLevel;
+    let siegeTechnology;
 
     // Economy / Treasury block
     const rows = [...document.querySelectorAll("tr")];
@@ -1591,9 +1601,58 @@
         if (match) projectedIncome = parseInt(match[1].replace(/,/g, ""), 10);
       }
 
+      // Economy: Industrial (9,536,800 gold per turn)
       if (txt.startsWith("Economy")) {
-        const match = txt.match(/([\d,]+)/);
-        if (match) economy = parseInt(match[1].replace(/,/g, ""), 10);
+        const levelMatch = txt.match(/Economy\s+([A-Za-z\s]+)\s*\(/);
+        const goldMatch = txt.match(/\(?([\d,]+)\s+gold per turn\)?/i);
+        if (levelMatch) economyLevel = levelMatch[1].trim();
+        if (goldMatch) goldPerTurn = parseInt(goldMatch[1].replace(/,/g, ""), 10);
+        // Legacy economy field (just the number)
+        if (goldMatch) economy = parseInt(goldMatch[1].replace(/,/g, ""), 10);
+      }
+
+      // Technology: Steam Engine (x 6.7)
+      if (txt.startsWith("Technology")) {
+        const levelMatch = txt.match(/Technology\s+([A-Za-z\s]+)\s*\(/);
+        const multMatch = txt.match(/\(x\s*([\d.]+)\)/);
+        if (levelMatch) technologyLevel = levelMatch[1].trim();
+        if (multMatch) technologyMultiplier = parseFloat(multMatch[1]);
+      }
+
+      // Soldier Per Turn: 33 Soldiers
+      if (txt.includes("Soldier Per Turn")) {
+        const match = txt.match(/([\d,]+)\s+Soldiers/i);
+        if (match) soldiersPerTurn = parseInt(match[1].replace(/,/g, ""), 10);
+      }
+
+      // Covert Level: George Love (Level 20)
+      if (txt.includes("Covert Level")) {
+        const match = txt.match(/Level\s+(\d+)/);
+        if (match) covertSkill = parseInt(match[1], 10);
+      }
+
+      // Sentry Level: UnABooner (Level 20)
+      if (txt.includes("Sentry Level")) {
+        const match = txt.match(/Level\s+(\d+)/);
+        if (match) sentrySkill = parseInt(match[1], 10);
+      }
+
+      // Poison Level: Miasmic Venom Concoction (Level 7)
+      if (txt.includes("Poison Level")) {
+        const match = txt.match(/Level\s+(\d+)/);
+        if (match) toxicInfusionLevel = parseInt(match[1], 10);
+      }
+
+      // Antidote Level: Venomfang Wardenship (Level 8)
+      if (txt.includes("Antidote Level")) {
+        const match = txt.match(/Level\s+(\d+)/);
+        if (match) viperbaneLevel = parseInt(match[1], 10);
+      }
+
+      // Siege: Morgath (x 146.19)
+      if (txt.startsWith("Siege")) {
+        const match = txt.match(/Siege\s+(.+)/);
+        if (match) siegeTechnology = match[1].trim();
       }
 
       if (txt.includes("Experience Per Turn")) {
@@ -1612,6 +1671,16 @@
       economy,
       xpPerTurn,
       turnsAvailable,
+      economyLevel,
+      goldPerTurn,
+      technologyLevel,
+      technologyMultiplier,
+      soldiersPerTurn,
+      covertSkill,
+      sentrySkill,
+      toxicInfusionLevel,
+      viperbaneLevel,
+      siegeTechnology,
       ...stats,
       lastSeen: new Date().toISOString()
     };
