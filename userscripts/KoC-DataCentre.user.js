@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         KoC Data Centre
 // @namespace    trevo88423
-// @version      1.20.1
+// @version      1.20.2
 // @description  Sweet Revenge alliance tool: tracks stats, syncs to API, adds dashboards, XP→Turn calculator, mini Top Stats panel, and comprehensive recon data collection.
 // @author       Blackheart
 // @match        https://www.kingsofchaos.com/*
@@ -2155,8 +2155,8 @@
           // Extract weapon name (first line of cell 0, remove sell value)
           const nameText = cells[0]?.textContent.trim() || '';
           let weaponName = nameText.split('\n')[0].trim();
-          // Remove "*Sell value:(number)" from name
-          weaponName = weaponName.replace(/\*Sell value:\([^\)]+\)/, '').trim();
+          // Remove "*Sell value (number)" from name (note: space before paren, not colon)
+          weaponName = weaponName.split('*Sell')[0].trim();
 
           // Extract quantity and strength from cell 1
           // Use innerHTML to preserve <br> tags, then split
