@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name         KoC Data Centre
 // @namespace    trevo88423
-// @version      1.16.1
-// @description  Sweet Revenge alliance tool: tracks stats, syncs to API, adds dashboards, XP→Turn calculator, mini Top Stats panel, and battlefield intelligence tracking.
+// @version      1.17.0
+// @description  Sweet Revenge alliance tool: tracks stats, syncs to API, adds dashboards, XP→Turn calculator, mini Top Stats panel, and comprehensive recon data collection.
 // @author       Blackheart
 // @match        https://www.kingsofchaos.com/*
 // @icon         https://www.kingsofchaos.com/favicon.ico
@@ -1933,8 +1933,10 @@
 
     const ms = getTableByHeader("Military Stats")?.querySelectorAll("tr");
     const treasury = getTableByHeader("Treasury")?.querySelectorAll("tr");
+    const armyTable = getTableByHeader("Army Breakdown")?.querySelectorAll("tr");
 
     const stats = {};
+    const now = new Date().toISOString();
 
     function set(key, row) {
       const { value, time } = grabStat(id, key, row?.cells[1]);
@@ -1942,6 +1944,7 @@
       if (time) stats[key + "Time"] = time;
     }
 
+    // === MILITARY STATS (Ratings) ===
     set("strikeAction", ms?.[1]);
     set("defensiveAction", ms?.[2]);
     set("spyRating", ms?.[3]);
@@ -1950,6 +1953,8 @@
     set("antidoteRating", ms?.[6]);
     set("theftRating", ms?.[7]);
     set("vigilanceRating", ms?.[8]);
+
+    // === MILITARY STATS (Upgrade Levels) ===
     set("covertSkill", ms?.[10]);
     set("sentrySkill", ms?.[11]);
     set("siegeTechnology", ms?.[12]);
@@ -1957,20 +1962,136 @@
     set("viperbaneLevel", ms?.[14]);
     set("shadowmeldLevel", ms?.[15]);
     set("sentinelVigilLevel", ms?.[16]);
-    set("economy", ms?.[17]);
-    set("technology", ms?.[18]);
+
+    // === ECONOMY & TECHNOLOGY (Enhanced Parsing) ===
+    // Parse economy: "Industrial ( 9,536,800 gold per turn)"
+    if (ms?.[17]?.cells[1]) {
+      const economyText = ms[17].cells[1].innerText;
+      const economyMatch = economyText.match(/^([^(]+)\(\s*([0-9,]+)\s*gold per turn\)/);
+      if (economyMatch) {
+        stats.economyLevel = economyMatch[1].trim();
+        stats.economyLevelTime = now;
+        stats.goldPerTurn = economyMatch[2];
+        stats.goldPerTurnTime = now;
+      } else {
+        // Fallback to old behavior
+        set("economy", ms?.[17]);
+      }
+    }
+
+    // Parse technology: "Assembly Line (x 7.04)"
+    if (ms?.[18]?.cells[1]) {
+      const technologyText = ms[18].cells[1].innerText;
+      const technologyMatch = technologyText.match(/^([^(]+)\(x\s*([0-9.]+)\)/);
+      if (technologyMatch) {
+        stats.technologyLevel = technologyMatch[1].trim();
+        stats.technologyLevelTime = now;
+        stats.technologyMultiplier = technologyMatch[2];
+        stats.technologyMultiplierTime = now;
+      } else {
+        // Fallback to old behavior
+        set("technology", ms?.[18]);
+      }
+    }
+
     set("experiencePerTurn", ms?.[19]);
     set("soldiersPerTurn", ms?.[20]);
     set("attackTurns", ms?.[22]);
     set("experience", ms?.[23]);
 
-    // Treasury values
-    stats.treasury = treasury?.[1]?.cells[0]?.innerText.split(" ")[0];
-    stats.projectedIncome = treasury?.[3]?.innerText.split(" Gold")[0];
+    // === ARMY BREAKDOWN ===
+    if (armyTable) {
+      set("attackSoldiers", armyTable?.[5]);
+      set("attackMercenaries", armyTable?.[6]);
+      set("defenseSoldiers", armyTable?.[7]);
+      set("defenseMercenaries", armyTable?.[8]);
+      set("covertSpies", armyTable?.[9]);
+      set("sentries", armyTable?.[10]);
+      set("venomweavers", armyTable?.[11]);
+      set("serpentwardens", armyTable?.[12]);
+      set("thieves", armyTable?.[13]);
+      set("rangers", armyTable?.[14]);
+      set("hostageTotal", armyTable?.[15]);
+      set("hostageDeaths", armyTable?.[16]);
+      set("untrained", armyTable?.[17]);
+      set("untrainedMercenaries", armyTable?.[18]);
+    }
+
+    // === TREASURY ===
+    if (treasury) {
+      stats.treasury = treasury[1]?.cells[0]?.innerText.split(" ")[0];
+      stats.treasuryTime = now;
+
+      // Parse Projected Income (1 min only)
+      const projectedIncomeText = treasury[3]?.innerText || "";
+      // Format: "13,292,958 Gold (in 1 min) | 199,394,370 Gold (in 15 mins) | 398,788,740 Gold (in 30 mins)"
+
+      const match1min = projectedIncomeText.match(/([0-9,]+)\s*Gold\s*\(in 1 min\)/);
+
+      if (match1min) {
+        stats.projectedIncome = match1min[1];
+        stats.projectedIncomeTime = now;
+      } else {
+        // Fallback if format doesn't match
+        stats.projectedIncome = treasury[3]?.innerText.split(" Gold")[0];
+        stats.projectedIncomeTime = now;
+      }
+    }
+
+    // === WEAPONS INVENTORY ===
+    const weaponsTable = getTableByHeader("Weapons");
+    if (weaponsTable) {
+      const weaponRows = Array.from(weaponsTable.querySelectorAll("tr")).slice(2); // Skip header rows
+      const weapons = [];
+
+      weaponRows.forEach(row => {
+        const cells = row.querySelectorAll("td");
+        if (cells.length >= 4) {
+          const name = cells[0]?.innerText.trim();
+          const type = cells[1]?.innerText.trim();
+          const quantity = cells[2]?.innerText.trim();
+          const strength = cells[3]?.innerText.trim();
+
+          // Only add if we have name and quantity (and quantity is not ???)
+          if (name && quantity && quantity !== "???") {
+            // Parse strength (format: "998.78/1,000" or "1,000/1,000")
+            let currentStrength = null;
+            let maxStrength = null;
+
+            if (strength && strength !== "???") {
+              const strengthMatch = strength.match(/([0-9.,]+)\/([0-9,]+)/);
+              if (strengthMatch) {
+                currentStrength = strengthMatch[1].replace(/,/g, '');
+                maxStrength = strengthMatch[2].replace(/,/g, '');
+              }
+            }
+
+            weapons.push({
+              name: name,
+              type: type === "???" ? null : type,
+              quantity: quantity.replace(/,/g, ''),
+              currentStrength: currentStrength,
+              maxStrength: maxStrength
+            });
+          }
+        }
+      });
+
+      if (weapons.length > 0) {
+        stats.weapons = JSON.stringify(weapons);
+        stats.weaponsTime = now;
+        console.log(`📦 Captured ${weapons.length} weapons from recon`);
+      }
+    }
+
+    // Count how many fields we successfully scraped (not "???")
+    const fieldCount = Object.keys(stats).filter(key =>
+      !key.endsWith('Time') && stats[key] !== "???"
+    ).length;
 
     // Save + push
     updatePlayerInfo(id, stats);
-    console.log("📊 Recon data saved", stats);
+    console.log(`📊 Recon data saved (${fieldCount} fields):`, stats);
 
     // Send to API
     await auth.apiCall("players", { id, ...stats });
@@ -2057,7 +2178,7 @@
       prev = map[id] || {};
     }
 
-    // Fill UI
+    // === FILL MILITARY STATS ===
     const ms = getTableByHeader("Military Stats")?.querySelectorAll("tr");
     if (!ms) return;
 
@@ -2076,12 +2197,80 @@
     fillMissingReconValue(ms?.[14]?.cells[1], prev.viperbaneLevel, prev.viperbaneLevelTime);
     fillMissingReconValue(ms?.[15]?.cells[1], prev.shadowmeldLevel, prev.shadowmeldLevelTime);
     fillMissingReconValue(ms?.[16]?.cells[1], prev.sentinelVigilLevel, prev.sentinelVigilLevelTime);
-    fillMissingReconValue(ms?.[17]?.cells[1], prev.economy, prev.economyTime);
-    fillMissingReconValue(ms?.[18]?.cells[1], prev.technology, prev.technologyTime);
+
+    // Fill economy/technology (use parsed fields if available)
+    if (prev.economyLevel && prev.goldPerTurn) {
+      const economyValue = `${prev.economyLevel} ( ${prev.goldPerTurn} gold per turn)`;
+      fillMissingReconValue(ms?.[17]?.cells[1], economyValue, prev.economyLevelTime);
+    } else {
+      fillMissingReconValue(ms?.[17]?.cells[1], prev.economy, prev.economyTime);
+    }
+
+    if (prev.technologyLevel && prev.technologyMultiplier) {
+      const technologyValue = `${prev.technologyLevel} (x ${prev.technologyMultiplier})`;
+      fillMissingReconValue(ms?.[18]?.cells[1], technologyValue, prev.technologyLevelTime);
+    } else {
+      fillMissingReconValue(ms?.[18]?.cells[1], prev.technology, prev.technologyTime);
+    }
+
     fillMissingReconValue(ms?.[19]?.cells[1], prev.experiencePerTurn, prev.experiencePerTurnTime);
     fillMissingReconValue(ms?.[20]?.cells[1], prev.soldiersPerTurn, prev.soldiersPerTurnTime);
     fillMissingReconValue(ms?.[22]?.cells[1], prev.attackTurns, prev.attackTurnsTime);
     fillMissingReconValue(ms?.[23]?.cells[1], prev.experience, prev.experienceTime);
+
+    // === FILL ARMY BREAKDOWN ===
+    const armyTable = getTableByHeader("Army Breakdown");
+    if (armyTable) {
+      const armyRows = armyTable.querySelectorAll("tr");
+      fillMissingReconValue(armyRows?.[5]?.cells[1], prev.attackSoldiers, prev.attackSoldiersTime);
+      fillMissingReconValue(armyRows?.[6]?.cells[1], prev.attackMercenaries, prev.attackMercenariesTime);
+      fillMissingReconValue(armyRows?.[7]?.cells[1], prev.defenseSoldiers, prev.defenseSoldiersTime);
+      fillMissingReconValue(armyRows?.[8]?.cells[1], prev.defenseMercenaries, prev.defenseMercenariesTime);
+      fillMissingReconValue(armyRows?.[9]?.cells[1], prev.covertSpies, prev.covertSpiesTime);
+      fillMissingReconValue(armyRows?.[10]?.cells[1], prev.sentries, prev.sentriesTime);
+      fillMissingReconValue(armyRows?.[11]?.cells[1], prev.venomweavers, prev.venomweaversTime);
+      fillMissingReconValue(armyRows?.[12]?.cells[1], prev.serpentwardens, prev.serpentwardensTime);
+      fillMissingReconValue(armyRows?.[13]?.cells[1], prev.thieves, prev.thievesTime);
+      fillMissingReconValue(armyRows?.[14]?.cells[1], prev.rangers, prev.rangersTime);
+      fillMissingReconValue(armyRows?.[15]?.cells[1], prev.hostageTotal, prev.hostageTotalTime);
+      fillMissingReconValue(armyRows?.[16]?.cells[1], prev.hostageDeaths, prev.hostageDeathsTime);
+      fillMissingReconValue(armyRows?.[17]?.cells[1], prev.untrained, prev.untrainedTime);
+      fillMissingReconValue(armyRows?.[18]?.cells[1], prev.untrainedMercenaries, prev.untrainedMercenariesTime);
+    }
+
+    // === SHOW WEAPONS CACHE INFO ===
+    const weaponsTable = getTableByHeader("Weapons");
+    if (weaponsTable && prev.weapons) {
+      try {
+        const cachedWeapons = JSON.parse(prev.weapons);
+        const weaponsAge = prev.weaponsTime ? reconTimeAgo(prev.weaponsTime) : "unknown";
+
+        // Check if weapons table has lots of ???
+        const weaponRows = Array.from(weaponsTable.querySelectorAll("tr")).slice(2);
+        const emptyCount = weaponRows.filter(row => row.innerText.includes("???")).length;
+
+        if (emptyCount > 3 && cachedWeapons.length > 0) {
+          // Show cached weapon count
+          const tbody = weaponsTable.querySelector("tbody");
+          const cacheNotice = document.createElement("tr");
+          cacheNotice.style.backgroundColor = "#222";
+          cacheNotice.innerHTML = `
+            <td colspan="4" style="text-align:center; padding:8px; color:#FBC; font-size:0.9em;">
+              <div>📦 ${cachedWeapons.length} cached weapon${cachedWeapons.length !== 1 ? 's' : ''} from ${weaponsAge}</div>
+              <div style="font-size:0.8em; color:#999; margin-top:4px;">
+                <a href="#" onclick="console.table(${escapeHtml(prev.weapons)}); return false;" style="color:#9cf;">
+                  View in console
+                </a>
+              </div>
+            </td>
+          `;
+          tbody.appendChild(cacheNotice);
+          console.log(`📦 Cached weapons (${weaponsAge}):`, cachedWeapons);
+        }
+      } catch (e) {
+        console.warn("Failed to parse cached weapons", e);
+      }
+    }
   }
 
   // ==================== DATA CENTRE REDIRECT ====================
