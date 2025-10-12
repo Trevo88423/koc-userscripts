@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         KoC Slaying Competition Tracker
 // @namespace    trevo88423
-// @version      2.8.0
+// @version      2.9.0
 // @description  Track Attack Missions and Gold Stolen for slaying competitions
 // @author       Blackheart
 // @match        https://www.kingsofchaos.com/*
@@ -28,7 +28,7 @@
   const COMP_KEY = "KoC_CompSettings";
   const STATS_KEY_PREFIX = "KoC_CompStats"; // Cache stats across pages (per competition)
 
-  console.log("✅ Slaying Competition Tracker v2.8.0 loaded");
+  console.log("✅ Slaying Competition Tracker v2.9.0 loaded");
 
   // ========================
   // === Auth Management  ===
@@ -567,7 +567,19 @@
       window.location.href = "rewards.php";
     });
 
-    document.getElementById("comp-leaderboard-btn")?.addEventListener("click", showLeaderboard);
+    document.getElementById("comp-leaderboard-btn")?.addEventListener("click", async () => {
+      // Force a fresh submission before showing leaderboard to ensure latest data is shown
+      const settings = getCompSettings();
+      if (settings.enabled !== false) {
+        const cached = getCompStats(activeCompetition.id);
+        if (cached.attackMissions) {
+          console.log("📊 Submitting fresh stats before showing leaderboard...");
+          await submitStats();
+          localStorage.setItem("KoC_CompLastSubmit", Date.now().toString());
+        }
+      }
+      await showLeaderboard();
+    });
   }
 
   // ========================
