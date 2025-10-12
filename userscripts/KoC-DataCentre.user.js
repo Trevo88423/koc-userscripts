@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         KoC Data Centre
 // @namespace    trevo88423
-// @version      1.25.0
+// @version      1.26.0
 // @description  Sweet Revenge alliance tool: tracks stats, syncs to API, adds dashboards, XP→Turn calculator, mini Top Stats panel, and comprehensive recon data collection.
 // @author       Blackheart
 // @match        https://www.kingsofchaos.com/*
@@ -1538,6 +1538,7 @@
 
     const table = header.closest("table");
     const stats = {};
+    const now = new Date().toISOString();
 
     table.querySelectorAll("tr").forEach(row => {
       const cells = row.querySelectorAll("td");
@@ -1546,14 +1547,38 @@
       const label = cells[0].innerText.trim().toLowerCase();
       const value = cells[1].innerText.trim();
 
-      if (label.startsWith("strike")) stats.strikeAction = value;
-      if (label.startsWith("defense")) stats.defensiveAction = value;
-      if (label.startsWith("spy")) stats.spyRating = value;
-      if (label.startsWith("sentry")) stats.sentryRating = value;
-      if (label.startsWith("poison")) stats.poisonRating = value;
-      if (label.startsWith("antidote")) stats.antidoteRating = value;
-      if (label.startsWith("theft")) stats.theftRating = value;
-      if (label.startsWith("vigilance")) stats.vigilanceRating = value;
+      if (label.startsWith("strike")) {
+        stats.strikeAction = value;
+        stats.strikeActionTime = now;
+      }
+      if (label.startsWith("defense")) {
+        stats.defensiveAction = value;
+        stats.defensiveActionTime = now;
+      }
+      if (label.startsWith("spy")) {
+        stats.spyRating = value;
+        stats.spyRatingTime = now;
+      }
+      if (label.startsWith("sentry")) {
+        stats.sentryRating = value;
+        stats.sentryRatingTime = now;
+      }
+      if (label.startsWith("poison")) {
+        stats.poisonRating = value;
+        stats.poisonRatingTime = now;
+      }
+      if (label.startsWith("antidote")) {
+        stats.antidoteRating = value;
+        stats.antidoteRatingTime = now;
+      }
+      if (label.startsWith("theft")) {
+        stats.theftRating = value;
+        stats.theftRatingTime = now;
+      }
+      if (label.startsWith("vigilance")) {
+        stats.vigilanceRating = value;
+        stats.vigilanceRatingTime = now;
+      }
     });
 
     return stats;
