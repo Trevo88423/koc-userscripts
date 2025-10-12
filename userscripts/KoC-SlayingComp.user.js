@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         KoC Slaying Competition Tracker
 // @namespace    trevo88423
-// @version      2.10.1
+// @version      2.11.0
 // @description  Track Attack Missions and Gold Stolen for slaying competitions (supports multiple concurrent competitions)
 // @author       Blackheart
 // @match        https://www.kingsofchaos.com/*
@@ -29,7 +29,7 @@
   const STATS_KEY_PREFIX = "KoC_CompStats"; // Cache stats across pages (per competition)
   const LAST_SUBMIT_PREFIX = "KoC_CompLastSubmit"; // Per-competition submission tracking
 
-  console.log("✅ Slaying Competition Tracker v2.10.1 loaded");
+  console.log("✅ Slaying Competition Tracker v2.11.0 loaded");
 
   // ========================
   // === Auth Management  ===
@@ -624,32 +624,19 @@
   }
 
   function addAllCompetitionPanels() {
-    if (activeCompetitions.length === 0) {
-      console.log("⚠️ No active competitions to display");
-      return;
-    }
-
-    console.log(`📊 Attempting to add ${activeCompetitions.length} competition panel(s)`);
+    if (activeCompetitions.length === 0) return;
 
     const infoRow = document.querySelector("a[href='info.php']")?.closest("tr");
-    if (!infoRow) {
-      console.error("❌ Could not find info.php row to insert panels");
-      return;
-    }
+    if (!infoRow) return;
 
     // Insert panels one by one, each after the previous
     let insertAfter = infoRow;
     for (const comp of activeCompetitions) {
-      console.log(`📊 Adding panel for: ${comp.name} (ID: ${comp.id})`);
       const panel = addCompetitionPanel(comp, insertAfter);
       if (panel) {
         insertAfter = panel;
-        console.log(`✅ Panel added for: ${comp.name}`);
-      } else {
-        console.error(`❌ Failed to create panel for: ${comp.name}`);
       }
     }
-    console.log(`✅ Finished adding ${activeCompetitions.length} panel(s)`);
   }
 
   // ========================
