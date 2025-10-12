@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         KoC Slaying Competition Tracker
 // @namespace    trevo88423
-// @version      2.7.0
+// @version      2.8.0
 // @description  Track Attack Missions and Gold Stolen for slaying competitions
 // @author       Blackheart
 // @match        https://www.kingsofchaos.com/*
@@ -28,7 +28,7 @@
   const COMP_KEY = "KoC_CompSettings";
   const STATS_KEY_PREFIX = "KoC_CompStats"; // Cache stats across pages (per competition)
 
-  console.log("✅ Slaying Competition Tracker v2.7.0 loaded");
+  console.log("✅ Slaying Competition Tracker v2.8.0 loaded");
 
   // ========================
   // === Auth Management  ===
@@ -346,9 +346,15 @@
     const subtitle = document.createElement('p');
     subtitle.style.textAlign = 'center';
     subtitle.style.color = '#999';
+
+    // Format dates with timezone info
+    const startDate = new Date(activeCompetition.start_date);
+    const endDate = new Date(activeCompetition.end_date);
+    const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+
     subtitle.innerHTML = `
-      Start: ${new Date(activeCompetition.start_date).toLocaleString()}<br>
-      End: ${new Date(activeCompetition.end_date).toLocaleString()}
+      Start: ${startDate.toLocaleString('en-US', { timeZone })} (${timeZone})<br>
+      End: ${endDate.toLocaleString('en-US', { timeZone })} (${timeZone})
     `;
 
     // Build leaderboard table
@@ -458,19 +464,28 @@
     }
 
     // Full panel view
-    const now = new Date();
+    // Use UTC timestamps for accurate comparison across timezones
+    const nowUTC = Date.now(); // UTC timestamp
     const startDate = new Date(activeCompetition.start_date);
     const endDate = new Date(activeCompetition.end_date);
-    const hasStarted = now >= startDate;
-    const hasEnded = now > endDate;
+    const startUTC = startDate.getTime(); // UTC timestamp
+    const endUTC = endDate.getTime(); // UTC timestamp
+
+    const hasStarted = nowUTC >= startUTC;
+    const hasEnded = nowUTC > endUTC;
+
+    // Get user's timezone for display
+    const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
 
     let statusText = "";
     if (!hasStarted) {
-      statusText = `⏳ Starts in ${Math.ceil((startDate - now) / (1000 * 60 * 60))} hours`;
+      const hoursUntilStart = Math.ceil((startUTC - nowUTC) / (1000 * 60 * 60));
+      statusText = `⏳ Starts in ${hoursUntilStart} hours (${startDate.toLocaleString('en-US', { timeZone })})`;
     } else if (hasEnded) {
-      statusText = "🏁 Competition Ended";
+      statusText = `🏁 Competition Ended (${endDate.toLocaleString('en-US', { timeZone })})`;
     } else {
-      statusText = `🔴 LIVE - Ends in ${Math.ceil((endDate - now) / (1000 * 60 * 60))} hours`;
+      const hoursUntilEnd = Math.ceil((endUTC - nowUTC) / (1000 * 60 * 60));
+      statusText = `🔴 LIVE - Ends in ${hoursUntilEnd} hours (${endDate.toLocaleString('en-US', { timeZone })})`;
     }
 
     const cached = getCompStats(activeCompetition.id);
