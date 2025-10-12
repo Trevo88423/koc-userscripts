@@ -11,7 +11,7 @@
 // @downloadURL  https://raw.githubusercontent.com/Trevo88423/koc-userscripts/main/userscripts/KoC-DataCentre.user.js
 // ==/UserScript==
 
-(function() {
+(async function() {
   'use strict';
 
   // ==================== SECURITY CHECK ====================
@@ -22,6 +22,81 @@
     console.log("❌ DataCentre disabled (security page or not logged in)");
     return;
   }
+
+  // ==================== VERSION CHECK ====================
+  // Check if this script version is allowed to run
+  const SCRIPT_NAME = 'koc-data-centre';
+  const SCRIPT_VERSION = '1.26.0'; // Must match @version above
+  const VERSION_CHECK_API = 'https://koc-roster-api-production.up.railway.app';
+
+  async function checkScriptVersion() {
+    try {
+      const response = await fetch(`${VERSION_CHECK_API}/script-version/check/${SCRIPT_NAME}/${SCRIPT_VERSION}`);
+      const data = await response.json();
+
+      if (!data.allowed) {
+        // Version is blocked - show error and stop script
+        const errorDiv = document.createElement('div');
+        errorDiv.style.cssText = `
+          position: fixed;
+          top: 20px;
+          left: 50%;
+          transform: translateX(-50%);
+          background: #d32f2f;
+          color: white;
+          padding: 20px;
+          border-radius: 8px;
+          box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+          z-index: 99999;
+          max-width: 500px;
+          font-family: Arial, sans-serif;
+        `;
+
+        errorDiv.innerHTML = `
+          <h3 style="margin: 0 0 10px 0;">⚠️ Script Version Outdated</h3>
+          <p style="margin: 0 0 10px 0;">${data.message}</p>
+          <p style="margin: 0 0 10px 0;">
+            <strong>Your version:</strong> ${data.currentVersion}<br>
+            <strong>Minimum required:</strong> ${data.minVersion}<br>
+            <strong>Latest version:</strong> ${data.latestVersion}
+          </p>
+          <a href="${data.updateUrl}" target="_blank" style="
+            display: inline-block;
+            background: white;
+            color: #d32f2f;
+            padding: 10px 20px;
+            text-decoration: none;
+            border-radius: 4px;
+            font-weight: bold;
+          ">Update Now</a>
+        `;
+
+        document.body.appendChild(errorDiv);
+
+        // Stop script execution
+        console.error(`[${SCRIPT_NAME}] Version ${SCRIPT_VERSION} is blocked. Please update.`);
+        throw new Error('Script version blocked');
+      }
+
+      // If not latest, show non-blocking warning
+      if (!data.isLatest) {
+        console.warn(`[${SCRIPT_NAME}] A newer version (${data.latestVersion}) is available. Current: ${SCRIPT_VERSION}`);
+        console.warn(`Update at: ${data.updateUrl}`);
+      }
+
+    } catch (error) {
+      // If version check fails, allow script to continue (fail-open)
+      if (error.message !== 'Script version blocked') {
+        console.warn(`[${SCRIPT_NAME}] Version check failed:`, error.message);
+      } else {
+        // Re-throw blocking error to stop script
+        throw error;
+      }
+    }
+  }
+
+  // Run version check before continuing
+  await checkScriptVersion();
 
   // ==================== CONSTANTS ====================
 
