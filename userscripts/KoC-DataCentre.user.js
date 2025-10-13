@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         KoC Data Centre
 // @namespace    trevo88423
-// @version      1.37.0
+// @version      1.38.0
 // @description  Sweet Revenge alliance tool: tracks stats, syncs to API, adds dashboards, XP→Turn calculator, mini Top Stats panel, comprehensive recon data collection, Shared Recon Info parsing, KoC Server Time synchronization, and stats.php collection.
 // @author       Blackheart
 // @match        https://www.kingsofchaos.com/*
@@ -26,7 +26,7 @@
   // ==================== VERSION CHECK ====================
   // Check if this script version is allowed to run
   const SCRIPT_NAME = 'koc-data-centre';
-  const SCRIPT_VERSION = '1.37.0'; // Must match @version above
+  const SCRIPT_VERSION = '1.38.0'; // Must match @version above
   const VERSION_CHECK_API = 'https://koc-roster-api-production.up.railway.app';
 
   async function checkScriptVersion() {
@@ -2980,10 +2980,91 @@
     // Update Shared Recon Info table with our fresh data
     if (location.pathname.includes("stats.php")) {
       updateSharedReconInfoWithFreshData(stats);
+      // Also try to fill in any remaining "???" from API
+      fillSharedReconInfoFromAPI(id);
     }
 
     // Enhance UI with cached data
     enhanceReconUI(id).catch(err => console.warn("enhanceReconUI failed:", err));
+  }
+
+  // Fill Shared Recon Info table with data from API for "???" values
+  async function fillSharedReconInfoFromAPI(playerId) {
+    try {
+      // Fetch player data from API
+      const playerData = await auth.apiCall(`players/${playerId}`);
+      if (!playerData) {
+        console.log("⚠️ No API data available for player", playerId);
+        return;
+      }
+
+      console.log("🌐 Fetched player data from API:", playerData);
+
+      // Find "Shared Recon Info" table
+      const header = [...document.querySelectorAll("th, td")]
+        .find(el => el.textContent.includes("Shared Recon Info"));
+
+      if (!header) return;
+
+      const table = header.closest("table");
+      if (!table) return;
+
+      // Map API fields to display names
+      const statMapping = {
+        strikeAction: { display: "strike action", timeField: "strikeActionTime" },
+        defensiveAction: { display: "defensive action", timeField: "defensiveActionTime" },
+        spyRating: { display: "spy rating", timeField: "spyRatingTime" },
+        sentryRating: { display: "sentry rating", timeField: "sentryRatingTime" },
+        poisonRating: { display: "poison rating", timeField: "poisonRatingTime" },
+        antidoteRating: { display: "antidote rating", timeField: "antidoteRatingTime" },
+        theftRating: { display: "theft rating", timeField: "theftRatingTime" },
+        vigilanceRating: { display: "vigilance rating", timeField: "vigilanceRatingTime" }
+      };
+
+      let updatedCount = 0;
+
+      // Process each row in the table
+      const rows = table.querySelectorAll("tr");
+      rows.forEach(row => {
+        const cells = row.querySelectorAll("td");
+        if (cells.length < 3) return;
+
+        const statName = cells[0]?.innerText.trim().toLowerCase();
+        const currentValue = cells[1]?.innerText.trim();
+        const timestampCell = cells[2];
+
+        // Find matching stat in API data
+        for (const [key, mapping] of Object.entries(statMapping)) {
+          if (statName.includes(mapping.display)) {
+            const apiValue = playerData[key];
+            const apiTime = playerData[mapping.timeField];
+
+            // If shared recon shows "???" but we have API data, replace it
+            if (currentValue === "???" && apiValue && apiTime) {
+              // Update value cell
+              cells[1].innerText = apiValue.toLocaleString();
+              cells[1].style.color = "#99f"; // Blue for API data (not fresh recon)
+
+              // Update timestamp cell
+              const date = new Date(apiTime);
+              // Format as "2025-10-13 07:30:00" (KoC Server Time format)
+              const formatted = date.toISOString().slice(0, 19).replace('T', ' ');
+              timestampCell.innerText = formatted;
+              timestampCell.style.color = "#99f"; // Blue for API data
+
+              updatedCount++;
+            }
+            break;
+          }
+        }
+      });
+
+      if (updatedCount > 0) {
+        console.log(`✅ Filled ${updatedCount} "???" values from API data`);
+      }
+    } catch (err) {
+      console.warn("⚠️ Failed to fill Shared Recon Info from API:", err);
+    }
   }
 
   // Update Shared Recon Info table cells with our fresh collected data
