@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         KoC Data Centre
 // @namespace    trevo88423
-// @version      1.31.0
+// @version      1.32.0
 // @description  Sweet Revenge alliance tool: tracks stats, syncs to API, adds dashboards, XP→Turn calculator, mini Top Stats panel, comprehensive recon data collection, Shared Recon Info parsing, KoC Server Time synchronization, and stats.php collection.
 // @author       Blackheart
 // @match        https://www.kingsofchaos.com/*
@@ -26,7 +26,7 @@
   // ==================== VERSION CHECK ====================
   // Check if this script version is allowed to run
   const SCRIPT_NAME = 'koc-data-centre';
-  const SCRIPT_VERSION = '1.31.0'; // Must match @version above
+  const SCRIPT_VERSION = '1.32.0'; // Must match @version above
   const VERSION_CHECK_API = 'https://koc-roster-api-production.up.railway.app';
 
   async function checkScriptVersion() {
@@ -1564,19 +1564,17 @@
 
     const id = idMatch[1];
     const tiv = parseInt(tivMatch[1].replace(/,/g, ""), 10);
-    const now = getKoCServerTimeUTC();
 
-    // Save locally
-    const log = getTivLog();
-    log.push({ id, tiv, time: now });
-    saveTivLog(log);
+    // DON'T send TIV from attack.php to API - it's old data with unknown timestamp
+    // The TIV shown is from the last recon, which could be hours/days old
+    // Only collect TIV from:
+    // 1. Direct recon (stats.php/inteldetail.php) - has actual recon timestamp
+    // 2. Your own armory - is fresh data
+    console.log("📊 Attack page TIV visible (not sent to API - unknown age):", { id, tiv });
 
-    updatePlayerInfo(id, { tiv, lastTivTime: now });
-
-    console.log("📊 Attack TIV saved", { id, tiv });
-
-    // Push to API
-    await auth.apiCall("tiv", { playerId: id, tiv, time: now });
+    // Still save locally for UI purposes (battlefield gold estimates, etc.)
+    // But don't send to API with a fresh timestamp
+    updatePlayerInfo(id, { tiv });
   }
 
   // ==================== ATTACK LOG COLLECTOR ====================
