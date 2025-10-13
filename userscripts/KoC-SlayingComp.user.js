@@ -115,7 +115,9 @@
       method,
       headers: {
         "Content-Type": "application/json",
-        "Authorization": "Bearer " + token
+        "Authorization": "Bearer " + token,
+        "X-Script-Name": "koc-slaying-comp-tracker",
+        "X-Script-Version": "2.11.0"
       }
     };
 
