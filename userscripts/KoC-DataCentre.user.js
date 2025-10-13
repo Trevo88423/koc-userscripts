@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name         KoC Data Centre
 // @namespace    trevo88423
-// @version      1.28.0
-// @description  Sweet Revenge alliance tool: tracks stats, syncs to API, adds dashboards, XP→Turn calculator, mini Top Stats panel, comprehensive recon data collection, and Shared Recon Info parsing.
+// @version      1.29.0
+// @description  Sweet Revenge alliance tool: tracks stats, syncs to API, adds dashboards, XP→Turn calculator, mini Top Stats panel, comprehensive recon data collection, Shared Recon Info parsing, and KoC Server Time synchronization.
 // @author       Blackheart
 // @match        https://www.kingsofchaos.com/*
 // @icon         https://www.kingsofchaos.com/favicon.ico
@@ -26,7 +26,7 @@
   // ==================== VERSION CHECK ====================
   // Check if this script version is allowed to run
   const SCRIPT_NAME = 'koc-data-centre';
-  const SCRIPT_VERSION = '1.28.0'; // Must match @version above
+  const SCRIPT_VERSION = '1.29.0'; // Must match @version above
   const VERSION_CHECK_API = 'https://koc-roster-api-production.up.railway.app';
 
   async function checkScriptVersion() {
@@ -138,6 +138,88 @@
   const BATTLEFIELD_COLLECT_DELAY_MS = 200; // Delay before collecting battlefield data
 
   console.log(`✅ DataCentre+XPTool v${VERSION} loaded on`, location.pathname);
+
+  // ==================== KOC SERVER TIME UTILITIES ====================
+
+  /**
+   * Parse KoC Server Time from page and convert to UTC ISO string
+   * Server Time is displayed in left panel on all pages
+   * KoC uses US Eastern Time (EDT/EST)
+   */
+  function getKoCServerTimeUTC() {
+    try {
+      // Find "Server Time" text in the page
+      const serverTimeElement = [...document.querySelectorAll('td, div, span')]
+        .find(el => el.textContent.includes('Server Time') || el.textContent.match(/\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}/));
+
+      if (!serverTimeElement) {
+        console.warn('⚠️ Could not find KoC Server Time on page, using local time as fallback');
+        return new Date().toISOString();
+      }
+
+      // Extract timestamp from text (format: "2025-10-13 06:36:06")
+      const match = serverTimeElement.textContent.match(/(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})/);
+      if (!match) {
+        console.warn('⚠️ Could not parse KoC Server Time, using local time as fallback');
+        return new Date().toISOString();
+      }
+
+      const serverTimeStr = match[1];
+      return convertKoCServerTimeToUTC(serverTimeStr);
+    } catch (err) {
+      console.warn('⚠️ Error parsing KoC Server Time:', err);
+      return new Date().toISOString();
+    }
+  }
+
+  /**
+   * Convert KoC Server Time string to UTC ISO format
+   * @param {string} serverTimeStr - Format: "2025-10-13 06:36:06"
+   * @returns {string} UTC ISO string like "2025-10-13T10:36:06.000Z"
+   */
+  function convertKoCServerTimeToUTC(serverTimeStr) {
+    try {
+      const parts = serverTimeStr.match(/(\d{4})-(\d{2})-(\d{2}) (\d{2}):(\d{2}):(\d{2})/);
+      if (!parts) throw new Error('Invalid timestamp format');
+
+      const year = parseInt(parts[1]);
+      const month = parseInt(parts[2]) - 1; // JS months are 0-indexed
+      const day = parseInt(parts[3]);
+      const hour = parseInt(parts[4]);
+      const minute = parseInt(parts[5]);
+      const second = parseInt(parts[6]);
+
+      // Determine if EDT (UTC-4) or EST (UTC-5) applies
+      // US DST: 2nd Sunday in March to 1st Sunday in November
+      function isEasternDST(year, month, day) {
+        // Get 2nd Sunday in March
+        const marchFirst = new Date(year, 2, 1);
+        const marchFirstDay = marchFirst.getDay();
+        const dstStart = 8 + (7 - marchFirstDay) % 7;
+
+        // Get 1st Sunday in November
+        const novFirst = new Date(year, 10, 1);
+        const novFirstDay = novFirst.getDay();
+        const dstEnd = 1 + (7 - novFirstDay) % 7;
+
+        const currentDate = new Date(year, month, day);
+        const startDate = new Date(year, 2, dstStart);
+        const endDate = new Date(year, 10, dstEnd);
+
+        return currentDate >= startDate && currentDate < endDate;
+      }
+
+      const isDST = isEasternDST(year, month, day);
+      const offset = isDST ? 4 : 5; // EDT = UTC-4, EST = UTC-5
+
+      // Create date object in Eastern Time, then convert to UTC by adding offset
+      const date = new Date(Date.UTC(year, month, day, hour + offset, minute, second));
+      return date.toISOString();
+    } catch (err) {
+      console.warn('⚠️ Error converting KoC Server Time to UTC:', err);
+      return new Date().toISOString();
+    }
+  }
 
   // ==================== ERROR HANDLING UTILITIES ====================
 
@@ -923,7 +1005,7 @@
     }
 
     // Merge and save
-    const updated = { ...prev, ...cleanPatch, lastSeen: new Date().toISOString() };
+    const updated = { ...prev, ...cleanPatch, lastSeen: getKoCServerTimeUTC() };
     map[id] = updated;
     saveNameMap(map);
 
@@ -1482,7 +1564,7 @@
 
     const id = idMatch[1];
     const tiv = parseInt(tivMatch[1].replace(/,/g, ""), 10);
-    const now = new Date().toISOString();
+    const now = getKoCServerTimeUTC();
 
     // Save locally
     const log = getTivLog();
@@ -1615,7 +1697,7 @@
 
     const table = header.closest("table");
     const stats = {};
-    const now = new Date().toISOString();
+    const now = getKoCServerTimeUTC();
 
     table.querySelectorAll("tr").forEach(row => {
       const cells = row.querySelectorAll("td");
@@ -1784,7 +1866,7 @@
       viperbaneLevel,
       siegeTechnology,
       ...stats,
-      lastSeen: new Date().toISOString()
+      lastSeen: getKoCServerTimeUTC()
     };
 
     // Save locally
@@ -2108,7 +2190,7 @@
     // === DISPLAY RANK-UP COSTS ===
     displayRankUpCosts(stats, efficiency);
 
-    const now = new Date().toISOString();
+    const now = getKoCServerTimeUTC();
 
     // Save to TIV log
     if (tiv) {
@@ -2524,7 +2606,7 @@
     const prev = getNameMap()[id] || {};
 
     if (val && val !== "???") {
-      return { value: val, time: new Date().toISOString() };
+      return { value: val, time: getKoCServerTimeUTC() };
     } else {
       // Check if we have shared recon data for this stat
       const sharedData = sharedReconData[key];
@@ -2581,7 +2663,7 @@
     const armyTable = getTableByHeader("Army Breakdown")?.querySelectorAll("tr");
 
     const stats = {};
-    const now = new Date().toISOString();
+    const now = getKoCServerTimeUTC();
 
     function set(key, row) {
       const { value, time } = grabStat(id, key, row?.cells[1], sharedReconData);
