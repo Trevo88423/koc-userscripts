@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         KoC Data Centre
 // @namespace    trevo88423
-// @version      1.35.0
+// @version      1.36.0
 // @description  Sweet Revenge alliance tool: tracks stats, syncs to API, adds dashboards, XP→Turn calculator, mini Top Stats panel, comprehensive recon data collection, Shared Recon Info parsing, KoC Server Time synchronization, and stats.php collection.
 // @author       Blackheart
 // @match        https://www.kingsofchaos.com/*
@@ -26,7 +26,7 @@
   // ==================== VERSION CHECK ====================
   // Check if this script version is allowed to run
   const SCRIPT_NAME = 'koc-data-centre';
-  const SCRIPT_VERSION = '1.35.0'; // Must match @version above
+  const SCRIPT_VERSION = '1.36.0'; // Must match @version above
   const VERSION_CHECK_API = 'https://koc-roster-api-production.up.railway.app';
 
   async function checkScriptVersion() {
@@ -2499,6 +2499,126 @@
   }
 
   // Parse Shared Recon Info table (alliance-shared recon data)
+  // Add age column to Shared Recon Info table for easy visibility
+  function enhanceSharedReconInfoTable() {
+    try {
+      // Find "Shared Recon Info" header
+      const header = [...document.querySelectorAll("th, td")]
+        .find(el => el.textContent.includes("Shared Recon Info"));
+
+      if (!header) return;
+
+      const table = header.closest("table");
+      if (!table) return;
+
+      // Get current KoC Server Time for age calculation
+      const now = new Date(getKoCServerTimeUTC());
+
+      // Find or create the header row with column names
+      let headerRow = null;
+      const rows = table.querySelectorAll("tr");
+      rows.forEach(row => {
+        const cells = row.querySelectorAll("td");
+        if (cells.length >= 3) {
+          const firstCell = cells[0]?.innerText.trim().toLowerCase();
+          // Check if this is the header row (contains "Latest Recon")
+          if (firstCell.includes("latest recon")) {
+            headerRow = row;
+          }
+        }
+      });
+
+      // Add "Age" header if we found the header row
+      if (headerRow) {
+        const ageHeader = document.createElement("td");
+        ageHeader.style.cssText = "font-weight: bold; text-align: center; padding: 5px;";
+        ageHeader.textContent = "Age";
+        headerRow.appendChild(ageHeader);
+      }
+
+      // Process each data row and add age
+      rows.forEach(row => {
+        const cells = row.querySelectorAll("td");
+        if (cells.length < 3) return;
+
+        const statName = cells[0]?.innerText.trim().toLowerCase();
+        const timestamp = cells[2]?.innerText.trim();
+
+        // Skip header row and rows without timestamps
+        if (!timestamp || statName.includes("latest recon")) return;
+
+        // Parse timestamp and calculate age
+        try {
+          const parts = timestamp.match(/(\d{4})-(\d{2})-(\d{2}) (\d{2}):(\d{2}):(\d{2})/);
+          if (!parts) return;
+
+          const year = parseInt(parts[1]);
+          const month = parseInt(parts[2]) - 1;
+          const day = parseInt(parts[3]);
+          const hour = parseInt(parts[4]);
+          const minute = parseInt(parts[5]);
+          const second = parseInt(parts[6]);
+
+          // Determine DST offset
+          function isEasternDST(year, month, day) {
+            const marchFirst = new Date(year, 2, 1);
+            const marchFirstDay = marchFirst.getDay();
+            const dstStart = 8 + (7 - marchFirstDay) % 7;
+
+            const novFirst = new Date(year, 10, 1);
+            const novFirstDay = novFirst.getDay();
+            const dstEnd = 1 + (7 - novFirstDay) % 7;
+
+            const currentDate = new Date(year, month, day);
+            const startDate = new Date(year, 2, dstStart);
+            const endDate = new Date(year, 10, dstEnd);
+
+            return currentDate >= startDate && currentDate < endDate;
+          }
+
+          const isDST = isEasternDST(year, month, day);
+          const offset = isDST ? 4 : 5;
+          const reconTime = new Date(Date.UTC(year, month, day, hour + offset, minute, second));
+
+          // Calculate age
+          const ageMs = now - reconTime;
+          const ageMinutes = Math.floor(ageMs / 60000);
+          const ageHours = Math.floor(ageMs / 3600000);
+          const ageDays = Math.floor(ageMs / 86400000);
+
+          let ageText = "";
+          let ageColor = "#6f6"; // Green for fresh
+
+          if (ageMinutes < 1) {
+            ageText = "just now";
+            ageColor = "#6f6";
+          } else if (ageMinutes < 60) {
+            ageText = `${ageMinutes}m ago`;
+            ageColor = "#6f6";
+          } else if (ageHours < 24) {
+            ageText = `${ageHours}h ago`;
+            ageColor = ageHours < 6 ? "#6f6" : "#ff6"; // Yellow after 6h
+          } else {
+            ageText = `${ageDays}d ago`;
+            ageColor = ageDays < 3 ? "#f90" : "#f44"; // Orange then red
+          }
+
+          // Add age cell
+          const ageCell = document.createElement("td");
+          ageCell.style.cssText = `color: ${ageColor}; font-weight: bold; text-align: center; padding: 5px;`;
+          ageCell.textContent = ageText;
+          row.appendChild(ageCell);
+        } catch (e) {
+          console.warn("⚠️ Failed to calculate age for timestamp:", timestamp, e);
+        }
+      });
+
+      console.log("✅ Enhanced Shared Recon Info table with age column");
+    } catch (err) {
+      console.warn("⚠️ Failed to enhance Shared Recon Info table:", err);
+    }
+  }
+
   function parseSharedReconInfo() {
     const sharedRecon = {};
 
@@ -3111,6 +3231,10 @@
         await safeExecute('addMaxAttacksRecon', () => addMaxAttacksRecon());
       }
       await safeExecute('collectFromReconPage', () => collectFromReconPage());
+      // Enhance Shared Recon Info table with age column on stats pages
+      if (location.pathname.includes("stats.php")) {
+        await safeExecute('enhanceSharedReconInfoTable', () => enhanceSharedReconInfoTable());
+      }
     }
 
     // Battlefield
