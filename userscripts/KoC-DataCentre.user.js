@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         KoC Data Centre
 // @namespace    trevo88423
-// @version      1.30.0
+// @version      1.31.0
 // @description  Sweet Revenge alliance tool: tracks stats, syncs to API, adds dashboards, XP→Turn calculator, mini Top Stats panel, comprehensive recon data collection, Shared Recon Info parsing, KoC Server Time synchronization, and stats.php collection.
 // @author       Blackheart
 // @match        https://www.kingsofchaos.com/*
@@ -26,7 +26,7 @@
   // ==================== VERSION CHECK ====================
   // Check if this script version is allowed to run
   const SCRIPT_NAME = 'koc-data-centre';
-  const SCRIPT_VERSION = '1.30.0'; // Must match @version above
+  const SCRIPT_VERSION = '1.31.0'; // Must match @version above
   const VERSION_CHECK_API = 'https://koc-roster-api-production.up.railway.app';
 
   async function checkScriptVersion() {
@@ -2623,25 +2623,13 @@
   }
 
   async function collectFromReconPage() {
-    // Find player stats link, excluding the Data Centre link
-    let link = null;
-    const allStatsLinks = document.querySelectorAll('a[href*="stats.php?id="]');
-
-    for (const a of allStatsLinks) {
-      // Skip our own Data Centre link
-      if (a.href.includes('id=datacentre')) continue;
-      // Skip if it's just "stats.php?id=" with no actual ID
-      if (!a.href.match(/id=\d+/)) continue;
-      // Found a valid player stats link
-      link = a;
-      break;
-    }
-
-    const match = link?.href.match(/id=(\d+)/);
-    const id = match ? match[1] : null;
+    // Get player ID from URL instead of searching for links
+    // This prevents using commander/officer link IDs when on main account pages
+    const urlParams = new URLSearchParams(window.location.search);
+    const id = urlParams.get('id');
 
     if (!id) {
-      console.log("⚠️ Recon: Could not find player ID");
+      console.log("⚠️ Recon: Could not find player ID in URL");
       return;
     }
 
