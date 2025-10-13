@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name         KoC Data Centre
 // @namespace    trevo88423
-// @version      1.27.0
-// @description  Sweet Revenge alliance tool: tracks stats, syncs to API, adds dashboards, XP→Turn calculator, mini Top Stats panel, and comprehensive recon data collection.
+// @version      1.28.0
+// @description  Sweet Revenge alliance tool: tracks stats, syncs to API, adds dashboards, XP→Turn calculator, mini Top Stats panel, comprehensive recon data collection, and Shared Recon Info parsing.
 // @author       Blackheart
 // @match        https://www.kingsofchaos.com/*
 // @icon         https://www.kingsofchaos.com/favicon.ico
@@ -26,7 +26,7 @@
   // ==================== VERSION CHECK ====================
   // Check if this script version is allowed to run
   const SCRIPT_NAME = 'koc-data-centre';
-  const SCRIPT_VERSION = '1.27.0'; // Must match @version above
+  const SCRIPT_VERSION = '1.28.0'; // Must match @version above
   const VERSION_CHECK_API = 'https://koc-roster-api-production.up.railway.app';
 
   async function checkScriptVersion() {
@@ -2414,14 +2414,126 @@
     ).singleNodeValue?.closest("table") || null;
   }
 
-  function grabStat(id, key, cell) {
+  // Parse Shared Recon Info table (alliance-shared recon data)
+  function parseSharedReconInfo() {
+    const sharedRecon = {};
+
+    try {
+      // Find "Shared Recon Info" header
+      const header = [...document.querySelectorAll("th, td")]
+        .find(el => el.textContent.includes("Shared Recon Info"));
+
+      if (!header) return sharedRecon;
+
+      const table = header.closest("table");
+      if (!table) return sharedRecon;
+
+      // Parse each row in the table
+      const rows = table.querySelectorAll("tr");
+      rows.forEach(row => {
+        const cells = row.querySelectorAll("td");
+        if (cells.length < 3) return;
+
+        const statName = cells[0]?.innerText.trim().toLowerCase();
+        const statValue = cells[1]?.innerText.trim();
+        const timestamp = cells[2]?.innerText.trim();
+
+        if (!statName || !statValue || !timestamp) return;
+
+        // Convert timestamp from "2025-10-13 06:36:06" (KoC Server Time = US Eastern) to UTC ISO format
+        let isoTimestamp = null;
+        try {
+          // Parse as local time, then convert to UTC
+          // KoC Server Time is US Eastern (EDT/EST)
+          // EDT = UTC-4 (spring-fall), EST = UTC-5 (winter)
+
+          // Parse the timestamp parts
+          const parts = timestamp.match(/(\d{4})-(\d{2})-(\d{2}) (\d{2}):(\d{2}):(\d{2})/);
+          if (parts) {
+            const year = parseInt(parts[1]);
+            const month = parseInt(parts[2]) - 1; // JS months are 0-indexed
+            const day = parseInt(parts[3]);
+            const hour = parseInt(parts[4]);
+            const minute = parseInt(parts[5]);
+            const second = parseInt(parts[6]);
+
+            // Determine if EDT (UTC-4) or EST (UTC-5) applies
+            // US DST: 2nd Sunday in March to 1st Sunday in November
+            function isEasternDST(year, month, day) {
+              // Get 2nd Sunday in March
+              const marchFirst = new Date(year, 2, 1); // March is month 2
+              const marchFirstDay = marchFirst.getDay();
+              const dstStart = 8 + (7 - marchFirstDay) % 7; // 2nd Sunday
+
+              // Get 1st Sunday in November
+              const novFirst = new Date(year, 10, 1); // November is month 10
+              const novFirstDay = novFirst.getDay();
+              const dstEnd = 1 + (7 - novFirstDay) % 7; // 1st Sunday
+
+              const currentDate = new Date(year, month, day);
+              const startDate = new Date(year, 2, dstStart);
+              const endDate = new Date(year, 10, dstEnd);
+
+              return currentDate >= startDate && currentDate < endDate;
+            }
+
+            const isDST = isEasternDST(year, month, day);
+            const offset = isDST ? 4 : 5; // EDT = UTC-4, EST = UTC-5
+
+            // Create date object in Eastern Time, then convert to UTC by adding offset
+            const date = new Date(Date.UTC(year, month, day, hour + offset, minute, second));
+
+            isoTimestamp = date.toISOString();
+            console.log(`🕐 Converted KoC Server Time "${timestamp}" (${isDST ? 'EDT' : 'EST'}) to UTC: ${isoTimestamp}`);
+          }
+        } catch (e) {
+          console.warn("⚠️ Failed to parse timestamp:", timestamp, e);
+          isoTimestamp = null;
+        }
+
+        // Map stat names to our field names
+        if (statName.includes("strike action")) {
+          sharedRecon.strikeAction = { value: statValue, time: isoTimestamp };
+        } else if (statName.includes("defensive action")) {
+          sharedRecon.defensiveAction = { value: statValue, time: isoTimestamp };
+        } else if (statName.includes("spy rating")) {
+          sharedRecon.spyRating = { value: statValue, time: isoTimestamp };
+        } else if (statName.includes("sentry rating")) {
+          sharedRecon.sentryRating = { value: statValue, time: isoTimestamp };
+        } else if (statName.includes("poison rating")) {
+          sharedRecon.poisonRating = { value: statValue, time: isoTimestamp };
+        } else if (statName.includes("antidote rating")) {
+          sharedRecon.antidoteRating = { value: statValue, time: isoTimestamp };
+        } else if (statName.includes("theft rating")) {
+          sharedRecon.theftRating = { value: statValue, time: isoTimestamp };
+        } else if (statName.includes("vigilance rating")) {
+          sharedRecon.vigilanceRating = { value: statValue, time: isoTimestamp };
+        }
+      });
+
+      console.log("📡 Parsed Shared Recon Info:", sharedRecon);
+    } catch (err) {
+      console.warn("⚠️ Failed to parse Shared Recon Info:", err);
+    }
+
+    return sharedRecon;
+  }
+
+  function grabStat(id, key, cell, sharedReconData = {}) {
     const val = cell?.innerText.trim();
     const prev = getNameMap()[id] || {};
 
     if (val && val !== "???") {
       return { value: val, time: new Date().toISOString() };
     } else {
-      // When recon shows "???", DON'T return cached values to API
+      // Check if we have shared recon data for this stat
+      const sharedData = sharedReconData[key];
+      if (sharedData && sharedData.value && sharedData.time) {
+        console.log(`✅ Using shared recon for ${key}: ${sharedData.value} (${sharedData.time})`);
+        return { value: sharedData.value, time: sharedData.time };
+      }
+
+      // When recon shows "???" and no shared data, DON'T return cached values to API
       // The cached values will still be used by UI enhancement (fillMissingReconValue)
       // But we shouldn't send potentially stale/bad data to the API
       return { value: "???", time: null };
@@ -2461,6 +2573,9 @@
       return;
     }
 
+    // Parse Shared Recon Info table first (alliance-shared recon data)
+    const sharedReconData = parseSharedReconInfo();
+
     const ms = getTableByHeader("Military Stats")?.querySelectorAll("tr");
     const treasury = getTableByHeader("Treasury")?.querySelectorAll("tr");
     const armyTable = getTableByHeader("Army Breakdown")?.querySelectorAll("tr");
@@ -2469,7 +2584,7 @@
     const now = new Date().toISOString();
 
     function set(key, row) {
-      const { value, time } = grabStat(id, key, row?.cells[1]);
+      const { value, time } = grabStat(id, key, row?.cells[1], sharedReconData);
       stats[key] = value;
       if (time) stats[key + "Time"] = time;
     }
