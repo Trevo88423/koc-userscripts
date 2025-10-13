@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         KoC Data Centre
 // @namespace    trevo88423
-// @version      1.33.0
+// @version      1.34.0
 // @description  Sweet Revenge alliance tool: tracks stats, syncs to API, adds dashboards, XP→Turn calculator, mini Top Stats panel, comprehensive recon data collection, Shared Recon Info parsing, KoC Server Time synchronization, and stats.php collection.
 // @author       Blackheart
 // @match        https://www.kingsofchaos.com/*
@@ -26,7 +26,7 @@
   // ==================== VERSION CHECK ====================
   // Check if this script version is allowed to run
   const SCRIPT_NAME = 'koc-data-centre';
-  const SCRIPT_VERSION = '1.33.0'; // Must match @version above
+  const SCRIPT_VERSION = '1.34.0'; // Must match @version above
   const VERSION_CHECK_API = 'https://koc-roster-api-production.up.railway.app';
 
   async function checkScriptVersion() {
@@ -2621,29 +2621,35 @@
   }
 
   async function collectFromReconPage() {
-    // Get player ID - different for inteldetail.php vs stats.php
+    // Get player ID - different method for inteldetail.php vs stats.php
     let id = null;
-
-    const urlParams = new URLSearchParams(window.location.search);
 
     if (location.pathname.includes("inteldetail.php")) {
       // On inteldetail.php, URL has report_id, not player id
-      // Need to extract player ID from the page content
-      // Look for "View target's stats" link which has the player ID
-      const statsLink = [...document.querySelectorAll('a')]
-        .find(a => a.href.includes('stats.php?id=') && a.textContent.includes("View target's stats"));
+      // Search for first stats.php link (works because there's only one player shown)
+      let link = null;
+      const allStatsLinks = document.querySelectorAll('a[href*="stats.php?id="]');
 
-      if (statsLink) {
-        const match = statsLink.href.match(/id=(\d+)/);
-        id = match ? match[1] : null;
+      for (const a of allStatsLinks) {
+        // Skip our own Data Centre link
+        if (a.href.includes('id=datacentre')) continue;
+        // Skip if it's just "stats.php?id=" with no actual ID
+        if (!a.href.match(/id=\d+/)) continue;
+        // Found a valid player stats link
+        link = a;
+        break;
       }
+
+      const match = link?.href.match(/id=(\d+)/);
+      id = match ? match[1] : null;
 
       if (!id) {
         console.log("⚠️ Recon: Could not find player ID on inteldetail page");
         return;
       }
     } else {
-      // On stats.php, use URL parameter
+      // On stats.php, use URL parameter to avoid grabbing commander ID
+      const urlParams = new URLSearchParams(window.location.search);
       id = urlParams.get('id');
 
       if (!id) {
