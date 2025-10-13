@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         KoC Data Centre
 // @namespace    trevo88423
-// @version      1.36.0
+// @version      1.37.0
 // @description  Sweet Revenge alliance tool: tracks stats, syncs to API, adds dashboards, XP→Turn calculator, mini Top Stats panel, comprehensive recon data collection, Shared Recon Info parsing, KoC Server Time synchronization, and stats.php collection.
 // @author       Blackheart
 // @match        https://www.kingsofchaos.com/*
@@ -26,7 +26,7 @@
   // ==================== VERSION CHECK ====================
   // Check if this script version is allowed to run
   const SCRIPT_NAME = 'koc-data-centre';
-  const SCRIPT_VERSION = '1.36.0'; // Must match @version above
+  const SCRIPT_VERSION = '1.37.0'; // Must match @version above
   const VERSION_CHECK_API = 'https://koc-roster-api-production.up.railway.app';
 
   async function checkScriptVersion() {
@@ -2977,8 +2977,85 @@
       }
     }
 
+    // Update Shared Recon Info table with our fresh data
+    if (location.pathname.includes("stats.php")) {
+      updateSharedReconInfoWithFreshData(stats);
+    }
+
     // Enhance UI with cached data
     enhanceReconUI(id).catch(err => console.warn("enhanceReconUI failed:", err));
+  }
+
+  // Update Shared Recon Info table cells with our fresh collected data
+  function updateSharedReconInfoWithFreshData(stats) {
+    try {
+      // Find "Shared Recon Info" table
+      const header = [...document.querySelectorAll("th, td")]
+        .find(el => el.textContent.includes("Shared Recon Info"));
+
+      if (!header) return;
+
+      const table = header.closest("table");
+      if (!table) return;
+
+      // Map our stat keys to the display names in the table
+      const statMapping = {
+        strikeAction: "strike action",
+        defensiveAction: "defensive action",
+        spyRating: "spy rating",
+        sentryRating: "sentry rating",
+        poisonRating: "poison rating",
+        antidoteRating: "antidote rating",
+        theftRating: "theft rating",
+        vigilanceRating: "vigilance rating"
+      };
+
+      let updatedCount = 0;
+
+      // Process each row in the table
+      const rows = table.querySelectorAll("tr");
+      rows.forEach(row => {
+        const cells = row.querySelectorAll("td");
+        if (cells.length < 3) return;
+
+        const statName = cells[0]?.innerText.trim().toLowerCase();
+        const currentValue = cells[1]?.innerText.trim();
+        const timestampCell = cells[2];
+
+        // Find matching stat in our collected data
+        for (const [key, displayName] of Object.entries(statMapping)) {
+          if (statName.includes(displayName)) {
+            const ourValue = stats[key];
+            const ourTime = stats[key + "Time"];
+
+            // If shared recon shows "???" but we have a value, replace it
+            if (currentValue === "???" && ourValue && ourValue !== "???") {
+              // Update value cell
+              cells[1].innerText = ourValue;
+              cells[1].style.color = "#6f6"; // Green for fresh
+
+              // Update timestamp cell if we have one
+              if (ourTime && timestampCell) {
+                const date = new Date(ourTime);
+                // Format as "2025-10-13 07:30:00" (KoC Server Time format)
+                const formatted = date.toISOString().slice(0, 19).replace('T', ' ');
+                timestampCell.innerText = formatted;
+                timestampCell.style.color = "#6f6"; // Green for fresh
+              }
+
+              updatedCount++;
+            }
+            break;
+          }
+        }
+      });
+
+      if (updatedCount > 0) {
+        console.log(`✅ Updated ${updatedCount} "???" values in Shared Recon Info with fresh data`);
+      }
+    } catch (err) {
+      console.warn("⚠️ Failed to update Shared Recon Info table:", err);
+    }
   }
 
   // ==================== RECON UI ENHANCER ====================
