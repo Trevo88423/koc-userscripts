@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         KoC Data Centre
 // @namespace    trevo88423
-// @version      1.32.0
+// @version      1.33.0
 // @description  Sweet Revenge alliance tool: tracks stats, syncs to API, adds dashboards, XP→Turn calculator, mini Top Stats panel, comprehensive recon data collection, Shared Recon Info parsing, KoC Server Time synchronization, and stats.php collection.
 // @author       Blackheart
 // @match        https://www.kingsofchaos.com/*
@@ -26,7 +26,7 @@
   // ==================== VERSION CHECK ====================
   // Check if this script version is allowed to run
   const SCRIPT_NAME = 'koc-data-centre';
-  const SCRIPT_VERSION = '1.32.0'; // Must match @version above
+  const SCRIPT_VERSION = '1.33.0'; // Must match @version above
   const VERSION_CHECK_API = 'https://koc-roster-api-production.up.railway.app';
 
   async function checkScriptVersion() {
@@ -2621,14 +2621,35 @@
   }
 
   async function collectFromReconPage() {
-    // Get player ID from URL instead of searching for links
-    // This prevents using commander/officer link IDs when on main account pages
-    const urlParams = new URLSearchParams(window.location.search);
-    const id = urlParams.get('id');
+    // Get player ID - different for inteldetail.php vs stats.php
+    let id = null;
 
-    if (!id) {
-      console.log("⚠️ Recon: Could not find player ID in URL");
-      return;
+    const urlParams = new URLSearchParams(window.location.search);
+
+    if (location.pathname.includes("inteldetail.php")) {
+      // On inteldetail.php, URL has report_id, not player id
+      // Need to extract player ID from the page content
+      // Look for "View target's stats" link which has the player ID
+      const statsLink = [...document.querySelectorAll('a')]
+        .find(a => a.href.includes('stats.php?id=') && a.textContent.includes("View target's stats"));
+
+      if (statsLink) {
+        const match = statsLink.href.match(/id=(\d+)/);
+        id = match ? match[1] : null;
+      }
+
+      if (!id) {
+        console.log("⚠️ Recon: Could not find player ID on inteldetail page");
+        return;
+      }
+    } else {
+      // On stats.php, use URL parameter
+      id = urlParams.get('id');
+
+      if (!id) {
+        console.log("⚠️ Recon: Could not find player ID in URL");
+        return;
+      }
     }
 
     // Check for Invalid User ID error
