@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         KoC Data Centre
 // @namespace    trevo88423
-// @version      1.40.5
+// @version      1.41.0
 // @description  Sweet Revenge alliance tool: tracks stats, syncs to API, adds dashboards, XP→Turn calculator, mini Top Stats panel, comprehensive recon data collection, Shared Recon Info parsing, KoC Server Time synchronization, and stats.php collection.
 // @author       Blackheart
 // @match        https://www.kingsofchaos.com/*
@@ -2945,6 +2945,15 @@
           sharedRecon.theftRating = { value: statValue, time: isoTimestamp };
         } else if (statName.includes("vigilance rating")) {
           sharedRecon.vigilanceRating = { value: statValue, time: isoTimestamp };
+        } else if (statName.includes("tbg")) {
+          // Parse TBG (To Be Generated) - extract "Gold (in 1 min)"
+          // Format: "18,293,400 Gold (in 1 min) | 274,401,000 Gold (in 15 mins) | 548,802,000 Gold (in 30 mins)"
+          const match = statValue.match(/([0-9,]+)\s+Gold\s+\(in 1 min\)/i);
+          if (match) {
+            const goldPerMin = match[1]; // "18,293,400"
+            sharedRecon.projectedIncome = { value: goldPerMin, time: isoTimestamp };
+            debugLog(`✅ Parsed TBG from Shared Recon: ${goldPerMin} gold/min at ${isoTimestamp}`);
+          }
         }
       });
 
@@ -3128,8 +3137,13 @@
       if (match1min) {
         stats.projectedIncome = match1min[1];
         stats.projectedIncomeTime = now;
-      } else {
-        // Fallback if format doesn't match
+      } else if (sharedReconData.projectedIncome) {
+        // Fallback to Shared Recon Info TBG if direct recon is unavailable
+        stats.projectedIncome = sharedReconData.projectedIncome.value;
+        stats.projectedIncomeTime = sharedReconData.projectedIncome.time;
+        debugLog(`✅ Using shared recon TBG for projectedIncome: ${stats.projectedIncome} at ${stats.projectedIncomeTime}`);
+      } else if (projectedIncomeText && !projectedIncomeText.includes("???")) {
+        // Final fallback if format doesn't match but not "???"
         stats.projectedIncome = treasury[3]?.innerText.split(" Gold")[0];
         stats.projectedIncomeTime = now;
       }
