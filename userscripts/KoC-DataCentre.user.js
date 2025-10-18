@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         KoC Data Centre
 // @namespace    trevo88423
-// @version      1.40.1
+// @version      1.40.2
 // @description  Sweet Revenge alliance tool: tracks stats, syncs to API, adds dashboards, XP→Turn calculator, mini Top Stats panel, comprehensive recon data collection, Shared Recon Info parsing, KoC Server Time synchronization, and stats.php collection.
 // @author       Blackheart
 // @match        https://www.kingsofchaos.com/*
@@ -35,7 +35,7 @@
   // ==================== VERSION CHECK ====================
   // Check if this script version is allowed to run
   const SCRIPT_NAME = 'koc-data-centre';
-  const SCRIPT_VERSION = '1.40.1'; // Must match @version above
+  const SCRIPT_VERSION = '1.40.2'; // Must match @version above
   const VERSION_CHECK_API = 'https://koc-roster-api-production.up.railway.app';
 
   async function checkScriptVersion() {
@@ -2272,14 +2272,38 @@
   // ==================== RANK-UP COST DISPLAY ====================
 
   function displayRankUpCosts(stats, efficiency) {
-    // Find the rank progression table
+    // Validate inputs
+    if (!stats || Object.keys(stats).length === 0) {
+      debugLog('⚠️ displayRankUpCosts: No stats provided');
+      return;
+    }
+
+    if (!efficiency || Object.keys(efficiency).length === 0) {
+      debugLog('⚠️ displayRankUpCosts: No efficiency data provided');
+      return;
+    }
+
+    // Find the rank progression table - try multiple selectors
     const tables = [...document.querySelectorAll('table')];
     const rankTable = tables.find(table => {
       const header = table.querySelector('th');
-      return header && header.textContent.includes('Rating For Previous/Next Rank Gain');
+      if (!header) return false;
+
+      const headerText = header.textContent.trim();
+      // Try multiple variations of the header text
+      return headerText.includes('Rating For Previous/Next Rank Gain') ||
+             headerText.includes('Rating For') ||
+             headerText.includes('Previous/Next Rank') ||
+             headerText.includes('Next Rank Gain');
     });
 
-    if (!rankTable) return;
+    if (!rankTable) {
+      debugLog('⚠️ displayRankUpCosts: Could not find rank progression table');
+      debugLog('Available table headers:', tables.map(t => t.querySelector('th')?.textContent.trim()).filter(Boolean));
+      return;
+    }
+
+    debugLog('✅ Found rank progression table');
 
     // Map action names to stat keys and efficiency keys
     const actionMap = {
@@ -2301,6 +2325,8 @@
 
     // Process each row
     const rows = rankTable.querySelectorAll('tr');
+    let processedCount = 0;
+
     rows.forEach(row => {
       const cells = row.querySelectorAll('td');
       if (cells.length < 3) return;
@@ -2309,13 +2335,29 @@
       const nextRatingText = cells[2]?.textContent.trim();
 
       const mapping = actionMap[actionText];
-      if (!mapping) return;
+      if (!mapping) {
+        debugLog(`⚠️ No mapping for action: "${actionText}"`);
+        return;
+      }
 
       const currentStat = parseStatValue(stats[mapping.stat]);
       const nextRating = parseInt(nextRatingText.replace(/,/g, ''), 10);
       const efficiencyValue = efficiency[mapping.efficiency];
 
-      if (!currentStat || !nextRating || !efficiencyValue) return;
+      // Debug missing values
+      if (!currentStat) {
+        debugLog(`⚠️ ${actionText}: Missing current stat (${mapping.stat})`);
+        return;
+      }
+      if (!nextRating || isNaN(nextRating)) {
+        debugLog(`⚠️ ${actionText}: Missing/invalid next rating: "${nextRatingText}"`);
+        return;
+      }
+      if (!efficiencyValue) {
+        debugLog(`⚠️ ${actionText}: Missing efficiency (${mapping.efficiency})`);
+        debugLog(`Available efficiency keys:`, Object.keys(efficiency));
+        return;
+      }
 
       const gap = nextRating - currentStat;
       if (gap <= 0) return; // Already past next rank
@@ -2348,7 +2390,11 @@
       costSpan.title = tooltipText;
 
       cells[2].appendChild(costSpan);
+      processedCount++;
+      debugLog(`✅ ${actionText}: Added cost display (${goldFormatted})`);
     });
+
+    debugLog(`✅ displayRankUpCosts: Processed ${processedCount} rank cost displays`);
   }
 
   // ==================== ARMORY SELF COLLECTOR ====================
