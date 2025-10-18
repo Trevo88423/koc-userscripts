@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         KoC Data Centre
 // @namespace    trevo88423
-// @version      1.41.2
+// @version      1.41.3
 // @description  Sweet Revenge alliance tool: tracks stats, syncs to API, adds dashboards, XP→Turn calculator, mini Top Stats panel, comprehensive recon data collection, Shared Recon Info parsing, KoC Server Time synchronization, and stats.php collection.
 // @author       Blackheart
 // @match        https://www.kingsofchaos.com/*
@@ -35,7 +35,7 @@
   // ==================== VERSION CHECK ====================
   // Check if this script version is allowed to run
   const SCRIPT_NAME = 'koc-data-centre';
-  const SCRIPT_VERSION = '1.41.2'; // Must match @version above
+  const SCRIPT_VERSION = '1.41.3'; // Must match @version above
   const VERSION_CHECK_API = 'https://koc-roster-api-production.up.railway.app';
 
   async function checkScriptVersion() {
@@ -2873,6 +2873,48 @@
       const rows = table.querySelectorAll("tr");
       rows.forEach(row => {
         const cells = row.querySelectorAll("td");
+
+        // Debug: Log all rows to see TBG structure
+        const cellTexts = Array.from(cells).map(c => c.innerText.trim());
+        debugLog(`🔍 Row with ${cells.length} cells: [${cellTexts.join(' | ')}]`);
+
+        // Check for TBG row FIRST (might have different structure)
+        // TBG row might be: "TBG | 19,281,848 Gold (in 1 min) | ..." in a single cell or multiple cells
+        if (cells.length >= 1) {
+          const firstCellText = cells[0]?.innerText.trim().toLowerCase() || "";
+
+          // Check if this is the TBG row
+          if (firstCellText.includes("tbg")) {
+            debugLog(`🔍 Found TBG row! Cell 0: "${cells[0]?.innerText.trim()}"`);
+
+            // Try to parse from first cell (might contain entire TBG string)
+            const cellText = cells[0]?.innerText.trim() || "";
+            const match = cellText.match(/([0-9,]+)\s+Gold\s+\(in 1 min\)/i);
+            if (match) {
+              const goldPerMin = match[1];
+              // Use previous row's timestamp if available (Last Recon timestamp)
+              sharedRecon.projectedIncome = { value: goldPerMin, time: null };
+              debugLog(`✅ Parsed TBG from first cell: ${goldPerMin} gold/min`);
+              return; // Skip rest of processing for this row
+            }
+
+            // Try to parse from second cell
+            if (cells.length >= 2) {
+              const cellText = cells[1]?.innerText.trim() || "";
+              const match = cellText.match(/([0-9,]+)\s+Gold\s+\(in 1 min\)/i);
+              if (match) {
+                const goldPerMin = match[1];
+                sharedRecon.projectedIncome = { value: goldPerMin, time: null };
+                debugLog(`✅ Parsed TBG from second cell: ${goldPerMin} gold/min`);
+                return;
+              }
+            }
+
+            debugLog(`⚠️ TBG row found but couldn't parse gold value`);
+            return;
+          }
+        }
+
         if (cells.length < 3) return;
 
         const statName = cells[0]?.innerText.trim().toLowerCase();
@@ -2949,16 +2991,8 @@
           sharedRecon.theftRating = { value: statValue, time: isoTimestamp };
         } else if (statName.includes("vigilance rating")) {
           sharedRecon.vigilanceRating = { value: statValue, time: isoTimestamp };
-        } else if (statName.includes("tbg")) {
-          // Parse TBG (To Be Generated) - extract "Gold (in 1 min)"
-          // Format: "18,293,400 Gold (in 1 min) | 274,401,000 Gold (in 15 mins) | 548,802,000 Gold (in 30 mins)"
-          const match = statValue.match(/([0-9,]+)\s+Gold\s+\(in 1 min\)/i);
-          if (match) {
-            const goldPerMin = match[1]; // "18,293,400"
-            sharedRecon.projectedIncome = { value: goldPerMin, time: isoTimestamp };
-            debugLog(`✅ Parsed TBG from Shared Recon: ${goldPerMin} gold/min at ${isoTimestamp}`);
-          }
         }
+        // Note: TBG is now handled earlier in the function (before the cells.length < 3 check)
       });
 
       debugLog("📡 Parsed Shared Recon Info:", sharedRecon);
