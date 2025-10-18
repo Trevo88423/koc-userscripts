@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         KoC Data Centre
 // @namespace    trevo88423
-// @version      1.39.0
+// @version      1.40.0
 // @description  Sweet Revenge alliance tool: tracks stats, syncs to API, adds dashboards, XP→Turn calculator, mini Top Stats panel, comprehensive recon data collection, Shared Recon Info parsing, KoC Server Time synchronization, and stats.php collection.
 // @author       Blackheart
 // @match        https://www.kingsofchaos.com/*
@@ -26,7 +26,7 @@
   // ==================== VERSION CHECK ====================
   // Check if this script version is allowed to run
   const SCRIPT_NAME = 'koc-data-centre';
-  const SCRIPT_VERSION = '1.39.0'; // Must match @version above
+  const SCRIPT_VERSION = '1.40.0'; // Must match @version above
   const VERSION_CHECK_API = 'https://koc-roster-api-production.up.railway.app';
 
   async function checkScriptVersion() {
@@ -137,7 +137,67 @@
   const BATTLEFIELD_DEBOUNCE_MS = 300; // Debounce battlefield observer
   const BATTLEFIELD_COLLECT_DELAY_MS = 200; // Delay before collecting battlefield data
 
-  console.log(`✅ DataCentre+XPTool v${VERSION} loaded on`, location.pathname);
+  // ==================== DEBUG MODE SYSTEM ====================
+
+  /**
+   * Debug Mode System
+   * - Stores debug state in localStorage
+   * - Provides conditional logging functions
+   * - Can be toggled via UI or console
+   */
+  const DEBUG_KEY = "KoC_DebugMode";
+
+  const DebugMode = {
+    isEnabled() {
+      return SafeStorage?.get(DEBUG_KEY, false) === true || localStorage.getItem(DEBUG_KEY) === "true";
+    },
+
+    enable() {
+      localStorage.setItem(DEBUG_KEY, "true");
+      console.log("✅ Debug mode ENABLED - All logs will now be visible");
+    },
+
+    disable() {
+      localStorage.setItem(DEBUG_KEY, "false");
+      console.log("🔇 Debug mode DISABLED - Logs will be hidden");
+    },
+
+    toggle() {
+      if (this.isEnabled()) {
+        this.disable();
+      } else {
+        this.enable();
+      }
+      return this.isEnabled();
+    }
+  };
+
+  // Expose to window for console access
+  window.KoCDebug = DebugMode;
+
+  /**
+   * Conditional debug logger
+   * Only logs if debug mode is enabled
+   */
+  function debugLog(...args) {
+    if (DebugMode.isEnabled()) {
+      debugLog(...args);
+    }
+  }
+
+  /**
+   * Always-visible important messages
+   * Use sparingly for critical info only
+   */
+  function infoLog(...args) {
+    debugLog(...args);
+  }
+
+  // Always show script load message
+  infoLog(`✅ DataCentre+XPTool v${VERSION} loaded on`, location.pathname);
+  if (DebugMode.isEnabled()) {
+    infoLog("🐛 Debug mode is ENABLED - Toggle with: KoCDebug.toggle()");
+  }
 
   // ==================== KOC SERVER TIME UTILITIES ====================
 
@@ -260,7 +320,7 @@
           console.info(`${prefix} ℹ️`, message, logData);
           break;
         case this.LOG_LEVELS.DEBUG:
-          console.log(`${prefix} 🔍`, message, logData);
+          debugLog(`${prefix} 🔍`, message, logData);
           break;
       }
     }
@@ -709,7 +769,7 @@
         const stored = this.getStoredAuth();
 
         if (!stored) {
-          console.log("🔒 No stored auth found");
+          debugLog("🔒 No stored auth found");
           return false;
         }
 
@@ -717,12 +777,12 @@
         if (Date.now() < stored.expiry) {
           this.token = stored.token;
           this.authData = stored;
-          console.log("✅ Using cached token for:", stored.id, stored.name);
+          debugLog("✅ Using cached token for:", stored.id, stored.name);
           return true;
         }
 
         // Try to refresh
-        console.log("🔄 Token expired, attempting refresh for:", stored.id, stored.name);
+        debugLog("🔄 Token expired, attempting refresh for:", stored.id, stored.name);
         try {
           const resp = await fetch(`${API_URL}/auth/koc`, {
             method: "POST",
@@ -735,7 +795,7 @@
           const data = await resp.json();
           const token = data.token || data.accessToken;
           this.saveAuth(token, stored.id, stored.name);
-          console.log("🔄 Token refreshed successfully");
+          debugLog("🔄 Token refreshed successfully");
           return true;
         } catch (err) {
           console.warn("⚠️ Auto refresh failed:", err);
@@ -798,7 +858,7 @@
           throw new Error("Could not detect your KoC ID/Name on this page");
         }
 
-        console.log("🔍 Attempting login with:", { id, name });
+        debugLog("🔍 Attempting login with:", { id, name });
 
         const resp = await fetch(`${API_URL}/auth/koc`, {
           method: "POST",
@@ -845,7 +905,7 @@
         return;
       }
       alert(`📜 Token Info:\n\nID: ${auth.id}\nName: ${auth.name}\nExpiry: ${new Date(auth.expiry).toLocaleString()}\n\nToken: ${auth.token.substring(0,40)}...`);
-      console.log("📜 Full token object:", auth);
+      debugLog("📜 Full token object:", auth);
     }
 
     // Make authenticated API call with auto-retry
@@ -857,7 +917,7 @@
         return null;
       }
 
-      console.log(`🌐 API call → ${endpoint}`, data);
+      debugLog(`🌐 API call → ${endpoint}`, data);
 
       for (let attempt = 1; attempt <= retries; attempt++) {
         try {
@@ -874,7 +934,7 @@
 
           // Handle 401 - token expired
           if (resp.status === 401 && attempt === 1) {
-            console.log("🔄 Token expired (401), refreshing...");
+            debugLog("🔄 Token expired (401), refreshing...");
             const refreshed = await this.initialize();
             if (refreshed) {
               continue; // Retry with new token
@@ -884,7 +944,7 @@
           }
 
           const json = await resp.json().catch(() => ({ error: "Invalid JSON" }));
-          console.log(`🌐 API response from ${endpoint}:`, json);
+          debugLog(`🌐 API response from ${endpoint}:`, json);
           return json;
 
         } catch (err) {
@@ -981,7 +1041,7 @@
       return false; // Stop initialization
     }
 
-    console.log("✅ Authenticated with SR, initializing features...");
+    debugLog("✅ Authenticated with SR, initializing features...");
     return true;
   }
 
@@ -1060,7 +1120,7 @@
   // ==================== SIDEBAR CALCULATOR ====================
 
   function initSidebarCalculator() {
-    console.log("[XPTool] initSidebarCalculator called");
+    debugLog("[XPTool] initSidebarCalculator called");
     const BOX_ID = "koc-xp-box";
     if (document.getElementById(BOX_ID)) return; // Prevent duplicates
 
@@ -1183,7 +1243,7 @@
     }
 
     updateXPBox();
-    console.log("[XPTool] Sidebar box inserted into page");
+    debugLog("[XPTool] Sidebar box inserted into page");
   }
 
   // ==================== POPUP CALCULATOR ====================
@@ -1291,7 +1351,7 @@
       results.querySelector('#koc-max-attacks').textContent = maxAttacks.toLocaleString();
       results.querySelector('#koc-pot-gold').textContent = potGold.toLocaleString();
 
-      console.log('[Calculator] Validated input:', validation.values, '→ Output:', { maxAttacks, potGold });
+      debugLog('[Calculator] Validated input:', validation.values, '→ Output:', { maxAttacks, potGold });
     };
 
     // Assemble popup
@@ -1321,7 +1381,7 @@
   // ==================== ATTACK LOG ENHANCER ====================
 
   function enhanceAttackLog() {
-    console.log("[XPTool] enhanceAttackLog called");
+    debugLog("[XPTool] enhanceAttackLog called");
 
     const tables = document.querySelectorAll('table');
     for (let i = 0; i < tables.length; i++) {
@@ -1358,7 +1418,7 @@
                   if (txt.startsWith('Total By You Last 24 Hours')) {
                     SafeStorage.set('xpTool_avgGold', avg);
                     SafeStorage.set('xpTool_avgGold_time', Date.now());
-                    console.log("[XPTool] Avg Gold/Atk saved:", avg);
+                    debugLog("[XPTool] Avg Gold/Atk saved:", avg);
                   }
                 }
               }
@@ -1368,7 +1428,7 @@
                 const goldLost = parseInt(cells[2].innerText.replace(/,/g, ''), 10) || 0;
                 SafeStorage.set("KoC_GoldLost24h", goldLost);
                 SafeStorage.set("KoC_GoldLost24h_time", new Date().toISOString());
-                console.log("📊 Banking: Gold lost (24h) saved:", goldLost);
+                debugLog("📊 Banking: Gold lost (24h) saved:", goldLost);
               }
             }
           });
@@ -1436,7 +1496,7 @@
 
     usableResourcesTable.appendChild(newRow);
 
-    console.log("[XPTool] Recon Max Attacks row added:", maxAttacks);
+    debugLog("[XPTool] Recon Max Attacks row added:", maxAttacks);
   }
 
   // ==================== BATTLEFIELD COLLECTOR ====================
@@ -1528,12 +1588,12 @@
       });
 
       if (newCount > 0) {
-        console.log(`[DataCentre] Captured ${newCount} new players from battlefield`);
+        debugLog(`[DataCentre] Captured ${newCount} new players from battlefield`);
       }
 
       // Send bulk gold updates to API
       if (goldUpdates.length > 0) {
-        console.log(`[DataCentre] Sending ${goldUpdates.length} gold updates to API`);
+        debugLog(`[DataCentre] Sending ${goldUpdates.length} gold updates to API`);
         await auth.apiCall("battlefield/bulk-gold-update", { updates: goldUpdates });
       }
 
@@ -1575,7 +1635,7 @@
 
     updatePlayerInfo(id, { tiv, lastTivTime: now });
 
-    console.log("📊 Attack TIV saved", { id, tiv });
+    debugLog("📊 Attack TIV saved", { id, tiv });
 
     // Push to API
     await auth.apiCall("tiv", { playerId: id, tiv, time: now });
@@ -1584,13 +1644,13 @@
   // ==================== ATTACK LOG COLLECTOR ====================
 
   async function collectAttackLog() {
-    console.log("📊 Attack log collector triggered");
+    debugLog("📊 Attack log collector triggered");
 
     // Extract attack ID from URL
     const urlParams = new URLSearchParams(location.search);
     const attackId = urlParams.get('attack_id');
     if (!attackId) {
-      console.log("⚠️ No attack_id found in URL");
+      debugLog("⚠️ No attack_id found in URL");
       return;
     }
 
@@ -1659,7 +1719,7 @@
     }
 
     if (!targetId) {
-      console.log("⚠️ Could not find target ID");
+      debugLog("⚠️ Could not find target ID");
       return;
     }
 
@@ -1678,7 +1738,7 @@
       enemyArmy
     };
 
-    console.log("📊 Attack log collected:", attackLog);
+    debugLog("📊 Attack log collected:", attackLog);
 
     // Send to API
     await auth.apiCall("battlefield/attack-log", attackLog);
@@ -1758,7 +1818,7 @@
       myName = myLink.textContent.trim() || myName || "Me";
       SafeStorage.set("KoC_MyId", myId);
       SafeStorage.set("KoC_MyName", myName);
-      console.log("📊 Stored my KoC ID/Name:", myId, myName);
+      debugLog("📊 Stored my KoC ID/Name:", myId, myName);
     }
 
     let projectedIncome;
@@ -1873,7 +1933,7 @@
 
     // Save locally
     updatePlayerInfo(myId, payload);
-    console.log("📊 Base.php self stats captured", payload);
+    debugLog("📊 Base.php self stats captured", payload);
 
     // Push to API
     auth.apiCall("players", { id: myId, ...payload });
@@ -1917,12 +1977,12 @@
               };
 
               SafeStorage.set(`reconTrack_${myId}`, JSON.stringify(reconData));
-              console.log("📊 Recons to clear captured:", reconData);
+              debugLog("📊 Recons to clear captured:", reconData);
             } else {
               // Player has cleared recons - remove tracking
               const myId = SafeStorage.get("KoC_MyId", "self");
               SafeStorage.remove(`reconTrack_${myId}`);
-              console.log("✅ Recons cleared - removed tracking");
+              debugLog("✅ Recons cleared - removed tracking");
             }
 
             break;
@@ -2070,10 +2130,23 @@
     cell.colSpan = 2;
     container.appendChild(cell);
 
-    // Header with toggles
+    // Header with toggles and debug mode button
     const header = document.createElement("div");
     header.style.cssText = "margin-bottom:8px; color:gold; font-size:12px; font-weight:bold;";
-    header.innerHTML = `<div style="margin-bottom:6px;">Sweet Revenge Stats</div>`;
+
+    const debugIcon = DebugMode.isEnabled() ? "🐛" : "🔇";
+    const debugTitle = DebugMode.isEnabled() ? "Debug ON (click to disable)" : "Debug OFF (click to enable)";
+
+    header.innerHTML = `
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+        <span>Sweet Revenge Stats</span>
+        <button id="koc-debug-toggle"
+                title="${debugTitle}"
+                style="cursor:pointer; background:#333; color:#ccc; border:1px solid #555; border-radius:3px; padding:2px 6px; font-size:10px;">
+          ${debugIcon} Debug
+        </button>
+      </div>
+    `;
 
     // Create toggle checkboxes
     const toggleContainer = document.createElement("div");
@@ -2170,6 +2243,15 @@
         redistributeTables();
       });
     });
+
+    // Add debug mode toggle event listener
+    const debugToggleBtn = header.querySelector("#koc-debug-toggle");
+    if (debugToggleBtn) {
+      debugToggleBtn.addEventListener("click", () => {
+        DebugMode.toggle();
+        location.reload(); // Reload to update UI
+      });
+    }
 
     // Build cell
     cell.appendChild(header);
@@ -2322,7 +2404,7 @@
     // Send self stats to API
     await auth.apiCall("players", { id: myId, ...payload });
 
-    console.log("📊 Armory self stats captured", { id: myId, name: myName, tiv, weapons: weapons.length, ...stats });
+    debugLog("📊 Armory self stats captured", { id: myId, name: myName, tiv, weapons: weapons.length, ...stats });
   }
 
   function calculateWeaponEfficiency(weapons, stats) {
@@ -2436,7 +2518,7 @@
       }
     }
 
-    console.log('💰 Weapon efficiency calculated:', efficiency);
+    debugLog('💰 Weapon efficiency calculated:', efficiency);
     return efficiency;
   }
 
@@ -2461,11 +2543,11 @@
     });
 
     if (inventoryTables.length === 0) {
-      console.log('⚠️ No weapon inventory tables found on armory page');
+      debugLog('⚠️ No weapon inventory tables found on armory page');
       return weapons;
     }
 
-    console.log(`🔍 Found ${inventoryTables.length} inventory table(s) in armory`);
+    debugLog(`🔍 Found ${inventoryTables.length} inventory table(s) in armory`);
 
     // All weapon/tool categories in armory
     const validCategories = [
@@ -2481,7 +2563,7 @@
 
     // For each inventory table, find category headers within it
     inventoryTables.forEach((inventoryTable, idx) => {
-      console.log(`📦 Processing inventory table ${idx + 1}`);
+      debugLog(`📦 Processing inventory table ${idx + 1}`);
 
       // Find all category headers within this inventory table only
       const categoryHeaders = [...inventoryTable.querySelectorAll("th.subh")]
@@ -2490,7 +2572,7 @@
           return validCategories.some(cat => text.includes(cat));
         });
 
-      console.log(`  Found ${categoryHeaders.length} weapon/tool categories in this table`);
+      debugLog(`  Found ${categoryHeaders.length} weapon/tool categories in this table`);
 
     categoryHeaders.forEach(categoryHeader => {
       // Normalize text (remove line breaks and extra spaces)
@@ -2528,7 +2610,7 @@
         }
       }
 
-      console.log(`  ${category}: Found ${weaponRows.length} potential weapon rows`);
+      debugLog(`  ${category}: Found ${weaponRows.length} potential weapon rows`);
 
       // Each weapon is a single row with all data
       weaponRows.forEach((row, idx) => {
@@ -2574,7 +2656,7 @@
     });
     }); // Close inventoryTables.forEach
 
-    console.log(`📦 Total weapons collected: ${weapons.length}`);
+    debugLog(`📦 Total weapons collected: ${weapons.length}`);
     return weapons;
   }
 
@@ -2705,7 +2787,7 @@
         }
       });
 
-      console.log("✅ Enhanced Shared Recon Info table with age column");
+      debugLog("✅ Enhanced Shared Recon Info table with age column");
     } catch (err) {
       console.warn("⚠️ Failed to enhance Shared Recon Info table:", err);
     }
@@ -2780,7 +2862,7 @@
             const date = new Date(Date.UTC(year, month, day, hour + offset, minute, second));
 
             isoTimestamp = date.toISOString();
-            console.log(`🕐 Converted KoC Server Time "${timestamp}" (${isDST ? 'EDT' : 'EST'}) to UTC: ${isoTimestamp}`);
+            debugLog(`🕐 Converted KoC Server Time "${timestamp}" (${isDST ? 'EDT' : 'EST'}) to UTC: ${isoTimestamp}`);
           }
         } catch (e) {
           console.warn("⚠️ Failed to parse timestamp:", timestamp, e);
@@ -2807,7 +2889,7 @@
         }
       });
 
-      console.log("📡 Parsed Shared Recon Info:", sharedRecon);
+      debugLog("📡 Parsed Shared Recon Info:", sharedRecon);
     } catch (err) {
       console.warn("⚠️ Failed to parse Shared Recon Info:", err);
     }
@@ -2825,7 +2907,7 @@
       // Check if we have shared recon data for this stat
       const sharedData = sharedReconData[key];
       if (sharedData && sharedData.value && sharedData.time) {
-        console.log(`✅ Using shared recon for ${key}: ${sharedData.value} (${sharedData.time})`);
+        debugLog(`✅ Using shared recon for ${key}: ${sharedData.value} (${sharedData.time})`);
         return { value: sharedData.value, time: sharedData.time };
       }
 
@@ -2860,7 +2942,7 @@
       id = match ? match[1] : null;
 
       if (!id) {
-        console.log("⚠️ Recon: Could not find player ID on inteldetail page");
+        debugLog("⚠️ Recon: Could not find player ID on inteldetail page");
         return;
       }
     } else {
@@ -2869,7 +2951,7 @@
       id = urlParams.get('id');
 
       if (!id) {
-        console.log("⚠️ Recon: Could not find player ID in URL");
+        debugLog("⚠️ Recon: Could not find player ID in URL");
         return;
       }
     }
@@ -3036,7 +3118,7 @@
       if (weapons.length > 0) {
         stats.weapons = JSON.stringify(weapons);
         stats.weaponsTime = now;
-        console.log(`📦 Captured ${weapons.length} weapons from recon`);
+        debugLog(`📦 Captured ${weapons.length} weapons from recon`);
       }
     }
 
@@ -3047,7 +3129,7 @@
 
     // Save + push
     updatePlayerInfo(id, stats);
-    console.log(`📊 Recon data saved (${fieldCount} fields):`, stats);
+    debugLog(`📊 Recon data saved (${fieldCount} fields):`, stats);
 
     // Send to API
     await auth.apiCall("players", { id, ...stats });
@@ -3086,11 +3168,11 @@
       // Fetch player data from API
       const playerData = await auth.apiCall(`players/${playerId}`);
       if (!playerData) {
-        console.log("⚠️ No API data available for player", playerId);
+        debugLog("⚠️ No API data available for player", playerId);
         return;
       }
 
-      console.log("🌐 Fetched player data from API:", playerData);
+      debugLog("🌐 Fetched player data from API:", playerData);
 
       // Find "Shared Recon Info" table
       const header = [...document.querySelectorAll("th, td")]
@@ -3152,7 +3234,7 @@
       });
 
       if (updatedCount > 0) {
-        console.log(`✅ Filled ${updatedCount} "???" values from API data`);
+        debugLog(`✅ Filled ${updatedCount} "???" values from API data`);
       }
     } catch (err) {
       console.warn("⚠️ Failed to fill Shared Recon Info from API:", err);
@@ -3224,7 +3306,7 @@
       });
 
       if (updatedCount > 0) {
-        console.log(`✅ Updated ${updatedCount} "???" values in Shared Recon Info with fresh data`);
+        debugLog(`✅ Updated ${updatedCount} "???" values in Shared Recon Info with fresh data`);
       }
     } catch (err) {
       console.warn("⚠️ Failed to update Shared Recon Info table:", err);
@@ -3279,7 +3361,7 @@
         });
         if (resp.ok) {
           prev = await resp.json();
-          console.log("🌐 Recon fallback loaded from API:", prev);
+          debugLog("🌐 Recon fallback loaded from API:", prev);
         }
       }
     } catch (err) {
@@ -3379,7 +3461,7 @@
             </td>
           `;
           tbody.appendChild(cacheNotice);
-          console.log(`📦 Cached weapons (${weaponsAge}):`, cachedWeapons);
+          debugLog(`📦 Cached weapons (${weaponsAge}):`, cachedWeapons);
         }
       } catch (e) {
         console.warn("Failed to parse cached weapons", e);
@@ -3394,22 +3476,22 @@
       return false; // Not a redirect request
     }
 
-    console.log("[DataCentre] Redirecting to React app...");
+    debugLog("[DataCentre] Redirecting to React app...");
 
     const authData = auth.getAuthForRedirect();
-    console.log("[DataCentre] Auth data:", authData ? "✅ Available" : "❌ Not available");
+    debugLog("[DataCentre] Auth data:", authData ? "✅ Available" : "❌ Not available");
 
     if (authData) {
-      console.log("[DataCentre] Valid auth found, using URL parameter method");
+      debugLog("[DataCentre] Valid auth found, using URL parameter method");
 
       // Encode auth data as base64 for URL
       const authEncoded = btoa(JSON.stringify(authData));
       const redirectUrl = `https://koc-roster-client-production.up.railway.app?auth=${authEncoded}`;
 
-      console.log("[DataCentre] Redirecting with auth in URL");
+      debugLog("[DataCentre] Redirecting with auth in URL");
       window.location.href = redirectUrl;
     } else {
-      console.log("[DataCentre] No valid auth found, redirecting without token");
+      debugLog("[DataCentre] No valid auth found, redirecting without token");
       window.location.href = "https://koc-roster-client-production.up.railway.app";
     }
 
@@ -3509,7 +3591,7 @@
             }
           });
           observer.observe(table, { childList: true, subtree: true });
-          console.log("[DataCentre] Battlefield observer active (debounced)");
+          debugLog("[DataCentre] Battlefield observer active (debounced)");
         }
       });
     }
@@ -3545,7 +3627,7 @@
         // Only run features if we're not redirecting
         if (!isRedirecting) {
           await runFeatures();
-          console.log("✅ All features initialized");
+          debugLog("✅ All features initialized");
         }
       }
     } catch (error) {
@@ -3575,22 +3657,22 @@
   // ==================== DEBUG HELPERS ====================
 
   window.showPlayer = function(id) {
-    console.log("🔍 showPlayer() called with id:", id);
+    debugLog("🔍 showPlayer() called with id:", id);
     const map = getNameMap();
 
     if (!id) {
-      console.log("📊 Full NameMap:", map);
+      debugLog("📊 Full NameMap:", map);
       return map;
     }
 
-    console.log("📊 Player record:", map[id]);
+    debugLog("📊 Player record:", map[id]);
     return map[id] || null;
   };
 
   window.showTivLog = function() {
-    console.log("📊 Full TIV log requested");
+    debugLog("📊 Full TIV log requested");
     const log = getTivLog();
-    console.log("📊 Log:", log);
+    debugLog("📊 Log:", log);
     return log;
   };
 
