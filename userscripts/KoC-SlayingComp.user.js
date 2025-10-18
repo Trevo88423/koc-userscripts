@@ -1,10 +1,19 @@
 // ==UserScript==
 // @name         KoC Slaying Competition Tracker
 // @namespace    trevo88423
-// @version      2.13.0
+// @version      2.13.1
 // @description  Track Attack Missions and Gold Stolen for slaying competitions (supports multiple concurrent competitions)
 // @author       Blackheart
 // @match        https://www.kingsofchaos.com/*
+// @exclude      https://*.kingsofchaos.com/confirm.login.php*
+// @exclude      https://*.kingsofchaos.com/confirm.login.php
+// @exclude      https://*.kingsofchaos.com/security.php*
+// @exclude      https://*.kingsofchaos.com/error.php*
+// @exclude      https://*.kingsofchaos.com/recruit.php*
+// @exclude      https://*.kingsofchaos.com/farmlist.php*
+// @exclude      https://*.kingsofchaos.com/warlist.php*
+// @exclude      https://*.kingsofchaos.com/error.php
+// @exclude      https://*.kingsofchaos.com
 // @icon         https://www.kingsofchaos.com/favicon.ico
 // @grant        none
 // @updateURL    https://raw.githubusercontent.com/Trevo88423/koc-userscripts/main/userscripts/KoC-SlayingComp.user.js
@@ -29,7 +38,7 @@
   const STATS_KEY_PREFIX = "KoC_CompStats"; // Cache stats across pages (per competition)
   const LAST_SUBMIT_PREFIX = "KoC_CompLastSubmit"; // Per-competition submission tracking
 
-  console.log("✅ Slaying Competition Tracker v2.13.0 loaded");
+  console.log("✅ Slaying Competition Tracker v2.13.1 loaded");
 
   // ========================
   // === Auth Management  ===
@@ -117,7 +126,7 @@
         "Content-Type": "application/json",
         "Authorization": "Bearer " + token,
         "X-Script-Name": "koc-slaying-comp-tracker",
-        "X-Script-Version": "2.13.0"
+        "X-Script-Version": "2.13.1"
       }
     };
 
