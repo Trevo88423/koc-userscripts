@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         KoC Data Centre
 // @namespace    trevo88423
-// @version      1.41.3
+// @version      1.41.4
 // @description  Sweet Revenge alliance tool: tracks stats, syncs to API, adds dashboards, XP→Turn calculator, mini Top Stats panel, comprehensive recon data collection, Shared Recon Info parsing, KoC Server Time synchronization, and stats.php collection.
 // @author       Blackheart
 // @match        https://www.kingsofchaos.com/*
@@ -35,7 +35,7 @@
   // ==================== VERSION CHECK ====================
   // Check if this script version is allowed to run
   const SCRIPT_NAME = 'koc-data-centre';
-  const SCRIPT_VERSION = '1.41.3'; // Must match @version above
+  const SCRIPT_VERSION = '1.41.4'; // Must match @version above
   const VERSION_CHECK_API = 'https://koc-roster-api-production.up.railway.app';
 
   async function checkScriptVersion() {
@@ -927,7 +927,12 @@
         return null;
       }
 
-      debugLog(`🌐 API call → ${endpoint}`, data);
+      // Log API call (only show data for POST requests)
+      if (data) {
+        debugLog(`🌐 API call → ${endpoint}`, data);
+      } else {
+        debugLog(`🌐 API call → ${endpoint}`);
+      }
 
       for (let attempt = 1; attempt <= retries; attempt++) {
         try {
