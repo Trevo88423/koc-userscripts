@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         KoC Data Centre
 // @namespace    trevo88423
-// @version      1.38.0
+// @version      1.39.0
 // @description  Sweet Revenge alliance tool: tracks stats, syncs to API, adds dashboards, XP→Turn calculator, mini Top Stats panel, comprehensive recon data collection, Shared Recon Info parsing, KoC Server Time synchronization, and stats.php collection.
 // @author       Blackheart
 // @match        https://www.kingsofchaos.com/*
@@ -26,7 +26,7 @@
   // ==================== VERSION CHECK ====================
   // Check if this script version is allowed to run
   const SCRIPT_NAME = 'koc-data-centre';
-  const SCRIPT_VERSION = '1.38.0'; // Must match @version above
+  const SCRIPT_VERSION = '1.39.0'; // Must match @version above
   const VERSION_CHECK_API = 'https://koc-roster-api-production.up.railway.app';
 
   async function checkScriptVersion() {
@@ -1879,6 +1879,59 @@
     auth.apiCall("players", { id: myId, ...payload });
   }
 
+  // ==================== REWARDS PAGE COLLECTOR (RECONS) ====================
+
+  function collectFromRewardsPage() {
+    // Extract "Unsuccessful Recons" from "Actions against you" table
+    const rows = [...document.querySelectorAll("tr")];
+
+    for (const row of rows) {
+      const cells = row.querySelectorAll("td");
+      if (cells.length >= 2) {
+        const firstCell = cells[0]?.textContent.trim();
+
+        // Look for "Unsuccessful Recons" row
+        if (firstCell && firstCell.includes("Unsuccessful Recons")) {
+          const secondCell = cells[1]?.textContent.trim();
+
+          // Extract the number (e.g., "2508/1000" or "999/1000")
+          const match = secondCell?.match(/^(\d+)\/(\d+)/);
+          if (match) {
+            const current = parseInt(match[1], 10);
+            const max = parseInt(match[2], 10);
+
+            // Only track if player has recons to clear (current < max)
+            if (current < max) {
+              const remaining = max - current;
+              const myId = SafeStorage.get("KoC_MyId", "self");
+              const myName = SafeStorage.get("KoC_MyName", "Me");
+
+              // Store recon tracking data
+              const reconData = {
+                id: myId,
+                name: myName,
+                reconsRemaining: remaining,
+                current: current,
+                max: max,
+                lastUpdate: getKoCServerTimeUTC()
+              };
+
+              SafeStorage.set(`reconTrack_${myId}`, JSON.stringify(reconData));
+              console.log("📊 Recons to clear captured:", reconData);
+            } else {
+              // Player has cleared recons - remove tracking
+              const myId = SafeStorage.get("KoC_MyId", "self");
+              SafeStorage.remove(`reconTrack_${myId}`);
+              console.log("✅ Recons cleared - removed tracking");
+            }
+
+            break;
+          }
+        }
+      }
+    }
+  }
+
   // ==================== SWEET REVENGE STATS PANEL ====================
 
   async function insertTopStatsPanel() {
@@ -1929,6 +1982,39 @@
         }));
     }
 
+    // Fetch recon tracking data from localStorage
+    function getReconTracking() {
+      const reconPlayers = [];
+      const keys = Object.keys(localStorage);
+
+      for (const key of keys) {
+        if (key.startsWith("reconTrack_")) {
+          try {
+            const data = JSON.parse(localStorage.getItem(key));
+            reconPlayers.push({
+              id: data.id,
+              rank: 0, // Will be set after sorting
+              name: data.name,
+              value: data.reconsRemaining.toLocaleString(),
+              rawValue: data.reconsRemaining
+            });
+          } catch (err) {
+            console.warn("Failed to parse recon data:", key, err);
+          }
+        }
+      }
+
+      // Sort by most recons remaining (descending)
+      reconPlayers.sort((a, b) => b.rawValue - a.rawValue);
+
+      // Assign ranks
+      reconPlayers.forEach((p, i) => {
+        p.rank = i + 1;
+      });
+
+      return reconPlayers;
+    }
+
     // Stat definitions
     const statDefs = [
       { key: "tiv", label: "💰 TIV", id: "tiv" },
@@ -1940,7 +2026,8 @@
       { key: "defensiveAction", label: "🛡️ Defense", id: "defense" },
       { key: "sentryRating", label: "👀 Sentry", id: "sentry" },
       { key: "antidoteRating", label: "💊 Antidote", id: "antidote" },
-      { key: "vigilanceRating", label: "🔎 Vigilance", id: "vigilance" }
+      { key: "vigilanceRating", label: "🔎 Vigilance", id: "vigilance" },
+      { key: "recons", label: "🔍 Recons", id: "recons", custom: true }
     ];
 
     // Build mini table
@@ -2030,7 +2117,12 @@
     // Generate all tables
     const allTables = [];
     statDefs.forEach(def => {
-      const table = makeRBTable(def, sortedBy(def.key, def.asc));
+      // Use custom data source for recons
+      const rows = def.custom && def.key === "recons"
+        ? getReconTracking()
+        : sortedBy(def.key, def.asc);
+
+      const table = makeRBTable(def, rows);
       table.dataset.statId = def.id;
 
       // Set initial visibility
@@ -3381,6 +3473,11 @@
     // Attack log
     if (location.pathname.includes("attacklog.php")) {
       await safeExecute('enhanceAttackLog', () => enhanceAttackLog());
+    }
+
+    // Rewards page (track recons)
+    if (location.pathname.includes("rewards.php")) {
+      await safeExecute('collectFromRewardsPage', () => collectFromRewardsPage());
     }
 
     // Recon detail & Stats pages
