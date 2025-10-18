@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         KoC Data Centre
 // @namespace    trevo88423
-// @version      1.41.0
+// @version      1.41.1
 // @description  Sweet Revenge alliance tool: tracks stats, syncs to API, adds dashboards, XP→Turn calculator, mini Top Stats panel, comprehensive recon data collection, Shared Recon Info parsing, KoC Server Time synchronization, and stats.php collection.
 // @author       Blackheart
 // @match        https://www.kingsofchaos.com/*
@@ -2017,7 +2017,11 @@
       const token = await auth.getToken();
       if (token) {
         const resp = await fetch(`${API_URL}/players`, {
-          headers: { "Authorization": "Bearer " + token }
+          headers: {
+            "Authorization": "Bearer " + token,
+            "X-Script-Name": SCRIPT_NAME,
+            "X-Script-Version": SCRIPT_VERSION
+          }
         });
         if (resp.ok) players = await resp.json();
       }
@@ -3430,7 +3434,11 @@
       const token = await auth.getToken();
       if (token) {
         const resp = await fetch(`${API_URL}/players/${id}`, {
-          headers: { "Authorization": "Bearer " + token }
+          headers: {
+            "Authorization": "Bearer " + token,
+            "X-Script-Name": SCRIPT_NAME,
+            "X-Script-Version": SCRIPT_VERSION
+          }
         });
         if (resp.ok) {
           prev = await resp.json();
