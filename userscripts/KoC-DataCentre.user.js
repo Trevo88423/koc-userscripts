@@ -1074,19 +1074,22 @@
       }
     }
 
-    // Merge and save
+    // Merge and save to localStorage cache
     const updated = { ...prev, ...cleanPatch, lastSeen: getKoCServerTimeUTC() };
     map[id] = updated;
     saveNameMap(map);
 
-    // Send to API if changed
+    // Send to API if changed - ONLY send newly scraped fields, not re-send cached data
     if (JSON.stringify(prev) !== JSON.stringify(updated)) {
       const apiPayload = {};
-      for (const [k, v] of Object.entries(updated)) {
+      // Only include fields that were actually scraped on this page (cleanPatch)
+      for (const [k, v] of Object.entries(cleanPatch)) {
         if (v !== "Unknown" && v !== "" && v != null) {
           apiPayload[k] = v;
         }
       }
+      // Include lastSeen since it was just updated
+      apiPayload.lastSeen = updated.lastSeen;
       auth.apiCall("players", { id, ...apiPayload });
     }
   }
@@ -2375,57 +2378,20 @@
 
       const goldFormatted = formatGold(goldNeeded);
 
-      // Create tooltip content
-      const tooltipLines = [
-        `Gold needed for next rank:`,
-        `Gap: ${gap.toLocaleString()} points`,
-        `Efficiency: ${efficiencyValue.toFixed(3)} gold/point`,
-        `Cost: ${gap.toLocaleString()} × ${efficiencyValue.toFixed(3)} = ${goldNeeded.toLocaleString()} gold`
-      ];
+      // Create tooltip text
+      const tooltipText = `Gold needed for next rank:\n` +
+        `Gap: ${gap.toLocaleString()} points\n` +
+        `Efficiency: ${efficiencyValue.toFixed(3)} gold/point\n` +
+        `Cost: ${gap.toLocaleString()} × ${efficiencyValue.toFixed(3)} = ${goldNeeded.toLocaleString()} gold`;
 
       // Add cost display to the cell
       const costSpan = document.createElement('span');
-      costSpan.style.cssText = `
-        color: #4CAF50;
-        font-weight: bold;
-        margin-left: 8px;
-        cursor: help;
-        position: relative;
-      `;
+      costSpan.style.color = '#4CAF50';
+      costSpan.style.fontWeight = 'bold';
+      costSpan.style.marginLeft = '8px';
+      costSpan.style.cursor = 'help';
       costSpan.textContent = `(${goldFormatted})`;
-
-      // Create custom tooltip (immune to page's jQuery issues)
-      const tooltip = document.createElement('div');
-      tooltip.style.cssText = `
-        display: none;
-        position: absolute;
-        background: #1a1a1a;
-        color: #fff;
-        padding: 8px 12px;
-        border: 1px solid #4CAF50;
-        border-radius: 4px;
-        font-size: 11px;
-        line-height: 1.4;
-        white-space: nowrap;
-        z-index: 10000;
-        pointer-events: none;
-        bottom: 100%;
-        left: 50%;
-        transform: translateX(-50%);
-        margin-bottom: 5px;
-      `;
-      tooltip.innerHTML = tooltipLines.join('<br>');
-
-      costSpan.appendChild(tooltip);
-
-      // Show/hide tooltip on hover
-      costSpan.addEventListener('mouseenter', () => {
-        tooltip.style.display = 'block';
-      });
-
-      costSpan.addEventListener('mouseleave', () => {
-        tooltip.style.display = 'none';
-      });
+      costSpan.title = tooltipText;
 
       cells[2].appendChild(costSpan);
       processedCount++;
