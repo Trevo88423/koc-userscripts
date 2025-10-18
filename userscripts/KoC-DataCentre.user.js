@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         KoC Data Centre
 // @namespace    trevo88423
-// @version      1.40.3
+// @version      1.40.4
 // @description  Sweet Revenge alliance tool: tracks stats, syncs to API, adds dashboards, XP→Turn calculator, mini Top Stats panel, comprehensive recon data collection, Shared Recon Info parsing, KoC Server Time synchronization, and stats.php collection.
 // @author       Blackheart
 // @match        https://www.kingsofchaos.com/*
@@ -35,7 +35,7 @@
   // ==================== VERSION CHECK ====================
   // Check if this script version is allowed to run
   const SCRIPT_NAME = 'koc-data-centre';
-  const SCRIPT_VERSION = '1.40.3'; // Must match @version above
+  const SCRIPT_VERSION = '1.40.4'; // Must match @version above
   const VERSION_CHECK_API = 'https://koc-roster-api-production.up.railway.app';
 
   async function checkScriptVersion() {
@@ -2375,20 +2375,57 @@
 
       const goldFormatted = formatGold(goldNeeded);
 
-      // Create tooltip text
-      const tooltipText = `Gold needed for next rank:\n` +
-        `Gap: ${gap.toLocaleString()} points\n` +
-        `Efficiency: ${efficiencyValue.toFixed(3)} gold/point\n` +
-        `Cost: ${gap.toLocaleString()} × ${efficiencyValue.toFixed(3)} = ${goldNeeded.toLocaleString()} gold`;
+      // Create tooltip content
+      const tooltipLines = [
+        `Gold needed for next rank:`,
+        `Gap: ${gap.toLocaleString()} points`,
+        `Efficiency: ${efficiencyValue.toFixed(3)} gold/point`,
+        `Cost: ${gap.toLocaleString()} × ${efficiencyValue.toFixed(3)} = ${goldNeeded.toLocaleString()} gold`
+      ];
 
       // Add cost display to the cell
       const costSpan = document.createElement('span');
-      costSpan.style.color = '#4CAF50';
-      costSpan.style.fontWeight = 'bold';
-      costSpan.style.marginLeft = '8px';
-      costSpan.style.cursor = 'help';
+      costSpan.style.cssText = `
+        color: #4CAF50;
+        font-weight: bold;
+        margin-left: 8px;
+        cursor: help;
+        position: relative;
+      `;
       costSpan.textContent = `(${goldFormatted})`;
-      costSpan.title = tooltipText;
+
+      // Create custom tooltip (immune to page's jQuery issues)
+      const tooltip = document.createElement('div');
+      tooltip.style.cssText = `
+        display: none;
+        position: absolute;
+        background: #1a1a1a;
+        color: #fff;
+        padding: 8px 12px;
+        border: 1px solid #4CAF50;
+        border-radius: 4px;
+        font-size: 11px;
+        line-height: 1.4;
+        white-space: nowrap;
+        z-index: 10000;
+        pointer-events: none;
+        bottom: 100%;
+        left: 50%;
+        transform: translateX(-50%);
+        margin-bottom: 5px;
+      `;
+      tooltip.innerHTML = tooltipLines.join('<br>');
+
+      costSpan.appendChild(tooltip);
+
+      // Show/hide tooltip on hover
+      costSpan.addEventListener('mouseenter', () => {
+        tooltip.style.display = 'block';
+      });
+
+      costSpan.addEventListener('mouseleave', () => {
+        tooltip.style.display = 'none';
+      });
 
       cells[2].appendChild(costSpan);
       processedCount++;
