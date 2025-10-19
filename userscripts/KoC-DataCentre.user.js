@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name         KoC Data Centre
 // @namespace    trevo88423
-// @version      1.41.5
-// @description  Sweet Revenge alliance tool: tracks stats, syncs to API, adds dashboards, XP→Turn calculator, mini Top Stats panel, comprehensive recon data collection, Shared Recon Info parsing, KoC Server Time synchronization, and stats.php collection.
+// @version      1.41.6
+// @description  Sweet Revenge alliance tool: tracks stats, syncs to API, adds dashboards, XP→Turn calculator, mini Top Stats panel, comprehensive recon data collection, Shared Recon Info parsing, KoC Server Time synchronization, and stats.php collection. FIXED: projectedIncome now only accepts values with "(in 1 min)" confirmation.
 // @author       Blackheart
 // @match        https://www.kingsofchaos.com/*
 // @exclude      https://*.kingsofchaos.com/confirm.login.php*
@@ -3174,7 +3174,7 @@
       stats.treasury = treasury[1]?.cells[0]?.innerText.split(" ")[0];
       stats.treasuryTime = now;
 
-      // Parse Projected Income (1 min only)
+      // Parse Projected Income (1 min only) - MUST contain "(in 1 min)" to be valid
       const projectedIncomeText = treasury[3]?.innerText || "";
       // Format: "13,292,958 Gold (in 1 min) | 199,394,370 Gold (in 15 mins) | 398,788,740 Gold (in 30 mins)"
 
@@ -3188,11 +3188,9 @@
         stats.projectedIncome = sharedReconData.projectedIncome.value;
         stats.projectedIncomeTime = sharedReconData.projectedIncome.time;
         debugLog(`✅ Using shared recon TBG for projectedIncome: ${stats.projectedIncome} at ${stats.projectedIncomeTime}`);
-      } else if (projectedIncomeText && !projectedIncomeText.includes("???")) {
-        // Final fallback if format doesn't match but not "???"
-        stats.projectedIncome = treasury[3]?.innerText.split(" Gold")[0];
-        stats.projectedIncomeTime = now;
       }
+      // REMOVED: Dangerous fallback that could grab wrong row data
+      // Only set projectedIncome if we have a confirmed "(in 1 min)" match
     }
 
     // === WEAPONS INVENTORY ===
