@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name         KoC Data Centre
 // @namespace    trevo88423
-// @version      1.41.6
-// @description  Sweet Revenge alliance tool: tracks stats, syncs to API, adds dashboards, XP→Turn calculator, mini Top Stats panel, comprehensive recon data collection, Shared Recon Info parsing, KoC Server Time synchronization, and stats.php collection. FIXED: projectedIncome now only accepts values with "(in 1 min)" confirmation.
+// @version      1.41.7
+// @description  Sweet Revenge alliance tool: tracks stats, syncs to API, adds dashboards, XP→Turn calculator, mini Top Stats panel, comprehensive recon data collection, Shared Recon Info parsing, KoC Server Time synchronization, and stats.php collection. FIXED: Detect failed recons and validate table structure before parsing to prevent bad data.
 // @author       Blackheart
 // @match        https://www.kingsofchaos.com/*
 // @exclude      https://*.kingsofchaos.com/confirm.login.php*
@@ -3080,12 +3080,35 @@
       return;
     }
 
+    // Check for failed recon - abort if spy was caught
+    const bodyText = document.body.textContent;
+    const reconFailed = bodyText.includes("your spy escapes to camp") ||
+                        bodyText.includes("sounds the alarm") ||
+                        bodyText.includes("will need a more powerful force") ||
+                        bodyText.includes("one of the sentries spots");
+
+    if (reconFailed) {
+      debugLog(`⚠️ Recon failed for player ${id} - spy was caught, aborting data collection`);
+      return;
+    }
+
     // Parse Shared Recon Info table first (alliance-shared recon data)
     const sharedReconData = parseSharedReconInfo();
 
     const ms = getTableByHeader("Military Stats")?.querySelectorAll("tr");
     const treasury = getTableByHeader("Treasury")?.querySelectorAll("tr");
     const armyTable = getTableByHeader("Army Breakdown")?.querySelectorAll("tr");
+
+    // Validate that we have the essential tables with enough rows
+    // Military Stats should have at least 9 rows (header + 8 combat stats)
+    if (!ms || ms.length < 9) {
+      debugLog(`⚠️ Recon page for player ${id} missing Military Stats table or has insufficient data (found ${ms?.length || 0} rows, need 9+)`);
+      // Still allow collection if we have Treasury or Army data from Shared Recon
+      if (!treasury && !armyTable && !sharedReconData) {
+        debugLog(`⚠️ No valid data tables found for player ${id}, aborting collection`);
+        return;
+      }
+    }
 
     const stats = {};
     const now = getKoCServerTimeUTC();
