@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name         KoC Data Centre
 // @namespace    trevo88423
-// @version      1.41.12
-// @description  Sweet Revenge alliance tool: tracks stats, syncs to API, adds dashboards, XP→Turn calculator, mini Top Stats panel, comprehensive recon data collection, Shared Recon Info parsing, KoC Server Time synchronization, and stats.php collection. CRITICAL FIX: parseFloat now removes commas before parsing (21,081,172 → 21081172).
+// @version      1.41.13
+// @description  Sweet Revenge alliance tool: tracks stats, syncs to API, adds dashboards, XP→Turn calculator, mini Top Stats panel, comprehensive recon data collection, Shared Recon Info parsing, KoC Server Time synchronization, and stats.php collection. FIXED: Cached stats now display with comma formatting (53019083823 → "53,019,083,823").
 // @author       Blackheart
 // @match        https://www.kingsofchaos.com/*
 // @exclude      https://*.kingsofchaos.com/confirm.login.php*
@@ -35,7 +35,7 @@
   // ==================== VERSION CHECK ====================
   // Check if this script version is allowed to run
   const SCRIPT_NAME = 'koc-data-centre';
-  const SCRIPT_VERSION = '1.41.12'; // Must match @version above
+  const SCRIPT_VERSION = '1.41.13'; // Must match @version above
   const VERSION_CHECK_API = 'https://koc-roster-api-production.up.railway.app';
 
   async function checkScriptVersion() {
@@ -3619,11 +3619,17 @@
       const rel = cachedTime ? reconTimeAgo(cachedTime) : "";
       const abs = cachedTime ? new Date(cachedTime).toLocaleString() : "";
 
+      // Format large numbers with commas (e.g., 53019083823 → "53,019,083,823")
+      let displayValue = cachedValue;
+      if (typeof cachedValue === 'number' && cachedValue >= 1000) {
+        displayValue = cachedValue.toLocaleString('en-US');
+      }
+
       cell.innerHTML = `
         <div style="float:left;color:#FBC;font-size:0.8em;" title="${escapeHtml(abs)} • from cache">
           ${escapeHtml(rel)}
         </div>
-        <div title="${escapeHtml(abs)} • from cache">${escapeHtml(cachedValue)}</div>
+        <div title="${escapeHtml(abs)} • from cache">${escapeHtml(displayValue)}</div>
       `;
     }
   }
