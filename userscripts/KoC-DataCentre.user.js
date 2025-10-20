@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         KoC Data Centre
 // @namespace    trevo88423
-// @version      1.41.16
+// @version      1.41.17
 // @description  Sweet Revenge alliance tool: tracks stats, syncs to API, adds dashboards, XP→Turn calculator, mini Top Stats panel, comprehensive recon data collection, Shared Recon Info parsing, KoC Server Time synchronization, and stats.php collection. CRITICAL FIX: Preserve timestamp fields - don't convert "strikeActionTime" to integer!
 // @author       Blackheart
 // @match        https://www.kingsofchaos.com/*
@@ -35,7 +35,7 @@
   // ==================== VERSION CHECK ====================
   // Check if this script version is allowed to run
   const SCRIPT_NAME = 'koc-data-centre';
-  const SCRIPT_VERSION = '1.41.16'; // Must match @version above
+  const SCRIPT_VERSION = '1.41.17'; // Must match @version above
   const VERSION_CHECK_API = 'https://koc-roster-api-production.up.railway.app';
 
   async function checkScriptVersion() {
@@ -1977,6 +1977,16 @@
     if (myLink) {
       myId = myLink.href.match(/id=(\d+)/)?.[1] || myId || "self";
       myName = myLink.textContent.trim() || myName || "Me";
+
+      // FIX: If scraped name is "Me" (viewing own page), use authenticated user's name from token
+      if (myName === "Me") {
+        const authData = auth.getStoredAuth();
+        if (authData && authData.name) {
+          myName = authData.name;
+          debugLog("📊 Replaced 'Me' with authenticated name:", myName);
+        }
+      }
+
       SafeStorage.set("KoC_MyId", myId);
       SafeStorage.set("KoC_MyName", myName);
       debugLog("📊 Stored my KoC ID/Name:", myId, myName);
