@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name         KoC Data Centre
 // @namespace    trevo88423
-// @version      1.41.14
-// @description  Sweet Revenge alliance tool: tracks stats, syncs to API, adds dashboards, XP→Turn calculator, mini Top Stats panel, comprehensive recon data collection, Shared Recon Info parsing, KoC Server Time synchronization, and stats.php collection. CRITICAL FIX: Don't save "???" values - prevents overwriting cached data with timestamps.
+// @version      1.41.15
+// @description  Sweet Revenge alliance tool: tracks stats, syncs to API, adds dashboards, XP→Turn calculator, mini Top Stats panel, comprehensive recon data collection, Shared Recon Info parsing, KoC Server Time synchronization, and stats.php collection. CRITICAL FIX: Pass fresh stats to UI enhancement to show correct timestamps from Shared Recon.
 // @author       Blackheart
 // @match        https://www.kingsofchaos.com/*
 // @exclude      https://*.kingsofchaos.com/confirm.login.php*
@@ -35,7 +35,7 @@
   // ==================== VERSION CHECK ====================
   // Check if this script version is allowed to run
   const SCRIPT_NAME = 'koc-data-centre';
-  const SCRIPT_VERSION = '1.41.14'; // Must match @version above
+  const SCRIPT_VERSION = '1.41.15'; // Must match @version above
   const VERSION_CHECK_API = 'https://koc-roster-api-production.up.railway.app';
 
   async function checkScriptVersion() {
@@ -3441,8 +3441,8 @@
       fillSharedReconInfoFromAPI(id);
     }
 
-    // Enhance UI with cached data
-    enhanceReconUI(id).catch(err => console.warn("enhanceReconUI failed:", err));
+    // Enhance UI with fresh stats we just collected
+    enhanceReconUI(id, stats).catch(err => console.warn("enhanceReconUI failed:", err));
   }
 
   // Fill Shared Recon Info table with data from API for "???" values
@@ -3638,33 +3638,42 @@
     }
   }
 
-  async function enhanceReconUI(id) {
+  async function enhanceReconUI(id, freshStats = null) {
     let prev = {};
 
-    // API-first
-    try {
-      const token = await auth.getToken();
-      if (token) {
-        const resp = await fetch(`${API_URL}/players/${id}`, {
-          headers: {
-            "Authorization": "Bearer " + token,
-            "X-Script-Name": SCRIPT_NAME,
-            "X-Script-Version": SCRIPT_VERSION
-          }
-        });
-        if (resp.ok) {
-          prev = await resp.json();
-          debugLog("🌐 Recon fallback loaded from API:", prev);
-        }
-      }
-    } catch (err) {
-      console.warn("⚠️ API recon lookup failed, using local cache", err);
-    }
-
-    // Fallback to local cache
-    if (!prev || Object.keys(prev).length === 0) {
+    // If we have fresh stats from collection, use them first (they include Shared Recon data with timestamps)
+    if (freshStats && Object.keys(freshStats).length > 0) {
+      // Merge fresh stats with any existing cached data
       const map = getNameMap();
-      prev = map[id] || {};
+      const cached = map[id] || {};
+      prev = { ...cached, ...freshStats };
+      debugLog("✅ Using fresh stats from collection for UI enhancement:", freshStats);
+    } else {
+      // Otherwise fetch from API
+      try {
+        const token = await auth.getToken();
+        if (token) {
+          const resp = await fetch(`${API_URL}/players/${id}`, {
+            headers: {
+              "Authorization": "Bearer " + token,
+              "X-Script-Name": SCRIPT_NAME,
+              "X-Script-Version": SCRIPT_VERSION
+            }
+          });
+          if (resp.ok) {
+            prev = await resp.json();
+            debugLog("🌐 Recon fallback loaded from API:", prev);
+          }
+        }
+      } catch (err) {
+        console.warn("⚠️ API recon lookup failed, using local cache", err);
+      }
+
+      // Fallback to local cache
+      if (!prev || Object.keys(prev).length === 0) {
+        const map = getNameMap();
+        prev = map[id] || {};
+      }
     }
 
     // === FILL MILITARY STATS ===
