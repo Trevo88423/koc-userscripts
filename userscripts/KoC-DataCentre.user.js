@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         KoC Data Centre
 // @namespace    trevo88423
-// @version      1.41.10
+// @version      1.41.11
 // @description  Sweet Revenge alliance tool: tracks stats, syncs to API, adds dashboards, XP→Turn calculator, mini Top Stats panel, comprehensive recon data collection, Shared Recon Info parsing, KoC Server Time synchronization, and stats.php collection. NEW: Server-side debug toggle (KoCDebug.serverEnable/Disable/Status).
 // @author       Blackheart
 // @match        https://www.kingsofchaos.com/*
@@ -35,7 +35,7 @@
   // ==================== VERSION CHECK ====================
   // Check if this script version is allowed to run
   const SCRIPT_NAME = 'koc-data-centre';
-  const SCRIPT_VERSION = '1.41.10'; // Must match @version above
+  const SCRIPT_VERSION = '1.41.11'; // Must match @version above
   const VERSION_CHECK_API = 'https://koc-roster-api-production.up.railway.app';
 
   async function checkScriptVersion() {
@@ -194,7 +194,7 @@
           headers: { 'Authorization': 'Bearer ' + token }
         });
         const result = await response.json();
-        console.log("🐛 Server debug mode:", result.message);
+        console.log("🐛 Server debug mode ENABLED:", result.message || result);
         return result;
       } catch (err) {
         console.error("❌ Failed to enable server debug mode:", err);
@@ -213,7 +213,7 @@
           headers: { 'Authorization': 'Bearer ' + token }
         });
         const result = await response.json();
-        console.log("🔇 Server debug mode:", result.message);
+        console.log("🔇 Server debug mode DISABLED:", result.message || result);
         return result;
       } catch (err) {
         console.error("❌ Failed to disable server debug mode:", err);
@@ -231,7 +231,7 @@
           headers: { 'Authorization': 'Bearer ' + token }
         });
         const result = await response.json();
-        console.log("📊 Server debug status:", result.message);
+        console.log("📊 Server debug status:", result);
         return result;
       } catch (err) {
         console.error("❌ Failed to check server debug status:", err);
