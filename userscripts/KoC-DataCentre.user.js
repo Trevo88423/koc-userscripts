@@ -2,7 +2,7 @@
 // @name         KoC Data Centre
 // @namespace    trevo88423
 // @version      1.41.11
-// @description  Sweet Revenge alliance tool: tracks stats, syncs to API, adds dashboards, XP→Turn calculator, mini Top Stats panel, comprehensive recon data collection, Shared Recon Info parsing, KoC Server Time synchronization, and stats.php collection. NEW: Server-side debug toggle (KoCDebug.serverEnable/Disable/Status).
+// @description  Sweet Revenge alliance tool: tracks stats, syncs to API, adds dashboards, XP→Turn calculator, mini Top Stats panel, comprehensive recon data collection, Shared Recon Info parsing, KoC Server Time synchronization, and stats.php collection. FIXED: Server debug toggle now uses auth with auto-refresh.
 // @author       Blackheart
 // @match        https://www.kingsofchaos.com/*
 // @exclude      https://*.kingsofchaos.com/confirm.login.php*
@@ -179,64 +179,8 @@
         this.enable();
       }
       return this.isEnabled();
-    },
-
-    // Server-side debug mode controls
-    async serverEnable() {
-      const token = localStorage.getItem('KoC_SRAUTH');
-      if (!token) {
-        console.error("❌ No auth token found. Please log in first.");
-        return;
-      }
-      try {
-        const response = await fetch('https://koc-roster-api-production.up.railway.app/debug/enable', {
-          method: 'POST',
-          headers: { 'Authorization': 'Bearer ' + token }
-        });
-        const result = await response.json();
-        console.log("🐛 Server debug mode ENABLED:", result.message || result);
-        return result;
-      } catch (err) {
-        console.error("❌ Failed to enable server debug mode:", err);
-      }
-    },
-
-    async serverDisable() {
-      const token = localStorage.getItem('KoC_SRAUTH');
-      if (!token) {
-        console.error("❌ No auth token found. Please log in first.");
-        return;
-      }
-      try {
-        const response = await fetch('https://koc-roster-api-production.up.railway.app/debug/disable', {
-          method: 'POST',
-          headers: { 'Authorization': 'Bearer ' + token }
-        });
-        const result = await response.json();
-        console.log("🔇 Server debug mode DISABLED:", result.message || result);
-        return result;
-      } catch (err) {
-        console.error("❌ Failed to disable server debug mode:", err);
-      }
-    },
-
-    async serverStatus() {
-      const token = localStorage.getItem('KoC_SRAUTH');
-      if (!token) {
-        console.error("❌ No auth token found. Please log in first.");
-        return;
-      }
-      try {
-        const response = await fetch('https://koc-roster-api-production.up.railway.app/debug/status', {
-          headers: { 'Authorization': 'Bearer ' + token }
-        });
-        const result = await response.json();
-        console.log("📊 Server debug status:", result);
-        return result;
-      } catch (err) {
-        console.error("❌ Failed to check server debug status:", err);
-      }
     }
+    // Server debug functions (serverEnable, serverDisable, serverStatus) added later after auth is created
   };
 
   // Expose to window for console access
@@ -1076,6 +1020,63 @@
 
   // Create global auth instance
   const auth = new AuthManager();
+
+  // Add server debug control functions to KoCDebug (now that auth exists)
+  window.KoCDebug.serverEnable = async function() {
+    const token = await auth.getToken();
+    if (!token) {
+      console.error("❌ No auth token found. Please log in first.");
+      return;
+    }
+    try {
+      const response = await fetch('https://koc-roster-api-production.up.railway.app/debug/enable', {
+        method: 'POST',
+        headers: { 'Authorization': 'Bearer ' + token }
+      });
+      const result = await response.json();
+      console.log("🐛 Server debug mode ENABLED:", result.message || result);
+      return result;
+    } catch (err) {
+      console.error("❌ Failed to enable server debug mode:", err);
+    }
+  };
+
+  window.KoCDebug.serverDisable = async function() {
+    const token = await auth.getToken();
+    if (!token) {
+      console.error("❌ No auth token found. Please log in first.");
+      return;
+    }
+    try {
+      const response = await fetch('https://koc-roster-api-production.up.railway.app/debug/disable', {
+        method: 'POST',
+        headers: { 'Authorization': 'Bearer ' + token }
+      });
+      const result = await response.json();
+      console.log("🔇 Server debug mode DISABLED:", result.message || result);
+      return result;
+    } catch (err) {
+      console.error("❌ Failed to disable server debug mode:", err);
+    }
+  };
+
+  window.KoCDebug.serverStatus = async function() {
+    const token = await auth.getToken();
+    if (!token) {
+      console.error("❌ No auth token found. Please log in first.");
+      return;
+    }
+    try {
+      const response = await fetch('https://koc-roster-api-production.up.railway.app/debug/status', {
+        headers: { 'Authorization': 'Bearer ' + token }
+      });
+      const result = await response.json();
+      console.log("📊 Server debug status:", result);
+      return result;
+    } catch (err) {
+      console.error("❌ Failed to check server debug status:", err);
+    }
+  };
 
   // ==================== STORAGE HELPERS ====================
 
