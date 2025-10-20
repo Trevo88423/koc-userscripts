@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name         KoC Data Centre
 // @namespace    trevo88423
-// @version      1.41.7
-// @description  Sweet Revenge alliance tool: tracks stats, syncs to API, adds dashboards, XP→Turn calculator, mini Top Stats panel, comprehensive recon data collection, Shared Recon Info parsing, KoC Server Time synchronization, and stats.php collection. FIXED: Detect failed recons and validate table structure before parsing to prevent bad data.
+// @version      1.41.10
+// @description  Sweet Revenge alliance tool: tracks stats, syncs to API, adds dashboards, XP→Turn calculator, mini Top Stats panel, comprehensive recon data collection, Shared Recon Info parsing, KoC Server Time synchronization, and stats.php collection. NEW: Server-side debug toggle (KoCDebug.serverEnable/Disable/Status).
 // @author       Blackheart
 // @match        https://www.kingsofchaos.com/*
 // @exclude      https://*.kingsofchaos.com/confirm.login.php*
@@ -35,7 +35,7 @@
   // ==================== VERSION CHECK ====================
   // Check if this script version is allowed to run
   const SCRIPT_NAME = 'koc-data-centre';
-  const SCRIPT_VERSION = '1.41.5'; // Must match @version above
+  const SCRIPT_VERSION = '1.41.10'; // Must match @version above
   const VERSION_CHECK_API = 'https://koc-roster-api-production.up.railway.app';
 
   async function checkScriptVersion() {
@@ -111,7 +111,7 @@
 
   // Version & API
   const VERSION = (typeof GM_info !== "undefined" && GM_info.script && GM_info.script.version)
-    ? GM_info.script.version : "dev";
+    ? GM_info.script.version : "1.41.9";
   const API_URL = "https://koc-roster-api-production.up.railway.app";
 
   // LocalStorage Keys
@@ -179,6 +179,63 @@
         this.enable();
       }
       return this.isEnabled();
+    },
+
+    // Server-side debug mode controls
+    async serverEnable() {
+      const token = localStorage.getItem('KoC_SRAUTH');
+      if (!token) {
+        console.error("❌ No auth token found. Please log in first.");
+        return;
+      }
+      try {
+        const response = await fetch('https://koc-roster-api-production.up.railway.app/debug/enable', {
+          method: 'POST',
+          headers: { 'Authorization': 'Bearer ' + token }
+        });
+        const result = await response.json();
+        console.log("🐛 Server debug mode:", result.message);
+        return result;
+      } catch (err) {
+        console.error("❌ Failed to enable server debug mode:", err);
+      }
+    },
+
+    async serverDisable() {
+      const token = localStorage.getItem('KoC_SRAUTH');
+      if (!token) {
+        console.error("❌ No auth token found. Please log in first.");
+        return;
+      }
+      try {
+        const response = await fetch('https://koc-roster-api-production.up.railway.app/debug/disable', {
+          method: 'POST',
+          headers: { 'Authorization': 'Bearer ' + token }
+        });
+        const result = await response.json();
+        console.log("🔇 Server debug mode:", result.message);
+        return result;
+      } catch (err) {
+        console.error("❌ Failed to disable server debug mode:", err);
+      }
+    },
+
+    async serverStatus() {
+      const token = localStorage.getItem('KoC_SRAUTH');
+      if (!token) {
+        console.error("❌ No auth token found. Please log in first.");
+        return;
+      }
+      try {
+        const response = await fetch('https://koc-roster-api-production.up.railway.app/debug/status', {
+          headers: { 'Authorization': 'Bearer ' + token }
+        });
+        const result = await response.json();
+        console.log("📊 Server debug status:", result.message);
+        return result;
+      } catch (err) {
+        console.error("❌ Failed to check server debug status:", err);
+      }
     }
   };
 
@@ -927,25 +984,34 @@
         return null;
       }
 
+      // Determine method: GET if no data provided, POST otherwise
+      const method = data ? "POST" : "GET";
+
       // Log API call (only show data for POST requests)
       if (data) {
-        debugLog(`🌐 API call → ${endpoint}`, data);
+        debugLog(`🌐 API ${method} → ${endpoint}`, data);
       } else {
-        debugLog(`🌐 API call → ${endpoint}`);
+        debugLog(`🌐 API ${method} → ${endpoint}`);
       }
 
       for (let attempt = 1; attempt <= retries; attempt++) {
         try {
-          const resp = await fetch(`${API_URL}/${endpoint}`, {
-            method: "POST",
+          const fetchOptions = {
+            method,
             headers: {
-              "Content-Type": "application/json",
               "Authorization": "Bearer " + token,
               "X-Script-Name": SCRIPT_NAME,
               "X-Script-Version": SCRIPT_VERSION
-            },
-            body: JSON.stringify(data)
-          });
+            }
+          };
+
+          // Only add Content-Type and body for POST requests
+          if (method === "POST") {
+            fetchOptions.headers["Content-Type"] = "application/json";
+            fetchOptions.body = JSON.stringify(data);
+          }
+
+          const resp = await fetch(`${API_URL}/${endpoint}`, fetchOptions);
 
           // Handle 401 - token expired
           if (resp.status === 401 && attempt === 1) {
@@ -1018,7 +1084,11 @@
   }
 
   function saveTivLog(arr) {
-    return SafeStorage.set(TIV_KEY, arr);
+    // Limit TIV log to last 100 entries to prevent unbounded growth
+    const MAX_TIV_ENTRIES = 100;
+    const trimmed = arr.slice(-MAX_TIV_ENTRIES);
+    debugLog(`📊 TIV log trimmed from ${arr.length} to ${trimmed.length} entries`);
+    return SafeStorage.set(TIV_KEY, trimmed);
   }
 
   function getNameMap() {
@@ -1027,6 +1097,66 @@
 
   function saveNameMap(map) {
     return SafeStorage.set(MAP_KEY, map);
+  }
+
+  /**
+   * Clean up old players from localStorage to prevent unbounded growth
+   * Removes players not seen in the last 30 days
+   */
+  function cleanupOldPlayers() {
+    const PLAYER_MAX_AGE_DAYS = 30;
+    const cutoffTime = Date.now() - (PLAYER_MAX_AGE_DAYS * 24 * 60 * 60 * 1000);
+
+    const map = getNameMap();
+    const originalCount = Object.keys(map).length;
+    let removedCount = 0;
+
+    for (const [playerId, playerData] of Object.entries(map)) {
+      const lastSeen = playerData.lastSeen;
+
+      // Remove if no lastSeen timestamp or if older than cutoff
+      if (!lastSeen || Date.parse(lastSeen) < cutoffTime) {
+        delete map[playerId];
+        removedCount++;
+      }
+    }
+
+    if (removedCount > 0) {
+      saveNameMap(map);
+      console.log(`🧹 Cleaned up ${removedCount} old players from localStorage (${originalCount} → ${originalCount - removedCount})`);
+    } else {
+      debugLog(`✅ No old players to clean up (${originalCount} players in cache)`);
+    }
+
+    return removedCount;
+  }
+
+  /**
+   * Run periodic localStorage maintenance
+   * Cleanup runs once every 7 days
+   */
+  function runPeriodicMaintenance() {
+    const CLEANUP_INTERVAL_DAYS = 7;
+    const LAST_CLEANUP_KEY = "KoC_LastCleanup";
+
+    const lastCleanup = SafeStorage.get(LAST_CLEANUP_KEY, 0);
+    const daysSinceCleanup = (Date.now() - lastCleanup) / (24 * 60 * 60 * 1000);
+
+    if (daysSinceCleanup >= CLEANUP_INTERVAL_DAYS) {
+      console.log(`🧹 Running periodic localStorage maintenance (last cleanup: ${Math.floor(daysSinceCleanup)} days ago)`);
+
+      // Clean old players
+      cleanupOldPlayers();
+
+      // Show storage usage
+      const usage = SafeStorage.getUsage();
+      console.log(`💾 localStorage usage: ${usage.usedKB} KB (${usage.percentUsed}% of estimated 5MB limit)`);
+
+      // Update last cleanup timestamp
+      SafeStorage.set(LAST_CLEANUP_KEY, Date.now());
+    } else {
+      debugLog(`✅ Maintenance not needed yet (last cleanup: ${Math.floor(daysSinceCleanup)} days ago, next in ${Math.ceil(CLEANUP_INTERVAL_DAYS - daysSinceCleanup)} days)`);
+    }
   }
 
   // ==================== INITIALIZATION & GATEKEEPER ====================
@@ -1057,6 +1187,10 @@
     }
 
     debugLog("✅ Authenticated with SR, initializing features...");
+
+    // Run periodic localStorage maintenance
+    runPeriodicMaintenance();
+
     return true;
   }
 
@@ -2882,9 +3016,9 @@
       rows.forEach(row => {
         const cells = row.querySelectorAll("td");
 
-        // Debug: Log all rows to see TBG structure
-        const cellTexts = Array.from(cells).map(c => c.innerText.trim());
-        debugLog(`🔍 Row with ${cells.length} cells: [${cellTexts.join(' | ')}]`);
+        // Debug: Log all rows to see TBG structure (COMMENTED OUT - too verbose)
+        // const cellTexts = Array.from(cells).map(c => c.innerText.trim());
+        // debugLog(`🔍 Row with ${cells.length} cells: [${cellTexts.join(' | ')}]`);
 
         // Check for TBG row FIRST (might have different structure)
         // TBG row might be: "TBG | 19,281,848 Gold (in 1 min) | ..." in a single cell or multiple cells
@@ -3015,21 +3149,26 @@
     const val = cell?.innerText.trim();
     const prev = getNameMap()[id] || {};
 
-    if (val && val !== "???") {
-      return { value: val, time: getKoCServerTimeUTC() };
-    } else {
-      // Check if we have shared recon data for this stat
-      const sharedData = sharedReconData[key];
-      if (sharedData && sharedData.value && sharedData.time) {
-        debugLog(`✅ Using shared recon for ${key}: ${sharedData.value} (${sharedData.time})`);
-        return { value: sharedData.value, time: sharedData.time };
-      }
-
-      // When recon shows "???" and no shared data, DON'T return cached values to API
-      // The cached values will still be used by UI enhancement (fillMissingReconValue)
-      // But we shouldn't send potentially stale/bad data to the API
-      return { value: "???", time: null };
+    // PRIORITY 1: Check if we have Shared Recon Info data (always prefer this - it's alliance-shared and timestamped)
+    // This prevents corrupted partial values from main table when full values exist in Shared Recon
+    const sharedData = sharedReconData[key];
+    if (sharedData && sharedData.value && sharedData.time) {
+      debugLog(`✅ Using shared recon for ${key}: ${sharedData.value} (${sharedData.time})`);
+      return { value: sharedData.value, time: sharedData.time };
     }
+
+    // PRIORITY 2: Use main table value (accept any value including low numbers like 0, 1, 2)
+    // Low values are legitimate for new players or after being attacked
+    if (val && val !== "???") {
+      debugLog(`✅ Using main table for ${key}: ${val}`);
+      return { value: val, time: getKoCServerTimeUTC() };
+    }
+
+    // PRIORITY 3: When recon shows "???" and no shared data available
+    // DON'T return cached values to API - the cached values will still be used by UI enhancement
+    // But we shouldn't send potentially stale/bad data to the API
+    debugLog(`ℹ️ No valid data for ${key} (main table: "${val || 'empty'}", shared recon: none)`);
+    return { value: "???", time: null };
   }
 
   async function collectFromReconPage() {
@@ -3267,12 +3406,9 @@
       !key.endsWith('Time') && stats[key] !== "???"
     ).length;
 
-    // Save + push
+    // Save to localStorage and send to API (updatePlayerInfo handles both)
     updatePlayerInfo(id, stats);
     debugLog(`📊 Recon data saved (${fieldCount} fields):`, stats);
-
-    // Send to API
-    await auth.apiCall("players", { id, ...stats });
 
     if (stats.tiv) {
       await auth.apiCall("tiv", { playerId: id, tiv: stats.tiv, time: stats.tivTime });
@@ -3307,12 +3443,12 @@
     try {
       // Fetch player data from API
       const playerData = await auth.apiCall(`players/${playerId}`);
-      if (!playerData) {
-        debugLog("⚠️ No API data available for player", playerId);
+      if (!playerData || playerData.error) {
+        debugLog("⚠️ No API data available for player", playerId, playerData?.error);
         return;
       }
 
-      debugLog("🌐 Fetched player data from API:", playerData);
+      debugLog("🌐 Recon fallback loaded from API:", playerData);
 
       // Find "Shared Recon Info" table
       const header = [...document.querySelectorAll("th, td")]
