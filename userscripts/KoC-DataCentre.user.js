@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name         KoC Data Centre
 // @namespace    trevo88423
-// @version      1.41.13
-// @description  Sweet Revenge alliance tool: tracks stats, syncs to API, adds dashboards, XP→Turn calculator, mini Top Stats panel, comprehensive recon data collection, Shared Recon Info parsing, KoC Server Time synchronization, and stats.php collection. FIXED: Cached stats now display with comma formatting (53019083823 → "53,019,083,823").
+// @version      1.41.14
+// @description  Sweet Revenge alliance tool: tracks stats, syncs to API, adds dashboards, XP→Turn calculator, mini Top Stats panel, comprehensive recon data collection, Shared Recon Info parsing, KoC Server Time synchronization, and stats.php collection. CRITICAL FIX: Don't save "???" values - prevents overwriting cached data with timestamps.
 // @author       Blackheart
 // @match        https://www.kingsofchaos.com/*
 // @exclude      https://*.kingsofchaos.com/confirm.login.php*
@@ -35,7 +35,7 @@
   // ==================== VERSION CHECK ====================
   // Check if this script version is allowed to run
   const SCRIPT_NAME = 'koc-data-centre';
-  const SCRIPT_VERSION = '1.41.13'; // Must match @version above
+  const SCRIPT_VERSION = '1.41.14'; // Must match @version above
   const VERSION_CHECK_API = 'https://koc-roster-api-production.up.railway.app';
 
   async function checkScriptVersion() {
@@ -3257,8 +3257,12 @@
 
     function set(key, row) {
       const { value, time } = grabStat(id, key, row?.cells[1], sharedReconData);
-      stats[key] = value;
-      if (time) stats[key + "Time"] = time;
+      // Don't save "???" values - this would overwrite cached data with no value
+      // The UI enhancement will still show cached values for "???" cells
+      if (value !== "???") {
+        stats[key] = value;
+        if (time) stats[key + "Time"] = time;
+      }
     }
 
     // === MILITARY STATS (Ratings) ===
