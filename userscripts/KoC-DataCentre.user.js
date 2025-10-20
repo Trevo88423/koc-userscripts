@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name         KoC Data Centre
 // @namespace    trevo88423
-// @version      1.41.11
-// @description  Sweet Revenge alliance tool: tracks stats, syncs to API, adds dashboards, XP→Turn calculator, mini Top Stats panel, comprehensive recon data collection, Shared Recon Info parsing, KoC Server Time synchronization, and stats.php collection. FIXED: Server debug toggle now uses auth with auto-refresh.
+// @version      1.41.12
+// @description  Sweet Revenge alliance tool: tracks stats, syncs to API, adds dashboards, XP→Turn calculator, mini Top Stats panel, comprehensive recon data collection, Shared Recon Info parsing, KoC Server Time synchronization, and stats.php collection. CRITICAL FIX: parseFloat now removes commas before parsing (21,081,172 → 21081172).
 // @author       Blackheart
 // @match        https://www.kingsofchaos.com/*
 // @exclude      https://*.kingsofchaos.com/confirm.login.php*
@@ -35,7 +35,7 @@
   // ==================== VERSION CHECK ====================
   // Check if this script version is allowed to run
   const SCRIPT_NAME = 'koc-data-centre';
-  const SCRIPT_VERSION = '1.41.11'; // Must match @version above
+  const SCRIPT_VERSION = '1.41.12'; // Must match @version above
   const VERSION_CHECK_API = 'https://koc-roster-api-production.up.railway.app';
 
   async function checkScriptVersion() {
@@ -603,7 +603,9 @@
    * Returns a safe number or default value
    */
   function sanitizeNumber(value, defaultValue = 0, min = 0, max = Number.MAX_SAFE_INTEGER) {
-    const num = parseFloat(value);
+    // Remove commas before parsing (e.g., "21,081,172" → "21081172")
+    const cleanValue = typeof value === 'string' ? value.replace(/,/g, '') : value;
+    const num = parseFloat(cleanValue);
 
     // Check for invalid numbers
     if (isNaN(num) || !isFinite(num)) {
