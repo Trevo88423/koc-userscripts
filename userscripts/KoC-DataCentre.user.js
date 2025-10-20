@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name         KoC Data Centre
 // @namespace    trevo88423
-// @version      1.41.15
-// @description  Sweet Revenge alliance tool: tracks stats, syncs to API, adds dashboards, XP→Turn calculator, mini Top Stats panel, comprehensive recon data collection, Shared Recon Info parsing, KoC Server Time synchronization, and stats.php collection. CRITICAL FIX: Pass fresh stats to UI enhancement to show correct timestamps from Shared Recon.
+// @version      1.41.16
+// @description  Sweet Revenge alliance tool: tracks stats, syncs to API, adds dashboards, XP→Turn calculator, mini Top Stats panel, comprehensive recon data collection, Shared Recon Info parsing, KoC Server Time synchronization, and stats.php collection. CRITICAL FIX: Preserve timestamp fields - don't convert "strikeActionTime" to integer!
 // @author       Blackheart
 // @match        https://www.kingsofchaos.com/*
 // @exclude      https://*.kingsofchaos.com/confirm.login.php*
@@ -35,7 +35,7 @@
   // ==================== VERSION CHECK ====================
   // Check if this script version is allowed to run
   const SCRIPT_NAME = 'koc-data-centre';
-  const SCRIPT_VERSION = '1.41.15'; // Must match @version above
+  const SCRIPT_VERSION = '1.41.16'; // Must match @version above
   const VERSION_CHECK_API = 'https://koc-roster-api-production.up.railway.app';
 
   async function checkScriptVersion() {
@@ -652,6 +652,12 @@
 
     for (const [key, value] of Object.entries(data)) {
       if (value == null) continue;
+
+      // Skip timestamp fields (e.g., strikeActionTime, spyRatingTime) - keep as ISO strings
+      if (key.endsWith('Time') || key.endsWith('UpdatedBy') || key === 'lastSeen') {
+        sanitized[key] = value; // Keep timestamps as-is
+        continue;
+      }
 
       // Player ID - keep as string but validate it's numeric
       if (key === 'id' || key === 'playerId' || key === 'attackerId' || key === 'targetId') {
