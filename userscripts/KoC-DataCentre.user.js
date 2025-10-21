@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name         KoC Data Centre
 // @namespace    trevo88423
-// @version      1.42.0
-// @description  Sweet Revenge alliance tool: tracks stats, syncs to API, adds dashboards, XP→Turn calculator, mini Top Stats panel, comprehensive recon data collection, Shared Recon Info parsing, KoC Server Time synchronization, and stats.php collection. NEW: Login/Logout button in sidebar for easy auth refresh!
+// @version      1.42.1
+// @description  Sweet Revenge alliance tool: tracks stats, syncs to API, adds dashboards, XP→Turn calculator, mini Top Stats panel, comprehensive recon data collection, Shared Recon Info parsing, KoC Server Time synchronization, and stats.php collection. NEW: Login/Logout buttons in sidebar and login screen!
 // @author       Blackheart
 // @match        https://www.kingsofchaos.com/*
 // @exclude      https://*.kingsofchaos.com/confirm.login.php*
@@ -35,7 +35,7 @@
   // ==================== VERSION CHECK ====================
   // Check if this script version is allowed to run
   const SCRIPT_NAME = 'koc-data-centre';
-  const SCRIPT_VERSION = '1.42.0'; // Must match @version above
+  const SCRIPT_VERSION = '1.42.1'; // Must match @version above
   const VERSION_CHECK_API = 'https://koc-roster-api-production.up.railway.app';
 
   async function checkScriptVersion() {
@@ -1179,16 +1179,30 @@
       if (location.pathname.includes("base.php")) {
         const box = document.createElement("div");
         box.style = "padding:12px;background:#111;color:#fff;border:1px solid #555;margin:12px;font-family:Arial;";
+
+        // Check if there's expired/invalid auth in storage
+        const storedAuth = auth.getStoredAuth();
+        const hasExpiredToken = storedAuth !== null;
+
         box.innerHTML = `
           <h2>🔒 KoC Data Centre Login</h2>
           <p>You must log in with SR to enable the script.</p>
-          <button id="srLoginBtn" style="padding:6px 12px;cursor:pointer;">Login to SR</button>
+          ${hasExpiredToken ? '<p style="color:#ff9800;"><strong>⚠️ Your session has expired. Please login again.</strong></p>' : ''}
+          <button id="srLoginBtn" style="padding:6px 12px;cursor:pointer;">🔐 Login to SR</button>
           <button id="srShowTokenBtn" style="padding:6px 12px;margin-left:10px;cursor:pointer;">Show Token</button>
+          ${hasExpiredToken ? '<button id="srClearAuthBtn" style="padding:6px 12px;margin-left:10px;cursor:pointer;background:#dc2626;color:white;border:none;border-radius:4px;">Clear Session</button>' : ''}
         `;
         document.body.prepend(box);
 
         document.getElementById("srLoginBtn").addEventListener("click", () => auth.login());
         document.getElementById("srShowTokenBtn").addEventListener("click", () => auth.showToken());
+        if (hasExpiredToken) {
+          document.getElementById("srClearAuthBtn").addEventListener("click", () => {
+            auth.clearAuth();
+            alert("✅ Session cleared. Click 'Login to SR' to authenticate again.");
+            location.reload();
+          });
+        }
       } else {
         console.warn("🔒 Data Centre disabled — not logged in.");
       }
