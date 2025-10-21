@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name         KoC Data Centre
 // @namespace    trevo88423
-// @version      1.42.1
-// @description  Sweet Revenge alliance tool: tracks stats, syncs to API, adds dashboards, XP→Turn calculator, mini Top Stats panel, comprehensive recon data collection, Shared Recon Info parsing, KoC Server Time synchronization, and stats.php collection. NEW: Login/Logout buttons in sidebar and login screen!
+// @version      1.42.2
+// @description  Sweet Revenge alliance tool: tracks stats, syncs to API, adds dashboards, XP→Turn calculator, mini Top Stats panel, comprehensive recon data collection, Shared Recon Info parsing, KoC Server Time synchronization, and stats.php collection. FIX: Extract role from JWT for admin access!
 // @author       Blackheart
 // @match        https://www.kingsofchaos.com/*
 // @exclude      https://*.kingsofchaos.com/confirm.login.php*
@@ -35,7 +35,7 @@
   // ==================== VERSION CHECK ====================
   // Check if this script version is allowed to run
   const SCRIPT_NAME = 'koc-data-centre';
-  const SCRIPT_VERSION = '1.42.1'; // Must match @version above
+  const SCRIPT_VERSION = '1.42.2'; // Must match @version above
   const VERSION_CHECK_API = 'https://koc-roster-api-production.up.railway.app';
 
   async function checkScriptVersion() {
@@ -759,10 +759,21 @@
 
     // Save auth to localStorage
     saveAuth(token, id, name) {
+      // Decode JWT to extract role
+      let role = 'member'; // Default role
+      try {
+        const payload = JSON.parse(atob(token.split('.')[1]));
+        role = payload.role || 'member';
+        debugLog('🔍 Extracted role from JWT:', role);
+      } catch (err) {
+        console.warn('⚠️ Failed to decode JWT for role extraction:', err);
+      }
+
       const authData = {
         token,
         id,
         name,
+        role,  // Include role from JWT
         expiry: Date.now() + TOKEN_EXPIRY_MS
       };
 
