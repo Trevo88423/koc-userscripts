@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name         KoC Data Centre
 // @namespace    trevo88423
-// @version      1.41.17
-// @description  Sweet Revenge alliance tool: tracks stats, syncs to API, adds dashboards, XP→Turn calculator, mini Top Stats panel, comprehensive recon data collection, Shared Recon Info parsing, KoC Server Time synchronization, and stats.php collection. CRITICAL FIX: Preserve timestamp fields - don't convert "strikeActionTime" to integer!
+// @version      1.42.0
+// @description  Sweet Revenge alliance tool: tracks stats, syncs to API, adds dashboards, XP→Turn calculator, mini Top Stats panel, comprehensive recon data collection, Shared Recon Info parsing, KoC Server Time synchronization, and stats.php collection. NEW: Login/Logout button in sidebar for easy auth refresh!
 // @author       Blackheart
 // @match        https://www.kingsofchaos.com/*
 // @exclude      https://*.kingsofchaos.com/confirm.login.php*
@@ -35,7 +35,7 @@
   // ==================== VERSION CHECK ====================
   // Check if this script version is allowed to run
   const SCRIPT_NAME = 'koc-data-centre';
-  const SCRIPT_VERSION = '1.41.17'; // Must match @version above
+  const SCRIPT_VERSION = '1.42.0'; // Must match @version above
   const VERSION_CHECK_API = 'https://koc-roster-api-production.up.railway.app';
 
   async function checkScriptVersion() {
@@ -1304,6 +1304,20 @@
                    alt="Sweet Revenge"
                    style="max-width:110px; height:auto; margin-top:6px; display:block; margin-left:auto; margin-right:auto;">
             </a>
+            <button id="sr-auth-btn" style="
+              margin-top: 8px;
+              padding: 6px 12px;
+              background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+              color: white;
+              border: none;
+              border-radius: 4px;
+              cursor: pointer;
+              font-weight: bold;
+              font-size: 12px;
+              width: 100%;
+              max-width: 110px;
+              transition: all 0.2s;
+            ">Loading...</button>
           </td>
         </tr>
       </tbody>
@@ -1404,6 +1418,36 @@
     }
 
     updateXPBox();
+
+    // Setup auth button
+    const authBtn = document.getElementById("sr-auth-btn");
+    if (authBtn) {
+      // Update button text based on auth status
+      function updateAuthButton() {
+        const isAuthed = auth.getStoredAuth() !== null;
+        authBtn.textContent = isAuthed ? "🔓 Logout" : "🔐 Login";
+        authBtn.style.background = isAuthed
+          ? "linear-gradient(135deg, #dc2626 0%, #991b1b 100%)"
+          : "linear-gradient(135deg, #667eea 0%, #764ba2 100%)";
+      }
+
+      // Initial state
+      updateAuthButton();
+
+      // Click handler
+      authBtn.addEventListener("click", async () => {
+        const isAuthed = auth.getStoredAuth() !== null;
+        if (isAuthed) {
+          auth.logout();
+        } else {
+          await auth.login();
+        }
+      });
+
+      // Listen for auth changes
+      auth.on('authChanged', updateAuthButton);
+    }
+
     debugLog("[XPTool] Sidebar box inserted into page");
   }
 
