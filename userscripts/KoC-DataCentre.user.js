@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         KoC Data Centre
 // @namespace    trevo88423
-// @version      1.42.4
+// @version      1.42.5
 // @description  Sweet Revenge alliance tool: tracks stats, syncs to API, adds dashboards, XP→Turn calculator, mini Top Stats panel, comprehensive recon data collection, Shared Recon Info parsing, KoC Server Time synchronization, stats.php collection, and real rank tracking for Stat Hunt feature!
 // @author       Blackheart
 // @match        https://www.kingsofchaos.com/*
@@ -2202,7 +2202,7 @@
 
     // Push real ranks to API (for Stat Hunt feature)
     if (Object.keys(realRanks).length > 0) {
-      auth.apiCall(`rankings/real-ranks/${myId}`, { ranks: realRanks }, "POST");
+      auth.apiCall(`rankings/real-ranks/${myId}`, { ranks: realRanks });
       debugLog("🎯 Real ranks captured for Stat Hunt:", realRanks);
     }
   }
