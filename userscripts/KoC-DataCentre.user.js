@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name         KoC Data Centre
 // @namespace    trevo88423
-// @version      1.42.3
-// @description  Sweet Revenge alliance tool: tracks stats, syncs to API, adds dashboards, XP→Turn calculator, mini Top Stats panel, comprehensive recon data collection, Shared Recon Info parsing, KoC Server Time synchronization, and stats.php collection. FIX: Include role in redirect auth for admin access!
+// @version      1.42.4
+// @description  Sweet Revenge alliance tool: tracks stats, syncs to API, adds dashboards, XP→Turn calculator, mini Top Stats panel, comprehensive recon data collection, Shared Recon Info parsing, KoC Server Time synchronization, stats.php collection, and real rank tracking for Stat Hunt feature!
 // @author       Blackheart
 // @match        https://www.kingsofchaos.com/*
 // @exclude      https://*.kingsofchaos.com/confirm.login.php*
@@ -35,7 +35,7 @@
   // ==================== VERSION CHECK ====================
   // Check if this script version is allowed to run
   const SCRIPT_NAME = 'koc-data-centre';
-  const SCRIPT_VERSION = '1.42.3'; // Must match @version above
+  const SCRIPT_VERSION = '1.42.4'; // Must match @version above
   const VERSION_CHECK_API = 'https://koc-roster-api-production.up.railway.app';
 
   async function checkScriptVersion() {
@@ -1990,6 +1990,7 @@
 
     const table = header.closest("table");
     const stats = {};
+    const ranks = {}; // NEW: Track ranks separately
     const now = getKoCServerTimeUTC();
 
     table.querySelectorAll("tr").forEach(row => {
@@ -1998,40 +1999,56 @@
 
       const label = cells[0].innerText.trim().toLowerCase();
       const value = cells[1].innerText.trim();
+      const rankText = cells[2]?.innerText.trim(); // NEW: Extract rank from 3rd column
+
+      // Extract rank number from "#117" format
+      const rankMatch = rankText?.match(/#(\d+)/);
+      const rank = rankMatch ? parseInt(rankMatch[1], 10) : null;
 
       if (label.startsWith("strike")) {
         stats.strikeAction = value;
         stats.strikeActionTime = now;
+        if (rank) ranks.strike = rank;
       }
       if (label.startsWith("defense")) {
         stats.defensiveAction = value;
         stats.defensiveActionTime = now;
+        if (rank) ranks.defense = rank;
       }
       if (label.startsWith("spy")) {
         stats.spyRating = value;
         stats.spyRatingTime = now;
+        if (rank) ranks.spy = rank;
       }
       if (label.startsWith("sentry")) {
         stats.sentryRating = value;
         stats.sentryRatingTime = now;
+        if (rank) ranks.sentry = rank;
       }
       if (label.startsWith("poison")) {
         stats.poisonRating = value;
         stats.poisonRatingTime = now;
+        if (rank) ranks.poison = rank;
       }
       if (label.startsWith("antidote")) {
         stats.antidoteRating = value;
         stats.antidoteRatingTime = now;
+        if (rank) ranks.antidote = rank;
       }
       if (label.startsWith("theft")) {
         stats.theftRating = value;
         stats.theftRatingTime = now;
+        if (rank) ranks.theft = rank;
       }
       if (label.startsWith("vigilance")) {
         stats.vigilanceRating = value;
         stats.vigilanceRatingTime = now;
+        if (rank) ranks.vigilance = rank;
       }
     });
+
+    // Store ranks separately for Stat Hunt feature
+    stats._realRanks = ranks;
 
     return stats;
   }
@@ -2151,6 +2168,10 @@
     // Military Effectiveness block
     const stats = collectMilitaryStats();
 
+    // Extract real ranks for Stat Hunt (separate from stats)
+    const realRanks = stats._realRanks || {};
+    delete stats._realRanks; // Don't send _realRanks to players endpoint
+
     const payload = {
       name: myName,
       projectedIncome,
@@ -2176,8 +2197,14 @@
     updatePlayerInfo(myId, payload);
     debugLog("📊 Base.php self stats captured", payload);
 
-    // Push to API
+    // Push stats to API
     auth.apiCall("players", { id: myId, ...payload });
+
+    // Push real ranks to API (for Stat Hunt feature)
+    if (Object.keys(realRanks).length > 0) {
+      auth.apiCall(`rankings/real-ranks/${myId}`, { ranks: realRanks }, "POST");
+      debugLog("🎯 Real ranks captured for Stat Hunt:", realRanks);
+    }
   }
 
   // ==================== REWARDS PAGE COLLECTOR (RECONS) ====================
