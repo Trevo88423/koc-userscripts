@@ -1,0 +1,17 @@
+{
+  "name": "koc-userscripts",
+  "version": "1.0.0",
+  "description": "KoC userscripts backup and deployment tools",
+  "scripts": {
+    "backup": "node backup-script.js",
+    "commit": "npm run backup && git add . && git commit",
+    "push": "git push",
+    "deploy": "npm run backup && git add . && git commit && git push",
+    "tag": "git tag -a",
+    "list-backups": "ls -la \"../Koc old versions/\" | grep -E 'KoC.*\\.user\\.js'",
+    "list-tags": "git tag -l"
+  },
+  "keywords": ["koc", "userscript", "tampermonkey"],
+  "author": "Blackheart",
+  "license": "MIT"
+}
