@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name         KoC Data Centre
 // @namespace    trevo88423
-// @version      1.42.4
-// @description  Sweet Revenge alliance tool: tracks stats, syncs to API, adds dashboards, XP→Turn calculator, mini Top Stats panel, comprehensive recon data collection, Shared Recon Info parsing, KoC Server Time synchronization, stats.php collection, and real rank tracking for Stat Hunt feature!
+// @version      1.42.6
+// @description  Sweet Revenge alliance tool: tracks stats, syncs to API, adds dashboards, XP→Turn calculator, mini Top Stats panel, comprehensive recon data collection with weapon aggregation, Shared Recon Info parsing, KoC Server Time synchronization, stats.php collection, and real rank tracking for Stat Hunt feature! Now collects all weapon data (including "???") for cross-recon aggregation!
 // @author       Blackheart
 // @match        https://www.kingsofchaos.com/*
 // @exclude      https://*.kingsofchaos.com/confirm.login.php*
@@ -35,7 +35,7 @@
   // ==================== VERSION CHECK ====================
   // Check if this script version is allowed to run
   const SCRIPT_NAME = 'koc-data-centre';
-  const SCRIPT_VERSION = '1.42.4'; // Must match @version above
+  const SCRIPT_VERSION = '1.42.6'; // Must match @version above
   const VERSION_CHECK_API = 'https://koc-roster-api-production.up.railway.app';
 
   async function checkScriptVersion() {
@@ -2202,7 +2202,7 @@
 
     // Push real ranks to API (for Stat Hunt feature)
     if (Object.keys(realRanks).length > 0) {
-      auth.apiCall(`rankings/real-ranks/${myId}`, { ranks: realRanks }, "POST");
+      auth.apiCall(`rankings/real-ranks/${myId}`, { ranks: realRanks });
       debugLog("🎯 Real ranks captured for Stat Hunt:", realRanks);
     }
   }
@@ -3484,40 +3484,39 @@
       weaponRows.forEach(row => {
         const cells = row.querySelectorAll("td");
         if (cells.length >= 4) {
-          const name = cells[0]?.innerText.trim();
-          const type = cells[1]?.innerText.trim();
-          const quantity = cells[2]?.innerText.trim();
-          const strength = cells[3]?.innerText.trim();
+          const name = cells[0]?.innerText.trim() || "???";
+          const type = cells[1]?.innerText.trim() || "???";
+          const quantity = cells[2]?.innerText.trim() || "???";
+          const strength = cells[3]?.innerText.trim() || "???";
 
-          // Only add if we have name and quantity (and quantity is not ???)
-          if (name && quantity && quantity !== "???") {
-            // Parse strength (format: "998.78/1,000" or "1,000/1,000")
-            let currentStrength = null;
-            let maxStrength = null;
+          // ALWAYS collect weapons, even if fields are "???"
+          // Parse strength (format: "998.78/1,000" or "1,000/1,000")
+          let currentStrength = "???";
+          let maxStrength = "???";
 
-            if (strength && strength !== "???") {
-              const strengthMatch = strength.match(/([0-9.,]+)\/([0-9,]+)/);
-              if (strengthMatch) {
-                currentStrength = strengthMatch[1].replace(/,/g, '');
-                maxStrength = strengthMatch[2].replace(/,/g, '');
-              }
+          if (strength && strength !== "???") {
+            const strengthMatch = strength.match(/([0-9.,]+)\/([0-9,]+)/);
+            if (strengthMatch) {
+              currentStrength = strengthMatch[1].replace(/,/g, '');
+              maxStrength = strengthMatch[2].replace(/,/g, '');
             }
-
-            weapons.push({
-              name: name,
-              type: type === "???" ? null : type,
-              quantity: quantity.replace(/,/g, ''),
-              currentStrength: currentStrength,
-              maxStrength: maxStrength
-            });
           }
+
+          // Collect all weapon data (API will skip if name is "???")
+          weapons.push({
+            name: name,
+            type: type,
+            quantity: quantity === "???" ? "???" : quantity.replace(/,/g, ''),
+            currentStrength: currentStrength,
+            maxStrength: maxStrength
+          });
         }
       });
 
       if (weapons.length > 0) {
         stats.weapons = JSON.stringify(weapons);
         stats.weaponsTime = now;
-        debugLog(`📦 Captured ${weapons.length} weapons from recon`);
+        debugLog(`📦 Captured ${weapons.length} weapons from recon (including "???" fields for aggregation)`);
       }
     }
 
