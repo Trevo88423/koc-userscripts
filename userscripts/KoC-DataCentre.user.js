@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         KoC Data Centre
 // @namespace    trevo88423
-// @version      1.43.0
+// @version      1.43.1
 // @description  Sweet Revenge alliance tool: tracks stats, syncs to API, adds dashboards, XP→Turn calculator, mini Top Stats panel, comprehensive recon data collection with weapon aggregation, Shared Recon Info parsing, KoC Server Time synchronization, stats.php collection, and real rank tracking for Stat Hunt feature! Now collects all weapon data (including "???") for cross-recon aggregation!
 // @author       Blackheart
 // @match        https://www.kingsofchaos.com/*
@@ -3181,7 +3181,8 @@
         const statValue = cells[1]?.innerText.trim();
         const timestamp = cells[2]?.innerText.trim();
 
-        if (!statName || !statValue || !timestamp) return;
+        // Skip rows with unknown values (???, ??, Hostage Total: ???, etc.)
+        if (!statName || !statValue || !timestamp || statValue === "??" || statValue === "???") return;
 
         // Convert timestamp from "2025-10-13 06:36:06" (KoC Server Time = US Eastern) to UTC ISO format
         let isoTimestamp = null;
@@ -3270,7 +3271,7 @@
     // PRIORITY 1: Check if we have Shared Recon Info data (always prefer this - it's alliance-shared and timestamped)
     // This prevents corrupted partial values from main table when full values exist in Shared Recon
     const sharedData = sharedReconData[key];
-    if (sharedData && sharedData.value && sharedData.time) {
+    if (sharedData && sharedData.value && sharedData.value !== "??" && sharedData.value !== "???" && sharedData.time) {
       debugLog(`✅ Using shared recon for ${key}: ${sharedData.value} (${sharedData.time})`);
       return { value: sharedData.value, time: sharedData.time };
     }
