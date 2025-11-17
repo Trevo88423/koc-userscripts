@@ -1808,12 +1808,14 @@
         collectedPlayers.add(id);
         newCount++;
 
-        // Add to bulk gold update if we have valid gold data
-        if (gold !== null) {
+        // ONLY send gold updates for FRESH data (no age indicator)
+        // Alliance last-seen data (with age) should NOT update main treasury field
+        // That data is handled separately by BF Helper for time-based projection
+        if (gold !== null && (ageMinutes === null || ageMinutes === 0)) {
           goldUpdates.push({
             playerId: id,
             gold: gold,
-            ageMinutes: ageMinutes
+            ageMinutes: 0  // Fresh battlefield data
           });
         }
       });
