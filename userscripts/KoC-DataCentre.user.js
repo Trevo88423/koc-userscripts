@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         KoC Data Centre
 // @namespace    trevo88423
-// @version      1.42.6
+// @version      1.43.0
 // @description  Sweet Revenge alliance tool: tracks stats, syncs to API, adds dashboards, XP→Turn calculator, mini Top Stats panel, comprehensive recon data collection with weapon aggregation, Shared Recon Info parsing, KoC Server Time synchronization, stats.php collection, and real rank tracking for Stat Hunt feature! Now collects all weapon data (including "???") for cross-recon aggregation!
 // @author       Blackheart
 // @match        https://www.kingsofchaos.com/*
@@ -35,7 +35,7 @@
   // ==================== VERSION CHECK ====================
   // Check if this script version is allowed to run
   const SCRIPT_NAME = 'koc-data-centre';
-  const SCRIPT_VERSION = '1.42.6'; // Must match @version above
+  const SCRIPT_VERSION = '1.43.0'; // Must match @version above
   const VERSION_CHECK_API = 'https://koc-roster-api-production.up.railway.app';
 
   async function checkScriptVersion() {
@@ -3543,6 +3543,51 @@
           ageMinutes: 0,
           source: "recon"
         });
+      }
+    }
+
+    // Send recon data to BF Helper private endpoint for time-based gold projection
+    if (stats.treasury && stats.treasury !== "???") {
+      const treasuryAtRecon = parseInt(stats.treasury.replace(/,/g, ''), 10);
+
+      // Calculate income per minute from projectedIncome (which is gold in 1 min)
+      let incomePerMinute = null;
+      if (stats.projectedIncome && stats.projectedIncome !== "???") {
+        incomePerMinute = parseInt(stats.projectedIncome.replace(/,/g, ''), 10);
+      } else if (stats.goldPerTurn && stats.goldPerTurn !== "???") {
+        // Fallback: calculate from goldPerTurn if projectedIncome not available
+        // Assuming 500 turns per day (standard KoC rate)
+        const goldPerTurn = parseInt(stats.goldPerTurn.replace(/,/g, ''), 10);
+        incomePerMinute = (goldPerTurn * 500) / 1440; // 500 turns/day ÷ 1440 minutes/day
+      }
+
+      // Debug logging
+      debugLog(`💰 BF Private Recon Data for player ${id}:`);
+      debugLog(`   Treasury: ${treasuryAtRecon}`);
+      debugLog(`   Projected Income (1 min): ${stats.projectedIncome || 'N/A'}`);
+      debugLog(`   Gold Per Turn: ${stats.goldPerTurn || 'N/A'}`);
+      debugLog(`   Calculated Income/Min: ${incomePerMinute}`);
+      debugLog(`   SA: ${stats.strikeAction || 'N/A'}`);
+      debugLog(`   DA: ${stats.defensiveAction || 'N/A'}`);
+
+      if (!isNaN(treasuryAtRecon)) {
+        const payload = {
+          playerId: id,
+          treasuryAtRecon: treasuryAtRecon,
+          incomePerMinute: incomePerMinute,
+          saAtRecon: stats.strikeAction && stats.strikeAction !== "???" ?
+            parseInt(String(stats.strikeAction).replace(/,/g, ''), 10) : null,
+          daAtRecon: stats.defensiveAction && stats.defensiveAction !== "???" ?
+            parseInt(String(stats.defensiveAction).replace(/,/g, ''), 10) : null,
+          tffAtRecon: stats.army && stats.army !== "???" ?
+            parseInt(String(stats.army).replace(/,/g, ''), 10) : null
+        };
+
+        debugLog(`📤 Sending to /bf-private/save-recon:`, payload);
+
+        await auth.apiCall("bf-private/save-recon", payload);
+
+        debugLog(`✅ BF Private recon data sent for player ${id}`);
       }
     }
 
