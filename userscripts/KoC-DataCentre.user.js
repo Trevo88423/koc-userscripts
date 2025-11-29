@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         KoC Data Centre
 // @namespace    trevo88423
-// @version      1.43.1
+// @version      1.42.6
 // @description  Sweet Revenge alliance tool: tracks stats, syncs to API, adds dashboards, XP→Turn calculator, mini Top Stats panel, comprehensive recon data collection with weapon aggregation, Shared Recon Info parsing, KoC Server Time synchronization, stats.php collection, and real rank tracking for Stat Hunt feature! Now collects all weapon data (including "???") for cross-recon aggregation!
 // @author       Blackheart
 // @match        https://www.kingsofchaos.com/*
@@ -35,7 +35,7 @@
   // ==================== VERSION CHECK ====================
   // Check if this script version is allowed to run
   const SCRIPT_NAME = 'koc-data-centre';
-  const SCRIPT_VERSION = '1.43.0'; // Must match @version above
+  const SCRIPT_VERSION = '1.42.6'; // Must match @version above
   const VERSION_CHECK_API = 'https://koc-roster-api-production.up.railway.app';
 
   async function checkScriptVersion() {
@@ -1808,14 +1808,12 @@
         collectedPlayers.add(id);
         newCount++;
 
-        // ONLY send gold updates for FRESH data (no age indicator)
-        // Alliance last-seen data (with age) should NOT update main treasury field
-        // That data is handled separately by BF Helper for time-based projection
-        if (gold !== null && (ageMinutes === null || ageMinutes === 0)) {
+        // Add to bulk gold update if we have valid gold data
+        if (gold !== null) {
           goldUpdates.push({
             playerId: id,
             gold: gold,
-            ageMinutes: 0  // Fresh battlefield data
+            ageMinutes: ageMinutes
           });
         }
       });
@@ -3181,8 +3179,7 @@
         const statValue = cells[1]?.innerText.trim();
         const timestamp = cells[2]?.innerText.trim();
 
-        // Skip rows with unknown values (???, ??, Hostage Total: ???, etc.)
-        if (!statName || !statValue || !timestamp || statValue === "??" || statValue === "???") return;
+        if (!statName || !statValue || !timestamp) return;
 
         // Convert timestamp from "2025-10-13 06:36:06" (KoC Server Time = US Eastern) to UTC ISO format
         let isoTimestamp = null;
@@ -3271,7 +3268,7 @@
     // PRIORITY 1: Check if we have Shared Recon Info data (always prefer this - it's alliance-shared and timestamped)
     // This prevents corrupted partial values from main table when full values exist in Shared Recon
     const sharedData = sharedReconData[key];
-    if (sharedData && sharedData.value && sharedData.value !== "??" && sharedData.value !== "???" && sharedData.time) {
+    if (sharedData && sharedData.value && sharedData.time) {
       debugLog(`✅ Using shared recon for ${key}: ${sharedData.value} (${sharedData.time})`);
       return { value: sharedData.value, time: sharedData.time };
     }
@@ -3370,6 +3367,39 @@
 
     const stats = {};
     const now = getKoCServerTimeUTC();
+
+    // === PARSE PLAYER NAME ===
+    // Parse from "PlayerName StatsID = 123456" text at top of stats page
+    // This is the most reliable method - always shows correct player name and ID
+    let playerName = null;
+    const bodyText = document.body.textContent;
+    const statsIdMatch = bodyText.match(/([^\s]+)\s+StatsID\s*=\s*(\d+)/);
+    if (statsIdMatch) {
+      const parsedName = statsIdMatch[1].trim();
+      const parsedId = statsIdMatch[2].trim();
+
+      // Verify the parsed ID matches the URL ID
+      if (parsedId === id) {
+        playerName = parsedName;
+        debugLog(`✅ Parsed player name from StatsID: ${playerName} (ID: ${parsedId})`);
+      } else {
+        debugLog(`⚠️ StatsID mismatch: parsed ${parsedId} vs URL ${id}`);
+      }
+    }
+
+    // Fallback: try page title
+    if (!playerName) {
+      const titleMatch = document.title.match(/^([^-]+?)\s*-\s*Kingdoms/i);
+      if (titleMatch) {
+        playerName = titleMatch[1].trim();
+        debugLog(`✅ Parsed player name from title: ${playerName}`);
+      }
+    }
+
+    // Save name if found
+    if (playerName && playerName !== "Unknown") {
+      stats.name = playerName;
+    }
 
     function set(key, row) {
       const { value, time } = grabStat(id, key, row?.cells[1], sharedReconData);
@@ -3546,51 +3576,6 @@
           ageMinutes: 0,
           source: "recon"
         });
-      }
-    }
-
-    // Send recon data to BF Helper private endpoint for time-based gold projection
-    if (stats.treasury && stats.treasury !== "???") {
-      const treasuryAtRecon = parseInt(stats.treasury.replace(/,/g, ''), 10);
-
-      // Calculate income per minute from projectedIncome (which is gold in 1 min)
-      let incomePerMinute = null;
-      if (stats.projectedIncome && stats.projectedIncome !== "???") {
-        incomePerMinute = parseInt(stats.projectedIncome.replace(/,/g, ''), 10);
-      } else if (stats.goldPerTurn && stats.goldPerTurn !== "???") {
-        // Fallback: calculate from goldPerTurn if projectedIncome not available
-        // Assuming 500 turns per day (standard KoC rate)
-        const goldPerTurn = parseInt(stats.goldPerTurn.replace(/,/g, ''), 10);
-        incomePerMinute = (goldPerTurn * 500) / 1440; // 500 turns/day ÷ 1440 minutes/day
-      }
-
-      // Debug logging
-      debugLog(`💰 BF Private Recon Data for player ${id}:`);
-      debugLog(`   Treasury: ${treasuryAtRecon}`);
-      debugLog(`   Projected Income (1 min): ${stats.projectedIncome || 'N/A'}`);
-      debugLog(`   Gold Per Turn: ${stats.goldPerTurn || 'N/A'}`);
-      debugLog(`   Calculated Income/Min: ${incomePerMinute}`);
-      debugLog(`   SA: ${stats.strikeAction || 'N/A'}`);
-      debugLog(`   DA: ${stats.defensiveAction || 'N/A'}`);
-
-      if (!isNaN(treasuryAtRecon)) {
-        const payload = {
-          playerId: id,
-          treasuryAtRecon: treasuryAtRecon,
-          incomePerMinute: incomePerMinute,
-          saAtRecon: stats.strikeAction && stats.strikeAction !== "???" ?
-            parseInt(String(stats.strikeAction).replace(/,/g, ''), 10) : null,
-          daAtRecon: stats.defensiveAction && stats.defensiveAction !== "???" ?
-            parseInt(String(stats.defensiveAction).replace(/,/g, ''), 10) : null,
-          tffAtRecon: stats.army && stats.army !== "???" ?
-            parseInt(String(stats.army).replace(/,/g, ''), 10) : null
-        };
-
-        debugLog(`📤 Sending to /bf-private/save-recon:`, payload);
-
-        await auth.apiCall("bf-private/save-recon", payload);
-
-        debugLog(`✅ BF Private recon data sent for player ${id}`);
       }
     }
 
