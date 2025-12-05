@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         KoC Data Centre
 // @namespace    trevo88423
-// @version      1.43.3
+// @version      1.43.4
 // @description  Sweet Revenge alliance tool: tracks stats, syncs to API, adds dashboards, XP→Turn calculator, mini Top Stats panel, comprehensive recon data collection with weapon aggregation, Shared Recon Info parsing, KoC Server Time synchronization, stats.php collection, and real rank tracking for Stat Hunt feature! Now collects all weapon data (including "???") for cross-recon aggregation!
 // @author       Blackheart
 // @match        https://www.kingsofchaos.com/*
@@ -35,7 +35,7 @@
   // ==================== VERSION CHECK ====================
   // Check if this script version is allowed to run
   const SCRIPT_NAME = 'koc-data-centre';
-  const SCRIPT_VERSION = '1.43.3'; // Must match @version above
+  const SCRIPT_VERSION = '1.43.4'; // Must match @version above
   const VERSION_CHECK_API = 'https://koc-roster-api-production.up.railway.app';
 
   async function checkScriptVersion() {
@@ -1793,11 +1793,13 @@
         const treasuryText = cells[5]?.innerText.trim() || "";
         const { gold, ageMinutes } = parseGoldWithAge(treasuryText);
 
+        // Build player object - only include army if it has a value (don't send empty strings)
+        const armyValue = cells[3]?.innerText.trim();
         const player = sanitizePlayerData({
           id,
           name: cells[2]?.innerText.trim() || "Unknown",
           alliance: cells[1]?.innerText.trim() || "",
-          army: cells[3]?.innerText.trim() || "",
+          ...(armyValue ? { army: armyValue } : {}),
           race: cells[4]?.innerText.trim() || "",
           treasury: gold,
           recon: cells[6]?.innerText.trim() || "",
@@ -3486,8 +3488,34 @@
 
     // === TREASURY ===
     if (treasury) {
-      stats.treasury = treasury[1]?.cells[0]?.innerText.split(" ")[0];
-      stats.treasuryTime = now;
+      const treasuryText = treasury[1]?.cells[0]?.innerText || "";
+      // Parse gold value and age from format like "1,234,567 (2 hours ago)" or just "1,234,567"
+      const goldMatch = treasuryText.match(/^([\d,]+)/);
+      if (goldMatch) {
+        stats.treasury = goldMatch[1];
+
+        // Parse age to calculate actual timestamp
+        const ageMatch = treasuryText.match(/\((\d+)\s+(second|minute|hour|day)s?\s+ago\)/i);
+        if (ageMatch) {
+          const ageValue = parseInt(ageMatch[1]);
+          const ageUnit = ageMatch[2].toLowerCase();
+
+          let ageMs = 0;
+          if (ageUnit.startsWith('second')) ageMs = ageValue * 1000;
+          else if (ageUnit.startsWith('minute')) ageMs = ageValue * 60000;
+          else if (ageUnit.startsWith('hour')) ageMs = ageValue * 3600000;
+          else if (ageUnit.startsWith('day')) ageMs = ageValue * 86400000;
+
+          // Calculate actual timestamp
+          const actualTime = new Date(new Date(now).getTime() - ageMs);
+          stats.treasuryTime = actualTime.toISOString();
+          debugLog(`💰 Treasury: ${stats.treasury} from ${ageValue} ${ageUnit}(s) ago → timestamp: ${stats.treasuryTime}`);
+        } else {
+          // No age specified = fresh (0 age)
+          stats.treasuryTime = now;
+          debugLog(`💰 Treasury: ${stats.treasury} (fresh, no age specified)`);
+        }
+      }
 
       // Parse Projected Income (1 min only) - MUST contain "(in 1 min)" to be valid
       const projectedIncomeText = treasury[3]?.innerText || "";
