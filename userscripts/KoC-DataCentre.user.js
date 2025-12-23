@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         KoC Data Centre
 // @namespace    trevo88423
-// @version      2.2.2
+// @version      2.2.3
 // @description  Sweet Revenge alliance tool: tracks stats, syncs to API, adds dashboards, XP→Turn calculator, mini Top Stats panel. v2.1.0: Integrated slaying competition tracker (attack missions & gold stolen tracking, team competitions, leaderboards). v2.0.0: Optimized API architecture, previous versions deprecated. v1.47.0-1.47.1: Added weapon multiplier auto-learning, improved armory auto-fill with 3% buffer, training page warnings.
 // @author       Blackheart
 // @match        https://www.kingsofchaos.com/*
@@ -3138,6 +3138,18 @@
     const statType = match[4].toLowerCase();
 
     debugLog('🛒 Purchase detected:', { quantity, weaponName, statGained, statType });
+
+    // Check for zero stat gain (no soldiers to hold weapons)
+    if (statGained === 0) {
+      showAutoFillMessage(
+        `⚠️ No ${statType} increase from ${weaponName} purchase!\n` +
+        `You have no soldiers trained to hold these weapons.\n` +
+        `→ Visit training page to train more soldiers`,
+        'error'
+      );
+      debugLog(`⚠️ Zero stat gain detected for ${statType} - need to train soldiers`);
+      continue; // Skip multiplier calculation for zero gains
+    }
 
     // Get weapon data (use weaponData from calculateWeaponEfficiency)
     const weaponData = {
