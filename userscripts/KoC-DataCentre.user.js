@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         KoC Data Centre
 // @namespace    trevo88423
-// @version      2.2.3
+// @version      2.2.4
 // @description  Sweet Revenge alliance tool: tracks stats, syncs to API, adds dashboards, XP→Turn calculator, mini Top Stats panel. v2.1.0: Integrated slaying competition tracker (attack missions & gold stolen tracking, team competitions, leaderboards). v2.0.0: Optimized API architecture, previous versions deprecated. v1.47.0-1.47.1: Added weapon multiplier auto-learning, improved armory auto-fill with 3% buffer, training page warnings.
 // @author       Blackheart
 // @match        https://www.kingsofchaos.com/*
@@ -4955,7 +4955,16 @@
       const header = [...document.querySelectorAll("th, td")]
         .find(el => el.textContent.includes("Shared Recon Info"));
 
-      if (!header) return sharedRecon;
+      if (!header) {
+        debugLog("⚠️ 'Shared Recon Info' header not found on page");
+        // Debug: Show all table headers found
+        const allHeaders = [...document.querySelectorAll("th, td")]
+          .filter(el => el.textContent.trim().length > 0 && el.textContent.trim().length < 50)
+          .map(el => el.textContent.trim())
+          .slice(0, 10);
+        debugLog("📋 First 10 table headers found:", allHeaders);
+        return sharedRecon;
+      }
 
       const table = header.closest("table");
       if (!table) return sharedRecon;
@@ -5120,42 +5129,30 @@
     return { value: "???", time: null };
   }
 
-  async function collectFromReconPage() {
-    // Get player ID - different method for inteldetail.php vs stats.php
+  async function collectFromIntelDetailPage() {
+    // Fresh recon page - collect 8 combat stats from Military Stats table
+
+    // Get player ID from stats.php link
     let id = null;
+    let link = null;
+    const allStatsLinks = document.querySelectorAll('a[href*="stats.php?id="]');
 
-    if (location.pathname.includes("inteldetail.php")) {
-      // On inteldetail.php, URL has report_id, not player id
-      // Search for first stats.php link (works because there's only one player shown)
-      let link = null;
-      const allStatsLinks = document.querySelectorAll('a[href*="stats.php?id="]');
+    for (const a of allStatsLinks) {
+      // Skip our own Data Centre link
+      if (a.href.includes('id=datacentre')) continue;
+      // Skip if it's just "stats.php?id=" with no actual ID
+      if (!a.href.match(/id=\d+/)) continue;
+      // Found a valid player stats link
+      link = a;
+      break;
+    }
 
-      for (const a of allStatsLinks) {
-        // Skip our own Data Centre link
-        if (a.href.includes('id=datacentre')) continue;
-        // Skip if it's just "stats.php?id=" with no actual ID
-        if (!a.href.match(/id=\d+/)) continue;
-        // Found a valid player stats link
-        link = a;
-        break;
-      }
+    const match = link?.href.match(/id=(\d+)/);
+    id = match ? match[1] : null;
 
-      const match = link?.href.match(/id=(\d+)/);
-      id = match ? match[1] : null;
-
-      if (!id) {
-        debugLog("⚠️ Recon: Could not find player ID on inteldetail page");
-        return;
-      }
-    } else {
-      // On stats.php, use URL parameter to avoid grabbing commander ID
-      const urlParams = new URLSearchParams(window.location.search);
-      id = urlParams.get('id');
-
-      if (!id) {
-        debugLog("⚠️ Recon: Could not find player ID in URL");
-        return;
-      }
+    if (!id) {
+      debugLog("⚠️ Recon: Could not find player ID on inteldetail page");
+      return;
     }
 
     // Check for Invalid User ID error
@@ -5229,44 +5226,169 @@
       }
     }
 
-    // === COLLECT 8 STATS FROM SHARED RECON INFO TABLE ===
-    const sharedReconData = parseSharedReconInfo();
+    // === COLLECT 8 STATS FROM MILITARY STATS TABLE ===
+    // Find the Military Stats table
+    const tables = document.querySelectorAll('table.table_lines');
+    let militaryStatsTable = null;
 
-    // Map shared recon data to stats object
-    const statFields = [
-      'strikeAction', 'defensiveAction', 'spyRating', 'sentryRating',
-      'poisonRating', 'antidoteRating', 'theftRating', 'vigilanceRating'
-    ];
-
-    for (const field of statFields) {
-      const sharedData = sharedReconData[field];
-      if (sharedData && sharedData.value && sharedData.time) {
-        // Parse value (remove commas)
-        const value = parseInt(sharedData.value.replace(/,/g, ''), 10);
-        if (!isNaN(value)) {
-          stats[field] = value;
-          stats[`${field}Time`] = sharedData.time;
-        }
+    for (const table of tables) {
+      const header = table.querySelector('th');
+      if (header && header.textContent.trim() === 'Military Stats') {
+        militaryStatsTable = table;
+        break;
       }
     }
 
-    // Count collected stats
-    const statCount = Object.keys(stats).filter(key => !key.endsWith('Time') && key !== 'name' && key !== 'rank' && key !== 'race').length;
+    if (militaryStatsTable) {
+      const rows = militaryStatsTable.querySelectorAll('tr');
 
-    if (statCount === 0 && !stats.name && !stats.rank && !stats.race) {
-      debugLog(`ℹ️ No data collected for player ${id} - page may not have Shared Recon Info`);
+      // Stat name mapping
+      const statMapping = {
+        'Strike Action': 'strikeAction',
+        'Defensive Action': 'defensiveAction',
+        'Spy Rating': 'spyRating',
+        'Sentry Rating': 'sentryRating',
+        'Poison Rating': 'poisonRating',
+        'Antidote Rating': 'antidoteRating',
+        'Theft Rating': 'theftRating',
+        'Vigilance Rating': 'vigilanceRating'
+      };
+
+      for (const row of rows) {
+        const cells = row.querySelectorAll('td');
+        if (cells.length >= 2) {
+          const statName = cells[0]?.innerText.trim();
+          const statValue = cells[1]?.innerText.trim();
+
+          // Check if this is one of our 8 combat stats
+          const fieldName = statMapping[statName];
+          if (fieldName && statValue && statValue !== '???') {
+            // Parse value (remove commas)
+            const value = parseInt(statValue.replace(/,/g, ''), 10);
+            if (!isNaN(value)) {
+              stats[fieldName] = value;
+              stats[`${fieldName}Time`] = now;
+              debugLog(`✅ Parsed ${statName}: ${value.toLocaleString()}`);
+            }
+          } else if (fieldName && statValue === '???') {
+            debugLog(`ℹ️ Skipping ${statName}: value is ???`);
+          }
+        }
+      }
+    } else {
+      debugLog("⚠️ Military Stats table not found on page");
+    }
+
+    // Count collected stats
+    const statCount = Object.keys(stats).filter(key => !key.endsWith('Time')).length;
+
+    if (statCount === 0) {
+      debugLog(`ℹ️ No fresh recon data collected for player ${id}`);
       return;
     }
 
     // Save to localStorage and send to API
     updatePlayerInfo(id, stats);
-    debugLog(`📊 Stats page collected for ${id}: ${statCount} combat stats, name: ${stats.name || 'N/A'}, rank: ${stats.rank || 'N/A'}, race: ${stats.race || 'N/A'}`);
+    debugLog(`📊 Fresh recon collected for ${id}: ${statCount} combat stats`);
 
-    // Enhance UI with fresh stats
-    enhanceReconUI(id, stats).catch(err => console.warn("enhanceReconUI failed:", err));
+    // Fill any ??? values with last known data from API
+    await fillMilitaryStatsFromAPI(id);
   }
 
-  // Fill Shared Recon Info table with data from API for "???" values
+  // Fill ??? values in Military Stats table with last known data from API
+  async function fillMilitaryStatsFromAPI(playerId) {
+    try {
+      // Fetch player data from API
+      const playerData = await auth.apiCall(`players/${playerId}`);
+      if (!playerData || playerData.error) {
+        debugLog("⚠️ No API data available for player", playerId);
+        return;
+      }
+
+      debugLog("🌐 Fetching last known stats from API for ??? values");
+
+      // Find the Military Stats table
+      const tables = document.querySelectorAll('table.table_lines');
+      let militaryStatsTable = null;
+
+      for (const table of tables) {
+        const header = table.querySelector('th');
+        if (header && header.textContent.trim() === 'Military Stats') {
+          militaryStatsTable = table;
+          break;
+        }
+      }
+
+      if (!militaryStatsTable) return;
+
+      // Map API fields to display names
+      const statMapping = {
+        strikeAction: { display: "Strike Action", timeField: "strikeActionTime" },
+        defensiveAction: { display: "Defensive Action", timeField: "defensiveActionTime" },
+        spyRating: { display: "Spy Rating", timeField: "spyRatingTime" },
+        sentryRating: { display: "Sentry Rating", timeField: "sentryRatingTime" },
+        poisonRating: { display: "Poison Rating", timeField: "poisonRatingTime" },
+        antidoteRating: { display: "Antidote Rating", timeField: "antidoteRatingTime" },
+        theftRating: { display: "Theft Rating", timeField: "theftRatingTime" },
+        vigilanceRating: { display: "Vigilance Rating", timeField: "vigilanceRatingTime" }
+      };
+
+      let updatedCount = 0;
+
+      // Process each row in the table
+      const rows = militaryStatsTable.querySelectorAll("tr");
+      rows.forEach(row => {
+        const cells = row.querySelectorAll("td");
+        if (cells.length < 2) return;
+
+        const statName = cells[0]?.innerText.trim();
+        const currentValue = cells[1]?.innerText.trim();
+
+        // Find matching stat in API data
+        for (const [key, mapping] of Object.entries(statMapping)) {
+          if (statName === mapping.display) {
+            const apiValue = playerData[key];
+            const apiTime = playerData[mapping.timeField];
+
+            // If recon shows "???" but we have API data, replace it
+            if (currentValue === "???" && apiValue && apiTime) {
+              // Calculate age of data
+              const date = new Date(apiTime);
+              const now = new Date(getKoCServerTimeUTC());
+              const ageMs = now - date;
+              const ageMinutes = Math.floor(ageMs / 60000);
+              const ageHours = Math.floor(ageMs / 3600000);
+              const ageDays = Math.floor(ageMs / 86400000);
+
+              let ageText = "";
+              if (ageMinutes < 1) {
+                ageText = "just now";
+              } else if (ageMinutes < 60) {
+                ageText = `${ageMinutes}m ago`;
+              } else if (ageHours < 24) {
+                ageText = `${ageHours}h ago`;
+              } else {
+                ageText = `${ageDays}d ago`;
+              }
+
+              // Update value cell with last known + age
+              cells[1].innerHTML = `<font color="#99f">${apiValue.toLocaleString()} <font size="1">(${ageText})</font></font>`;
+              updatedCount++;
+            }
+            break;
+          }
+        }
+      });
+
+      if (updatedCount > 0) {
+        debugLog(`✅ Filled ${updatedCount} "???" values with last known data from API`);
+      }
+    } catch (err) {
+      console.warn("⚠️ Failed to fill Military Stats from API:", err);
+    }
+  }
+
+  // Fill Shared Recon Info table with data from API for "???" values (stats.php only)
   async function fillSharedReconInfoFromAPI(playerId) {
     try {
       // Fetch player data from API
@@ -5789,20 +5911,19 @@
       }
     }
 
-    // Recon detail & Stats pages
-    if (location.pathname.includes("inteldetail.php") || location.pathname.includes("stats.php")) {
-      if (location.pathname.includes("inteldetail.php")) {
-        await safeExecute('addMaxAttacksRecon', () => addMaxAttacksRecon());
-      }
-      await safeExecute('collectFromReconPage', () => collectFromReconPage());
-      // Enhance Shared Recon Info table with age column on stats pages
-      if (location.pathname.includes("stats.php")) {
-        await safeExecute('enhanceSharedReconInfoTable', () => enhanceSharedReconInfoTable());
-        // Fill missing ??? values from API
-        const playerId = new URLSearchParams(location.search).get('id');
-        if (playerId) {
-          await safeExecute('fillSharedReconInfoFromAPI', () => fillSharedReconInfoFromAPI(playerId));
-        }
+    // Fresh recon detail page
+    if (location.pathname.includes("inteldetail.php")) {
+      await safeExecute('addMaxAttacksRecon', () => addMaxAttacksRecon());
+      await safeExecute('collectFromIntelDetailPage', () => collectFromIntelDetailPage());
+    }
+
+    // Stats pages (shared recon info)
+    if (location.pathname.includes("stats.php")) {
+      await safeExecute('enhanceSharedReconInfoTable', () => enhanceSharedReconInfoTable());
+      // Fill missing ??? values from API
+      const playerId = new URLSearchParams(location.search).get('id');
+      if (playerId) {
+        await safeExecute('fillSharedReconInfoFromAPI', () => fillSharedReconInfoFromAPI(playerId));
       }
     }
 
