@@ -1,0 +1,28 @@
+# Internal documentation (keep local for reference)
+QUICK_START.md
+BACKUP_STRATEGY.md
+
+# Backup scripts (local only)
+backup.bat
+backup-script.js
+
+# Development files
+package.json
+package-lock.json
+node_modules/
+
+# Duplicate/unnecessary public files
+public/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+# Keep instructions local only
+COMMIT_INSTRUCTIONS.md
