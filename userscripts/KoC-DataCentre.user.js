@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         KoC Data Centre
 // @namespace    trevo88423
-// @version      2.2.4
+// @version      2.2.5
 // @description  Sweet Revenge alliance tool: tracks stats, syncs to API, adds dashboards, XP→Turn calculator, mini Top Stats panel. v2.1.0: Integrated slaying competition tracker (attack missions & gold stolen tracking, team competitions, leaderboards). v2.0.0: Optimized API architecture, previous versions deprecated. v1.47.0-1.47.1: Added weapon multiplier auto-learning, improved armory auto-fill with 3% buffer, training page warnings.
 // @author       Blackheart
 // @match        https://www.kingsofchaos.com/*
@@ -3920,6 +3920,7 @@
     const warningBox = document.createElement('table');
     warningBox.className = 'table_lines';
     warningBox.style.cssText = `
+      width: 100%;
       margin: 10px 0;
       border: 2px solid #f90;
       background: #1a1a1a;
@@ -4014,28 +4015,20 @@
 
   /**
    * Insert warning box into training page
-   * Tries multiple insertion strategies
+   * Prioritizes main content area to avoid sidebar overlap
    */
   function insertWarningBox(warningBox) {
     if (!warningBox) return;
 
-    // Strategy 1: Insert after the first table on the training page
-    const firstTable = document.querySelector('table.table_lines');
-    if (firstTable && firstTable.parentNode) {
-      firstTable.parentNode.insertBefore(warningBox, firstTable.nextSibling);
-      debugLog('[TrainingWarnings] Warning box inserted after first table');
-      return;
-    }
-
-    // Strategy 2: Insert at the top of the main content area
+    // Strategy 1: Insert at the top of the main content area (BEST - avoids sidebar)
     const contentCell = document.querySelector('td.content_cell');
     if (contentCell) {
       contentCell.insertBefore(warningBox, contentCell.firstChild);
-      debugLog('[TrainingWarnings] Warning box inserted at top of content cell');
+      debugLog('[TrainingWarnings] Warning box inserted at top of content area');
       return;
     }
 
-    // Strategy 3: Insert after any header with "Training" text
+    // Strategy 2: Insert after any table with "Training" header
     const headers = document.querySelectorAll('th');
     for (const header of headers) {
       if (header.textContent.toLowerCase().includes('training')) {
@@ -4046,6 +4039,14 @@
           return;
         }
       }
+    }
+
+    // Strategy 3: Insert before the first table in main content
+    const firstTable = document.querySelector('table.table_lines');
+    if (firstTable && firstTable.parentNode) {
+      firstTable.parentNode.insertBefore(warningBox, firstTable);
+      debugLog('[TrainingWarnings] Warning box inserted before first table');
+      return;
     }
 
     // Fallback: Insert at the beginning of body
