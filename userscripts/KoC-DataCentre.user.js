@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         KoC Data Centre
 // @namespace    trevo88423
-// @version      2.2.7
+// @version      2.2.8
 // @description  Sweet Revenge alliance tool: tracks stats, syncs to API, adds dashboards, XP→Turn calculator, mini Top Stats panel. v2.1.0: Integrated slaying competition tracker (attack missions & gold stolen tracking, team competitions, leaderboards). v2.0.0: Optimized API architecture, previous versions deprecated. v1.47.0-1.47.1: Added weapon multiplier auto-learning, improved armory auto-fill with 3% buffer, training page warnings.
 // @author       Blackheart
 // @match        https://www.kingsofchaos.com/*
@@ -42,7 +42,7 @@
   // ==================== VERSION CHECK ====================
   // Check if this script version is allowed to run
   const SCRIPT_NAME = 'koc-data-centre';
-  const SCRIPT_VERSION = '2.2.7'; // Must match @version above
+  const SCRIPT_VERSION = '2.2.8'; // Must match @version above
   const VERSION_CHECK_API = 'https://koc-roster-api-production.up.railway.app';
 
   async function checkScriptVersion() {
@@ -5942,9 +5942,26 @@
 
     // Stats pages (shared recon info)
     if (location.pathname.includes("stats.php")) {
+      const playerId = new URLSearchParams(location.search).get('id');
+
+      // Check for deleted player messages
+      if (playerId && (
+        document.body.textContent.includes("Invalid User ID") ||
+        document.body.textContent.includes("Unlucky, that Player doesnt exist") ||
+        document.body.textContent.includes("Player does not exist")
+      )) {
+        console.warn(`⚠️ Player ${playerId} no longer exists - marking as deleted`);
+        await auth.apiCall(`players/${playerId}/mark-inactive`, {
+          status: "deleted",
+          error: document.body.textContent.includes("Invalid User ID")
+            ? "Invalid User ID"
+            : "Player does not exist"
+        });
+        return;
+      }
+
       await safeExecute('enhanceSharedReconInfoTable', () => enhanceSharedReconInfoTable());
       // Fill missing ??? values from API
-      const playerId = new URLSearchParams(location.search).get('id');
       if (playerId) {
         await safeExecute('fillSharedReconInfoFromAPI', () => fillSharedReconInfoFromAPI(playerId));
       }
