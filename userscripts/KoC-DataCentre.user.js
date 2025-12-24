@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         KoC Data Centre
 // @namespace    trevo88423
-// @version      2.2.6
+// @version      2.2.7
 // @description  Sweet Revenge alliance tool: tracks stats, syncs to API, adds dashboards, XP→Turn calculator, mini Top Stats panel. v2.1.0: Integrated slaying competition tracker (attack missions & gold stolen tracking, team competitions, leaderboards). v2.0.0: Optimized API architecture, previous versions deprecated. v1.47.0-1.47.1: Added weapon multiplier auto-learning, improved armory auto-fill with 3% buffer, training page warnings.
 // @author       Blackheart
 // @match        https://www.kingsofchaos.com/*
@@ -42,7 +42,7 @@
   // ==================== VERSION CHECK ====================
   // Check if this script version is allowed to run
   const SCRIPT_NAME = 'koc-data-centre';
-  const SCRIPT_VERSION = '2.2.6'; // Must match @version above
+  const SCRIPT_VERSION = '2.2.7'; // Must match @version above
   const VERSION_CHECK_API = 'https://koc-roster-api-production.up.railway.app';
 
   async function checkScriptVersion() {
@@ -2043,9 +2043,9 @@
       const value = cells[1].innerText.trim();
       const rankText = cells[2]?.innerText.trim(); // NEW: Extract rank from 3rd column
 
-      // Extract rank number from "#117" format
-      const rankMatch = rankText?.match(/#(\d+)/);
-      const rank = rankMatch ? parseInt(rankMatch[1], 10) : null;
+      // Extract rank number from "#117" or "#1,234" format (handle commas for ranks over 1000)
+      const rankMatch = rankText?.match(/#([\d,]+)/);
+      const rank = rankMatch ? parseInt(rankMatch[1].replace(/,/g, ''), 10) : null;
 
       if (label.startsWith("strike")) {
         stats.strikeAction = value;
