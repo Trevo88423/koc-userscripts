@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         KoC Data Centre
 // @namespace    trevo88423
-// @version      2.2.5
+// @version      2.2.6
 // @description  Sweet Revenge alliance tool: tracks stats, syncs to API, adds dashboards, XP→Turn calculator, mini Top Stats panel. v2.1.0: Integrated slaying competition tracker (attack missions & gold stolen tracking, team competitions, leaderboards). v2.0.0: Optimized API architecture, previous versions deprecated. v1.47.0-1.47.1: Added weapon multiplier auto-learning, improved armory auto-fill with 3% buffer, training page warnings.
 // @author       Blackheart
 // @match        https://www.kingsofchaos.com/*
@@ -42,7 +42,7 @@
   // ==================== VERSION CHECK ====================
   // Check if this script version is allowed to run
   const SCRIPT_NAME = 'koc-data-centre';
-  const SCRIPT_VERSION = '2.2.2'; // Must match @version above
+  const SCRIPT_VERSION = '2.2.6'; // Must match @version above
   const VERSION_CHECK_API = 'https://koc-roster-api-production.up.railway.app';
 
   async function checkScriptVersion() {
@@ -3295,20 +3295,42 @@
       await auth.apiCall("tiv", { playerId: myId, tiv, time: now });
     }
 
-    // Extract only real ranks from stats for API submission
+    // Extract real ranks from stats for API submission
     const realRanks = {
-      attackRank: stats.attackRank,
-      defenseRank: stats.defenseRank,
-      spyRank: stats.spyRank,
-      sentryRank: stats.sentryRank
+      realStrikeRank: stats._realRanks?.strike || null,
+      realDefenseRank: stats._realRanks?.defense || null,
+      realSpyRank: stats._realRanks?.spy || null,
+      realSentryRank: stats._realRanks?.sentry || null,
+      realPoisonRank: stats._realRanks?.poison || null,
+      realAntidoteRank: stats._realRanks?.antidote || null,
+      realTheftRank: stats._realRanks?.theft || null,
+      realVigilanceRank: stats._realRanks?.vigilance || null
     };
 
-    // Send ONLY TIV and real ranks to API (no stats, weapons, or efficiency)
+    // Send TIV, stats, timestamps, and real ranks to API
     const payload = {
       name: myName,
       tiv,
-      ...realRanks,
-      lastTivTime: now
+      lastTivTime: now,
+      // All 8 stats with their timestamps
+      strikeAction: stats.strikeAction,
+      strikeActionTime: stats.strikeActionTime,
+      defensiveAction: stats.defensiveAction,
+      defensiveActionTime: stats.defensiveActionTime,
+      spyRating: stats.spyRating,
+      spyRatingTime: stats.spyRatingTime,
+      sentryRating: stats.sentryRating,
+      sentryRatingTime: stats.sentryRatingTime,
+      poisonRating: stats.poisonRating,
+      poisonRatingTime: stats.poisonRatingTime,
+      antidoteRating: stats.antidoteRating,
+      antidoteRatingTime: stats.antidoteRatingTime,
+      theftRating: stats.theftRating,
+      theftRatingTime: stats.theftRatingTime,
+      vigilanceRating: stats.vigilanceRating,
+      vigilanceRatingTime: stats.vigilanceRatingTime,
+      // Real ranks
+      ...realRanks
     };
 
     // Save to localStorage (skip updatePlayerInfo to avoid duplicate API call)
