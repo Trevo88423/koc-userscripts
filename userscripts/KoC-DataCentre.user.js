@@ -2,7 +2,7 @@
 // @name         KoC Data Centre
 // @namespace    trevo88423
 // @version      2.2.8
-// @description  Sweet Revenge alliance tool: tracks stats, syncs to API, adds dashboards, XP→Turn calculator, mini Top Stats panel. v2.1.0: Integrated slaying competition tracker (attack missions & gold stolen tracking, team competitions, leaderboards). v2.0.0: Optimized API architecture, previous versions deprecated. v1.47.0-1.47.1: Added weapon multiplier auto-learning, improved armory auto-fill with 3% buffer, training page warnings.
+// @description  Sweet Revenge alliance tool: tracks stats, syncs to API, adds dashboards, XP→Turn calculator, mini Top Stats panel. v2.2.8: Added optimizer auto-fill for armory (uses roster API to calculate optimal stat allocation). v2.1.0: Integrated slaying competition tracker (attack missions & gold stolen tracking, team competitions, leaderboards). v2.0.0: Optimized API architecture, previous versions deprecated.
 // @author       Blackheart
 // @match        https://www.kingsofchaos.com/*
 // @exclude      https://*.kingsofchaos.com/confirm.login.php*
@@ -3027,6 +3027,206 @@
     }
   }
 
+  // ==================== OPTIMIZER AUTO-FILL ====================
+
+  async function autoFillArmoryWithOptimizer() {
+    debugLog('🚀 Starting optimizer auto-fill...');
+
+    // 1. Get Total Potential Gold from calculator
+    const xpTradeElem = document.getElementById("xp-trade");
+    const xpTradeAttacks = parseInt(xpTradeElem?.innerText || "0");
+    const avgGold = SafeStorage.get("xpTool_avgGold", 0);
+    const totalPotentialGold = xpTradeAttacks * avgGold;
+
+    debugLog(`💰 Total Potential Gold: ${totalPotentialGold.toLocaleString()} (${xpTradeAttacks} attacks × ${avgGold.toLocaleString()})`);
+
+    // Validate gold available
+    if (totalPotentialGold <= 0) {
+      showAutoFillMessage('❌ No gold available. Please configure XP calculator first.', 'error');
+      return;
+    }
+
+    // 2. Get authentication token
+    const token = await auth.getToken();
+    if (!token) {
+      showAutoFillMessage('❌ Please log in first. Visit your Profile page to authenticate.', 'error');
+      return;
+    }
+
+    // 3. Get player ID
+    const playerId = SafeStorage.get("KoC_MyId", null);
+    if (!playerId) {
+      showAutoFillMessage('❌ Player ID not found. Please visit your Profile page.', 'error');
+      return;
+    }
+
+    // 4. Call optimizer API
+    const apiUrl = `${API_URL}/api/roster/optimizer/${playerId}?mode=budget&value=${totalPotentialGold}`;
+    debugLog(`🌐 Calling optimizer API: ${apiUrl}`);
+
+    try {
+      const resp = await fetch(apiUrl, {
+        headers: {
+          "Authorization": "Bearer " + token,
+          "X-Script-Name": SCRIPT_NAME,
+          "X-Script-Version": SCRIPT_VERSION
+        }
+      });
+
+      if (!resp.ok) {
+        if (resp.status === 401) {
+          throw new Error("Authentication failed. Please log in again.");
+        }
+        if (resp.status === 403) {
+          throw new Error("Access denied. This may not be your linked player.");
+        }
+        if (resp.status === 404) {
+          throw new Error("Player not found in database.");
+        }
+        if (resp.status === 500) {
+          throw new Error("Server error. Please try again later.");
+        }
+        throw new Error(`API error: ${resp.status}`);
+      }
+
+      const result = await resp.json();
+      debugLog('📊 Optimizer API response:', result);
+
+      // Validate response
+      if (!result || !result.allocation || !result.summary) {
+        throw new Error("Invalid response from optimizer");
+      }
+
+      if (Object.keys(result.allocation).length === 0) {
+        throw new Error("Optimizer returned no allocations");
+      }
+
+      // 5. Map stat names and extract gold amounts
+      const apiToFormFieldMap = {
+        'strikeAction': 'attack',
+        'defensiveAction': 'defend',
+        'spyRating': 'spy',
+        'sentryRating': 'sentry',
+        'poisonRating': 'poison',
+        'antidoteRating': 'medicine',
+        'theftRating': 'theft',
+        'vigilanceRating': 'vigilance'
+      };
+
+      const statLabels = {
+        'attack': 'Strike',
+        'defend': 'Defense',
+        'spy': 'Spy',
+        'sentry': 'Sentry',
+        'poison': 'Poison',
+        'medicine': 'Antidote',
+        'theft': 'Theft',
+        'vigilance': 'Vigilance'
+      };
+
+      // Extract gold amounts for each stat
+      const goldAllocations = {};
+      const rankImprovements = [];
+      let totalGoldSpent = 0;
+
+      for (const [apiStat, data] of Object.entries(result.allocation)) {
+        const formField = apiToFormFieldMap[apiStat];
+        if (formField && data.goldSpent > 0) {
+          goldAllocations[formField] = data.goldSpent;
+          totalGoldSpent += data.goldSpent;
+
+          // Collect rank improvements
+          if (data.ranksGained > 0) {
+            const label = statLabels[formField];
+            rankImprovements.push(`  • ${label}: #${data.currentRank} → #${data.newRank} (+${data.ranksGained})`);
+          }
+        }
+      }
+
+      debugLog(`💎 Gold allocations:`, goldAllocations);
+      debugLog(`📈 Total gold to spend: ${totalGoldSpent.toLocaleString()}`);
+
+      // 6. Convert gold amounts to percentages
+      const allocations = {};
+      for (const [stat, goldAmount] of Object.entries(goldAllocations)) {
+        if (goldAmount > 0) {
+          const percentage = Math.round((goldAmount / totalGoldSpent) * 100);
+          allocations[stat] = percentage;
+          debugLog(`📊 ${stat}: ${goldAmount.toLocaleString()} gold = ${percentage}%`);
+        } else {
+          allocations[stat] = 0;
+        }
+      }
+
+      // Ensure percentages add up to exactly 100% (fix rounding errors)
+      const totalPercentage = Object.values(allocations).reduce((sum, pct) => sum + pct, 0);
+      if (totalPercentage !== 100) {
+        const diff = 100 - totalPercentage;
+        // Adjust the largest allocation
+        const largestStat = Object.keys(allocations).reduce((a, b) =>
+          allocations[a] > allocations[b] ? a : b
+        );
+        allocations[largestStat] += diff;
+        debugLog(`🔧 Adjusted ${largestStat} by ${diff}% to ensure total = 100%`);
+      }
+
+      // 7. Fill form fields
+      const formFieldNames = ['attack', 'defend', 'spy', 'sentry', 'poison', 'medicine', 'theft', 'vigilance'];
+      let filledCount = 0;
+      const summary = [];
+
+      for (const stat of formFieldNames) {
+        const fieldName = `prefs[${stat}]`;
+        const input = document.querySelector(`input[name="${fieldName}"]`);
+
+        if (input) {
+          const value = allocations[stat] || 0;
+          input.value = value;
+          filledCount++;
+
+          if (value > 0) {
+            summary.push(`${stat}: ${value}%`);
+          }
+
+          debugLog(`✅ Set ${fieldName} = ${value}%`);
+        } else {
+          debugLog(`⚠️ Could not find input field: ${fieldName}`);
+        }
+      }
+
+      // 8. Format gold display
+      const formatGold = (gold) => {
+        if (gold >= 1e9) return (gold / 1e9).toFixed(1) + 'B';
+        if (gold >= 1e6) return (gold / 1e6).toFixed(1) + 'M';
+        if (gold >= 1e3) return (gold / 1e3).toFixed(1) + 'K';
+        return gold.toFixed(0);
+      };
+
+      // 9. Display success message with rank improvements
+      const currentRank = result.summary.currentTotalRankPoints || result.player?.currentTotalRankPoints || 0;
+      const newRank = result.summary.newTotalRankPoints;
+      const improvement = result.summary.totalRanksGained;
+
+      let message = `✅ Optimizer Auto-Fill Complete!\n`;
+      message += `📈 Total Rank Points: ${currentRank} → ${newRank} (-${improvement} ranks)\n`;
+
+      if (rankImprovements.length > 0) {
+        message += `🎯 Stat Rank Improvements:\n`;
+        message += rankImprovements.join('\n') + '\n';
+      }
+
+      message += `💰 Gold allocated: ${formatGold(totalGoldSpent)} / ${formatGold(totalPotentialGold)}\n`;
+      message += `📊 ${summary.join(', ')}`;
+
+      showAutoFillMessage(message, 'success');
+
+    } catch (error) {
+      debugLog('❌ Optimizer error:', error);
+      showAutoFillMessage(`❌ Optimizer Error: ${error.message}`, 'error');
+      throw error; // Re-throw for button handler
+    }
+  }
+
   function addAutoFillButton() {
     // Find the armory preferences form
     const attackInput = document.querySelector('input[name="prefs[attack]"]');
@@ -3109,6 +3309,74 @@
           if (buttonCell) {
             buttonCell.appendChild(autoFillBtn);
             debugLog('✅ Auto-fill button added to armory form (table row)');
+          }
+        }
+      }
+    }
+
+    // Create optimizer button
+    const optimizerBtn = document.createElement('button');
+    optimizerBtn.type = 'button';
+    optimizerBtn.textContent = '🚀 Auto-Fill (Optimizer)';
+    optimizerBtn.title = 'Use optimizer API to calculate best allocation based on total potential gold from XP calculator';
+    optimizerBtn.style.cssText = `
+      padding: 8px 16px;
+      background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+      color: white;
+      border: none;
+      border-radius: 4px;
+      font-weight: bold;
+      cursor: pointer;
+      font-size: 14px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+      transition: all 0.2s ease;
+      margin-left: 10px;
+    `;
+
+    // Add hover effect
+    optimizerBtn.addEventListener('mouseenter', () => {
+      optimizerBtn.style.transform = 'scale(1.05)';
+      optimizerBtn.style.boxShadow = '0 4px 8px rgba(0,0,0,0.3)';
+    });
+
+    optimizerBtn.addEventListener('mouseleave', () => {
+      optimizerBtn.style.transform = 'scale(1)';
+      optimizerBtn.style.boxShadow = '0 2px 4px rgba(0,0,0,0.2)';
+    });
+
+    // Add click handler
+    optimizerBtn.addEventListener('click', async () => {
+      debugLog('🚀 Optimizer button clicked');
+      optimizerBtn.disabled = true;
+      optimizerBtn.textContent = '⏳ Optimizing...';
+
+      try {
+        await autoFillArmoryWithOptimizer();
+      } catch (error) {
+        debugLog('❌ Error during optimizer auto-fill:', error);
+        // Error message already shown by autoFillArmoryWithOptimizer
+      } finally {
+        setTimeout(() => {
+          optimizerBtn.disabled = false;
+          optimizerBtn.textContent = '🚀 Auto-Fill (Optimizer)';
+        }, 500);
+      }
+    });
+
+    // Insert optimizer button into form
+    if (insertionPoint) {
+      insertionPoint.appendChild(optimizerBtn);
+      debugLog('✅ Optimizer button added to armory form');
+    } else {
+      // Fallback: create a new row in the table
+      const formTable = form.querySelector('table');
+      if (formTable) {
+        const lastRow = formTable.querySelector('tr:last-child');
+        if (lastRow) {
+          const buttonCell = lastRow.querySelector('td');
+          if (buttonCell) {
+            buttonCell.appendChild(optimizerBtn);
+            debugLog('✅ Optimizer button added to armory form (table row)');
           }
         }
       }
@@ -5942,26 +6210,9 @@
 
     // Stats pages (shared recon info)
     if (location.pathname.includes("stats.php")) {
-      const playerId = new URLSearchParams(location.search).get('id');
-
-      // Check for deleted player messages
-      if (playerId && (
-        document.body.textContent.includes("Invalid User ID") ||
-        document.body.textContent.includes("Unlucky, that Player doesnt exist") ||
-        document.body.textContent.includes("Player does not exist")
-      )) {
-        console.warn(`⚠️ Player ${playerId} no longer exists - marking as deleted`);
-        await auth.apiCall(`players/${playerId}/mark-inactive`, {
-          status: "deleted",
-          error: document.body.textContent.includes("Invalid User ID")
-            ? "Invalid User ID"
-            : "Player does not exist"
-        });
-        return;
-      }
-
       await safeExecute('enhanceSharedReconInfoTable', () => enhanceSharedReconInfoTable());
       // Fill missing ??? values from API
+      const playerId = new URLSearchParams(location.search).get('id');
       if (playerId) {
         await safeExecute('fillSharedReconInfoFromAPI', () => fillSharedReconInfoFromAPI(playerId));
       }
