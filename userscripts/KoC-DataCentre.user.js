@@ -2310,22 +2310,28 @@
 
   function collectFromRewardsPage() {
     // Extract "Unsuccessful Recons" from "Actions against you" table
+    // Page structure: <td>Unsuccessful Recons<br><font>744/1000</font></td>
+    // We need to find the 1000 milestone row (not the 100 one)
     const rows = [...document.querySelectorAll("tr")];
 
     for (const row of rows) {
       const cells = row.querySelectorAll("td");
       if (cells.length >= 2) {
-        const firstCell = cells[0]?.textContent.trim();
+        const firstCellText = cells[0]?.textContent.trim();
 
-        // Look for "Unsuccessful Recons" row
-        if (firstCell && firstCell.includes("Unsuccessful Recons")) {
-          const secondCell = cells[1]?.textContent.trim();
-
-          // Extract the number (e.g., "2508/1000" or "999/1000")
-          const match = secondCell?.match(/^(\d+)\/(\d+)/);
+        // Look for "Unsuccessful Recons" with /1000 milestone (not /100)
+        if (firstCellText && firstCellText.includes("Unsuccessful Recons")) {
+          // The value is in the SAME cell as the label, inside a <font> tag
+          // Format: "Unsuccessful Recons 744/1000" or similar
+          const match = firstCellText.match(/(\d+)\/(\d+)/);
           if (match) {
             const current = parseInt(match[1], 10);
             const max = parseInt(match[2], 10);
+
+            // Only process the /1000 milestone row (skip /100)
+            if (max !== 1000) continue;
+
+            debugLog("📊 Found Unsuccessful Recons:", current, "/", max);
 
             // Only track if player has recons to clear (current < max)
             if (current < max) {
