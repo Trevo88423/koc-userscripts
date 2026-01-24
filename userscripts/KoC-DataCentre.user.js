@@ -2310,56 +2310,49 @@
 
   function collectFromRewardsPage() {
     // Extract "Unsuccessful Recons" from "Actions against you" table
-    // Page structure: <td>Unsuccessful Recons<br><font>744/1000</font></td>
-    // We need to find the 1000 milestone row (not the 100 one)
-    const rows = [...document.querySelectorAll("tr")];
+    // Page structure: Both /100 and /1000 milestones are in the SAME <tr> but DIFFERENT <td> cells
+    // We need to search ALL cells to find the /1000 milestone
 
-    for (const row of rows) {
-      const cells = row.querySelectorAll("td");
-      if (cells.length >= 2) {
-        const firstCellText = cells[0]?.textContent.trim();
+    const allCells = [...document.querySelectorAll("td")];
 
-        // Look for "Unsuccessful Recons" with /1000 milestone (not /100)
-        if (firstCellText && firstCellText.includes("Unsuccessful Recons")) {
-          // The value is in the SAME cell as the label, inside a <font> tag
-          // Format: "Unsuccessful Recons 744/1000" or similar
-          const match = firstCellText.match(/(\d+)\/(\d+)/);
-          if (match) {
-            const current = parseInt(match[1], 10);
-            const max = parseInt(match[2], 10);
+    for (const cell of allCells) {
+      const cellText = cell.textContent.trim();
 
-            // Only process the /1000 milestone row (skip /100)
-            if (max !== 1000) continue;
+      if (cellText.includes("Unsuccessful Recons")) {
+        const match = cellText.match(/(\d+)\/(\d+)/);
 
-            debugLog("📊 Found Unsuccessful Recons:", current, "/", max);
+        if (match) {
+          const current = parseInt(match[1], 10);
+          const max = parseInt(match[2], 10);
 
-            // Only track if player has recons to clear (current < max)
-            if (current < max) {
-              const remaining = max - current;
-              const myId = SafeStorage.get("KoC_MyId", "self");
-              const myName = SafeStorage.get("KoC_MyName", "Me");
+          // Only process the /1000 milestone (skip /100)
+          if (max !== 1000) continue;
 
-              // Store recon tracking data
-              const reconData = {
-                id: myId,
-                name: myName,
-                reconsRemaining: remaining,
-                current: current,
-                max: max,
-                lastUpdate: getKoCServerTimeUTC()
-              };
+          // Only track if player has recons to clear (current < max)
+          if (current < max) {
+            const remaining = max - current;
+            const myId = SafeStorage.get("KoC_MyId", "self");
+            const myName = SafeStorage.get("KoC_MyName", "Me");
 
-              SafeStorage.set(`reconTrack_${myId}`, JSON.stringify(reconData));
-              debugLog("📊 Recons to clear captured:", reconData);
-            } else {
-              // Player has cleared recons - remove tracking
-              const myId = SafeStorage.get("KoC_MyId", "self");
-              SafeStorage.remove(`reconTrack_${myId}`);
-              debugLog("✅ Recons cleared - removed tracking");
-            }
+            const reconData = {
+              id: myId,
+              name: myName,
+              reconsRemaining: remaining,
+              current: current,
+              max: max,
+              lastUpdate: getKoCServerTimeUTC()
+            };
 
-            break;
+            SafeStorage.set(`reconTrack_${myId}`, JSON.stringify(reconData));
+            debugLog("📊 Recons to clear captured:", reconData);
+          } else {
+            // Player has cleared recons - remove tracking
+            const myId = SafeStorage.get("KoC_MyId", "self");
+            SafeStorage.remove(`reconTrack_${myId}`);
+            debugLog("✅ Recons cleared - removed tracking");
           }
+
+          break;
         }
       }
     }
@@ -2432,9 +2425,9 @@
             const data = JSON.parse(localStorage.getItem(key));
             reconPlayers.push({
               id: data.id,
-              rank: 0, // Will be set after sorting
+              rank: 0,
               name: data.name,
-              value: data.reconsRemaining.toLocaleString(),
+              value: `${data.current}/${data.max}`,
               rawValue: data.reconsRemaining
             });
           } catch (err) {
