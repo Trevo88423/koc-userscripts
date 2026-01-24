@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         KoC Data Centre
 // @namespace    trevo88423
-// @version      2.3.0
+// @version      2.3.1
 // @description  Sweet Revenge alliance tool: tracks stats, syncs to API, adds dashboards, XP→Turn calculator, mini Top Stats panel. v2.3.0: Added "Stats If You Attacked Instead" table on safe.php to compare tech upgrades vs attacking. v2.2.9: Added optimizer auto-fill for armory (uses roster API to calculate optimal stat allocation). v2.2.8: Minor fixes. v2.1.0: Integrated slaying competition tracker (attack missions & gold stolen tracking, team competitions, leaderboards). v2.0.0: Optimized API architecture, previous versions deprecated.
 // @author       Blackheart
 // @match        https://www.kingsofchaos.com/*
@@ -42,7 +42,7 @@
   // ==================== VERSION CHECK ====================
   // Check if this script version is allowed to run
   const SCRIPT_NAME = 'koc-data-centre';
-  const SCRIPT_VERSION = '2.3.0'; // Must match @version above
+  const SCRIPT_VERSION = '2.3.1'; // Must match @version above
   const VERSION_CHECK_API = 'https://koc-roster-api-production.up.railway.app';
 
   async function checkScriptVersion() {
@@ -2093,6 +2093,103 @@
     stats._realRanks = ranks;
 
     return stats;
+  }
+
+  // ==================== STATS PAGE COLLECTOR ====================
+
+  async function collectFromStatsPage() {
+    // Get player ID from URL
+    const playerId = new URLSearchParams(location.search).get('id');
+    if (!playerId || !/^\d+$/.test(playerId)) {
+      debugLog("⚠️ Stats page: No valid player ID in URL");
+      return;
+    }
+
+    // Find the "Shared Recon Info" table
+    const tables = document.querySelectorAll('table.table_lines');
+    let sharedReconTable = null;
+
+    for (const table of tables) {
+      const header = table.querySelector('th');
+      if (header && header.textContent.includes('Shared Recon Info')) {
+        sharedReconTable = table;
+        break;
+      }
+    }
+
+    if (!sharedReconTable) {
+      debugLog("⚠️ Stats page: Shared Recon Info table not found");
+      return;
+    }
+
+    const stats = {};
+
+    // Stat name mapping (exact match -> field name)
+    const statMapping = {
+      'Strike Action': 'strikeAction',
+      'Defensive Action': 'defensiveAction',
+      'Spy Rating': 'spyRating',
+      'Sentry Rating': 'sentryRating',
+      'Poison Rating': 'poisonRating',
+      'Antidote Rating': 'antidoteRating',
+      'Theft Rating': 'theftRating',
+      'Vigilance Rating': 'vigilanceRating'
+    };
+
+    // Parse timestamp from page (format: "2026-01-24 01:57:14")
+    // May also be "time ago" format if table was already enhanced - fall back to current time
+    function parseTimestamp(text) {
+      if (!text) return null;
+      const match = text.match(/(\d{4}-\d{2}-\d{2}\s+\d{2}:\d{2}:\d{2})/);
+      if (match) {
+        // Convert to ISO format for API
+        return match[1].replace(' ', 'T') + 'Z';
+      }
+      // If it's "time ago" format or unparseable, return null (caller will use current time)
+      return null;
+    }
+
+    const now = getKoCServerTimeUTC();
+
+    sharedReconTable.querySelectorAll("tr").forEach(row => {
+      const cells = row.querySelectorAll("td");
+      if (cells.length < 3) return;
+
+      // Column 0: Stat label, Column 1: Value, Column 2: Timestamp
+      const label = cells[0].innerText.trim();
+      const valueText = cells[1].innerText.trim();
+      const timestampText = cells[2].innerText.trim();
+
+      // Skip ??? or ?? values - we don't want to overwrite real data with unknowns
+      // But 0 is a valid value (e.g., poison/antidote/theft/vigilance can be 0 or low)
+      if (valueText === '???' || valueText === '??' || valueText === '') return;
+
+      // Find matching stat
+      const fieldName = statMapping[label];
+      if (fieldName) {
+        // Parse numeric value (remove commas)
+        const value = parseInt(valueText.replace(/,/g, ''), 10);
+        if (!isNaN(value)) {
+          stats[fieldName] = value;
+          // Use the timestamp from the page (when recon was done)
+          // Fall back to current time if timestamp is in "time ago" format
+          const timestamp = parseTimestamp(timestampText);
+          stats[`${fieldName}Time`] = timestamp || now;
+        }
+      }
+    });
+
+    // Count collected stats (exclude time fields)
+    const statCount = Object.keys(stats).filter(key => !key.endsWith('Time')).length;
+
+    if (statCount === 0) {
+      debugLog(`ℹ️ Stats page: No visible stats to collect for player ${playerId} (all ???)`);
+      return;
+    }
+
+    // Save to localStorage and send to API
+    updatePlayerInfo(playerId, stats);
+    debugLog(`📊 Stats page collected ${statCount}/8 stats for player ${playerId}`);
   }
 
   // ==================== BASE PAGE COLLECTOR ====================
@@ -6481,6 +6578,8 @@
 
     // Stats pages (shared recon info)
     if (location.pathname.includes("stats.php")) {
+      // Collect visible stats first (before filling ??? from API)
+      await safeExecute('collectFromStatsPage', () => collectFromStatsPage());
       await safeExecute('enhanceSharedReconInfoTable', () => enhanceSharedReconInfoTable());
       // Fill missing ??? values from API
       const playerId = new URLSearchParams(location.search).get('id');
