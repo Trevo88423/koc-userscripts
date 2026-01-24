@@ -4098,7 +4098,6 @@
       untrainedMercenaries: 0
     };
 
-    // Find rows in tables with specific labels
     const rows = document.querySelectorAll('table.table_lines tr, table tr');
 
     rows.forEach(row => {
@@ -4108,28 +4107,27 @@
       const label = cells[0].textContent.trim().toLowerCase();
       const valueText = cells[1].textContent.trim();
 
-      // Skip ??? values
       if (valueText === '???' || valueText === 'Unknown' || !valueText) return;
 
       const value = parseInt(valueText.replace(/,/g, ''), 10) || 0;
 
       // Match labels (case-insensitive, flexible)
-      if (label.includes('trained attack soldiers') && !label.includes('merc')) {
+      if ((label.includes('attack soldiers') || label.includes('trained attack soldiers')) && !label.includes('merc')) {
         soldierData.trainedAttackSoldiers = value;
       }
-      else if (label.includes('trained attack mercenaries')) {
+      else if (label.includes('attack mercen') || label.includes('attack merc')) {
         soldierData.trainedAttackMercenaries = value;
       }
-      else if (label.includes('trained defense soldiers') && !label.includes('merc')) {
+      else if ((label.includes('defense soldiers') || label.includes('trained defense soldiers') || label.includes('defence soldiers')) && !label.includes('merc')) {
         soldierData.trainedDefenseSoldiers = value;
       }
-      else if (label.includes('trained defense mercenaries')) {
+      else if (label.includes('defense mercen') || label.includes('defence mercen') || label.includes('defense merc') || label.includes('defence merc')) {
         soldierData.trainedDefenseMercenaries = value;
       }
       else if (label.includes('untrained soldiers') && !label.includes('merc')) {
         soldierData.untrainedSoldiers = value;
       }
-      else if (label.includes('untrained mercenaries')) {
+      else if (label.includes('untrained mercen') || label.includes('untrained merc')) {
         soldierData.untrainedMercenaries = value;
       }
     });
