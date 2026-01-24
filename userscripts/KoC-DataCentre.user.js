@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         KoC Data Centre
 // @namespace    trevo88423
-// @version      2.3.2
+// @version      2.3.3
 // @description  Sweet Revenge alliance tool: tracks stats, syncs to API, adds dashboards, XP→Turn calculator, mini Top Stats panel. v2.3.0: Added "Stats If You Attacked Instead" table on safe.php to compare tech upgrades vs attacking. v2.2.9: Added optimizer auto-fill for armory (uses roster API to calculate optimal stat allocation). v2.2.8: Minor fixes. v2.1.0: Integrated slaying competition tracker (attack missions & gold stolen tracking, team competitions, leaderboards). v2.0.0: Optimized API architecture, previous versions deprecated.
 // @author       Blackheart
 // @match        https://www.kingsofchaos.com/*
@@ -42,7 +42,7 @@
   // ==================== VERSION CHECK ====================
   // Check if this script version is allowed to run
   const SCRIPT_NAME = 'koc-data-centre';
-  const SCRIPT_VERSION = '2.3.2'; // Must match @version above
+  const SCRIPT_VERSION = '2.3.3'; // Must match @version above
   const VERSION_CHECK_API = 'https://koc-roster-api-production.up.railway.app';
 
   async function checkScriptVersion() {
@@ -2102,6 +2102,18 @@
     const playerId = new URLSearchParams(location.search).get('id');
     if (!playerId || !/^\d+$/.test(playerId)) {
       debugLog("⚠️ Stats page: No valid player ID in URL");
+      return;
+    }
+
+    // Check for deleted/vacation player error
+    const bodyText = document.body.textContent;
+    if (bodyText.includes("Stats Page that does not exist") ||
+        bodyText.includes("Invalid User ID")) {
+      console.warn(`⚠️ Player ${playerId} does not exist - marking as deleted`);
+      await auth.apiCall(`players/${playerId}/mark-inactive`, {
+        status: "deleted",
+        error: "Stats page does not exist"
+      });
       return;
     }
 
