@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         KoC Data Centre
 // @namespace    trevo88423
-// @version      2.3.1
+// @version      2.3.2
 // @description  Sweet Revenge alliance tool: tracks stats, syncs to API, adds dashboards, XP→Turn calculator, mini Top Stats panel. v2.3.0: Added "Stats If You Attacked Instead" table on safe.php to compare tech upgrades vs attacking. v2.2.9: Added optimizer auto-fill for armory (uses roster API to calculate optimal stat allocation). v2.2.8: Minor fixes. v2.1.0: Integrated slaying competition tracker (attack missions & gold stolen tracking, team competitions, leaderboards). v2.0.0: Optimized API architecture, previous versions deprecated.
 // @author       Blackheart
 // @match        https://www.kingsofchaos.com/*
@@ -42,7 +42,7 @@
   // ==================== VERSION CHECK ====================
   // Check if this script version is allowed to run
   const SCRIPT_NAME = 'koc-data-centre';
-  const SCRIPT_VERSION = '2.3.1'; // Must match @version above
+  const SCRIPT_VERSION = '2.3.2'; // Must match @version above
   const VERSION_CHECK_API = 'https://koc-roster-api-production.up.railway.app';
 
   async function checkScriptVersion() {
@@ -2137,13 +2137,14 @@
     };
 
     // Parse timestamp from page (format: "2026-01-24 01:57:14")
+    // KoC server runs on US Eastern time - use convertKoCServerTimeToUTC for proper conversion
     // May also be "time ago" format if table was already enhanced - fall back to current time
     function parseTimestamp(text) {
       if (!text) return null;
       const match = text.match(/(\d{4}-\d{2}-\d{2}\s+\d{2}:\d{2}:\d{2})/);
       if (match) {
-        // Convert to ISO format for API
-        return match[1].replace(' ', 'T') + 'Z';
+        // Convert KoC Eastern time to UTC using the shared function
+        return convertKoCServerTimeToUTC(match[1]);
       }
       // If it's "time ago" format or unparseable, return null (caller will use current time)
       return null;
