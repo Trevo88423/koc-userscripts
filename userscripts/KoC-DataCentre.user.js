@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name         KoC Data Centre
 // @namespace    trevo88423
-// @version      2.2.9
-// @description  Sweet Revenge alliance tool: tracks stats, syncs to API, adds dashboards, XP→Turn calculator, mini Top Stats panel. v2.2.9: Added optimizer auto-fill for armory (uses roster API to calculate optimal stat allocation). v2.2.8: Minor fixes. v2.1.0: Integrated slaying competition tracker (attack missions & gold stolen tracking, team competitions, leaderboards). v2.0.0: Optimized API architecture, previous versions deprecated.
+// @version      2.3.0
+// @description  Sweet Revenge alliance tool: tracks stats, syncs to API, adds dashboards, XP→Turn calculator, mini Top Stats panel. v2.3.0: Added "Stats If You Attacked Instead" table on safe.php to compare tech upgrades vs attacking. v2.2.9: Added optimizer auto-fill for armory (uses roster API to calculate optimal stat allocation). v2.2.8: Minor fixes. v2.1.0: Integrated slaying competition tracker (attack missions & gold stolen tracking, team competitions, leaderboards). v2.0.0: Optimized API architecture, previous versions deprecated.
 // @author       Blackheart
 // @match        https://www.kingsofchaos.com/*
 // @exclude      https://*.kingsofchaos.com/confirm.login.php*
@@ -42,7 +42,7 @@
   // ==================== VERSION CHECK ====================
   // Check if this script version is allowed to run
   const SCRIPT_NAME = 'koc-data-centre';
-  const SCRIPT_VERSION = '2.2.9'; // Must match @version above
+  const SCRIPT_VERSION = '2.3.0'; // Must match @version above
   const VERSION_CHECK_API = 'https://koc-roster-api-production.up.railway.app';
 
   async function checkScriptVersion() {
@@ -3542,6 +3542,34 @@
     // === WEAPONS INVENTORY COLLECTION ===
     const weapons = collectWeaponsFromArmory();
 
+    // === STORE TIV DISTRIBUTION BY CATEGORY ===
+    // Calculate and store TIV by category for use on safe.php
+    const tivByCategory = {};
+    let totalWeaponTiv = 0;
+
+    for (const weapon of weapons) {
+      const cat = weapon.category.toLowerCase();
+      if (!tivByCategory[cat]) {
+        tivByCategory[cat] = 0;
+      }
+      tivByCategory[cat] += weapon.totalStrength || 0;
+      totalWeaponTiv += weapon.totalStrength || 0;
+    }
+
+    // Store as percentages for easier use
+    const tivDistribution = {};
+    const categories = ['attack', 'defense', 'spy', 'sentry', 'poison', 'antidote', 'theft', 'vigilance'];
+    for (const cat of categories) {
+      tivDistribution[cat] = totalWeaponTiv > 0 ? (tivByCategory[cat] || 0) / totalWeaponTiv : 0;
+    }
+
+    SafeStorage.set('KoC_TivDistribution', {
+      distribution: tivDistribution,
+      totalTiv: totalWeaponTiv,
+      timestamp: Date.now()
+    });
+    debugLog('📊 Stored TIV distribution:', tivDistribution);
+
     // === CALCULATE GOLD-PER-POINT EFFICIENCY ===
     const efficiency = calculateWeaponEfficiency(weapons, stats);
 
@@ -6076,6 +6104,252 @@
     // Don't clear the row - competition panel needs it
   }
 
+  // ==================== SAFE.PHP ATTACK ALTERNATIVE TABLE ====================
+
+  /**
+   * Add a table showing what stats would be if XP was spent attacking instead of upgrading tech
+   * Only runs on safe.php when the tech upgrade table exists
+   */
+  function addAttackAlternativeTable() {
+    const TABLE_ID = 'koc-attack-alternative-table';
+    if (document.getElementById(TABLE_ID)) return; // Prevent duplicates
+
+    // Find the "Stats After Upgrading Tech" table
+    const techStatsHeader = [...document.querySelectorAll('th')]
+      .find(th => th.textContent.includes('Stats After Upgrading Tech'));
+
+    if (!techStatsHeader) {
+      debugLog('[SafePage] No tech upgrade stats table found');
+      return;
+    }
+
+    const techStatsTable = techStatsHeader.closest('table');
+    if (!techStatsTable) return;
+
+    // Get tech XP cost from the Research button (e.g., "1,850 Experience")
+    const techButton = document.querySelector('input[value*="Experience"][name="upgradetech"], form[name="upgradetech"] input[type="submit"]');
+    if (!techButton) {
+      debugLog('[SafePage] No tech upgrade button found');
+      return;
+    }
+
+    const xpMatch = techButton.value.match(/([\d,]+)\s*Experience/);
+    if (!xpMatch) {
+      debugLog('[SafePage] Could not parse XP cost from button:', techButton.value);
+      return;
+    }
+
+    const techXpCost = parseInt(xpMatch[1].replace(/,/g, ''), 10);
+    debugLog('[SafePage] Tech XP cost:', techXpCost);
+
+    // Get current stats from Military Effectiveness table
+    const currentStats = {};
+    const meHeader = [...document.querySelectorAll('th')]
+      .find(th => th.textContent.includes('Military Effectiveness'));
+
+    if (meHeader) {
+      const meTable = meHeader.closest('table');
+      if (meTable) {
+        meTable.querySelectorAll('tr').forEach(row => {
+          const cells = row.querySelectorAll('td');
+          if (cells.length >= 2) {
+            const label = cells[0].textContent.trim().toLowerCase();
+            const valueText = cells[1].textContent.trim().replace(/,/g, '');
+            const value = parseInt(valueText, 10);
+
+            if (label.includes('strike')) currentStats.attack = value;
+            else if (label.includes('defense')) currentStats.defense = value;
+            else if (label.includes('spy')) currentStats.spy = value;
+            else if (label.includes('sentry')) currentStats.sentry = value;
+            else if (label.includes('poison')) currentStats.poison = value;
+            else if (label.includes('antidote')) currentStats.antidote = value;
+            else if (label.includes('theft')) currentStats.theft = value;
+            else if (label.includes('vigilance')) currentStats.vigilance = value;
+          }
+        });
+      }
+    }
+
+    debugLog('[SafePage] Current stats:', currentStats);
+
+    // Get TIV distribution from localStorage
+    const tivData = SafeStorage.get('KoC_TivDistribution', null);
+    if (!tivData || !tivData.distribution) {
+      // Show warning table instead
+      const warningTable = document.createElement('table');
+      warningTable.id = TABLE_ID;
+      warningTable.className = 'table_lines';
+      warningTable.style.cssText = 'width: 100%; border: 0; margin-top: 4px;';
+      warningTable.innerHTML = `
+        <tr>
+          <th colspan="2" style="color: #ffcc00;">Stats If You Attacked Instead</th>
+        </tr>
+        <tr>
+          <td colspan="2" align="center" style="color: #ff6666; padding: 10px;">
+            Visit the <a href="armory.php" style="color: #66ccff;">Armory</a> to calibrate TIV distribution
+          </td>
+        </tr>
+      `;
+      techStatsTable.parentNode.insertBefore(warningTable, techStatsTable.nextSibling);
+      debugLog('[SafePage] No TIV distribution found - showing warning');
+      return;
+    }
+
+    // Get learned multipliers
+    const multipliers = getStoredMultipliers();
+    const hasMultipliers = Object.keys(multipliers).length > 0;
+
+    if (!hasMultipliers) {
+      // Show warning table instead
+      const warningTable = document.createElement('table');
+      warningTable.id = TABLE_ID;
+      warningTable.className = 'table_lines';
+      warningTable.style.cssText = 'width: 100%; border: 0; margin-top: 4px;';
+      warningTable.innerHTML = `
+        <tr>
+          <th colspan="2" style="color: #ffcc00;">Stats If You Attacked Instead</th>
+        </tr>
+        <tr>
+          <td colspan="2" align="center" style="color: #ff6666; padding: 10px;">
+            Visit <a href="armory.php" style="color: #66ccff;">Armory</a> and buy weapons to calibrate multipliers
+          </td>
+        </tr>
+      `;
+      techStatsTable.parentNode.insertBefore(warningTable, techStatsTable.nextSibling);
+      debugLog('[SafePage] No multipliers learned - showing warning');
+      return;
+    }
+
+    // Best weapon prices for gold→stat calculation
+    const bestWeaponPrices = {
+      attack: 450000,    // Chariot
+      defense: 450000,   // Ebony Platemail
+      spy: 1000000,      // Nunchaku
+      sentry: 1000000,   // Lookout Tower
+      poison: 1000000,   // Plaguebringer Scythe
+      antidote: 1000000, // Serpentbane Arbalest
+      theft: 1000000,    // Ethereal Grasp
+      vigilance: 1000000 // Adamantine Bastion
+    };
+
+    // Calculate attacks possible from tech XP
+    const attacks = calculateXPTradeAttacks(techXpCost, 0);
+    debugLog('[SafePage] Attacks from XP:', attacks);
+
+    // Get average gold per attack
+    const avgGold = SafeStorage.get('xpTool_avgGold', 0);
+    if (avgGold <= 0) {
+      const warningTable = document.createElement('table');
+      warningTable.id = TABLE_ID;
+      warningTable.className = 'table_lines';
+      warningTable.style.cssText = 'width: 100%; border: 0; margin-top: 4px;';
+      warningTable.innerHTML = `
+        <tr>
+          <th colspan="2" style="color: #ffcc00;">Stats If You Attacked Instead</th>
+        </tr>
+        <tr>
+          <td colspan="2" align="center" style="color: #ff6666; padding: 10px;">
+            Visit <a href="attacklog.php" style="color: #66ccff;">Attack Log</a> to calibrate average gold per attack
+          </td>
+        </tr>
+      `;
+      techStatsTable.parentNode.insertBefore(warningTable, techStatsTable.nextSibling);
+      debugLog('[SafePage] No avg gold data - showing warning');
+      return;
+    }
+
+    // Total gold from attacks
+    const totalGold = attacks * avgGold;
+    debugLog('[SafePage] Total gold:', totalGold);
+
+    // Calculate projected stats
+    const projectedStats = {};
+    const distribution = tivData.distribution;
+
+    const statLabels = {
+      attack: 'Strike',
+      defense: 'Defense',
+      spy: 'Spy',
+      sentry: 'Sentry',
+      poison: 'Poison',
+      antidote: 'Antidote',
+      theft: 'Theft',
+      vigilance: 'Vigilance'
+    };
+
+    for (const cat of Object.keys(statLabels)) {
+      const goldForStat = totalGold * (distribution[cat] || 0);
+      const multiplier = multipliers[cat]?.value || 0;
+      const weaponPrice = bestWeaponPrices[cat];
+
+      // statGained = goldSpent × multiplier / weaponPrice
+      const statGained = multiplier > 0 ? Math.floor(goldForStat * multiplier / weaponPrice) : 0;
+      projectedStats[cat] = (currentStats[cat] || 0) + statGained;
+
+      debugLog(`[SafePage] ${cat}: gold=${goldForStat.toFixed(0)}, mult=${multiplier}, price=${weaponPrice}, gained=${statGained}`);
+    }
+
+    // Format gold for display
+    function formatGoldShort(num) {
+      if (num >= 1e9) return (num / 1e9).toFixed(1) + 'B';
+      if (num >= 1e6) return (num / 1e6).toFixed(1) + 'M';
+      if (num >= 1e3) return (num / 1e3).toFixed(1) + 'K';
+      return num.toLocaleString();
+    }
+
+    // Build the table
+    const newTable = document.createElement('table');
+    newTable.id = TABLE_ID;
+    newTable.className = 'table_lines';
+    newTable.style.cssText = 'width: 100%; border: 0; margin-top: 4px;';
+    newTable.cellSpacing = '0';
+    newTable.cellPadding = '6';
+
+    newTable.innerHTML = `
+      <tr>
+        <th colspan="2" style="color: #66ff66;">
+          Stats If You Attacked Instead (${attacks.toLocaleString()} atks × ${formatGoldShort(avgGold)} = ${formatGoldShort(totalGold)})
+        </th>
+      </tr>
+      <tr>
+        <td align="center" style="color: #66ff66;">
+          ${statLabels.attack} (${(currentStats.attack || 0).toLocaleString()} → ${projectedStats.attack.toLocaleString()})
+        </td>
+        <td align="center" style="color: #66ff66;">
+          ${statLabels.defense} (${(currentStats.defense || 0).toLocaleString()} → ${projectedStats.defense.toLocaleString()})
+        </td>
+      </tr>
+      <tr>
+        <td align="center" style="color: #66ff66;">
+          ${statLabels.spy} (${(currentStats.spy || 0).toLocaleString()} → ${projectedStats.spy.toLocaleString()})
+        </td>
+        <td align="center" style="color: #66ff66;">
+          ${statLabels.sentry} (${(currentStats.sentry || 0).toLocaleString()} → ${projectedStats.sentry.toLocaleString()})
+        </td>
+      </tr>
+      <tr>
+        <td align="center" style="color: #66ff66;">
+          ${statLabels.poison} (${(currentStats.poison || 0).toLocaleString()} → ${projectedStats.poison.toLocaleString()})
+        </td>
+        <td align="center" style="color: #66ff66;">
+          ${statLabels.antidote} (${(currentStats.antidote || 0).toLocaleString()} → ${projectedStats.antidote.toLocaleString()})
+        </td>
+      </tr>
+      <tr>
+        <td align="center" style="color: #66ff66;">
+          ${statLabels.theft} (${(currentStats.theft || 0).toLocaleString()} → ${projectedStats.theft.toLocaleString()})
+        </td>
+        <td align="center" style="color: #66ff66;">
+          ${statLabels.vigilance} (${(currentStats.vigilance || 0).toLocaleString()} → ${projectedStats.vigilance.toLocaleString()})
+        </td>
+      </tr>
+    `;
+
+    // Insert after the tech stats table
+    techStatsTable.parentNode.insertBefore(newTable, techStatsTable.nextSibling);
+    debugLog('[SafePage] Attack alternative table injected');
+  }
+
   // ==================== PAGE-SPECIFIC INITIALIZERS ====================
 
   /**
@@ -6263,6 +6537,11 @@
     // Training
     if (location.pathname.includes("training.php")) {
       await safeExecute('enhanceTrainingPage', () => enhanceTrainingPage());
+    }
+
+    // Safe page (attack alternative table)
+    if (location.pathname.includes("safe.php")) {
+      await safeExecute('addAttackAlternativeTable', () => addAttackAlternativeTable());
     }
   }
 
