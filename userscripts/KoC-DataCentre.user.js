@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name         KoC Data Centre
 // @namespace    trevo88423
-// @version      2.3.3
-// @description  Sweet Revenge alliance tool: tracks stats, syncs to API, adds dashboards, XP→Turn calculator, mini Top Stats panel. v2.3.0: Added "Stats If You Attacked Instead" table on safe.php to compare tech upgrades vs attacking. v2.2.9: Added optimizer auto-fill for armory (uses roster API to calculate optimal stat allocation). v2.2.8: Minor fixes. v2.1.0: Integrated slaying competition tracker (attack missions & gold stolen tracking, team competitions, leaderboards). v2.0.0: Optimized API architecture, previous versions deprecated.
+// @version      2.3.4
+// @description  Sweet Revenge alliance tool: tracks stats, syncs to API, adds dashboards, XP→Turn calculator, mini Top Stats panel. v2.3.4: Recons panel now shares counts alliance-wide via API (previously localStorage-only — each user only saw themselves). v2.3.0: Added "Stats If You Attacked Instead" table on safe.php to compare tech upgrades vs attacking. v2.2.9: Added optimizer auto-fill for armory (uses roster API to calculate optimal stat allocation). v2.2.8: Minor fixes. v2.1.0: Integrated slaying competition tracker (attack missions & gold stolen tracking, team competitions, leaderboards). v2.0.0: Optimized API architecture, previous versions deprecated.
 // @author       Blackheart
 // @match        https://www.kingsofchaos.com/*
 // @exclude      https://*.kingsofchaos.com/confirm.login.php*
@@ -42,7 +42,7 @@
   // ==================== VERSION CHECK ====================
   // Check if this script version is allowed to run
   const SCRIPT_NAME = 'koc-data-centre';
-  const SCRIPT_VERSION = '2.3.3'; // Must match @version above
+  const SCRIPT_VERSION = '2.3.4'; // Must match @version above
   const VERSION_CHECK_API = 'https://koc-roster-api-production.up.railway.app';
 
   async function checkScriptVersion() {
@@ -2418,6 +2418,26 @@
 
   // ==================== REWARDS PAGE COLLECTOR (RECONS) ====================
 
+  // POST our current/max recon count to the API so alliance members can see it.
+  // No-ops cleanly if not logged in. Errors are swallowed by the caller.
+  async function publishReconCount(current, max) {
+    const token = await auth.getToken();
+    if (!token) return;
+    const resp = await fetch(`${API_URL}/player-recons`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer " + token,
+        "X-Script-Name": SCRIPT_NAME,
+        "X-Script-Version": SCRIPT_VERSION
+      },
+      body: JSON.stringify({ current, max })
+    });
+    if (!resp.ok) {
+      throw new Error(`publishReconCount HTTP ${resp.status}`);
+    }
+  }
+
   function collectFromRewardsPage() {
     // Extract "Unsuccessful Recons" from "Actions against you" table
     // Page structure: Both /100 and /1000 milestones are in the SAME <tr> but DIFFERENT <td> cells
@@ -2455,11 +2475,21 @@
 
             SafeStorage.set(`reconTrack_${myId}`, JSON.stringify(reconData));
             debugLog("📊 Recons to clear captured:", reconData);
+
+            // Publish to API for alliance-wide visibility (best-effort, non-blocking)
+            publishReconCount(current, max).catch(err =>
+              debugLog("⚠️ Recon publish failed (ignored):", err)
+            );
           } else {
             // Player has cleared recons - remove tracking
             const myId = SafeStorage.get("KoC_MyId", "self");
             SafeStorage.remove(`reconTrack_${myId}`);
             debugLog("✅ Recons cleared - removed tracking");
+
+            // Publish the cleared state (current === max) so alliance view stays current
+            publishReconCount(current, max).catch(err =>
+              debugLog("⚠️ Recon publish (cleared) failed (ignored):", err)
+            );
           }
 
           break;
@@ -2524,12 +2554,42 @@
         }));
     }
 
-    // Fetch recon tracking data from localStorage
-    function getReconTracking() {
-      const reconPlayers = [];
-      const keys = Object.keys(localStorage);
+    // Fetch alliance-wide recon counts from the API, with localStorage as fallback.
+    // Returns rows in the shape expected by makeRBTable: { id, rank, name, value, rawValue }
+    async function getReconTracking() {
+      // 1) Try the API for alliance-wide data
+      try {
+        const token = await auth.getToken();
+        if (token) {
+          const resp = await fetch(
+            `${API_URL}/player-recons?alliance=${encodeURIComponent("Sweet Revenge")}`,
+            {
+              headers: {
+                "Authorization": "Bearer " + token,
+                "X-Script-Name": SCRIPT_NAME,
+                "X-Script-Version": SCRIPT_VERSION
+              }
+            }
+          );
+          if (resp.ok) {
+            const list = await resp.json();
+            return list.map((p, i) => ({
+              id: p.id,
+              rank: i + 1, // API already sorts by remaining desc
+              name: p.name,
+              value: `${p.current}/${p.max}`,
+              rawValue: p.remaining
+            }));
+          }
+          debugLog(`⚠️ /player-recons returned ${resp.status} — using localStorage fallback`);
+        }
+      } catch (err) {
+        debugLog("⚠️ Recon fetch failed, using localStorage fallback:", err);
+      }
 
-      for (const key of keys) {
+      // 2) Fallback: read this user's own captures from localStorage
+      const reconPlayers = [];
+      for (const key of Object.keys(localStorage)) {
         if (key.startsWith("reconTrack_")) {
           try {
             const data = JSON.parse(localStorage.getItem(key));
@@ -2545,15 +2605,8 @@
           }
         }
       }
-
-      // Sort by most recons remaining (descending)
       reconPlayers.sort((a, b) => b.rawValue - a.rawValue);
-
-      // Assign ranks
-      reconPlayers.forEach((p, i) => {
-        p.rank = i + 1;
-      });
-
+      reconPlayers.forEach((p, i) => { p.rank = i + 1; });
       return reconPlayers;
     }
 
@@ -2669,12 +2722,17 @@
     tablesContainer.appendChild(row1);
     tablesContainer.appendChild(row2);
 
+    // Pre-fetch the recon rows once (forEach callback below is sync).
+    // getReconTracking() hits the API; we await it here so the table can render
+    // with alliance-wide data in the same pass.
+    const reconRows = await getReconTracking();
+
     // Generate all tables
     const allTables = [];
     statDefs.forEach(def => {
       // Use custom data source for recons
       const rows = def.custom && def.key === "recons"
-        ? getReconTracking()
+        ? reconRows
         : sortedBy(def.key, def.asc);
 
       const table = makeRBTable(def, rows);
