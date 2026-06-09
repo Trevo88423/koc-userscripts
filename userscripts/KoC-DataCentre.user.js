@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name         KoC Data Centre
 // @namespace    trevo88423
-// @version      2.3.4
-// @description  Sweet Revenge alliance tool: tracks stats, syncs to API, adds dashboards, XP→Turn calculator, mini Top Stats panel. v2.3.4: Recons panel now shares counts alliance-wide via API (previously localStorage-only — each user only saw themselves). v2.3.0: Added "Stats If You Attacked Instead" table on safe.php to compare tech upgrades vs attacking. v2.2.9: Added optimizer auto-fill for armory (uses roster API to calculate optimal stat allocation). v2.2.8: Minor fixes. v2.1.0: Integrated slaying competition tracker (attack missions & gold stolen tracking, team competitions, leaderboards). v2.0.0: Optimized API architecture, previous versions deprecated.
+// @version      2.4.0
+// @description  Sweet Revenge alliance tool: tracks stats, syncs to API, adds dashboards, XP→Turn calculator, mini Top Stats panel. v2.4.0: Banking trend graph (📈 in the sidebar tracks your banked % over time) + manual override for Avg Gold/Atk (✏️ in the sidebar, survives attack-log recalibration). v2.3.4: Recons panel now shares counts alliance-wide via API (previously localStorage-only — each user only saw themselves). v2.3.0: Added "Stats If You Attacked Instead" table on safe.php to compare tech upgrades vs attacking. v2.2.9: Added optimizer auto-fill for armory (uses roster API to calculate optimal stat allocation). v2.2.8: Minor fixes. v2.1.0: Integrated slaying competition tracker (attack missions & gold stolen tracking, team competitions, leaderboards). v2.0.0: Optimized API architecture, previous versions deprecated.
 // @author       Blackheart
 // @match        https://www.kingsofchaos.com/*
 // @exclude      https://*.kingsofchaos.com/confirm.login.php*
@@ -1368,6 +1368,131 @@
     return attacks;
   }
 
+  // ==================== BANKING HISTORY (TREND GRAPH) ====================
+
+  // Throttled submission of a banking-efficiency snapshot to the API. The server
+  // also throttles, but we avoid needless calls on every base.php load.
+  let bankingSnapshotInFlight = false;
+  async function maybeSubmitBankingSnapshot(data) {
+    try {
+      if (bankingSnapshotInFlight) return;
+      if (!auth.getStoredAuth()) return;            // not logged in
+      if (!data || !isFinite(data.bankedPct)) return;
+
+      const SUBMIT_KEY = "KoC_BankingSnapshot_last";
+      const last = SafeStorage.get(SUBMIT_KEY, 0);
+      const now = Date.now();
+      if (now - last < 30 * 60 * 1000) return;       // client throttle: once / 30 min
+
+      bankingSnapshotInFlight = true;
+      const result = await auth.apiCall("banking/snapshot", data);  // data present → POST
+      if (result) {
+        SafeStorage.set(SUBMIT_KEY, now);
+        debugLog("[Banking] Snapshot submitted:", data.bankedPct + "%");
+      }
+    } catch (err) {
+      debugLog("[Banking] Snapshot submit failed:", err);
+    } finally {
+      bankingSnapshotInFlight = false;
+    }
+  }
+
+  // Fetch banking history and show a banked-% line chart (hand-rolled SVG, no libs).
+  async function showBankingTrend() {
+    if (!auth.getStoredAuth()) {
+      alert("Log in (🔐 button in the sidebar) to track your banking trend.");
+      return;
+    }
+
+    const history = await auth.apiCall("banking/history?days=30");  // no data → GET
+    const points = (history || [])
+      .map(r => ({ t: new Date(r.recorded_at).getTime(), pct: Number(r.banked_pct) }))
+      .filter(p => isFinite(p.t) && isFinite(p.pct))
+      .sort((a, b) => a.t - b.t);
+
+    if (points.length === 0) {
+      alert("No banking history yet.\n\nVisit the attack log, then the command centre, a few times over the coming days — the banked % trend will build up here.");
+      return;
+    }
+
+    const W = 580, H = 320, padL = 44, padR = 16, padT = 40, padB = 40;
+    const plotW = W - padL - padR, plotH = H - padT - padB;
+    const tMin = points[0].t, tMax = points[points.length - 1].t;
+    const tSpan = Math.max(1, tMax - tMin);
+    const xOf = t => padL + ((t - tMin) / tSpan) * plotW;
+    const yOf = v => padT + (1 - v / 100) * plotH;   // y axis fixed 0–100%
+
+    const fmtDate = ms => { const d = new Date(ms); return `${d.getDate()}/${d.getMonth() + 1}`; };
+
+    let grid = "";
+    [0, 25, 50, 75, 100].forEach(v => {
+      const y = yOf(v);
+      grid += `<line x1="${padL}" y1="${y}" x2="${padL + plotW}" y2="${y}" stroke="#333" stroke-width="1"/>`;
+      grid += `<text x="${padL - 6}" y="${y + 4}" fill="#999" font-size="10" text-anchor="end">${v}%</text>`;
+    });
+
+    let xlabels = "";
+    [tMin, tMin + tSpan / 2, tMax].forEach(t => {
+      xlabels += `<text x="${xOf(t)}" y="${padT + plotH + 16}" fill="#999" font-size="10" text-anchor="middle">${fmtDate(t)}</text>`;
+    });
+
+    const poly = points.map(p => `${xOf(p.t).toFixed(1)},${yOf(p.pct).toFixed(1)}`).join(" ");
+    const dots = points.map(p =>
+      `<circle cx="${xOf(p.t).toFixed(1)}" cy="${yOf(p.pct).toFixed(1)}" r="2.5" fill="#a67c00"><title>${fmtDate(p.t)}: ${p.pct.toFixed(1)}%</title></circle>`
+    ).join("");
+
+    const latest = points[points.length - 1].pct;
+    const avg = points.reduce((s, p) => s + p.pct, 0) / points.length;
+
+    const chartHTML = `
+      <svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" style="max-width:100%; background:#111; border-radius:6px;">
+        <polyline points="${padL},${padT} ${padL},${padT + plotH} ${padL + plotW},${padT + plotH}" fill="none" stroke="#444" stroke-width="1"/>
+        ${grid}
+        ${xlabels}
+        <polyline points="${poly}" fill="none" stroke="#a67c00" stroke-width="2"/>
+        ${dots}
+      </svg>
+      <div style="text-align:center; color:#ccc; font-size:12px; margin-top:8px;">
+        Latest: <strong style="color:#fff;">${latest.toFixed(1)}%</strong> &nbsp;•&nbsp; Average: <strong style="color:#fff;">${avg.toFixed(1)}%</strong> &nbsp;•&nbsp; ${points.length} point${points.length !== 1 ? "s" : ""}
+      </div>
+      <div style="text-align:center; color:#777; font-size:10px; margin-top:6px;">
+        Each point is your banked % as computed on the command centre — refresh it by visiting the attack log, then the command centre.
+      </div>`;
+
+    const overlay = document.createElement('div');
+    overlay.id = 'koc-banking-overlay';
+    Object.assign(overlay.style, {
+      position: 'fixed', top: '0', left: '0', width: '100%', height: '100%',
+      backgroundColor: 'rgba(0,0,0,0.8)', display: 'flex', alignItems: 'center',
+      justifyContent: 'center', zIndex: '9999'
+    });
+    overlay.addEventListener('click', (e) => { if (e.target === overlay) overlay.remove(); });
+
+    const modal = document.createElement('div');
+    Object.assign(modal.style, {
+      background: '#1a1a1a', color: '#fff', padding: '20px', border: '2px solid #666',
+      borderRadius: '8px', maxWidth: '95%', position: 'relative'
+    });
+
+    const closeBtn = document.createElement('span');
+    closeBtn.textContent = '×';
+    Object.assign(closeBtn.style, { position: 'absolute', top: '6px', right: '12px', cursor: 'pointer', fontSize: '26px', color: '#999' });
+    closeBtn.onclick = () => overlay.remove();
+
+    const title = document.createElement('h2');
+    title.textContent = '💰 Banking Trend';
+    title.style.cssText = 'margin:0 0 12px 0; color:gold; text-align:center; font-size:16px;';
+
+    const body = document.createElement('div');
+    body.innerHTML = chartHTML;
+
+    modal.appendChild(closeBtn);
+    modal.appendChild(title);
+    modal.appendChild(body);
+    overlay.appendChild(modal);
+    document.body.appendChild(overlay);
+  }
+
   // ==================== SIDEBAR CALCULATOR ====================
 
   function initSidebarCalculator() {
@@ -1384,9 +1509,9 @@
         <tr><th align="center">⚔️ Turn Trading Calculator</th></tr>
         <tr><td align="center" style="color:black;">Attacks Left <span id="xp-attacks">0</span></td></tr>
         <tr><td align="center" style="color:black;">XP Trade Attacks <span id="xp-trade">0</span></td></tr>
-        <tr><td align="center" style="color:black;">Avg Gold/Atk <a href="attacklog.php" id="xp-gold-link" style="color:black;"><span id="xp-gold">0</span></a></td></tr>
+        <tr><td align="center" style="color:black;">Avg Gold/Atk <a href="attacklog.php" id="xp-gold-link" style="color:black;"><span id="xp-gold">0</span></a> <span id="xp-gold-edit" title="Set manually (overrides auto-calibration from the attack log)" style="cursor:pointer;">✏️</span><span id="xp-gold-manual-tag" style="display:none; color:#b45309; font-weight:bold; font-size:9px;"> manual</span></td></tr>
         <tr><td align="center" style="color:black;">Total Potential Gold <span id="xp-total">0</span></td></tr>
-        <tr><td align="center" style="color:black;">Banked <span id="xp-banked">—</span></td></tr>
+        <tr><td align="center" style="color:black;">Banked <span id="xp-banked">—</span> <span id="xp-banked-graph" title="Banking % trend over time" style="cursor:pointer;">📈</span></td></tr>
         <tr>
           <td align="center">
             <img src="https://raw.githubusercontent.com/Trevo88423/koc-userscripts/main/images/SR_Logo.png"
@@ -1462,6 +1587,12 @@
       document.getElementById("xp-gold").innerText = formatGold(avgGold);
       document.getElementById("xp-total").innerText = formatGold(totalPotential);
 
+      // Show a "manual" tag when Avg Gold/Atk is a manual override
+      const xpGoldManualTag = document.getElementById("xp-gold-manual-tag");
+      if (xpGoldManualTag) {
+        xpGoldManualTag.style.display = SafeStorage.get("xpTool_avgGold_isManual", false) ? "inline" : "none";
+      }
+
       // Banking Efficiency
       const goldLost = SafeStorage.get("KoC_GoldLost24h", 0);
       const myId = SafeStorage.get("KoC_MyId", null);
@@ -1478,6 +1609,15 @@
       if (dailyTbg > 0) {
         const bankedGold = Math.max(0, dailyTbg - goldLost);
         const pct = (bankedGold / dailyTbg * 100).toFixed(1);
+
+        // Feature 1: record a throttled banking snapshot for the trend graph
+        maybeSubmitBankingSnapshot({
+          bankedPct: parseFloat(pct),
+          dailyTbg: Math.round(dailyTbg),
+          goldLost24h: Math.round(goldLost),
+          projectedIncome: Math.round(projectedIncome),
+          goldOnHand: getSidebarValue("Gold")
+        });
 
         // Pick pill background color
         let bg = "#8b0000";   // Dark red
@@ -1534,6 +1674,58 @@
 
       // Listen for auth changes
       auth.on('authChanged', updateAuthButton);
+    }
+
+    // Manual override for Avg Gold/Atk — lets you set the value yourself instead of
+    // relying on the auto-calibration from the attack log. Stored as a manual flag +
+    // value; the effective value (xpTool_avgGold) is what every consumer reads.
+    const goldEditBtn = document.getElementById("xp-gold-edit");
+    if (goldEditBtn) {
+      goldEditBtn.addEventListener("click", (e) => {
+        e.preventDefault();
+        const current = SafeStorage.get("xpTool_avgGold", 0);
+        const input = prompt(
+          "Set Avg Gold/Atk manually (overrides the auto-calibration from the attack log).\n\n" +
+          "Enter a number — suffixes ok, e.g. 1.5b, 750m, 250000000.\n" +
+          "Type 'auto' (or leave blank) to go back to the calculated value.",
+          current ? String(current) : ""
+        );
+        if (input === null) return; // cancelled
+
+        const trimmed = input.trim().toLowerCase();
+        if (trimmed === "" || trimmed === "auto") {
+          // Revert to the auto-calibrated value
+          SafeStorage.set("xpTool_avgGold_isManual", false);
+          const auto = SafeStorage.get("xpTool_avgGold_auto", SafeStorage.get("xpTool_avgGold", 0));
+          SafeStorage.set("xpTool_avgGold", auto);
+          debugLog("[XPTool] Avg Gold/Atk reverted to auto:", auto);
+        } else {
+          let raw = trimmed.replace(/[,\s]/g, "");
+          let mult = 1;
+          if (raw.endsWith("b")) { mult = 1e9; raw = raw.slice(0, -1); }
+          else if (raw.endsWith("m")) { mult = 1e6; raw = raw.slice(0, -1); }
+          else if (raw.endsWith("k")) { mult = 1e3; raw = raw.slice(0, -1); }
+          const val = parseFloat(raw) * mult;
+          if (!isFinite(val) || val <= 0) {
+            alert("Please enter a valid positive number (e.g. 1.5b, 750m, 250000000), or 'auto'.");
+            return;
+          }
+          SafeStorage.set("xpTool_avgGold_manual", val);
+          SafeStorage.set("xpTool_avgGold_isManual", true);
+          SafeStorage.set("xpTool_avgGold", val);
+          debugLog("[XPTool] Avg Gold/Atk manual override set:", val);
+        }
+        updateXPBox();
+      });
+    }
+
+    // Banking trend graph button (opens the banked-% timeline modal)
+    const bankingGraphBtn = document.getElementById("xp-banked-graph");
+    if (bankingGraphBtn) {
+      bankingGraphBtn.addEventListener("click", (e) => {
+        e.preventDefault();
+        showBankingTrend();
+      });
     }
 
     debugLog("[XPTool] Sidebar box inserted into page");
@@ -1707,11 +1899,19 @@
                     th.innerHTML = `<div style="text-align:center;">${th.innerText} (${labelTxt})</div>`;
                   }
 
-                  // Save avg gold for Sidebar + Popup
+                  // Save avg gold for Sidebar + Popup.
+                  // Keep the auto-calibrated value separately (xpTool_avgGold_auto) so a
+                  // manual override set via the sidebar ✏️ survives attack-log recalcs.
+                  // Only update the effective value when no manual override is active.
                   if (txt.startsWith('Total By You Last 24 Hours')) {
-                    SafeStorage.set('xpTool_avgGold', avg);
+                    SafeStorage.set('xpTool_avgGold_auto', avg);
                     SafeStorage.set('xpTool_avgGold_time', Date.now());
-                    debugLog("[XPTool] Avg Gold/Atk saved:", avg);
+                    if (!SafeStorage.get('xpTool_avgGold_isManual', false)) {
+                      SafeStorage.set('xpTool_avgGold', avg);
+                      debugLog("[XPTool] Avg Gold/Atk auto-calibrated:", avg);
+                    } else {
+                      debugLog("[XPTool] Avg Gold/Atk auto value updated, but manual override active — keeping manual.");
+                    }
                   }
                 }
               }
