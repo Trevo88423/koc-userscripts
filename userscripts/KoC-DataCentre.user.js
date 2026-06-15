@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name         KoC Data Centre
 // @namespace    trevo88423
-// @version      2.4.0
-// @description  Sweet Revenge alliance tool: tracks stats, syncs to API, adds dashboards, XP→Turn calculator, mini Top Stats panel. v2.4.0: Banking trend graph (📈 in the sidebar tracks your banked % over time) + manual override for Avg Gold/Atk (✏️ in the sidebar, survives attack-log recalibration). v2.3.4: Recons panel now shares counts alliance-wide via API (previously localStorage-only — each user only saw themselves). v2.3.0: Added "Stats If You Attacked Instead" table on safe.php to compare tech upgrades vs attacking. v2.2.9: Added optimizer auto-fill for armory (uses roster API to calculate optimal stat allocation). v2.2.8: Minor fixes. v2.1.0: Integrated slaying competition tracker (attack missions & gold stolen tracking, team competitions, leaderboards). v2.0.0: Optimized API architecture, previous versions deprecated.
+// @version      2.5.0
+// @description  Sweet Revenge alliance tool: tracks stats, syncs to API, adds dashboards, XP→Turn calculator, mini Top Stats panel. v2.5.0: 🏦 Banking Mode on the Armory page — toggleable inline widget that projects your exposed (stealable) gold every second, colour-codes the risk (SAFE/CAUTION/DANGER) from your attack-log steal history, shows time-to-yellow/red, and keeps the screen awake. Display-only: no automated requests, observes (never presses) the buy/repair forms. v2.4.0: Banking trend graph (📈 in the sidebar tracks your banked % over time) + manual override for Avg Gold/Atk (✏️ in the sidebar, survives attack-log recalibration). v2.3.4: Recons panel now shares counts alliance-wide via API (previously localStorage-only — each user only saw themselves). v2.3.0: Added "Stats If You Attacked Instead" table on safe.php to compare tech upgrades vs attacking. v2.2.9: Added optimizer auto-fill for armory (uses roster API to calculate optimal stat allocation). v2.2.8: Minor fixes. v2.1.0: Integrated slaying competition tracker (attack missions & gold stolen tracking, team competitions, leaderboards). v2.0.0: Optimized API architecture, previous versions deprecated.
 // @author       Blackheart
 // @match        https://www.kingsofchaos.com/*
 // @exclude      https://*.kingsofchaos.com/confirm.login.php*
@@ -42,7 +42,7 @@
   // ==================== VERSION CHECK ====================
   // Check if this script version is allowed to run
   const SCRIPT_NAME = 'koc-data-centre';
-  const SCRIPT_VERSION = '2.3.4'; // Must match @version above
+  const SCRIPT_VERSION = '2.5.0'; // Must match @version above
   const VERSION_CHECK_API = 'https://koc-roster-api-production.up.railway.app';
 
   async function checkScriptVersion() {
@@ -94,8 +94,12 @@
         throw new Error('Script version blocked');
       }
 
-      // If not latest, show non-blocking warning
-      if (!data.isLatest) {
+      // Show a non-blocking "update available" warning ONLY when the server
+      // actually reports a newer version. When version checking is disabled for a
+      // script, the server returns {allowed:true, "Version checking disabled"} with
+      // no isLatest/latestVersion fields — guarding on latestVersion here prevents a
+      // spurious "A newer version (undefined) is available" log in that case.
+      if (data.isLatest === false && data.latestVersion) {
         console.warn(`[${SCRIPT_NAME}] A newer version (${data.latestVersion}) is available. Current: ${SCRIPT_VERSION}`);
         console.warn(`Update at: ${data.updateUrl}`);
       }
@@ -6715,6 +6719,976 @@
     debugLog('[SafePage] Attack alternative table injected');
   }
 
+  // ==================== BANKING MODE (inline armory enhancement) ====================
+  // Display-only gold projection + attack-risk colour bands, inserted INTO the live
+  // Armory page (above the "Available Funds:" banner). Ported from the standalone
+  // koc-banking-mode.user.js v0.2.2 — the kiosk shell is dropped; the game page is
+  // never reparented, hidden, or touched. We only INSERT widgets and OBSERVE forms.
+  //
+  // HARD CONSTRAINTS honoured throughout:
+  //  - The 1s ticker is DISPLAY-ONLY: it repaints numbers already known locally.
+  //    No fetch/XHR, no navigation, no game action ever fires from any timer.
+  //  - ZERO synthetic events on game elements. The buy/repair forms are OBSERVED
+  //    with passive listeners only — never .click()/.submit()/dispatchEvent.
+  //  - Notifications (off by default) carry {body, tag} ONLY — never an icon: URL
+  //    (a remote icon would make the display timer fire a network request).
+  //  - All persistence via SafeStorage under the KoC_Banking_ key namespace.
+  //  - TIMEKEEPING: LOCAL clock (new Date()) for every "now" stamp; the existing
+  //    convertKoCServerTimeToUTC() (Eastern→UTC) is used ONLY for genuine past
+  //    event times scraped from attack-log rows. "now" is never inferred from the
+  //    first datetime on the page (on attacklog.php that is a stale attack time).
+
+  const BANK_PREFIX = 'KoC_Banking_';
+
+  // Era 23 verified defaults — every one is editable in the inline Settings panel
+  // and none is hardcoded into the maths.
+  const BANK_DEFAULT_SETTINGS = {
+    // Steal rate is a RANGE (TFF-relative: 0.75–1.0). v1 risk maths divides stolen
+    // gold by the MAX (1.0 conservative bound) so held-gold estimates are lower
+    // bounds and risk bands trip earlier, never later.
+    stealRateMin: 0.75,
+    stealRateMax: 1.00,
+    // TBG fallback (gold/unit/turn, 1 turn = 1 minute). Regulars 2.3, coverts 0.92,
+    // mercs 0 (excluded). Only used when no scraped Projected Income is calibrated.
+    tbgRegular: 2.3,
+    tbgCovert: 0.92,
+    // Quadratic growth term: new production arrives untrained → 2.3 gold/turn.
+    growthGoldPerSoldier: 2.3,
+    // Risk model
+    riskWindowDays: 7,
+    yellowPercentile: 25,
+    redPercentile: 50,
+    // Used until at least 3 steal events exist in the window
+    fallbackYellowGold: 50000000,
+    fallbackRedGold: 150000000,
+    // Notifications — OFF by default per integration spec; no-icon notifications only
+    notifyEnabled: false,
+    notifyMinGapMins: 10,
+    // Calibration older than this is flagged stale in the widget
+    staleCalibrationMins: 1440
+  };
+
+  // --- namespaced persistence (delegates to SafeStorage; KoC_Banking_ prefix) ---
+  function bankGet(key, def = null) { return SafeStorage.get(BANK_PREFIX + key, def); }
+  function bankSet(key, val) { return SafeStorage.set(BANK_PREFIX + key, val); }
+  function bankRemove(key) { return SafeStorage.remove(BANK_PREFIX + key); }
+
+  // --- self-contained utilities (bank-prefixed to avoid collisions) ---
+  function bankCleanNumber(str) {
+    if (str === null || str === undefined || str === '???' || str === 'Unknown') return null;
+    const cleaned = String(str).replace(/,/g, '').replace(/[^\d]/g, '');
+    const num = parseInt(cleaned, 10);
+    return isNaN(num) ? null : num;
+  }
+
+  function bankFormatGold(n) {
+    if (n === null || n === undefined || isNaN(n)) return '???';
+    const abs = Math.abs(n);
+    if (abs >= 1e12) return (n / 1e12).toFixed(2) + 'T';
+    if (abs >= 1e9) return (n / 1e9).toFixed(2) + 'B';
+    if (abs >= 1e6) return (n / 1e6).toFixed(2) + 'M';
+    if (abs >= 1e3) return (n / 1e3).toFixed(1) + 'K';
+    return String(Math.round(n));
+  }
+
+  function bankFormatMinutes(min) {
+    if (min === null || min === undefined || !isFinite(min)) return '—';
+    if (min <= 0) return 'now';
+    const m = Math.round(min);
+    if (m < 60) return `${m}m`;
+    const h = Math.floor(m / 60);
+    if (h < 24) return `${h}h ${m % 60}m`;
+    return `${Math.floor(h / 24)}d ${h % 24}h`;
+  }
+
+  function bankFormatTimeAgo(timestamp) {
+    if (!timestamp) return '';
+    const d = new Date(timestamp);
+    if (isNaN(d)) return '';
+    const sec = Math.floor((Date.now() - d.getTime()) / 1000);
+    if (sec < 0) return 'just now';
+    if (sec < 60) return `${sec}s ago`;
+    const min = Math.floor(sec / 60);
+    if (min < 60) return `${min}m ago`;
+    const hr = Math.floor(min / 60);
+    const remMin = min % 60;
+    if (hr < 24) return remMin > 0 ? `${hr}h ${remMin}m ago` : `${hr}h ago`;
+    return `${Math.floor(hr / 24)}d ago`;
+  }
+
+  // Percentile of a SORTED ascending numeric array (linear interpolation)
+  function bankPercentile(sorted, p) {
+    if (!sorted.length) return null;
+    if (sorted.length === 1) return sorted[0];
+    const idx = (p / 100) * (sorted.length - 1);
+    const lo = Math.floor(idx);
+    const hi = Math.ceil(idx);
+    if (lo === hi) return sorted[lo];
+    return sorted[lo] + (sorted[hi] - sorted[lo]) * (idx - lo);
+  }
+
+  function bankFindInnermostTable(marker) {
+    const matches = [...document.querySelectorAll('table')]
+      .filter(t => t.textContent.includes(marker));
+    return matches.length ? matches[matches.length - 1] : null;
+  }
+
+  function bankFindRowByLabel(table, labelRegex) {
+    if (!table) return null;
+    return [...table.rows].find(r => r.cells[0] && labelRegex.test(r.cells[0].textContent.trim()));
+  }
+
+  // --- settings ---
+  function bankGetSettings() { return { ...BANK_DEFAULT_SETTINGS, ...bankGet('settings', {}) }; }
+  function bankSaveSettings(partial) {
+    const merged = { ...bankGet('settings', {}), ...partial };
+    bankSet('settings', merged);
+    debugLog('💾 Banking settings saved:', partial);
+    return merged;
+  }
+
+  // ==================== OWN-STATE CALIBRATION ====================
+  // base.php recalibrates G0/income/SPM; armory + sidebar refresh G0 (and vault).
+  // All scrapes are passive reads of the already-loaded page — no requests.
+
+  // Save a fresh available-funds reading. Vault is stored alongside but NEVER
+  // counted toward exposed gold — only available funds are stealable (era 23).
+  function bankSaveGoldReading(gold, vault, source) {
+    if (gold === null || gold === undefined) return;
+    const prevVault = bankGet('gold_reading', {}).vault;
+    const reading = {
+      gold: gold,
+      vault: (vault === null || vault === undefined) ? (prevVault === undefined ? null : prevVault) : vault,
+      ts: new Date().toISOString(),   // LOCAL clock — keeps dt-arithmetic self-consistent
+      source: source
+    };
+    bankSet('gold_reading', reading);
+    debugLog(`💰 Banking gold reading: ${gold.toLocaleString()} available (vault ${reading.vault === null ? '?' : reading.vault.toLocaleString()}) from ${source}`);
+  }
+
+  // Sidebar money cells (present on every page with the left menu):
+  // td[align=center] whose trimmed text starts "Gold:"/"Vault:" → its <b> amount.
+  function bankCollectSidebarGold() {
+    try {
+      let gold = null, vault = null;
+      [...document.querySelectorAll('td[align="center"]')].forEach(td => {
+        const label = td.textContent.trim();
+        if (label.length > 80) return;
+        const amountEl = td.querySelector('b');
+        if (!amountEl) return;
+        if (/^Gold:/.test(label)) gold = bankCleanNumber(amountEl.textContent);
+        else if (/^Vault:/.test(label)) vault = bankCleanNumber(amountEl.textContent);
+      });
+      if (gold !== null) bankSaveGoldReading(gold, vault, 'sidebar');
+      return gold;
+    } catch (err) {
+      debugLog('⚠️ Banking sidebar gold scrape failed:', err);
+      return null;
+    }
+  }
+
+  // Personnel table (base.php AND armory.php: table.table_lines.personnel).
+  // regulars exclude mercenaries (0 TBG); coverts are the six covert unit types.
+  function bankCollectPersonnel() {
+    try {
+      const table = document.querySelector('table.table_lines.personnel') ||
+                    bankFindInnermostTable('Trained Attack Soldiers');
+      if (!table) return null;
+
+      const counts = {};
+      [...table.rows].forEach(row => {
+        if (row.cells.length < 2) return;
+        const label = row.cells[0].textContent.trim();
+        const val = bankCleanNumber(row.cells[1].textContent);
+        if (val !== null) counts[label] = val;
+      });
+
+      const regulars = (counts['Trained Attack Soldiers'] || 0) +
+                       (counts['Trained Defense Soldiers'] || 0) +
+                       (counts['Untrained Soldiers'] || 0);
+      const coverts = (counts['Spies'] || 0) +
+                      (counts['Sentries'] || 0) +
+                      (counts['Venomweavers'] || 0) +
+                      (counts['Serpentwardens'] || 0) +
+                      (counts['Thieves'] || 0) +
+                      (counts['Rangers'] || 0);
+
+      if (regulars === 0 && coverts === 0) return null;
+      return { regulars, coverts };
+    } catch (err) {
+      debugLog('⚠️ Banking personnel scrape failed:', err);
+      return null;
+    }
+  }
+
+  // Calibrate from the Command Centre (base.php) — reuses the same overview rows
+  // the main script already reads ("Projected Income", "Soldier Per Turn").
+  function bankCollectCommandCentre() {
+    try {
+      const mo = bankFindInnermostTable('Projected Income');
+      if (!mo) {
+        debugLog('⚠️ Banking: Military Overview table not found on base.php');
+        return null;
+      }
+
+      // Available funds (exposed gold — this is G0)
+      let gold = null;
+      const fundsRow = bankFindRowByLabel(mo, /^Available Funds/);
+      if (fundsRow && fundsRow.cells[1]) {
+        gold = bankCleanNumber(fundsRow.cells[1].textContent.match(/([\d,]+)\s+Gold/i)?.[1]);
+      }
+
+      // Projected income (gold/turn = gold/min) — already includes economy, tech
+      // and era bonuses, so it is preferred over the troop-count fallback.
+      let goldPerMin = null;
+      const projRow = bankFindRowByLabel(mo, /^Projected Income/);
+      if (projRow && projRow.cells[1]) {
+        goldPerMin = bankCleanNumber(projRow.cells[1].textContent.match(/([\d,]+)\s+Gold\s+\(in 1 min\)/i)?.[1]);
+      }
+
+      // Soldiers per turn (= per minute) for the quadratic growth term
+      let spm = null;
+      const sptRow = bankFindRowByLabel(mo, /^Soldier Per Turn/);
+      if (sptRow && sptRow.cells[1]) {
+        spm = bankCleanNumber(sptRow.cells[1].textContent.match(/([\d,]+)\s+Soldiers/i)?.[1]);
+      }
+
+      const personnel = bankCollectPersonnel();
+      const cal = {
+        goldPerMin: goldPerMin,
+        spm: spm,
+        regulars: personnel ? personnel.regulars : null,
+        coverts: personnel ? personnel.coverts : null,
+        ts: new Date().toISOString(),
+        source: 'base.php'
+      };
+      bankSet('calibration', cal);
+      if (gold !== null) bankSaveGoldReading(gold, null, 'base.php');
+
+      debugLog(`✅ Banking calibrated: income ${goldPerMin === null ? '?' : goldPerMin.toLocaleString()}/min, SPM ${spm === null ? '?' : spm}, G0 ${gold === null ? '?' : gold.toLocaleString()}`);
+      return cal;
+    } catch (err) {
+      debugLog('⚠️ Banking calibration failed:', err);
+      return null;
+    }
+  }
+
+  // Read own state from the Armory page (funds banner + vault + personnel).
+  // Reuses the proven body-text regexes ("Available Funds:" / "Vault Gold:").
+  function bankCollectArmoryState() {
+    try {
+      const bodyText = document.body.textContent;
+      // \s*Gold (not \s+) — textContent can concatenate adjacent cells without a
+      // space; this is the live-tested form from the verified selectors table.
+      const fundsMatch = bodyText.match(/Available\s+Funds:\s*([\d,]+)\s*Gold/i);
+      const vaultMatch = bodyText.match(/Vault\s+Gold:\s*([\d,]+)\s*Gold/i);
+      const gold = fundsMatch ? bankCleanNumber(fundsMatch[1]) : null;
+      const vault = vaultMatch ? bankCleanNumber(vaultMatch[1]) : null;
+
+      if (gold !== null) bankSaveGoldReading(gold, vault, 'armory.php');
+
+      // Refresh personnel (fallback income inputs) without clobbering the scraped
+      // goldPerMin/spm from the last base.php calibration.
+      const personnel = bankCollectPersonnel();
+      if (personnel) {
+        const cal = bankGet('calibration', {});
+        cal.regulars = personnel.regulars;
+        cal.coverts = personnel.coverts;
+        if (!cal.ts) cal.ts = new Date().toISOString();
+        bankSet('calibration', cal);
+      }
+      return gold;
+    } catch (err) {
+      debugLog('⚠️ Banking armory state read failed:', err);
+      return null;
+    }
+  }
+
+  // ==================== GOLD PROJECTION MODEL ====================
+  // gold(t) = G0 + S0·g·t + 0.5·g·spm·t²   (1 game turn = 1 minute; vault excluded)
+  //   G0   = available funds at last reading
+  //   S0·g = gold/min — PREFERRED scraped "Projected Income (in 1 min)";
+  //          FALLBACK tbgRegular·regulars + tbgCovert·coverts (mercs excluded)
+  //   g    = growthGoldPerSoldier (new production arrives untrained)
+  //   spm  = "Soldier Per Turn"
+
+  function bankFallbackIncome(cal, settings) {
+    if (!cal || cal.regulars === null || cal.regulars === undefined) return null;
+    return settings.tbgRegular * cal.regulars + settings.tbgCovert * (cal.coverts || 0);
+  }
+
+  function bankGetProjection(nowMs = Date.now()) {
+    const reading = bankGet('gold_reading', null);
+    if (!reading) return null;
+
+    const settings = bankGetSettings();
+    const cal = bankGet('calibration', null);
+    const dtMin = Math.max(0, (nowMs - new Date(reading.ts).getTime()) / 60000);
+    const calAgeMin = (cal && cal.ts)
+      ? Math.max(0, (nowMs - new Date(cal.ts).getTime()) / 60000)
+      : Infinity;
+
+    let goldPerMin = cal && cal.goldPerMin !== null && cal.goldPerMin !== undefined
+      ? cal.goldPerMin
+      : bankFallbackIncome(cal, settings);
+    const spm = cal && cal.spm ? cal.spm : 0;
+
+    // The scraped rate is as old as the calibration; production has been adding
+    // soldiers since. Age the linear term forward to the gold-reading time so the
+    // projection starts from a current income rate.
+    if (goldPerMin !== null && cal && cal.ts && spm) {
+      const rateAgeMin = Math.max(0, (new Date(reading.ts).getTime() - new Date(cal.ts).getTime()) / 60000);
+      goldPerMin += settings.growthGoldPerSoldier * spm * rateAgeMin;
+    }
+
+    let gold;
+    if (goldPerMin === null) {
+      gold = reading.gold; // no income data — show the raw last reading
+    } else {
+      gold = reading.gold +
+             goldPerMin * dtMin +
+             0.5 * settings.growthGoldPerSoldier * spm * dtMin * dtMin;
+    }
+
+    return {
+      gold: Math.round(gold),
+      dtMin: dtMin,
+      calAgeMin: calAgeMin,
+      goldPerMin: goldPerMin,
+      spm: spm,
+      stale: goldPerMin !== null && calAgeMin > settings.staleCalibrationMins,
+      noIncome: goldPerMin === null,
+      reading: reading,
+      cal: cal
+    };
+  }
+
+  // Minutes from now until projected gold reaches targetGold. Solves the quadratic
+  //   0.5·g·spm·t² + goldPerMin·t + (gNow − target) = 0
+  function bankMinutesToGold(targetGold, proj) {
+    if (!proj || proj.noIncome) return null;
+    const settings = bankGetSettings();
+    const gNow = proj.gold;
+    if (gNow >= targetGold) return 0;
+
+    const a = 0.5 * settings.growthGoldPerSoldier * proj.spm; // gold/min²
+    const b = proj.goldPerMin;                                // gold/min
+    const c = gNow - targetGold;
+
+    if (a > 0) {
+      const disc = b * b - 4 * a * c;
+      if (disc < 0) return null;
+      return (-b + Math.sqrt(disc)) / (2 * a);
+    }
+    if (b > 0) return -c / b;
+    return null;
+  }
+
+  // ==================== ATTACK-LOG SCRAPER (feeds the risk model) ====================
+  // On attacklog.php: the "Attacks Against You" header table is a table_lines.attacklog;
+  // the data rows live in the NEXT table_lines. Cache is keyed by attack_id.
+  function bankCollectAttackLog() {
+    try {
+      const tables = [...document.querySelectorAll('table')];
+      const headerIdx = tables.findIndex(t =>
+        t.classList.contains('attacklog') && /Attacks Against You/.test(t.textContent));
+      if (headerIdx === -1) {
+        debugLog('⚠️ Banking: "Attacks Against You" header table not found');
+        return 0;
+      }
+
+      let dataTable = null;
+      for (let i = headerIdx + 1; i < tables.length; i++) {
+        if (tables[i].classList.contains('table_lines') && tables[i].rows.length > 1) {
+          dataTable = tables[i];
+          break;
+        }
+      }
+      if (!dataTable) {
+        debugLog('⚠️ Banking: attack-log data table not found');
+        return 0;
+      }
+
+      const events = bankGet('attack_events', {});
+      let newCount = 0;
+
+      [...dataTable.rows].forEach(row => {
+        try {
+          if (row.cells.length < 8) return;
+          const rowText = row.textContent;
+          // Only "attacked by" rows (excludes "Attacks By You" + the pagination row)
+          if (!/attacked by/i.test(rowText)) return;
+
+          const detailLink = row.querySelector('a[href*="attack_id="]');
+          const idMatch = detailLink ? detailLink.getAttribute('href').match(/attack_id=(\d+)/) : null;
+          if (!idMatch) return;
+          const attackId = idMatch[1];
+          if (events[attackId]) return; // already cached
+
+          const attackerLink = row.querySelector('a[href*="stats.php?id="]');
+          const attackerName = attackerLink ? attackerLink.textContent.trim() : 'Unknown';
+          const attackerId = attackerLink ? (attackerLink.getAttribute('href').match(/id=(\d+)/)?.[1] || null) : null;
+
+          const stolenMatch = rowText.match(/([\d,]+)\s+Gold stolen/i); // defended rows → 0
+          const goldStolen = stolenMatch ? bankCleanNumber(stolenMatch[1]) : 0;
+
+          // Exact server timestamp — the one place the Eastern→UTC conversion belongs
+          const tsMatch = rowText.match(/\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}/);
+          const ts = (tsMatch ? convertKoCServerTimeToUTC(tsMatch[0]) : null) || new Date().toISOString();
+
+          events[attackId] = { id: attackId, attacker: attackerName, attackerId: attackerId, goldStolen: goldStolen || 0, ts: ts };
+          newCount++;
+        } catch (err) {
+          debugLog('⚠️ Banking: attack-log row parse failed:', err);
+        }
+      });
+
+      // Prune: keep 60 days, cap 600 newest
+      const cutoff = Date.now() - 60 * 86400000;
+      const kept = Object.values(events)
+        .filter(e => new Date(e.ts).getTime() >= cutoff)
+        .sort((a, b) => new Date(b.ts) - new Date(a.ts))
+        .slice(0, 600);
+      const pruned = {};
+      kept.forEach(e => { pruned[e.id] = e; });
+
+      bankSet('attack_events', pruned);
+      bankSet('last_attacklog_visit', new Date().toISOString());
+      debugLog(`✅ Banking attack log: ${newCount} new, ${kept.length} stored`);
+      return newCount;
+    } catch (err) {
+      debugLog('⚠️ Banking attack-log scrape failed:', err);
+      return 0;
+    }
+  }
+
+  // ==================== RISK MODEL ====================
+  // Each steal back-calculates held = goldStolen / stealRateMax (MAX = conservative
+  // lower bound). Yellow = P25, red = P50 of the held distribution in the window.
+  // Under 3 samples → static fallback thresholds.
+  function bankGetRiskModel() {
+    const settings = bankGetSettings();
+    const events = Object.values(bankGet('attack_events', {}));
+    const cutoff = Date.now() - settings.riskWindowDays * 86400000;
+
+    const held = events
+      .filter(e => e.goldStolen > 0 && new Date(e.ts).getTime() >= cutoff)
+      .map(e => Math.round(e.goldStolen / settings.stealRateMax))
+      .sort((a, b) => a - b);
+
+    if (held.length >= 3) {
+      return {
+        source: 'attacks',
+        sampleSize: held.length,
+        yellowGold: Math.round(bankPercentile(held, settings.yellowPercentile)),
+        redGold: Math.round(bankPercentile(held, settings.redPercentile)),
+        windowDays: settings.riskWindowDays
+      };
+    }
+    return {
+      source: 'fallback',
+      sampleSize: held.length,
+      yellowGold: settings.fallbackYellowGold,
+      redGold: settings.fallbackRedGold,
+      windowDays: settings.riskWindowDays
+    };
+  }
+
+  function bankRiskBand(gold, model) {
+    if (gold >= model.redGold) return 'red';
+    if (gold >= model.yellowGold) return 'yellow';
+    return 'green';
+  }
+
+  const BANK_BAND_META = {
+    green: { label: 'SAFE', color: '#16a34a', glow: 'rgba(74, 222, 128, 0.35)' },
+    yellow: { label: 'CAUTION', color: '#d97706', glow: 'rgba(251, 191, 36, 0.35)' },
+    red: { label: 'DANGER', color: '#dc2626', glow: 'rgba(248, 113, 113, 0.4)' }
+  };
+  const BANK_BAND_ORDER = { green: 0, yellow: 1, red: 2 };
+
+  function bankGetRiskStatus() {
+    const proj = bankGetProjection();
+    const model = bankGetRiskModel();
+    if (!proj) return { proj: null, model, band: null };
+    const band = bankRiskBand(proj.gold, model);
+    return {
+      proj: proj,
+      model: model,
+      band: band,
+      minsToYellow: band === 'green' ? bankMinutesToGold(model.yellowGold, proj) : 0,
+      minsToRed: band === 'red' ? 0 : bankMinutesToGold(model.redGold, proj)
+    };
+  }
+
+  // ==================== WAKE LOCK ====================
+  // Requested on toggle-on (user gesture), re-requested on visibilitychange (the
+  // browser drops the lock when the tab hides), released on toggle-off.
+  let bankWakeLock = null;
+  let bankVisibilityHooked = false;
+
+  async function bankRequestWakeLock() {
+    if (!('wakeLock' in navigator)) { bankUpdateWakeLockPill(); return false; }
+    if (bankWakeLock) return true;
+    try {
+      bankWakeLock = await navigator.wakeLock.request('screen');
+      bankWakeLock.addEventListener('release', () => {
+        // Fires on our release AND when the browser drops the lock (tab hidden) —
+        // clear the sentinel so the pill reads true state.
+        bankWakeLock = null;
+        bankUpdateWakeLockPill();
+        debugLog('🌙 Banking screen wake lock released');
+      });
+      debugLog('🔆 Banking screen wake lock active');
+      bankUpdateWakeLockPill();
+      return true;
+    } catch (err) {
+      debugLog('⚠️ Banking wake lock request failed:', err && err.message);
+      bankWakeLock = null;
+      bankUpdateWakeLockPill();
+      return false;
+    }
+  }
+
+  async function bankReleaseWakeLock() {
+    if (bankWakeLock) {
+      try { await bankWakeLock.release(); } catch (err) { /* already released */ }
+      bankWakeLock = null;
+    }
+    bankUpdateWakeLockPill();
+  }
+
+  function bankUpdateWakeLockPill() {
+    const pill = document.getElementById('koc-banking-wakelock');
+    if (pill) {
+      pill.textContent = bankWakeLock ? '🔆 screen awake' : '🌙 wake lock off';
+      pill.style.color = bankWakeLock ? '#16a34a' : '#888';
+    }
+  }
+
+  // ==================== NOTIFICATIONS (optional, off by default) ====================
+  let bankLastNotifiedBand = 'green';
+
+  function bankEnsureNotifyPermission() {
+    const settings = bankGetSettings();
+    if (!settings.notifyEnabled) return;            // don't prompt unless opted in
+    if (!('Notification' in window)) return;
+    if (Notification.permission === 'default') {
+      Notification.requestPermission().then(p => debugLog(`🔔 Banking notification permission: ${p}`));
+    }
+  }
+
+  // Notify on band ESCALATION only (green→yellow→red), rate-limited. {body, tag}
+  // ONLY — no icon: a remote icon URL would make the display timer fire a request.
+  function bankMaybeNotifyBand(band, gold) {
+    const settings = bankGetSettings();
+    if (!settings.notifyEnabled) return;
+    if (!('Notification' in window) || Notification.permission !== 'granted') return;
+    if (BANK_BAND_ORDER[band] <= BANK_BAND_ORDER[bankLastNotifiedBand]) {
+      bankLastNotifiedBand = band; // de-escalation re-arms future alerts
+      return;
+    }
+    const lastTs = bankGet('last_notify_ts', null);
+    if (lastTs && Date.now() - new Date(lastTs).getTime() < settings.notifyMinGapMins * 60000) return;
+    try {
+      new Notification('🏦 KoC Banking Mode', {
+        body: `Risk ${BANK_BAND_META[band].label}: ~${bankFormatGold(gold)} gold exposed. Time to bank!`,
+        tag: 'koc-banking-risk'
+      });
+      bankSet('last_notify_ts', new Date().toISOString());
+      bankLastNotifiedBand = band;
+      debugLog(`🔔 Banking notified: band ${band}`);
+    } catch (err) {
+      debugLog('⚠️ Banking notification failed:', err);
+    }
+  }
+
+  // ==================== POST-ACTION (LAST-BANK) DETECTION ====================
+  // A pending stamp is written when the human submits the real form (observed via
+  // passive listeners); on the armory reload the game performs after the POST, a
+  // funds drop confirms the action and stamps last_bank. No reparenting, no
+  // synthetic events — the forms are only observed.
+  const bankHookedForms = new WeakSet();
+
+  function bankSetPendingAction(type) {
+    const reading = bankGet('gold_reading', null);
+    bankSet('pending_action', {
+      type: type,
+      gold: reading ? reading.gold : null,
+      ts: new Date().toISOString()
+    });
+  }
+
+  function bankCheckPendingAction(currentGold) {
+    const pending = bankGet('pending_action', null);
+    if (!pending) return;
+    bankRemove('pending_action'); // one-shot
+
+    if (Date.now() - new Date(pending.ts).getTime() > 10 * 60000) {
+      debugLog('⏰ Banking pending action expired');
+      return;
+    }
+    if (pending.gold === null || currentGold === null || currentGold === undefined) return;
+
+    const drop = pending.gold - currentGold;
+    const threshold = pending.type === 'buy' ? Math.max(pending.gold * 0.25, 1000000) : 1000;
+    if (drop >= threshold) {
+      bankSet('last_bank', { ts: new Date().toISOString(), spent: drop, action: pending.type });
+      bankLastNotifiedBand = 'green'; // re-arm escalation notifications after banking
+      debugLog(`🏦 ✅ Banked! ${drop.toLocaleString()} gold via ${pending.type} — last_bank stamped`);
+    } else {
+      debugLog(`⏭️ Banking: ${pending.type} pressed but no funds drop (drop ${drop.toLocaleString()})`);
+    }
+  }
+
+  // Attach PASSIVE observers to the game's OWN buy/repair forms. We listen for BOTH
+  // 'submit' AND a TRUSTED click on the submit input — KoC buttons often submit via
+  // inline onclick form.submit(), which skips the submit event. We NEVER trigger them.
+  function bankHookFormPending(form, type) {
+    if (!form || bankHookedForms.has(form)) return;
+    bankHookedForms.add(form);
+    const stamp = () => {
+      bankSetPendingAction(type);
+      debugLog(`🏦 Banking: ${type} submitted by user — pending stamp written`);
+    };
+    form.addEventListener('submit', stamp);
+    form.addEventListener('click', e => {
+      if (e.isTrusted && e.target && e.target.type === 'submit') stamp();
+    });
+  }
+
+  function bankHookForms() {
+    // Buy: prefer the one-click Autofill buy form; fall back to the per-weapon form.
+    let buyForm = document.forms.namedItem('buyform');
+    if (!buyForm) {
+      buyForm = document.getElementById('anotherbuyform') || document.forms.namedItem('anotherbuyform');
+    }
+    if (buyForm) bankHookFormPending(buyForm, 'buy');
+
+    // Repair: the form around input[name=repair_all_weapons]
+    const repairBtn = document.querySelector('input[name="repair_all_weapons"]');
+    if (repairBtn && repairBtn.form) bankHookFormPending(repairBtn.form, 'repair');
+  }
+
+  // ==================== INLINE WIDGET UI ====================
+  let bankTickerId = null;
+
+  function bankInjectStyles() {
+    if (document.getElementById('koc-banking-style')) return;
+    const style = document.createElement('style');
+    style.id = 'koc-banking-style';
+    style.textContent = `
+      #koc-banking-inline {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        max-width: 540px; margin: 8px auto; text-align: center;
+      }
+      #koc-banking-inline .kb-bar {
+        display: flex; align-items: center; justify-content: center; gap: 10px;
+        flex-wrap: wrap; margin-bottom: 6px;
+      }
+      #koc-banking-toggle {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: #fff;
+        border: none; padding: 7px 16px; border-radius: 20px; cursor: pointer;
+        font-size: 13px; font-weight: 600; box-shadow: 0 2px 8px rgba(102,126,234,0.4);
+      }
+      #koc-banking-inline .kb-btn {
+        background: rgba(102,126,234,0.15); color: #4338ca; border: 1px solid rgba(102,126,234,0.4);
+        padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 12px;
+      }
+      #koc-banking-wakelock { font-size: 12px; color: #888; }
+      #koc-banking-body { margin: 0 auto; }
+      #koc-banking-inline .kb-card {
+        background: linear-gradient(135deg, #1e1b3a, #2a2550); color: #eee;
+        border: 1px solid rgba(255,255,255,0.12); border-radius: 10px;
+        padding: 14px 18px; margin: 8px 0; box-sizing: border-box; text-align: center;
+      }
+      #koc-banking-band { font-size: 18px; font-weight: 700; letter-spacing: 3px; }
+      #koc-banking-gold {
+        font-size: 46px; font-weight: 700; line-height: 1.15;
+        transition: color 0.3s ease, text-shadow 0.3s ease;
+      }
+      #koc-banking-inline .kb-sub { color: #aaa; font-size: 12px; margin-top: 4px; }
+      #koc-banking-inline .kb-info { text-align: left; }
+      #koc-banking-inline .kb-stat { font-size: 13px; color: #ccc; margin: 4px 0; }
+      #koc-banking-inline .kb-stat b { color: #FFD700; }
+      #koc-banking-inline a { color: #93c5fd; }
+      #koc-banking-inline .kb-live { color: #4ade80; }
+      @keyframes kb-pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.3; } }
+      #koc-banking-inline .kb-live { animation: kb-pulse 2s infinite; display: inline-block; }
+      #koc-banking-settings { display: none; margin-top: 10px; border-top: 1px solid rgba(255,255,255,0.12); padding-top: 10px; }
+      #koc-banking-settings.open { display: block; }
+      #koc-banking-settings label {
+        display: flex; justify-content: space-between; align-items: center;
+        font-size: 12px; color: #ccc; margin: 6px 0; gap: 10px;
+      }
+      #koc-banking-settings input[type=number], #koc-banking-settings input[type=text] {
+        background: rgba(0,0,0,0.3); color: #fff; width: 110px;
+        border: 1px solid rgba(255,215,0,0.3); border-radius: 5px; padding: 4px 8px;
+      }
+    `;
+    document.head.appendChild(style);
+  }
+
+  // Locate the table that holds the "Available Funds:" banner (verified live).
+  function bankFindArmoryAnchor() {
+    const fundsEl = [...document.querySelectorAll('b,font,td')]
+      .find(el => /Available Funds:/.test(el.textContent) && el.textContent.trim().length < 60);
+    return fundsEl ? fundsEl.closest('table') : null;
+  }
+
+  function bankBuildWidgets() {
+    if (document.getElementById('koc-banking-inline')) { bankApplyEnabledState(); return; }
+    bankInjectStyles();
+
+    const s = bankGetSettings();
+    const container = document.createElement('div');
+    container.id = 'koc-banking-inline';
+    container.innerHTML = `
+      <div class="kb-bar">
+        <button type="button" id="koc-banking-toggle">🏦 Banking Mode</button>
+        <button type="button" class="kb-btn" id="koc-banking-settings-btn" style="display:none;">⚙️ Settings</button>
+        <span id="koc-banking-wakelock" style="display:none;">🌙 wake lock off</span>
+      </div>
+      <div id="koc-banking-body" style="display:none;">
+        <div class="kb-card">
+          <div id="koc-banking-band">—</div>
+          <div id="koc-banking-gold">—</div>
+          <div class="kb-sub">estimated gold exposed (projected · vault excluded)</div>
+          <div class="kb-sub" id="koc-banking-countdowns">—</div>
+        </div>
+        <div class="kb-card kb-info">
+          <div class="kb-stat">⏱️ Last bank: <b id="koc-banking-lastbank">never</b></div>
+          <div class="kb-stat">📐 Calibration: <b id="koc-banking-cal">—</b></div>
+          <div class="kb-stat">🗡️ Risk model: <b id="koc-banking-risk-src">—</b> · <a href="attacklog.php">visit Attack Log to refresh</a></div>
+          <div class="kb-stat">🏦 Vault (not at risk): <b id="koc-banking-vault">—</b></div>
+          <div class="kb-stat"><span class="kb-live">●</span> display refresh only — no automated requests</div>
+          <div id="koc-banking-settings">
+            <div style="color:#FFD700; font-weight:600; margin-bottom:8px;">Settings</div>
+            <label>Steal rate min (0–1) <input type="number" step="0.01" min="0.1" max="1" id="kbs-stealRateMin" value="${s.stealRateMin}"></label>
+            <label>Steal rate max (risk maths uses this; 1.0 = conservative) <input type="number" step="0.01" min="0.1" max="1" id="kbs-stealRateMax" value="${s.stealRateMax}"></label>
+            <label>Risk window (days) <input type="number" min="1" max="60" id="kbs-riskWindowDays" value="${s.riskWindowDays}"></label>
+            <label>Yellow percentile <input type="number" min="1" max="99" id="kbs-yellowPercentile" value="${s.yellowPercentile}"></label>
+            <label>Red percentile <input type="number" min="1" max="99" id="kbs-redPercentile" value="${s.redPercentile}"></label>
+            <label>Fallback yellow gold <input type="text" inputmode="numeric" id="kbs-fallbackYellowGold" value="${s.fallbackYellowGold.toLocaleString()}"></label>
+            <label>Fallback red gold <input type="text" inputmode="numeric" id="kbs-fallbackRedGold" value="${s.fallbackRedGold.toLocaleString()}"></label>
+            <label>TBG gold/turn — regulars <input type="number" step="0.01" id="kbs-tbgRegular" value="${s.tbgRegular}"></label>
+            <label>TBG gold/turn — coverts <input type="number" step="0.01" id="kbs-tbgCovert" value="${s.tbgCovert}"></label>
+            <label>Growth gold/soldier/turn (SPM term) <input type="number" step="0.01" id="kbs-growthGoldPerSoldier" value="${s.growthGoldPerSoldier}"></label>
+            <label>Notifications enabled <input type="checkbox" id="kbs-notifyEnabled" ${s.notifyEnabled ? 'checked' : ''}></label>
+            <label>Notification min gap (mins) <input type="number" min="1" id="kbs-notifyMinGapMins" value="${s.notifyMinGapMins}"></label>
+          </div>
+        </div>
+      </div>
+    `;
+
+    const anchor = bankFindArmoryAnchor();
+    if (anchor && anchor.parentNode) {
+      anchor.parentNode.insertBefore(container, anchor);
+    } else {
+      debugLog('⚠️ Banking: "Available Funds:" anchor not found — inserting at page top (re-verify the armory anchor selector)');
+      document.body.insertBefore(container, document.body.firstChild);
+    }
+
+    // SAFETY: on some layouts the "Available Funds:" banner lives inside the
+    // per-weapon buy form (#anotherbuyform), so this widget can end up INSIDE a
+    // game form. Our buttons are type="button" (above) and we swallow Enter on our
+    // own inputs here, so the widget can NEVER submit a game form / spend gold.
+    container.addEventListener('keydown', e => {
+      if (e.key === 'Enter' && e.target && e.target.tagName === 'INPUT') e.preventDefault();
+    });
+
+    // --- wire controls ---
+    container.querySelector('#koc-banking-toggle').addEventListener('click', bankToggle);
+    container.querySelector('#koc-banking-settings-btn').addEventListener('click', () => {
+      container.querySelector('#koc-banking-settings').classList.toggle('open');
+    });
+
+    const numericFields = ['stealRateMin', 'stealRateMax', 'riskWindowDays', 'yellowPercentile',
+      'redPercentile', 'tbgRegular', 'tbgCovert', 'growthGoldPerSoldier', 'notifyMinGapMins'];
+    numericFields.forEach(field => {
+      const el = container.querySelector('#kbs-' + field);
+      if (el) el.addEventListener('change', e => {
+        const v = parseFloat(e.target.value);
+        if (!isNaN(v)) bankSaveSettings({ [field]: v });
+      });
+    });
+    ['fallbackYellowGold', 'fallbackRedGold'].forEach(field => {
+      const el = container.querySelector('#kbs-' + field);
+      if (el) el.addEventListener('change', e => {
+        const v = bankCleanNumber(e.target.value);
+        if (v !== null) bankSaveSettings({ [field]: v });
+      });
+    });
+    const notifyEl = container.querySelector('#kbs-notifyEnabled');
+    if (notifyEl) notifyEl.addEventListener('change', e => {
+      bankSaveSettings({ notifyEnabled: e.target.checked });
+      if (e.target.checked) bankEnsureNotifyPermission();
+    });
+
+    bankApplyEnabledState();
+  }
+
+  // Reflect the persisted enabled flag: show/hide widgets, manage ticker + wake lock.
+  function bankApplyEnabledState() {
+    const enabled = bankGet('enabled', false);
+    const toggle = document.getElementById('koc-banking-toggle');
+    const body = document.getElementById('koc-banking-body');
+    const settingsBtn = document.getElementById('koc-banking-settings-btn');
+    const wlPill = document.getElementById('koc-banking-wakelock');
+
+    if (toggle) {
+      toggle.textContent = enabled ? '🏦 Banking Mode: ON' : '🏦 Banking Mode';
+      toggle.style.background = enabled
+        ? 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)'
+        : 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
+    }
+    if (body) body.style.display = enabled ? 'block' : 'none';
+    if (settingsBtn) settingsBtn.style.display = enabled ? '' : 'none';
+    if (wlPill) wlPill.style.display = enabled ? '' : 'none';
+
+    if (enabled) {
+      bankHookForms();
+      bankRequestWakeLock();
+      bankStartTicker();
+      bankUpdateDisplay();
+    } else {
+      bankStopTicker();
+      bankReleaseWakeLock();
+    }
+  }
+
+  // The human press that arms everything (user gesture → wake lock + notify allowed).
+  function bankToggle() {
+    const enabled = bankGet('enabled', false);
+    bankSet('enabled', !enabled);
+    if (!enabled) bankEnsureNotifyPermission();
+    bankApplyEnabledState();
+    debugLog(`🏦 Banking Mode ${!enabled ? 'ON' : 'OFF'}`);
+  }
+
+  // Repaint the readouts (DISPLAY ONLY — no requests, no game actions).
+  function bankUpdateDisplay() {
+    const body = document.getElementById('koc-banking-body');
+    if (!body || body.style.display === 'none') return;
+
+    const status = bankGetRiskStatus();
+    const goldEl = document.getElementById('koc-banking-gold');
+    const bandEl = document.getElementById('koc-banking-band');
+    const cdEl = document.getElementById('koc-banking-countdowns');
+    if (!goldEl || !bandEl || !cdEl) return;
+
+    if (!status.proj) {
+      goldEl.textContent = '???';
+      goldEl.style.color = '#999';
+      bandEl.textContent = 'NO CALIBRATION';
+      bandEl.style.color = '#999';
+      cdEl.innerHTML = 'Visit the <a href="base.php">Command Centre</a> to calibrate';
+      return;
+    }
+
+    const meta = BANK_BAND_META[status.band];
+    goldEl.textContent = bankFormatGold(status.proj.gold);
+    goldEl.title = status.proj.gold.toLocaleString() + ' gold';
+    goldEl.style.color = meta.color;
+    goldEl.style.textShadow = `0 0 22px ${meta.glow}`;
+    bandEl.textContent = meta.label + (status.model.source === 'fallback' ? ' (fallback bands)' : '');
+    bandEl.style.color = meta.color;
+
+    const parts = [];
+    if (status.band === 'green') parts.push(`🟡 yellow in <b>${bankFormatMinutes(status.minsToYellow)}</b>`);
+    if (status.band !== 'red') parts.push(`🔴 red in <b>${bankFormatMinutes(status.minsToRed)}</b>`);
+    if (status.band === 'red') parts.push('🔴 <b>over the red line — bank now</b>');
+    if (status.proj.stale) parts.push('⚠️ calibration stale — visit the <a href="base.php">Command Centre</a>');
+    if (status.proj.noIncome) parts.push('⚠️ no income data — visit the <a href="base.php">Command Centre</a>');
+    cdEl.innerHTML = parts.join(' · ') || '—';
+
+    const lastBank = bankGet('last_bank', null);
+    const lastBankEl = document.getElementById('koc-banking-lastbank');
+    if (lastBankEl) lastBankEl.textContent = lastBank
+      ? `${bankFormatTimeAgo(lastBank.ts)} (${bankFormatGold(lastBank.spent)} via ${lastBank.action})`
+      : 'never';
+
+    const calTs = status.proj.cal && status.proj.cal.ts ? status.proj.cal.ts : null;
+    const calEl = document.getElementById('koc-banking-cal');
+    if (calEl) calEl.textContent =
+      `rates ${calTs ? bankFormatTimeAgo(calTs) : 'never'} (base.php)` +
+      ` · gold reading ${bankFormatTimeAgo(status.proj.reading.ts)} (${status.proj.reading.source})` +
+      (status.proj.goldPerMin !== null ? ` · ${bankFormatGold(status.proj.goldPerMin)}/min · SPM ${status.proj.spm}` : '');
+
+    const riskEl = document.getElementById('koc-banking-risk-src');
+    if (riskEl) riskEl.textContent =
+      status.model.source === 'attacks'
+        ? `${status.model.sampleSize} steals in ${status.model.windowDays}d · yellow ${bankFormatGold(status.model.yellowGold)} · red ${bankFormatGold(status.model.redGold)}`
+        : `fallback thresholds (only ${status.model.sampleSize} steals cached)`;
+
+    const vault = status.proj.reading.vault;
+    const vaultEl = document.getElementById('koc-banking-vault');
+    if (vaultEl) vaultEl.textContent =
+      vault === null || vault === undefined ? '?' : vault.toLocaleString() + ' gold';
+
+    bankMaybeNotifyBand(status.band, status.proj.gold);
+  }
+
+  // 1-second DISPLAY repaint. Redraws locally-known numbers only — never the network.
+  function bankStartTicker() {
+    if (bankTickerId) return;
+    bankTickerId = setInterval(bankUpdateDisplay, 1000);
+  }
+  function bankStopTicker() {
+    if (bankTickerId) { clearInterval(bankTickerId); bankTickerId = null; }
+  }
+
+  // Armory entrypoint: read state, confirm any pending bank, inject the widgets.
+  function bankOnArmory() {
+    const gold = bankCollectArmoryState();
+    bankCheckPendingAction(gold);
+    bankBuildWidgets();
+
+    if (!bankVisibilityHooked) {
+      bankVisibilityHooked = true;
+      document.addEventListener('visibilitychange', () => {
+        if (document.visibilityState === 'visible' &&
+            bankGet('enabled', false) &&
+            location.pathname.includes('armory.php')) {
+          bankRequestWakeLock();
+        }
+      });
+    }
+  }
+
+  // ==================== BANKING MODE CONSOLE API ====================
+  window.KoCBanking = {
+    enable: () => { if (!bankGet('enabled', false)) bankToggle(); },
+    disable: () => { if (bankGet('enabled', false)) bankToggle(); },
+    status: () => {
+      const st = bankGetRiskStatus();
+      if (st.proj) {
+        console.log(`💰 Projected: ${st.proj.gold.toLocaleString()} gold (${bankFormatTimeAgo(st.proj.reading.ts)} + ${st.proj.dtMin.toFixed(1)}min)`);
+        console.log(`🚦 Band: ${st.band} | yellow @ ${st.model.yellowGold.toLocaleString()} | red @ ${st.model.redGold.toLocaleString()} (${st.model.source}, n=${st.model.sampleSize})`);
+        console.log(`⏳ Time to red: ${bankFormatMinutes(st.minsToRed)}`);
+      } else {
+        console.log('⚠️ No banking calibration yet — visit base.php');
+      }
+      return st;
+    },
+    calibrate: bankCollectCommandCentre,
+    collectAttackLog: bankCollectAttackLog,
+    projection: bankGetProjection,
+    riskModel: bankGetRiskModel,
+    settings: { get: bankGetSettings, set: bankSaveSettings },
+    events: () => {
+      const ev = Object.values(bankGet('attack_events', {})).sort((a, b) => new Date(b.ts) - new Date(a.ts));
+      console.table(ev);
+      return ev;
+    },
+    clearData: () => {
+      ['enabled', 'settings', 'calibration', 'gold_reading', 'attack_events',
+       'last_bank', 'pending_action', 'last_notify_ts', 'last_attacklog_visit']
+        .forEach(k => bankRemove(k));
+      console.log('🗑️ Banking Mode data cleared');
+    }
+  };
+
   // ==================== PAGE-SPECIFIC INITIALIZERS ====================
 
   /**
@@ -6757,6 +7731,8 @@
       await safeExecute('initSidebarCalculator', () => initSidebarCalculator());
       await safeExecute('insertTopStatsPanel', () => insertTopStatsPanel());
       await safeExecute('collectFromBasePage', () => collectFromBasePage());
+      // Banking Mode: full recalibration (G0 / income / SPM) from the Command Centre
+      await safeExecute('bankCollectCommandCentre', () => bankCollectCommandCentre());
 
       // Competition tracking: capture gold stolen and add UI panels
       if (activeCompetitions.length > 0) {
@@ -6812,11 +7788,15 @@
     if (document.querySelector("td.menu_cell")) {
       await safeExecute('initSidebarCalculator', () => initSidebarCalculator());
       await safeExecute('hookSidebarPopup', () => hookSidebarPopup());
+      // Banking Mode: opportunistic G0 refresh from the sidebar Gold/Vault cells
+      await safeExecute('bankCollectSidebarGold', () => bankCollectSidebarGold());
     }
 
     // Attack log
     if (location.pathname.includes("attacklog.php")) {
       await safeExecute('enhanceAttackLog', () => enhanceAttackLog());
+      // Banking Mode: cache new "Attacks Against You" steals (keyed by attack_id)
+      await safeExecute('bankCollectAttackLog', () => bankCollectAttackLog());
     }
 
     // Rewards page (track recons)
@@ -6896,7 +7876,10 @@
 
     // Armory
     if (location.pathname.includes("armory.php")) {
-      // Check for weapon purchases first (auto-learns multipliers)
+      // Banking Mode first: it only reads the DOM/localStorage, so inject the inline
+      // widget promptly rather than making it wait behind the roster-API calls below.
+      await safeExecute('bankOnArmory', () => bankOnArmory());
+      // Check for weapon purchases (auto-learns multipliers)
       await safeExecute('scrapePurchaseConfirmation', () => scrapePurchaseConfirmation());
       await safeExecute('collectTIVAndStatsFromArmory', () => collectTIVAndStatsFromArmory());
     }
