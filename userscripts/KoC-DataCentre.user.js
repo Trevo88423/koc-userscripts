@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name         KoC Data Centre
 // @namespace    trevo88423
-// @version      2.5.0
-// @description  Sweet Revenge alliance tool: tracks stats, syncs to API, adds dashboards, XP→Turn calculator, mini Top Stats panel. v2.5.0: 🏦 Banking Mode on the Armory page — toggleable inline widget that projects your exposed (stealable) gold every second, colour-codes the risk (SAFE/CAUTION/DANGER) from your attack-log steal history, shows time-to-yellow/red, and keeps the screen awake. Display-only: no automated requests, observes (never presses) the buy/repair forms. v2.4.0: Banking trend graph (📈 in the sidebar tracks your banked % over time) + manual override for Avg Gold/Atk (✏️ in the sidebar, survives attack-log recalibration). v2.3.4: Recons panel now shares counts alliance-wide via API (previously localStorage-only — each user only saw themselves). v2.3.0: Added "Stats If You Attacked Instead" table on safe.php to compare tech upgrades vs attacking. v2.2.9: Added optimizer auto-fill for armory (uses roster API to calculate optimal stat allocation). v2.2.8: Minor fixes. v2.1.0: Integrated slaying competition tracker (attack missions & gold stolen tracking, team competitions, leaderboards). v2.0.0: Optimized API architecture, previous versions deprecated.
+// @version      2.5.1
+// @description  Sweet Revenge alliance tool: tracks stats, syncs to API, adds dashboards, XP→Turn calculator, mini Top Stats panel. v2.5.1: Banking Mode last-bank fix — now watches the per-weapon buy form (anotherbuyform), not just the hidden one-click form, and stamps banks reliably for high-income accounts. v2.5.0: 🏦 Banking Mode on the Armory page — toggleable inline widget that projects your exposed (stealable) gold every second, colour-codes the risk (SAFE/CAUTION/DANGER) from your attack-log steal history, shows time-to-yellow/red, and keeps the screen awake. Display-only: no automated requests, observes (never presses) the buy/repair forms. v2.4.0: Banking trend graph (📈 in the sidebar tracks your banked % over time) + manual override for Avg Gold/Atk (✏️ in the sidebar, survives attack-log recalibration). v2.3.4: Recons panel now shares counts alliance-wide via API (previously localStorage-only — each user only saw themselves). v2.3.0: Added "Stats If You Attacked Instead" table on safe.php to compare tech upgrades vs attacking. v2.2.9: Added optimizer auto-fill for armory (uses roster API to calculate optimal stat allocation). v2.2.8: Minor fixes. v2.1.0: Integrated slaying competition tracker (attack missions & gold stolen tracking, team competitions, leaderboards). v2.0.0: Optimized API architecture, previous versions deprecated.
 // @author       Blackheart
 // @match        https://www.kingsofchaos.com/*
 // @exclude      https://*.kingsofchaos.com/confirm.login.php*
@@ -42,7 +42,7 @@
   // ==================== VERSION CHECK ====================
   // Check if this script version is allowed to run
   const SCRIPT_NAME = 'koc-data-centre';
-  const SCRIPT_VERSION = '2.5.0'; // Must match @version above
+  const SCRIPT_VERSION = '2.5.1'; // Must match @version above
   const VERSION_CHECK_API = 'https://koc-roster-api-production.up.railway.app';
 
   async function checkScriptVersion() {
@@ -7311,10 +7311,16 @@
   const bankHookedForms = new WeakSet();
 
   function bankSetPendingAction(type) {
+    // Stamp the PROJECTED funds at submit time, not the raw last reading. With high
+    // income the page-load reading can sit millions below the real balance by the
+    // time the user presses Buy, which would make the post-buy drop look negative and
+    // miss the bank. The projection tracks accrued income up to this moment.
+    const proj = bankGetProjection();
     const reading = bankGet('gold_reading', null);
+    const goldNow = proj ? proj.gold : (reading ? reading.gold : null);
     bankSet('pending_action', {
       type: type,
-      gold: reading ? reading.gold : null,
+      gold: goldNow,
       ts: new Date().toISOString()
     });
   }
@@ -7331,7 +7337,12 @@
     if (pending.gold === null || currentGold === null || currentGold === undefined) return;
 
     const drop = pending.gold - currentGold;
-    const threshold = pending.type === 'buy' ? Math.max(pending.gold * 0.25, 1000000) : 1000;
+    // A buy/repair was definitely submitted (pending is only set on a real form
+    // submit), and on armory the sole funds-decreasing action is a purchase, so a
+    // sizable positive drop confirms it. A flat 1M floor clears projection noise
+    // without demanding the old 25%-of-balance spend, which big earners rarely hit
+    // in a single buy (and which silently dropped every smaller purchase).
+    const threshold = pending.type === 'buy' ? 1000000 : 1000;
     if (drop >= threshold) {
       bankSet('last_bank', { ts: new Date().toISOString(), spent: drop, action: pending.type });
       bankLastNotifiedBand = 'green'; // re-arm escalation notifications after banking
@@ -7358,12 +7369,15 @@
   }
 
   function bankHookForms() {
-    // Buy: prefer the one-click Autofill buy form; fall back to the per-weapon form.
-    let buyForm = document.forms.namedItem('buyform');
-    if (!buyForm) {
-      buyForm = document.getElementById('anotherbuyform') || document.forms.namedItem('anotherbuyform');
-    }
-    if (buyForm) bankHookFormPending(buyForm, 'buy');
+    // Buy: hook BOTH the one-click Autofill form (buyform) and the per-weapon form
+    // (anotherbuyform). The game serves one and hides the other depending on whether
+    // Armory Autofill is saved server-side — buyform commonly EXISTS but is
+    // display:none while the user actually buys via the visible anotherbuyform.
+    // Hooking only the first one found (buyform) misses every real purchase.
+    const oneClickBuy = document.forms.namedItem('buyform');
+    if (oneClickBuy) bankHookFormPending(oneClickBuy, 'buy');
+    const perWeaponBuy = document.getElementById('anotherbuyform') || document.forms.namedItem('anotherbuyform');
+    if (perWeaponBuy) bankHookFormPending(perWeaponBuy, 'buy');
 
     // Repair: the form around input[name=repair_all_weapons]
     const repairBtn = document.querySelector('input[name="repair_all_weapons"]');
