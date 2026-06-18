@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name         KoC Data Centre
 // @namespace    trevo88423
-// @version      2.5.1
-// @description  Sweet Revenge alliance tool: tracks stats, syncs to API, adds dashboards, XP→Turn calculator, mini Top Stats panel. v2.5.1: Banking Mode last-bank fix — now watches the per-weapon buy form (anotherbuyform), not just the hidden one-click form, and stamps banks reliably for high-income accounts. v2.5.0: 🏦 Banking Mode on the Armory page — toggleable inline widget that projects your exposed (stealable) gold every second, colour-codes the risk (SAFE/CAUTION/DANGER) from your attack-log steal history, shows time-to-yellow/red, and keeps the screen awake. Display-only: no automated requests, observes (never presses) the buy/repair forms. v2.4.0: Banking trend graph (📈 in the sidebar tracks your banked % over time) + manual override for Avg Gold/Atk (✏️ in the sidebar, survives attack-log recalibration). v2.3.4: Recons panel now shares counts alliance-wide via API (previously localStorage-only — each user only saw themselves). v2.3.0: Added "Stats If You Attacked Instead" table on safe.php to compare tech upgrades vs attacking. v2.2.9: Added optimizer auto-fill for armory (uses roster API to calculate optimal stat allocation). v2.2.8: Minor fixes. v2.1.0: Integrated slaying competition tracker (attack missions & gold stolen tracking, team competitions, leaderboards). v2.0.0: Optimized API architecture, previous versions deprecated.
+// @version      2.8.0
+// @description  Sweet Revenge alliance tool: tracks stats, syncs to API, adds dashboards, XP→Turn calculator, mini Top Stats panel. v2.8.0: SAFE Forecasts on safe.php — time for your Safe to reach 1B/2B/5B/9B/10B(MAX) based on current Safe + deposit/min. v2.7.0: Gold upgrade timer — upgrades.php now shows "Upgrade Ready" (liquidation + safe-growth time) and "Gold Needed on top of Safe" under each skill upgrade (uses gold/vault/safe + full armory sell value from Armory + safe deposit rate from Safe). v2.6.0: Tech upgrade timer — safe.php now shows "Time to upgrade" + "EXP still needed to be deposited" under Technological Development (uses EXP on-hand + Experience Bank + your EXP/turn rate, auto-captured from the Upgrades page). v2.5.1: Banking Mode last-bank fix — now watches the per-weapon buy form (anotherbuyform), not just the hidden one-click form, and stamps banks reliably for high-income accounts. v2.5.0: 🏦 Banking Mode on the Armory page — toggleable inline widget that projects your exposed (stealable) gold every second, colour-codes the risk (SAFE/CAUTION/DANGER) from your attack-log steal history, shows time-to-yellow/red, and keeps the screen awake. Display-only: no automated requests, observes (never presses) the buy/repair forms. v2.4.0: Banking trend graph (📈 in the sidebar tracks your banked % over time) + manual override for Avg Gold/Atk (✏️ in the sidebar, survives attack-log recalibration). v2.3.4: Recons panel now shares counts alliance-wide via API (previously localStorage-only — each user only saw themselves). v2.3.0: Added "Stats If You Attacked Instead" table on safe.php to compare tech upgrades vs attacking. v2.2.9: Added optimizer auto-fill for armory (uses roster API to calculate optimal stat allocation). v2.2.8: Minor fixes. v2.1.0: Integrated slaying competition tracker (attack missions & gold stolen tracking, team competitions, leaderboards). v2.0.0: Optimized API architecture, previous versions deprecated.
 // @author       Blackheart
 // @match        https://www.kingsofchaos.com/*
 // @exclude      https://*.kingsofchaos.com/confirm.login.php*
@@ -140,6 +140,18 @@
   const TURNS_PER_TRADE = 500;
   const XP_REFUND_PER_ATTACK = 120;
   const MINUTES_PER_DAY = 1440;
+  // EXP regenerates 1 turn/minute at the player's "Increase Experience" rate (1–6 EXP/min).
+  // The rate isn't shown on safe.php, so we capture it from upgrades.php and cache it here.
+  const DEFAULT_EXP_PER_TURN = 6;            // KoC max "Increase Experience" level
+  const EXP_PER_TURN_KEY = "KoC_ExpPerTurn"; // cached rate (EXP per turn == per minute)
+  // Gold-cost upgrade timer (upgrades.php). Two inputs live on other pages, so we cache them:
+  //   - "Full Armory Sell" = the game's Total Sell Value, captured on armory.php
+  //   - Safe deposit per minute = "SAFE Gold Deposited / Every Minute", captured on safe.php
+  const ARMORY_SELL_KEY = "KoC_ArmorySellValue";
+  const SAFE_DEPOSIT_PER_MIN_KEY = "KoC_SafeDepositPerMin";
+  const SAFE_GOLD_CAP = 10e9;                // safe balance caps at 10 Billion
+  // "SAFE Forecasts" milestones on safe.php (the SAFE_GOLD_CAP entry is labelled "(MAX)")
+  const SAFE_FORECAST_MILESTONES = [1e9, 2e9, 5e9, 9e9, 10e9];
 
   // Timeouts & Delays
   const PAGE_LOAD_DELAY_MS = 500;
@@ -6719,6 +6731,326 @@
     debugLog('[SafePage] Attack alternative table injected');
   }
 
+  // ==================== TECH UPGRADE: TIME TO UPGRADE + EXP NEEDED ====================
+
+  /**
+   * Capture the player's EXP-per-turn rate from upgrades.php and cache it.
+   * The "Increase Experience" section shows the current rate as "<Name> | N EXP Per Min".
+   * EXP regenerates one turn per minute, so EXP/min == EXP/turn. We skip the
+   * "Upgrade to N EXP Per Min" target text and read the current-level rate only.
+   */
+  function collectExpPerTurn() {
+    const expHeader = [...document.querySelectorAll('th')]
+      .find(th => /Increase Experience/i.test(th.textContent));
+    if (!expHeader) {
+      debugLog('[Upgrades] No "Increase Experience" section found');
+      return;
+    }
+
+    const table = expHeader.closest('table');
+    if (!table) return;
+
+    let rate = null;
+    table.querySelectorAll('td, th').forEach(cell => {
+      const text = cell.textContent.replace(/\s+/g, ' ').trim();
+      if (/upgrade\s+to/i.test(text)) return; // skip the next-level target
+      const m = text.match(/(\d+)\s*EXP\s*Per\s*Min/i);
+      if (m) rate = parseInt(m[1], 10);
+    });
+
+    if (rate && rate >= 1 && rate <= 50) {
+      SafeStorage.set(EXP_PER_TURN_KEY, rate);
+      debugLog('[Upgrades] Captured EXP/turn rate:', rate);
+    } else {
+      debugLog('[Upgrades] Could not parse EXP/turn rate');
+    }
+  }
+
+  /** Format a whole number of minutes as "D Days, H Hours, M Minutes" (always plural, matching KoC). */
+  function formatDaysHoursMinutes(totalMinutes) {
+    const d = Math.floor(totalMinutes / MINUTES_PER_DAY);
+    const h = Math.floor((totalMinutes % MINUTES_PER_DAY) / 60);
+    const m = totalMinutes % 60;
+    return `${d} Days, ${h} Hours, ${m} Minutes`;
+  }
+
+  /**
+   * Inject "Time to upgrade" + "EXP still needed to be deposited" rows into the
+   * Technological Development table on safe.php (between the cost row and the
+   * "Stats After Upgrading Tech" table — see the game's native layout).
+   *
+   * Inputs (all verified against the live page):
+   *   - cost      : total EXP required, parsed from the upgradetech submit button
+   *   - onHand    : sidebar "Experience"
+   *   - deposited : sidebar "Experience Bank" (the EXP already banked toward the tech)
+   *   - expPerTurn: cached from upgrades.php (defaults to 6, the max level)
+   *
+   * shortfall = max(0, cost - deposited - onHand)  → EXP you still need to acquire
+   * minutes   = ceil(shortfall / expPerTurn)       → 1 turn == 1 minute
+   */
+  function addTechUpgradeTimeRows() {
+    const ROW_CLASS = 'koc-tech-time-row';
+    if (document.querySelector('.' + ROW_CLASS)) return; // prevent duplicates
+
+    const techForm = document.querySelector('form[name="upgradetech"]');
+    if (!techForm) {
+      debugLog('[SafePage] No upgradetech form found');
+      return;
+    }
+
+    const techTable = techForm.querySelector('table');
+    if (!techTable) return;
+
+    // Total cost is the submit button value, e.g. "1,400 Experience".
+    // If tech is maxed the button is absent ("Research Complete!!!") → nothing to show.
+    const btn = techForm.querySelector('input[type="submit"]');
+    const costMatch = btn && btn.value.match(/([\d,]+)\s*Experience/i);
+    if (!costMatch) {
+      debugLog('[SafePage] No pending tech upgrade (cost not parseable)');
+      return;
+    }
+
+    const cost = parseInt(costMatch[1].replace(/,/g, ''), 10);
+    const onHand = getSidebarValue('Experience') || 0;
+    const deposited = getSidebarValue('Experience Bank') || 0;
+
+    const storedRate = SafeStorage.get(EXP_PER_TURN_KEY, null);
+    const expPerTurn = storedRate || DEFAULT_EXP_PER_TURN;
+    const calibrated = !!storedRate;
+
+    const shortfall = Math.max(0, cost - deposited - onHand);
+    const minutes = shortfall > 0 ? Math.ceil(shortfall / expPerTurn) : 0;
+    const timeStr = shortfall > 0 ? formatDaysHoursMinutes(minutes) : 'Ready to upgrade now';
+
+    const subtitle = calibrated
+      ? '(based on EXP on-hand, EXP Deposited and EXP per turn)'
+      : `(based on EXP on-hand, EXP Deposited and an assumed ${expPerTurn} EXP/turn — visit Upgrades to calibrate)`;
+
+    const tbody = techTable.querySelector('tbody') || techTable;
+
+    const timeRow = document.createElement('tr');
+    timeRow.className = ROW_CLASS;
+    timeRow.innerHTML =
+      '<td align="left"><b>Time to upgrade:</b><br>' +
+      '<font color="#ff6666" style="font-size: 0.70em;">' + subtitle + '</font></td>' +
+      '<td align="right"><font color="#FFFF00"><b>' + timeStr + '</b></font></td>';
+
+    const needRow = document.createElement('tr');
+    needRow.className = ROW_CLASS;
+    needRow.innerHTML =
+      '<td align="left"><b>EXP still needed to be deposited:</b></td>' +
+      '<td align="right"><font color="#FFFF00"><b>' + shortfall.toLocaleString() + '</b></font></td>';
+
+    tbody.appendChild(timeRow);
+    tbody.appendChild(needRow);
+
+    debugLog('[SafePage] Tech upgrade time rows injected', { cost, onHand, deposited, expPerTurn, shortfall, minutes });
+  }
+
+  // ==================== GOLD UPGRADES: READINESS + TIME (upgrades.php) ====================
+
+  /**
+   * Capture the game's "Total Sell Value" (full-armory liquidation value, fully repaired)
+   * from the armory.php summary table and cache it for the upgrades.php readiness rows.
+   */
+  function collectArmorySellValue() {
+    const sellTh = [...document.querySelectorAll('th')]
+      .find(th => /Total Sell Value/i.test(th.textContent));
+    if (!sellTh) return;
+
+    const headerRow = sellTh.closest('tr');
+    const headers = [...headerRow.querySelectorAll('th')];
+    const colIndex = headers.findIndex(th => /Total Sell Value/i.test(th.textContent));
+    if (colIndex < 0) return;
+
+    let dataRow = headerRow.nextElementSibling;
+    while (dataRow && dataRow.querySelectorAll('td').length === 0) dataRow = dataRow.nextElementSibling;
+    if (!dataRow) return;
+
+    const cell = [...dataRow.querySelectorAll('td')][colIndex];
+    if (!cell) return;
+
+    const val = parseInt(cell.textContent.replace(/[^\d]/g, ''), 10);
+    if (val > 0) {
+      SafeStorage.set(ARMORY_SELL_KEY, val);
+      debugLog('[Armory] Captured Total Sell Value:', val);
+    }
+  }
+
+  /**
+   * Read the current "SAFE Gold Deposited / Every Minute" rate from the safe.php DOM.
+   * Reads the rate under the current-level header only (stops before "Next Safe upgrade").
+   * Returns the gold/min as a number, or null if not found.
+   */
+  function parseSafeDepositRate() {
+    const depHeader = [...document.querySelectorAll('th')]
+      .find(th => /SAFE Gold Deposited/i.test(th.textContent));
+    if (!depHeader) return null;
+
+    const table = depHeader.closest('table');
+    if (!table) return null;
+
+    const rows = [...table.querySelectorAll('tr')];
+    const startIdx = rows.indexOf(depHeader.closest('tr'));
+    for (let i = startIdx + 1; i < rows.length; i++) {
+      const text = rows[i].textContent.replace(/\s+/g, ' ').trim();
+      if (/Next Safe upgrade/i.test(text)) break; // don't read the next-level projection
+      const m = text.match(/Every Minute\s*([\d,]+)\s*Gold/i);
+      if (m) return parseInt(m[1].replace(/,/g, ''), 10);
+    }
+    return null;
+  }
+
+  /** Capture the safe deposit/min rate from safe.php and cache it for upgrades.php. */
+  function collectSafeDepositRate() {
+    const rate = parseSafeDepositRate();
+    if (rate && rate > 0) {
+      SafeStorage.set(SAFE_DEPOSIT_PER_MIN_KEY, rate);
+      debugLog('[SafePage] Captured safe deposit/min:', rate);
+    }
+  }
+
+  /**
+   * Inject a "SAFE Forecasts" table above "SAFE Gold Deposited" on safe.php, showing how
+   * long until the Safe grows to each milestone (1B/2B/5B/9B/10B), based on the current
+   * Safe balance and the live per-minute deposit rate.
+   */
+  function addSafeForecasts() {
+    const TABLE_ID = 'koc-safe-forecasts';
+    if (document.getElementById(TABLE_ID)) return; // prevent duplicates
+
+    const depHeader = [...document.querySelectorAll('th')]
+      .find(th => /SAFE Gold Deposited/i.test(th.textContent));
+    if (!depHeader) return;
+    const depTable = depHeader.closest('table');
+    if (!depTable || !depTable.parentNode) return;
+
+    const safe = getSidebarValue('Safe') || 0;
+    const rate = parseSafeDepositRate() || SafeStorage.get(SAFE_DEPOSIT_PER_MIN_KEY, null);
+
+    let rowsHtml = '';
+    for (const milestone of SAFE_FORECAST_MILESTONES) {
+      const isMax = milestone >= SAFE_GOLD_CAP;
+      const label = `Safe to ${milestone / 1e9} bil${isMax ? ' (MAX)' : ''} in:`;
+      let valHtml;
+      if (safe >= milestone) {
+        valHtml = '<font color="#66ff66">&#10003; Reached</font>';
+      } else if (rate && rate > 0) {
+        valHtml = formatDaysHoursMinutes(Math.ceil((milestone - safe) / rate));
+      } else {
+        valHtml = '<font color="#ff6666">visit Safe to calibrate</font>';
+      }
+      rowsHtml +=
+        '<tr>' +
+        '<td colspan="2" style="color:#FFFF00;font-weight:bold;font-size:0.80em;">' + label + '</td>' +
+        '<td align="right" colspan="3" style="color:#FFFF00;font-weight:bold;font-size:0.80em;">' + valHtml + '</td>' +
+        '</tr>';
+    }
+
+    const table = document.createElement('table');
+    table.id = TABLE_ID;
+    table.className = 'table_lines';
+    table.width = '100%';
+    table.cellSpacing = '0';
+    table.cellPadding = '6';
+    table.border = '0';
+    table.innerHTML =
+      '<tr><th colspan="5">' +
+      '<font size="2" color="#FFFF00"><b>SAFE Forecasts</b></font><br>' +
+      '<font size="1" color="#cccccc" style="font-weight:normal;">Based on current safe and deposit per minute values</font>' +
+      '</th></tr>' + rowsHtml;
+
+    depTable.parentNode.insertBefore(table, depTable);
+    debugLog('[SafePage] Safe forecasts injected', { safe, rate });
+  }
+
+  /**
+   * Inject readiness + time rows into each gold-cost upgrade on upgrades.php
+   * (Siege, Fortification, Covert, Sentry, Poison, Antidote, Theft, Vigilance):
+   *   1) Upgrade Ready (On-Hand + Vault + Safe + Full Armory Sell) → "Ready" / shortfall
+   *   2) Upgrade Ready (Based on Safe + Safe Deposited per Min)    → time for Safe to grow to cost
+   *   3) Gold Needed on top of Safe                                → max(0, cost - Safe)
+   * Maxed upgrades have no Gold button and are skipped.
+   */
+  function addUpgradeReadyRows() {
+    const ROW_CLASS = 'koc-upgrade-ready-row';
+    if (document.querySelector('.' + ROW_CLASS)) return; // prevent duplicates
+
+    const goldOnHand = getSidebarValue('Gold') || 0;
+    const vault = getSidebarValue('Vault') || 0;
+    const safe = getSidebarValue('Safe') || 0;
+    const armorySell = SafeStorage.get(ARMORY_SELL_KEY, null);
+    const safePerMin = SafeStorage.get(SAFE_DEPOSIT_PER_MIN_KEY, null);
+
+    const SECTION_RE = /(Siege|Fortification|Covert Skill|Sentry Skill|Poison Skill|Antidote Skill|Theft Skill|Vigilance Skill)/i;
+
+    // Each gold upgrade has its own form whose submit button reads "<cost> Gold".
+    const buttons = [...document.querySelectorAll('form input[type="submit"]')]
+      .filter(b => /[\d,]+\s*Gold\s*$/i.test(b.value));
+
+    buttons.forEach(btn => {
+      const costMatch = btn.value.match(/([\d,]+)\s*Gold/i);
+      if (!costMatch) return;
+
+      const table = btn.closest('table');
+      if (!table) return;
+      // Guard: only the eight skill-upgrade tables (avoids any stray gold buttons)
+      const hasSectionHeader = [...table.querySelectorAll('th')].some(th => SECTION_RE.test(th.textContent));
+      if (!hasSectionHeader) return;
+
+      const cost = parseInt(costMatch[1].replace(/,/g, ''), 10);
+      const tbody = table.querySelector('tbody') || table;
+
+      // Row 1: can we afford it by liquidating everything?
+      const liquid = goldOnHand + vault + safe + (armorySell || 0);
+      const ready = liquid >= cost;
+      const readyVal = ready ? 'Ready' : ('Short ' + (cost - liquid).toLocaleString() + ' Gold');
+      const readyColor = ready ? '#66ff66' : '#ff6666';
+      const liquidSubtitle = armorySell == null
+        ? '(On-Hand + Vault + Safe + Full Armory Sell — visit Armory to calibrate)'
+        : '(On-Hand + Vault + Safe + Full Armory Sell)';
+
+      // Row 2: time for the Safe alone to grow to the cost
+      const neededOnTop = Math.max(0, cost - safe);
+      let timeVal, timeColor = '#FFFFFF';
+      if (neededOnTop === 0) {
+        timeVal = 'Ready'; timeColor = '#66ff66';
+      } else if (cost > SAFE_GOLD_CAP) {
+        timeVal = 'Exceeds 10B safe cap'; timeColor = '#ff6666';
+      } else if (safePerMin && safePerMin > 0) {
+        timeVal = formatDaysHoursMinutes(Math.ceil(neededOnTop / safePerMin));
+      } else {
+        timeVal = 'visit Safe to calibrate'; timeColor = '#ff6666';
+      }
+
+      const row1 = document.createElement('tr');
+      row1.className = ROW_CLASS;
+      row1.innerHTML =
+        '<td align="left"><b>Upgrade Ready:</b><br>' +
+        '<font color="#ff6666" style="font-size: 0.70em;">' + liquidSubtitle + '</font></td>' +
+        '<td align="right"><font color="' + readyColor + '"><b>' + readyVal + '</b></font></td>';
+
+      const row2 = document.createElement('tr');
+      row2.className = ROW_CLASS;
+      row2.innerHTML =
+        '<td align="left"><b>Upgrade Ready:</b><br>' +
+        '<font color="#ff6666" style="font-size: 0.70em;">(Based on Safe + Safe Deposited per Min)</font></td>' +
+        '<td align="right"><font color="' + timeColor + '"><b>' + timeVal + '</b></font></td>';
+
+      const row3 = document.createElement('tr');
+      row3.className = ROW_CLASS;
+      row3.innerHTML =
+        '<td align="left"><b>Gold Needed on top of Safe:</b></td>' +
+        '<td align="right"><font color="#FFFFFF"><b>' + neededOnTop.toLocaleString() + '</b></font></td>';
+
+      tbody.appendChild(row1);
+      tbody.appendChild(row2);
+      tbody.appendChild(row3);
+    });
+
+    debugLog('[Upgrades] Upgrade-ready rows injected', { goldOnHand, vault, safe, armorySell, safePerMin, count: buttons.length });
+  }
+
   // ==================== BANKING MODE (inline armory enhancement) ====================
   // Display-only gold projection + attack-risk colour bands, inserted INTO the live
   // Armory page (above the "Available Funds:" banner). Ported from the standalone
@@ -7896,6 +8228,8 @@
       // Check for weapon purchases (auto-learns multipliers)
       await safeExecute('scrapePurchaseConfirmation', () => scrapePurchaseConfirmation());
       await safeExecute('collectTIVAndStatsFromArmory', () => collectTIVAndStatsFromArmory());
+      // Cache full-armory sell value for the upgrades.php readiness rows
+      await safeExecute('collectArmorySellValue', () => collectArmorySellValue());
     }
 
     // Training
@@ -7903,9 +8237,18 @@
       await safeExecute('enhanceTrainingPage', () => enhanceTrainingPage());
     }
 
-    // Safe page (attack alternative table)
+    // Safe page (tech upgrade time + attack alternative table)
     if (location.pathname.includes("safe.php")) {
+      await safeExecute('collectSafeDepositRate', () => collectSafeDepositRate());
+      await safeExecute('addSafeForecasts', () => addSafeForecasts());
+      await safeExecute('addTechUpgradeTimeRows', () => addTechUpgradeTimeRows());
       await safeExecute('addAttackAlternativeTable', () => addAttackAlternativeTable());
+    }
+
+    // Upgrades page (EXP-per-turn capture + gold-upgrade readiness/time rows)
+    if (location.pathname.includes("upgrades.php")) {
+      await safeExecute('collectExpPerTurn', () => collectExpPerTurn());
+      await safeExecute('addUpgradeReadyRows', () => addUpgradeReadyRows());
     }
   }
 
