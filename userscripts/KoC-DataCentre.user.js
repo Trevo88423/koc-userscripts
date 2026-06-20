@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name         KoC Data Centre
 // @namespace    trevo88423
-// @version      2.8.0
-// @description  Sweet Revenge alliance tool: tracks stats, syncs to API, adds dashboards, XP→Turn calculator, mini Top Stats panel. v2.8.0: SAFE Forecasts on safe.php — time for your Safe to reach 1B/2B/5B/9B/10B(MAX) based on current Safe + deposit/min. v2.7.0: Gold upgrade timer — upgrades.php now shows "Upgrade Ready" (liquidation + safe-growth time) and "Gold Needed on top of Safe" under each skill upgrade (uses gold/vault/safe + full armory sell value from Armory + safe deposit rate from Safe). v2.6.0: Tech upgrade timer — safe.php now shows "Time to upgrade" + "EXP still needed to be deposited" under Technological Development (uses EXP on-hand + Experience Bank + your EXP/turn rate, auto-captured from the Upgrades page). v2.5.1: Banking Mode last-bank fix — now watches the per-weapon buy form (anotherbuyform), not just the hidden one-click form, and stamps banks reliably for high-income accounts. v2.5.0: 🏦 Banking Mode on the Armory page — toggleable inline widget that projects your exposed (stealable) gold every second, colour-codes the risk (SAFE/CAUTION/DANGER) from your attack-log steal history, shows time-to-yellow/red, and keeps the screen awake. Display-only: no automated requests, observes (never presses) the buy/repair forms. v2.4.0: Banking trend graph (📈 in the sidebar tracks your banked % over time) + manual override for Avg Gold/Atk (✏️ in the sidebar, survives attack-log recalibration). v2.3.4: Recons panel now shares counts alliance-wide via API (previously localStorage-only — each user only saw themselves). v2.3.0: Added "Stats If You Attacked Instead" table on safe.php to compare tech upgrades vs attacking. v2.2.9: Added optimizer auto-fill for armory (uses roster API to calculate optimal stat allocation). v2.2.8: Minor fixes. v2.1.0: Integrated slaying competition tracker (attack missions & gold stolen tracking, team competitions, leaderboards). v2.0.0: Optimized API architecture, previous versions deprecated.
+// @version      2.8.1
+// @description  Sweet Revenge alliance tool: tracks stats, syncs to API, adds dashboards, XP→Turn calculator, mini Top Stats panel. v2.8.1: Fix — sidebar abbreviates large gold/safe values (e.g. "2,560M"); getSidebarValue now parses K/M/B/T suffixes so SAFE Forecasts and gold-upgrade rows use real balances (previously read as ~0). SAFE Forecasts also uses the full-precision "Gold in Safe" value. v2.8.0: SAFE Forecasts on safe.php — time for your Safe to reach 1B/2B/5B/9B/10B(MAX) based on current Safe + deposit/min. v2.7.0: Gold upgrade timer — upgrades.php now shows "Upgrade Ready" (liquidation + safe-growth time) and "Gold Needed on top of Safe" under each skill upgrade (uses gold/vault/safe + full armory sell value from Armory + safe deposit rate from Safe). v2.6.0: Tech upgrade timer — safe.php now shows "Time to upgrade" + "EXP still needed to be deposited" under Technological Development (uses EXP on-hand + Experience Bank + your EXP/turn rate, auto-captured from the Upgrades page). v2.5.1: Banking Mode last-bank fix — now watches the per-weapon buy form (anotherbuyform), not just the hidden one-click form, and stamps banks reliably for high-income accounts. v2.5.0: 🏦 Banking Mode on the Armory page — toggleable inline widget that projects your exposed (stealable) gold every second, colour-codes the risk (SAFE/CAUTION/DANGER) from your attack-log steal history, shows time-to-yellow/red, and keeps the screen awake. Display-only: no automated requests, observes (never presses) the buy/repair forms. v2.4.0: Banking trend graph (📈 in the sidebar tracks your banked % over time) + manual override for Avg Gold/Atk (✏️ in the sidebar, survives attack-log recalibration). v2.3.4: Recons panel now shares counts alliance-wide via API (previously localStorage-only — each user only saw themselves). v2.3.0: Added "Stats If You Attacked Instead" table on safe.php to compare tech upgrades vs attacking. v2.2.9: Added optimizer auto-fill for armory (uses roster API to calculate optimal stat allocation). v2.2.8: Minor fixes. v2.1.0: Integrated slaying competition tracker (attack missions & gold stolen tracking, team competitions, leaderboards). v2.0.0: Optimized API architecture, previous versions deprecated.
 // @author       Blackheart
 // @match        https://www.kingsofchaos.com/*
 // @exclude      https://*.kingsofchaos.com/confirm.login.php*
@@ -1585,7 +1585,7 @@
       if (!el) return 0;
       const parts = el.innerText.split(":");
       if (parts.length < 2) return 0;
-      return parseInt(parts[1].replace(/[(),]/g, ""), 10) || 0;
+      return parseKocNumber(parts[1]) || 0;
     }
 
     function updateXPBox() {
@@ -4858,6 +4858,21 @@
   }
 
   // Helper function to extract sidebar values
+  // Parse a KoC number that may be abbreviated with a K/M/B/T suffix.
+  // The sidebar shows large gold/safe values abbreviated (e.g. "2,560M" = 2.56 billion),
+  // so a plain parseInt("2,560M") would wrongly yield 2560. Returns a number or null.
+  function parseKocNumber(str) {
+    if (str == null) return null;
+    const s = String(str).replace(/,/g, "").trim();
+    const m = s.match(/(-?\d+(?:\.\d+)?)\s*([KMBT])?/i);
+    if (!m) return null;
+    const n = parseFloat(m[1]);
+    if (isNaN(n)) return null;
+    const suffix = (m[2] || "").toUpperCase();
+    const mult = suffix === "K" ? 1e3 : suffix === "M" ? 1e6 : suffix === "B" ? 1e9 : suffix === "T" ? 1e12 : 1;
+    return Math.round(n * mult);
+  }
+
   function getSidebarValue(label) {
     const el = [...document.querySelectorAll("td")].find(td =>
       td.innerText.trim().startsWith(label)
@@ -4865,8 +4880,7 @@
     if (!el) return null;
     const parts = el.innerText.split(":");
     if (parts.length < 2) return null;
-    const numStr = parts[1].replace(/[(),]/g, "").trim();
-    return parseInt(numStr, 10) || null;
+    return parseKocNumber(parts[1]) || null;
   }
 
   // Stat extraction functions
@@ -6925,7 +6939,10 @@
     const depTable = depHeader.closest('table');
     if (!depTable || !depTable.parentNode) return;
 
-    const safe = getSidebarValue('Safe') || 0;
+    // Prefer the full-precision "Gold in Safe = X" on safe.php; the sidebar abbreviates
+    // large values (e.g. "2,560M"), which only resolves to the nearest million.
+    const exactSafe = (document.body.innerText.match(/Gold in Safe\s*=\s*([\d,]+)/i) || [])[1];
+    const safe = (exactSafe ? parseInt(exactSafe.replace(/,/g, ''), 10) : 0) || getSidebarValue('Safe') || 0;
     const rate = parseSafeDepositRate() || SafeStorage.get(SAFE_DEPOSIT_PER_MIN_KEY, null);
 
     let rowsHtml = '';
