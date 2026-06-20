@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name         KoC Data Centre
 // @namespace    trevo88423
-// @version      2.8.1
-// @description  Sweet Revenge alliance tool: tracks stats, syncs to API, adds dashboards, XP→Turn calculator, mini Top Stats panel. v2.8.1: Fix — sidebar abbreviates large gold/safe values (e.g. "2,560M"); getSidebarValue now parses K/M/B/T suffixes so SAFE Forecasts and gold-upgrade rows use real balances (previously read as ~0). SAFE Forecasts also uses the full-precision "Gold in Safe" value. v2.8.0: SAFE Forecasts on safe.php — time for your Safe to reach 1B/2B/5B/9B/10B(MAX) based on current Safe + deposit/min. v2.7.0: Gold upgrade timer — upgrades.php now shows "Upgrade Ready" (liquidation + safe-growth time) and "Gold Needed on top of Safe" under each skill upgrade (uses gold/vault/safe + full armory sell value from Armory + safe deposit rate from Safe). v2.6.0: Tech upgrade timer — safe.php now shows "Time to upgrade" + "EXP still needed to be deposited" under Technological Development (uses EXP on-hand + Experience Bank + your EXP/turn rate, auto-captured from the Upgrades page). v2.5.1: Banking Mode last-bank fix — now watches the per-weapon buy form (anotherbuyform), not just the hidden one-click form, and stamps banks reliably for high-income accounts. v2.5.0: 🏦 Banking Mode on the Armory page — toggleable inline widget that projects your exposed (stealable) gold every second, colour-codes the risk (SAFE/CAUTION/DANGER) from your attack-log steal history, shows time-to-yellow/red, and keeps the screen awake. Display-only: no automated requests, observes (never presses) the buy/repair forms. v2.4.0: Banking trend graph (📈 in the sidebar tracks your banked % over time) + manual override for Avg Gold/Atk (✏️ in the sidebar, survives attack-log recalibration). v2.3.4: Recons panel now shares counts alliance-wide via API (previously localStorage-only — each user only saw themselves). v2.3.0: Added "Stats If You Attacked Instead" table on safe.php to compare tech upgrades vs attacking. v2.2.9: Added optimizer auto-fill for armory (uses roster API to calculate optimal stat allocation). v2.2.8: Minor fixes. v2.1.0: Integrated slaying competition tracker (attack missions & gold stolen tracking, team competitions, leaderboards). v2.0.0: Optimized API architecture, previous versions deprecated.
+// @version      2.8.2
+// @description  Sweet Revenge alliance tool: tracks stats, syncs to API, adds dashboards, XP→Turn calculator, mini Top Stats panel. v2.8.2: Fix — "EXP still needed to be deposited" now shows cost − Experience Bank (what must still be banked) instead of also subtracting on-hand EXP, so it no longer reads 0 when you hold the EXP but haven't deposited it. v2.8.1: Fix — sidebar abbreviates large gold/safe values (e.g. "2,560M"); getSidebarValue now parses K/M/B/T suffixes so SAFE Forecasts and gold-upgrade rows use real balances (previously read as ~0). SAFE Forecasts also uses the full-precision "Gold in Safe" value. v2.8.0: SAFE Forecasts on safe.php — time for your Safe to reach 1B/2B/5B/9B/10B(MAX) based on current Safe + deposit/min. v2.7.0: Gold upgrade timer — upgrades.php now shows "Upgrade Ready" (liquidation + safe-growth time) and "Gold Needed on top of Safe" under each skill upgrade (uses gold/vault/safe + full armory sell value from Armory + safe deposit rate from Safe). v2.6.0: Tech upgrade timer — safe.php now shows "Time to upgrade" + "EXP still needed to be deposited" under Technological Development (uses EXP on-hand + Experience Bank + your EXP/turn rate, auto-captured from the Upgrades page). v2.5.1: Banking Mode last-bank fix — now watches the per-weapon buy form (anotherbuyform), not just the hidden one-click form, and stamps banks reliably for high-income accounts. v2.5.0: 🏦 Banking Mode on the Armory page — toggleable inline widget that projects your exposed (stealable) gold every second, colour-codes the risk (SAFE/CAUTION/DANGER) from your attack-log steal history, shows time-to-yellow/red, and keeps the screen awake. Display-only: no automated requests, observes (never presses) the buy/repair forms. v2.4.0: Banking trend graph (📈 in the sidebar tracks your banked % over time) + manual override for Avg Gold/Atk (✏️ in the sidebar, survives attack-log recalibration). v2.3.4: Recons panel now shares counts alliance-wide via API (previously localStorage-only — each user only saw themselves). v2.3.0: Added "Stats If You Attacked Instead" table on safe.php to compare tech upgrades vs attacking. v2.2.9: Added optimizer auto-fill for armory (uses roster API to calculate optimal stat allocation). v2.2.8: Minor fixes. v2.1.0: Integrated slaying competition tracker (attack missions & gold stolen tracking, team competitions, leaderboards). v2.0.0: Optimized API architecture, previous versions deprecated.
 // @author       Blackheart
 // @match        https://www.kingsofchaos.com/*
 // @exclude      https://*.kingsofchaos.com/confirm.login.php*
@@ -6799,8 +6799,10 @@
    *   - deposited : sidebar "Experience Bank" (the EXP already banked toward the tech)
    *   - expPerTurn: cached from upgrades.php (defaults to 6, the max level)
    *
-   * shortfall = max(0, cost - deposited - onHand)  → EXP you still need to acquire
-   * minutes   = ceil(shortfall / expPerTurn)       → 1 turn == 1 minute
+   * "Time to upgrade"  → ceil(max(0, cost - deposited - onHand) / expPerTurn) (on-hand counts;
+   *                       "Ready to upgrade now" once on-hand + bank cover the cost).
+   * "EXP still needed to be deposited" → max(0, cost - deposited): what must still go into the
+   *                       bank, independent of on-hand (on-hand isn't banked until you DEPOSIT).
    */
   function addTechUpgradeTimeRows() {
     const ROW_CLASS = 'koc-tech-time-row';
@@ -6832,7 +6834,11 @@
     const expPerTurn = storedRate || DEFAULT_EXP_PER_TURN;
     const calibrated = !!storedRate;
 
+    // shortfall = EXP you must still EARN (drives the time-to-upgrade; on-hand counts toward it).
+    // stillToDeposit = EXP you must still put into the bank to reach the cost, regardless of
+    // on-hand (the bank starts at `deposited`; on-hand EXP is not deposited until you click DEPOSIT).
     const shortfall = Math.max(0, cost - deposited - onHand);
+    const stillToDeposit = Math.max(0, cost - deposited);
     const minutes = shortfall > 0 ? Math.ceil(shortfall / expPerTurn) : 0;
     const timeStr = shortfall > 0 ? formatDaysHoursMinutes(minutes) : 'Ready to upgrade now';
 
@@ -6853,12 +6859,12 @@
     needRow.className = ROW_CLASS;
     needRow.innerHTML =
       '<td align="left"><b>EXP still needed to be deposited:</b></td>' +
-      '<td align="right"><font color="#FFFF00"><b>' + shortfall.toLocaleString() + '</b></font></td>';
+      '<td align="right"><font color="#FFFF00"><b>' + stillToDeposit.toLocaleString() + '</b></font></td>';
 
     tbody.appendChild(timeRow);
     tbody.appendChild(needRow);
 
-    debugLog('[SafePage] Tech upgrade time rows injected', { cost, onHand, deposited, expPerTurn, shortfall, minutes });
+    debugLog('[SafePage] Tech upgrade time rows injected', { cost, onHand, deposited, expPerTurn, shortfall, stillToDeposit, minutes });
   }
 
   // ==================== GOLD UPGRADES: READINESS + TIME (upgrades.php) ====================
