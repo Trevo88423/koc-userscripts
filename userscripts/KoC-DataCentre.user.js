@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         KoC Data Centre
 // @namespace    trevo88423
-// @version      2.9.0
+// @version      2.10.0
 // @description  Sweet Revenge alliance tool: tracks stats, syncs to API, adds dashboards, XP→Turn calculator, mini Top Stats panel. v2.9.0: "Time to upgrade" + "EXP still needed to be deposited" now show on ALL EXP-cost safe.php upgrades (Increase Soldiers, Economic Development, SAFE Upgrade) — not just Technological Development. v2.8.2: Fix — "EXP still needed to be deposited" now shows cost − Experience Bank (what must still be banked) instead of also subtracting on-hand EXP, so it no longer reads 0 when you hold the EXP but haven't deposited it. v2.8.1: Fix — sidebar abbreviates large gold/safe values (e.g. "2,560M"); getSidebarValue now parses K/M/B/T suffixes so SAFE Forecasts and gold-upgrade rows use real balances (previously read as ~0). SAFE Forecasts also uses the full-precision "Gold in Safe" value. v2.8.0: SAFE Forecasts on safe.php — time for your Safe to reach 1B/2B/5B/9B/10B(MAX) based on current Safe + deposit/min. v2.7.0: Gold upgrade timer — upgrades.php now shows "Upgrade Ready" (liquidation + safe-growth time) and "Gold Needed on top of Safe" under each skill upgrade (uses gold/vault/safe + full armory sell value from Armory + safe deposit rate from Safe). v2.6.0: Tech upgrade timer — safe.php now shows "Time to upgrade" + "EXP still needed to be deposited" under Technological Development (uses EXP on-hand + Experience Bank + your EXP/turn rate, auto-captured from the Upgrades page). v2.5.1: Banking Mode last-bank fix — now watches the per-weapon buy form (anotherbuyform), not just the hidden one-click form, and stamps banks reliably for high-income accounts. v2.5.0: 🏦 Banking Mode on the Armory page — toggleable inline widget that projects your exposed (stealable) gold every second, colour-codes the risk (SAFE/CAUTION/DANGER) from your attack-log steal history, shows time-to-yellow/red, and keeps the screen awake. Display-only: no automated requests, observes (never presses) the buy/repair forms. v2.4.0: Banking trend graph (📈 in the sidebar tracks your banked % over time) + manual override for Avg Gold/Atk (✏️ in the sidebar, survives attack-log recalibration). v2.3.4: Recons panel now shares counts alliance-wide via API (previously localStorage-only — each user only saw themselves). v2.3.0: Added "Stats If You Attacked Instead" table on safe.php to compare tech upgrades vs attacking. v2.2.9: Added optimizer auto-fill for armory (uses roster API to calculate optimal stat allocation). v2.2.8: Minor fixes. v2.1.0: Integrated slaying competition tracker (attack missions & gold stolen tracking, team competitions, leaderboards). v2.0.0: Optimized API architecture, previous versions deprecated.
 // @author       Blackheart
 // @match        https://www.kingsofchaos.com/*
@@ -42,7 +42,7 @@
   // ==================== VERSION CHECK ====================
   // Check if this script version is allowed to run
   const SCRIPT_NAME = 'koc-data-centre';
-  const SCRIPT_VERSION = '2.5.1'; // Must match @version above
+  const SCRIPT_VERSION = '2.10.0'; // Must match @version above
   const VERSION_CHECK_API = 'https://koc-roster-api-production.up.railway.app';
 
   async function checkScriptVersion() {
@@ -3766,6 +3766,99 @@
     }
   }
 
+  // ==================== NATIVE ARMORY PREFERENCES SLIDER UI ====================
+  // Replaces KoC's percentage number-inputs with an auto-balancing slider allocator that
+  // INHERITS the player's active theme: transparent backgrounds, inherited text, the accent
+  // colour SAMPLED from a page link, sliders themed via accent-color, and presets as native
+  // <input type=button> (so they pick up the theme's button styling). It writes into the real
+  // prefs[...] inputs (kept on the page, hidden); the genuine "Update Preferences" button saves.
+  // Fail-safe: native rows are only hidden AFTER the UI builds; any error leaves the form intact.
+  function enhanceArmoryPrefsUI(){
+    try{
+      var attackInp=document.querySelector('input[name="prefs[attack]"]');
+      if(!attackInp){ debugLog('prefs UI: prefs form not found'); return; }
+      var form=attackInp.closest('form'); if(!form) return;
+      if(form.querySelector('.kdc-prefui')) return; // already enhanced
+      var firstRow=attackInp.closest('tr'); if(!firstRow||!firstRow.parentNode) return;
+      var nCells=firstRow.children.length||3;
+
+      var PK=[['attack','attweapon','Attack'],['defend','defweapon','Defense'],['spy','spyweapon','Spy'],['sentry','sentryweapon','Sentry'],['poison','poisonweapon','Poison'],['medicine','medicineweapon','Antidote'],['theft','theftweapon','Theft'],['vigilance','vigilanceweapon','Vigilance']];
+      var pinp=function(k){ return document.querySelector('input[name="prefs['+k+']"]'); };
+      var psel=function(s){ return document.querySelector('select[name="prefs['+s+']"]'); };
+
+      // sample the active theme so the UI matches whatever theme the player has set
+      var lnk=document.querySelector('td a[href]')||document.querySelector('a[href]');
+      var accent=(lnk&&getComputedStyle(lnk).color)||'#3a7fd0';
+      var line='rgba(140,160,190,0.28)';
+      var nbtn=document.querySelector('input[type="submit"]')||document.querySelector('input[type="button"]')||document.querySelector('button');
+      var bcss=''; if(nbtn){ var bcs=getComputedStyle(nbtn); ['background-color','background-image','color','border-width','border-style','border-color','border-radius','padding','font-family','font-size','font-weight','text-shadow'].forEach(function(pp){ var v=bcs.getPropertyValue(pp); if(v) bcss+=pp+':'+v+';'; }); } // clone a native button's look so presets match the theme exactly
+
+      var st=PK.map(function(p){ var i=pinp(p[0]); return {k:p[0], pct:i?(parseInt(i.value,10)||0):0, locked:false}; });
+      var auto=true, sliders=[], labels=[], lockBtns=[], barEl, statEl, toastEl;
+      var sum=function(){ var t=0; st.forEach(function(s){ t+=s.pct; }); return t; };
+      var writeForm=function(){ st.forEach(function(s){ var i=pinp(s.k); if(i) i.value=s.pct; }); };
+      var readState=function(){ st.forEach(function(s){ var i=pinp(s.k); s.pct=i?(parseInt(i.value,10)||0):0; }); };
+      var reduceOthers=function(idx,over){ var pool=[]; st.forEach(function(s,j){ if(j!==idx&&!s.locked&&s.pct>0) pool.push(j); }); var ps=0; pool.forEach(function(j){ ps+=st[j].pct; }); if(ps<=0){ st[idx].pct-=over; return; } if(over>=ps){ pool.forEach(function(j){ st[j].pct=0; }); st[idx].pct-=(over-ps); return; } var tk=pool.map(function(j){ return Math.floor(over*st[j].pct/ps); }),al=0; tk.forEach(function(t){ al+=t; }); pool.sort(function(a,b){ return st[b].pct-st[a].pct; }); for(var k=0;k<over-al;k++) tk[k%pool.length]++; pool.forEach(function(j,x){ st[j].pct-=tk[x]; }); };
+      var refresh=function(){
+        if(barEl){ barEl.innerHTML=''; st.forEach(function(s){ if(s.pct>0){ var seg=document.createElement('div'); seg.style.cssText='height:100%;width:'+s.pct+'%;background:'+accent+';border-right:1px solid rgba(0,0,0,.4);'; barEl.appendChild(seg); } }); }
+        st.forEach(function(s,i){ if(sliders[i]){ sliders[i].value=s.pct; sliders[i].disabled=s.locked; } if(labels[i]) labels[i].textContent=s.pct+'%'; if(lockBtns[i]){ lockBtns[i].textContent=s.locked?'🔒':'🔓'; lockBtns[i].style.opacity=s.locked?'1':'.45'; } });
+        if(statEl){ var rem=100-sum(); statEl.textContent=rem===0?'✓ 100%':(rem>0?rem+'% left':(-rem)+'% over'); statEl.style.color=rem===0?'#5fcf7a':(rem>0?'#e6b450':'#e06a6a'); }
+      };
+      var setPct=function(idx,v){ v=Math.max(0,Math.min(100,Math.round(v))); if(st[idx].locked){ refresh(); return; } var old=st[idx].pct; st[idx].pct=v; if(auto&&v>old){ var over=sum()-100; if(over>0) reduceOthers(idx,over); } writeForm(); refresh(); };
+      var applyAlloc=function(map){ st.forEach(function(s){ s.locked=false; s.pct=map[s.k]||0; }); writeForm(); refresh(); };
+      var toast=function(m){ if(toastEl){ toastEl.textContent=m; toastEl.style.display='block'; } };
+      var SKEY='KoC_PrefPresets';
+      var savedGet=function(){ try{ return SafeStorage.get(SKEY, []) || []; }catch(e){ return []; } };
+      var savedSet=function(a){ try{ SafeStorage.set(SKEY, a); }catch(e){} };
+
+      var wrap=document.createElement('div'); wrap.style.color='inherit';
+      var pr=document.createElement('div'); pr.style.cssText='margin-bottom:8px;';
+      var mkBtn=function(label){ var b=document.createElement('input'); b.type='button'; b.value=label; b.style.cssText=bcss+'margin:0 6px 6px 0;cursor:pointer;'; return b; };
+      var renderPresets=function(){
+        pr.innerHTML='';
+        var cheap=mkBtn('⚡ Cheapest first'); cheap.title='Spend gold-in-hand ranking up the cheapest stat first'; cheap.addEventListener('click', function(){ try{ autoFillArmoryPreferences(); }catch(e){} readState(); refresh(); }); pr.appendChild(cheap);
+        var opt=mkBtn('🚀 Optimizer'); opt.title='Ask the roster database for the best allocation'; opt.addEventListener('click', function(){ opt.value='⏳ Optimizing…'; opt.disabled=true; Promise.resolve().then(function(){ return autoFillArmoryWithOptimizer(); }).catch(function(){}).then(function(){ readState(); refresh(); opt.value='🚀 Optimizer'; opt.disabled=false; }); }); pr.appendChild(opt);
+        var sp=mkBtn('🔎 All spy'); sp.addEventListener('click', function(){ applyAlloc({spy:100}); toast('All spy.'); }); pr.appendChild(sp);
+        var df=mkBtn('🛡 All defense'); df.addEventListener('click', function(){ applyAlloc({defend:100}); toast('All defense.'); }); pr.appendChild(df);
+        savedGet().forEach(function(p,idx){ var b=mkBtn('⭐ '+p.name); b.addEventListener('click', function(){ applyAlloc(p.alloc); toast('Loaded "'+p.name+'".'); }); var x=mkBtn('✕'); x.title='Delete '+p.name; x.addEventListener('click', function(){ var a=savedGet(); a.splice(idx,1); savedSet(a); renderPresets(); }); pr.appendChild(b); pr.appendChild(x); });
+        var sv=mkBtn('＋ Save'); sv.addEventListener('click', function(){ var nm=prompt('Preset name:', 'Preset '+(savedGet().length+1)); if(!nm) return; var a={}; st.forEach(function(s){ a[s.k]=s.pct; }); var arr=savedGet(); arr.push({name:nm, alloc:a}); savedSet(arr); renderPresets(); toast('Saved "'+nm+'".'); }); pr.appendChild(sv);
+      };
+      renderPresets(); wrap.appendChild(pr);
+      toastEl=document.createElement('div'); toastEl.style.cssText='display:none;font-size:11px;opacity:.85;margin-bottom:8px;'; wrap.appendChild(toastEl);
+      var brow=document.createElement('div'); brow.style.cssText='display:flex;align-items:center;gap:10px;margin-bottom:10px;';
+      barEl=document.createElement('div'); barEl.style.cssText='flex:1;display:flex;height:14px;border-radius:3px;overflow:hidden;border:1px solid '+line+';background:rgba(0,0,0,.25);';
+      statEl=document.createElement('span'); statEl.style.cssText='font-size:12px;font-weight:bold;min-width:70px;text-align:right;';
+      brow.appendChild(barEl); brow.appendChild(statEl); wrap.appendChild(brow);
+      var alab=document.createElement('label'); alab.style.cssText='display:flex;align-items:center;gap:7px;font-size:11px;opacity:.8;margin-bottom:10px;cursor:pointer;';
+      var ac=document.createElement('input'); ac.type='checkbox'; ac.checked=true; ac.addEventListener('change', function(){ auto=ac.checked; }); alab.appendChild(ac); alab.appendChild(document.createTextNode(' Auto-balance — raising one takes from the others')); wrap.appendChild(alab);
+      PK.forEach(function(p,i){
+        var row=document.createElement('div'); row.style.cssText='padding:6px 0;border-top:1px solid '+line+';';
+        var r1=document.createElement('div'); r1.style.cssText='display:flex;align-items:center;gap:8px;';
+        var dot=document.createElement('span'); dot.style.cssText='width:8px;height:8px;border-radius:50%;background:'+accent+';flex:0 0 auto;'; r1.appendChild(dot);
+        var nm=document.createElement('span'); nm.textContent=p[2]; nm.style.cssText='font-size:13px;min-width:72px;'; r1.appendChild(nm);
+        var rsel=psel(p[1]);
+        if(rsel){ var ms=document.createElement('select'); ms.style.cssText='margin-left:auto;max-width:170px;'; [].slice.call(rsel.options).forEach(function(o){ var oo=document.createElement('option'); oo.value=o.value; oo.textContent=o.text; if(o.selected) oo.selected=true; ms.appendChild(oo); }); ms.addEventListener('change', function(){ rsel.value=ms.value; }); r1.appendChild(ms); }
+        var r2=document.createElement('div'); r2.style.cssText='display:flex;align-items:center;gap:10px;margin-top:5px;';
+        var sl=document.createElement('input'); sl.type='range'; sl.min='0'; sl.max='100'; sl.step='1'; sl.value=st[i].pct; sl.style.cssText='flex:1;accent-color:'+accent+';';
+        (function(idx){ sl.addEventListener('input', function(){ setPct(idx, parseInt(sl.value,10)); }); })(i);
+        var lab=document.createElement('span'); lab.textContent=st[i].pct+'%'; lab.style.cssText='font-size:13px;font-weight:bold;min-width:38px;text-align:right;';
+        var lk=document.createElement('span'); lk.textContent='🔓'; lk.title='Lock'; lk.style.cssText='cursor:pointer;opacity:.45;flex:0 0 auto;font-size:14px;';
+        (function(idx){ lk.addEventListener('click', function(){ st[idx].locked=!st[idx].locked; refresh(); }); })(i);
+        r2.appendChild(sl); r2.appendChild(lab); r2.appendChild(lk);
+        row.appendChild(r1); row.appendChild(r2); wrap.appendChild(row);
+        sliders[i]=sl; labels[i]=lab; lockBtns[i]=lk;
+      });
+
+      var tr=document.createElement('tr'); var td=document.createElement('td'); td.className='kdc-prefui'; td.colSpan=nCells; td.style.cssText='padding:10px 14px;color:inherit;'; td.appendChild(wrap); tr.appendChild(td);
+      firstRow.parentNode.insertBefore(tr, firstRow);
+      PK.forEach(function(p){ var i=pinp(p[0]); if(i){ var r=i.closest('tr'); if(r) r.style.display='none'; } });
+      var ch=firstRow.previousElementSibling && firstRow.previousElementSibling.previousElementSibling; // the column-header row (Type|Percentage|Weapon), now two above (panel is directly above firstRow)
+      if(ch && /Percentage/i.test(ch.textContent) && !ch.querySelector('input[name^="prefs["]')) ch.style.display='none';
+      refresh();
+      debugLog('✅ Native armory prefs slider UI injected (theme accent: '+accent+')');
+    }catch(e){ debugLog('⚠️ prefs UI enhance failed — native form left intact:', e); }
+  }
+
   // ==================== PURCHASE CONFIRMATION SCRAPER ====================
 
   function scrapePurchaseConfirmation() {
@@ -3960,7 +4053,7 @@
     displayRankUpCosts(stats, efficiency);
 
     // === ADD AUTO-FILL BUTTON ===
-    addAutoFillButton();
+    enhanceArmoryPrefsUI();
 
     const now = getKoCServerTimeUTC();
 
@@ -4009,7 +4102,11 @@
       vigilanceRating: stats.vigilanceRating,
       vigilanceRatingTime: stats.vigilanceRatingTime,
       // Real ranks
-      ...realRanks
+      ...realRanks,
+      // Gold-per-point efficiency (goldPerAttackPoint, …) — computed above for the rank-up
+      // display but PREVIOUSLY NEVER SENT. The server rank optimizer skips any stat whose
+      // gold_per_point is null, so without this it returned an empty allocation ("no allocations").
+      ...efficiency
     };
 
     // Save to localStorage (skip updatePlayerInfo to avoid duplicate API call)
