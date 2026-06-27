@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name         KoC Data Centre
 // @namespace    trevo88423
-// @version      2.10.0
-// @description  Sweet Revenge alliance tool: tracks stats, syncs to API, adds dashboards, XP→Turn calculator, mini Top Stats panel. v2.9.0: "Time to upgrade" + "EXP still needed to be deposited" now show on ALL EXP-cost safe.php upgrades (Increase Soldiers, Economic Development, SAFE Upgrade) — not just Technological Development. v2.8.2: Fix — "EXP still needed to be deposited" now shows cost − Experience Bank (what must still be banked) instead of also subtracting on-hand EXP, so it no longer reads 0 when you hold the EXP but haven't deposited it. v2.8.1: Fix — sidebar abbreviates large gold/safe values (e.g. "2,560M"); getSidebarValue now parses K/M/B/T suffixes so SAFE Forecasts and gold-upgrade rows use real balances (previously read as ~0). SAFE Forecasts also uses the full-precision "Gold in Safe" value. v2.8.0: SAFE Forecasts on safe.php — time for your Safe to reach 1B/2B/5B/9B/10B(MAX) based on current Safe + deposit/min. v2.7.0: Gold upgrade timer — upgrades.php now shows "Upgrade Ready" (liquidation + safe-growth time) and "Gold Needed on top of Safe" under each skill upgrade (uses gold/vault/safe + full armory sell value from Armory + safe deposit rate from Safe). v2.6.0: Tech upgrade timer — safe.php now shows "Time to upgrade" + "EXP still needed to be deposited" under Technological Development (uses EXP on-hand + Experience Bank + your EXP/turn rate, auto-captured from the Upgrades page). v2.5.1: Banking Mode last-bank fix — now watches the per-weapon buy form (anotherbuyform), not just the hidden one-click form, and stamps banks reliably for high-income accounts. v2.5.0: 🏦 Banking Mode on the Armory page — toggleable inline widget that projects your exposed (stealable) gold every second, colour-codes the risk (SAFE/CAUTION/DANGER) from your attack-log steal history, shows time-to-yellow/red, and keeps the screen awake. Display-only: no automated requests, observes (never presses) the buy/repair forms. v2.4.0: Banking trend graph (📈 in the sidebar tracks your banked % over time) + manual override for Avg Gold/Atk (✏️ in the sidebar, survives attack-log recalibration). v2.3.4: Recons panel now shares counts alliance-wide via API (previously localStorage-only — each user only saw themselves). v2.3.0: Added "Stats If You Attacked Instead" table on safe.php to compare tech upgrades vs attacking. v2.2.9: Added optimizer auto-fill for armory (uses roster API to calculate optimal stat allocation). v2.2.8: Minor fixes. v2.1.0: Integrated slaying competition tracker (attack missions & gold stolen tracking, team competitions, leaderboards). v2.0.0: Optimized API architecture, previous versions deprecated.
+// @version      2.11.2
+// @description  Sweet Revenge alliance tool: tracks stats, syncs to API, adds dashboards, XP→Turn calculator, mini Top Stats panel. v2.11.2: Banking Mode redesigned — your exposed gold now shows in a native-style "Estimated Funds" box that matches the in-game funds boxes, with a ⚙ that holds the Banking Mode toggle, screen-awake, and all settings (including an optional "show yellow/red times" line); a live-ticking Server Time clock on every page; and the Upgrades "Upgrade Ready" row now uses realistic funds (drops full-armory-sell) and shows any shortfall as a slay estimate. v2.10.1: Fix — the slider Armory Preferences now also resync when you press KoC's "Clear Percentage Prefills" button (sliders drop to 0 instead of keeping their old values). v2.10.0: New slider-based Armory Preferences — drag to allocate with auto-balancing, theme-matched styling, and one-tap presets (Cheapest first, Optimizer, All spy, All defense) plus saved presets — replacing the in-game percentage form; rank Optimizer also fixed (weapon efficiency now synced). v2.9.0: "Time to upgrade" + "EXP still needed to be deposited" now show on ALL EXP-cost safe.php upgrades (Increase Soldiers, Economic Development, SAFE Upgrade) — not just Technological Development. v2.8.2: Fix — "EXP still needed to be deposited" now shows cost − Experience Bank (what must still be banked) instead of also subtracting on-hand EXP, so it no longer reads 0 when you hold the EXP but haven't deposited it. v2.8.1: Fix — sidebar abbreviates large gold/safe values (e.g. "2,560M"); getSidebarValue now parses K/M/B/T suffixes so SAFE Forecasts and gold-upgrade rows use real balances (previously read as ~0). SAFE Forecasts also uses the full-precision "Gold in Safe" value. v2.8.0: SAFE Forecasts on safe.php — time for your Safe to reach 1B/2B/5B/9B/10B(MAX) based on current Safe + deposit/min. v2.7.0: Gold upgrade timer — upgrades.php now shows "Upgrade Ready" (liquidation + safe-growth time) and "Gold Needed on top of Safe" under each skill upgrade (uses gold/vault/safe + full armory sell value from Armory + safe deposit rate from Safe). v2.6.0: Tech upgrade timer — safe.php now shows "Time to upgrade" + "EXP still needed to be deposited" under Technological Development (uses EXP on-hand + Experience Bank + your EXP/turn rate, auto-captured from the Upgrades page). v2.5.1: Banking Mode last-bank fix — now watches the per-weapon buy form (anotherbuyform), not just the hidden one-click form, and stamps banks reliably for high-income accounts. v2.5.0: 🏦 Banking Mode on the Armory page — toggleable inline widget that projects your exposed (stealable) gold every second, colour-codes the risk (SAFE/CAUTION/DANGER) from your attack-log steal history, shows time-to-yellow/red, and keeps the screen awake. Display-only: no automated requests, observes (never presses) the buy/repair forms. v2.4.0: Banking trend graph (📈 in the sidebar tracks your banked % over time) + manual override for Avg Gold/Atk (✏️ in the sidebar, survives attack-log recalibration). v2.3.4: Recons panel now shares counts alliance-wide via API (previously localStorage-only — each user only saw themselves). v2.3.0: Added "Stats If You Attacked Instead" table on safe.php to compare tech upgrades vs attacking. v2.2.9: Added optimizer auto-fill for armory (uses roster API to calculate optimal stat allocation). v2.2.8: Minor fixes. v2.1.0: Integrated slaying competition tracker (attack missions & gold stolen tracking, team competitions, leaderboards). v2.0.0: Optimized API architecture, previous versions deprecated.
 // @author       Blackheart
 // @match        https://www.kingsofchaos.com/*
 // @exclude      https://*.kingsofchaos.com/confirm.login.php*
@@ -42,7 +42,7 @@
   // ==================== VERSION CHECK ====================
   // Check if this script version is allowed to run
   const SCRIPT_NAME = 'koc-data-centre';
-  const SCRIPT_VERSION = '2.10.0'; // Must match @version above
+  const SCRIPT_VERSION = '2.11.2'; // Must match @version above
   const VERSION_CHECK_API = 'https://koc-roster-api-production.up.railway.app';
 
   async function checkScriptVersion() {
@@ -264,6 +264,38 @@
       console.warn('⚠️ Error parsing KoC Server Time:', err);
       return new Date().toISOString();
     }
+  }
+
+  // Live-ticking Server Time clock. DISPLAY-ONLY: anchors to the value KoC rendered and
+  // advances it locally each second (re-synced on every page load, so it can't drift).
+  // Compliant — no network, no game actions; it only rewrites the clock's own text node.
+  let __serverClockId = null;
+  function startServerClock() {
+    if (__serverClockId) return;
+    // Find the leaf element holding ONLY a datetime. Prefer the one whose ancestors/table carry
+    // the "Server Time" label (pages with other timestamps); else the page's sole datetime.
+    const leaves = [...document.querySelectorAll('b,td,th,span,div,font')].filter(e =>
+      e.children.length === 0 && /^\s*\d{4}-\d{2}-\d{2}[ T]\d{2}:\d{2}:\d{2}\s*$/.test(e.textContent || ''));
+    if (!leaves.length) return;
+    const labeled = leaves.filter(e => {
+      let c = e;
+      for (let i = 0; i < 5 && c; i++) { if (/Server Time/i.test(c.textContent || '')) return true; c = c.parentNode; }
+      const tb = e.closest('table');
+      return tb && /Server Time/i.test(tb.textContent || '');
+    });
+    const leaf = labeled[0] || (leaves.length === 1 ? leaves[0] : null);
+    if (!leaf) return; // ambiguous (multiple unlabelled timestamps) — skip rather than tick the wrong one
+    const m = (leaf.textContent || '').match(/(\d{4})-(\d{2})-(\d{2})[ T](\d{2}):(\d{2}):(\d{2})/);
+    if (!m) return;
+    const baseMs = new Date(+m[1], +m[2] - 1, +m[3], +m[4], +m[5], +m[6]).getTime();
+    const t0 = Date.now();
+    const p = n => (n < 10 ? '0' + n : '' + n);
+    __serverClockId = setInterval(() => {
+      if (!leaf.isConnected) { clearInterval(__serverClockId); __serverClockId = null; return; }
+      const d = new Date(baseMs + (Date.now() - t0));
+      leaf.textContent = `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}:${p(d.getSeconds())}`;
+    }, 1000);
+    debugLog('🕐 Server clock ticking');
   }
 
   /**
@@ -3854,6 +3886,10 @@
       PK.forEach(function(p){ var i=pinp(p[0]); if(i){ var r=i.closest('tr'); if(r) r.style.display='none'; } });
       var ch=firstRow.previousElementSibling && firstRow.previousElementSibling.previousElementSibling; // the column-header row (Type|Percentage|Weapon), now two above (panel is directly above firstRow)
       if(ch && /Percentage/i.test(ch.textContent) && !ch.querySelector('input[name^="prefs["]')) ch.style.display='none';
+      // Keep the sliders in sync with KoC's native "Clear Percentage Prefills" button — it zeroes
+      // the prefs[*] inputs (now hidden behind the sliders), so re-read + refresh after it fires.
+      var clrBtn=[].slice.call(form.querySelectorAll('input[type="submit"],input[type="button"],button')).filter(function(b){ return /Clear Percentage Prefills/i.test(b.value||b.textContent||''); })[0];
+      if(clrBtn) clrBtn.addEventListener('click', function(){ setTimeout(function(){ st.forEach(function(s){ var i=pinp(s.k); s.pct=i?(parseInt(i.value,10)||0):0; s.locked=false; }); refresh(); }, 50); });
       refresh();
       debugLog('✅ Native armory prefs slider UI injected (theme accent: '+accent+')');
     }catch(e){ debugLog('⚠️ prefs UI enhance failed — native form left intact:', e); }
@@ -7085,7 +7121,7 @@
   /**
    * Inject readiness + time rows into each gold-cost upgrade on upgrades.php
    * (Siege, Fortification, Covert, Sentry, Poison, Antidote, Theft, Vigilance):
-   *   1) Upgrade Ready (On-Hand + Vault + Safe + Full Armory Sell) → "Ready" / shortfall
+   *   1) Upgrade Ready (On-Hand + Vault + Safe) → "Ready" / shortfall + slay estimate
    *   2) Upgrade Ready (Based on Safe + Safe Deposited per Min)    → time for Safe to grow to cost
    *   3) Gold Needed on top of Safe                                → max(0, cost - Safe)
    * Maxed upgrades have no Gold button and are skipped.
@@ -7119,14 +7155,20 @@
       const cost = parseInt(costMatch[1].replace(/,/g, ''), 10);
       const tbody = table.querySelector('tbody') || table;
 
-      // Row 1: can we afford it by liquidating everything?
-      const liquid = goldOnHand + vault + safe + (armorySell || 0);
+      // Row 1: can we afford it from gold we actually hold? Full-armory-sell is excluded —
+      // selling your whole armory to upgrade isn't realistic. The shortfall is what you'd make
+      // up by selling some weapons or slaying (shown as a slay estimate from your avg gold/atk).
+      const liquid = goldOnHand + vault + safe;
       const ready = liquid >= cost;
-      const readyVal = ready ? 'Ready' : ('Short ' + (cost - liquid).toLocaleString() + ' Gold');
+      const shortfall = cost - liquid;
+      const avgGold = SafeStorage.get('xpTool_avgGold', 0);
+      const readyVal = ready ? 'Ready' : ('Short ' + shortfall.toLocaleString() + ' Gold');
       const readyColor = ready ? '#66ff66' : '#ff6666';
-      const liquidSubtitle = armorySell == null
-        ? '(On-Hand + Vault + Safe + Full Armory Sell — visit Armory to calibrate)'
-        : '(On-Hand + Vault + Safe + Full Armory Sell)';
+      const liquidSubtitle = '(On-Hand + Vault + Safe)';
+      const coverLine = ready ? '' :
+        '<br><font color="#ffaa66" style="font-size: 0.70em;">' +
+        (avgGold > 0 ? 'sell weapons · ≈' + Math.ceil(shortfall / avgGold).toLocaleString() + ' slays' : 'sell weapons or slay to cover') +
+        '</font>';
 
       // Row 2: time for the Safe alone to grow to the cost
       const neededOnTop = Math.max(0, cost - safe);
@@ -7146,7 +7188,7 @@
       row1.innerHTML =
         '<td align="left"><b>Upgrade Ready:</b><br>' +
         '<font color="#ff6666" style="font-size: 0.70em;">' + liquidSubtitle + '</font></td>' +
-        '<td align="right"><font color="' + readyColor + '"><b>' + readyVal + '</b></font></td>';
+        '<td align="right"><font color="' + readyColor + '"><b>' + readyVal + '</b></font>' + coverLine + '</td>';
 
       const row2 = document.createElement('tr');
       row2.className = ROW_CLASS;
@@ -7214,6 +7256,8 @@
     // Notifications — OFF by default per integration spec; no-icon notifications only
     notifyEnabled: false,
     notifyMinGapMins: 10,
+    // Show the yellow/red countdown on the box itself (off by default so the box matches the native funds box)
+    showTimes: false,
     // Calibration older than this is flagged stale in the widget
     staleCalibrationMins: 1440
   };
@@ -7843,12 +7887,11 @@
     style.id = 'koc-banking-style';
     style.textContent = `
       #koc-banking-inline {
-        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        max-width: 540px; margin: 8px auto; text-align: center;
+        margin: 8px 0; text-align: center;
       }
-      #koc-banking-inline .kb-bar {
-        display: flex; align-items: center; justify-content: center; gap: 10px;
-        flex-wrap: wrap; margin-bottom: 6px;
+      #koc-banking-inline .kb-toggle-row {
+        display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+        margin-bottom: 10px; padding-bottom: 10px; border-bottom: 1px solid rgba(255,255,255,0.12);
       }
       #koc-banking-toggle {
         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: #fff;
@@ -7861,26 +7904,21 @@
       }
       #koc-banking-wakelock { font-size: 12px; color: #888; }
       #koc-banking-body { margin: 0 auto; }
-      #koc-banking-inline .kb-card {
-        background: linear-gradient(135deg, #1e1b3a, #2a2550); color: #eee;
-        border: 1px solid rgba(255,255,255,0.12); border-radius: 10px;
-        padding: 14px 18px; margin: 8px 0; box-sizing: border-box; text-align: center;
-      }
-      #koc-banking-band { font-size: 18px; font-weight: 700; letter-spacing: 3px; }
-      #koc-banking-gold {
-        font-size: 46px; font-weight: 700; line-height: 1.15;
-        transition: color 0.3s ease, text-shadow 0.3s ease;
-      }
-      #koc-banking-inline .kb-sub { color: #aaa; font-size: 12px; margin-top: 4px; }
-      #koc-banking-inline .kb-info { text-align: left; }
+      /* Native-style box: reuse KoC's own table_lines class so it matches whatever theme is set. */
+      #koc-banking-box { width: 100%; margin: 8px auto; }
+      #koc-banking-th { position: relative; text-align: center; padding: 6px 24px; }
+      #koc-banking-gold { transition: color 0.3s ease; }
+      #koc-banking-gear { position: absolute; right: 10px; top: 50%; transform: translateY(-50%); cursor: pointer; font-size: 15px; user-select: none; opacity: 0.85; }
+      #koc-banking-gear:hover { opacity: 1; }
+      #koc-banking-box .kb-detail { text-align: left; padding: 10px 14px; background: rgba(0,0,0,0.22); font-size: 12px; line-height: 1.5; }
+      #koc-banking-band { font-weight: 700; letter-spacing: 1px; }
       #koc-banking-inline .kb-stat { font-size: 13px; color: #ccc; margin: 4px 0; }
       #koc-banking-inline .kb-stat b { color: #FFD700; }
       #koc-banking-inline a { color: #93c5fd; }
       #koc-banking-inline .kb-live { color: #4ade80; }
       @keyframes kb-pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.3; } }
       #koc-banking-inline .kb-live { animation: kb-pulse 2s infinite; display: inline-block; }
-      #koc-banking-settings { display: none; margin-top: 10px; border-top: 1px solid rgba(255,255,255,0.12); padding-top: 10px; }
-      #koc-banking-settings.open { display: block; }
+      #koc-banking-settings { display: block; margin-top: 10px; border-top: 1px solid rgba(255,255,255,0.12); padding-top: 10px; }
       #koc-banking-settings label {
         display: flex; justify-content: space-between; align-items: center;
         font-size: 12px; color: #ccc; margin: 6px 0; gap: 10px;
@@ -7908,26 +7946,24 @@
     const container = document.createElement('div');
     container.id = 'koc-banking-inline';
     container.innerHTML = `
-      <div class="kb-bar">
-        <button type="button" id="koc-banking-toggle">🏦 Banking Mode</button>
-        <button type="button" class="kb-btn" id="koc-banking-settings-btn" style="display:none;">⚙️ Settings</button>
-        <span id="koc-banking-wakelock" style="display:none;">🌙 wake lock off</span>
-      </div>
-      <div id="koc-banking-body" style="display:none;">
-        <div class="kb-card">
-          <div id="koc-banking-band">—</div>
-          <div id="koc-banking-gold">—</div>
-          <div class="kb-sub">estimated gold exposed (projected · vault excluded)</div>
-          <div class="kb-sub" id="koc-banking-countdowns">—</div>
-        </div>
-        <div class="kb-card kb-info">
-          <div class="kb-stat">⏱️ Last bank: <b id="koc-banking-lastbank">never</b></div>
+      <div id="koc-banking-body">
+        <table class="table_lines" id="koc-banking-box"><tbody>
+          <tr><th id="koc-banking-th">
+            <font size="4"><b class="kb-ef-label">Estimated Funds:</b></font> <font size="5"><span id="koc-banking-gold">—</span></font>
+            <span id="koc-banking-gear" title="Settings &amp; detail">⚙️</span>
+            <div id="koc-banking-times" style="display:none;font-weight:400;font-size:12px;margin-top:3px;"></div>
+          </th></tr>
+          <tr id="koc-banking-detailrow" style="display:none;"><td class="kb-detail">
+            <div class="kb-toggle-row"><button type="button" id="koc-banking-toggle">🏦 Banking Mode</button><span id="koc-banking-wakelock" style="display:none;">🌙 wake lock off</span></div>
+            <div class="kb-stat" id="koc-banking-band-line"><b id="koc-banking-band">—</b> · <span id="koc-banking-countdowns">—</span></div>
+            <div class="kb-stat">⏱️ Last bank: <b id="koc-banking-lastbank">never</b></div>
           <div class="kb-stat">📐 Calibration: <b id="koc-banking-cal">—</b></div>
           <div class="kb-stat">🗡️ Risk model: <b id="koc-banking-risk-src">—</b> · <a href="attacklog.php">visit Attack Log to refresh</a></div>
           <div class="kb-stat">🏦 Vault (not at risk): <b id="koc-banking-vault">—</b></div>
           <div class="kb-stat"><span class="kb-live">●</span> display refresh only — no automated requests</div>
           <div id="koc-banking-settings">
             <div style="color:#FFD700; font-weight:600; margin-bottom:8px;">Settings</div>
+            <label>Show yellow/red times on the box <input type="checkbox" id="kbs-showTimes" ${s.showTimes ? 'checked' : ''}></label>
             <label>Steal rate min (0–1) <input type="number" step="0.01" min="0.1" max="1" id="kbs-stealRateMin" value="${s.stealRateMin}"></label>
             <label>Steal rate max (risk maths uses this; 1.0 = conservative) <input type="number" step="0.01" min="0.1" max="1" id="kbs-stealRateMax" value="${s.stealRateMax}"></label>
             <label>Risk window (days) <input type="number" min="1" max="60" id="kbs-riskWindowDays" value="${s.riskWindowDays}"></label>
@@ -7941,7 +7977,8 @@
             <label>Notifications enabled <input type="checkbox" id="kbs-notifyEnabled" ${s.notifyEnabled ? 'checked' : ''}></label>
             <label>Notification min gap (mins) <input type="number" min="1" id="kbs-notifyMinGapMins" value="${s.notifyMinGapMins}"></label>
           </div>
-        </div>
+        </td></tr>
+        </tbody></table>
       </div>
     `;
 
@@ -7963,8 +8000,10 @@
 
     // --- wire controls ---
     container.querySelector('#koc-banking-toggle').addEventListener('click', bankToggle);
-    container.querySelector('#koc-banking-settings-btn').addEventListener('click', () => {
-      container.querySelector('#koc-banking-settings').classList.toggle('open');
+    const gear = container.querySelector('#koc-banking-gear');
+    if (gear) gear.addEventListener('click', () => {
+      const dr = container.querySelector('#koc-banking-detailrow');
+      if (dr) dr.style.display = (dr.style.display === 'none' ? '' : 'none');
     });
 
     const numericFields = ['stealRateMin', 'stealRateMax', 'riskWindowDays', 'yellowPercentile',
@@ -7988,6 +8027,11 @@
       bankSaveSettings({ notifyEnabled: e.target.checked });
       if (e.target.checked) bankEnsureNotifyPermission();
     });
+    const showTimesEl = container.querySelector('#kbs-showTimes');
+    if (showTimesEl) showTimesEl.addEventListener('change', e => {
+      bankSaveSettings({ showTimes: e.target.checked });
+      bankUpdateDisplay();
+    });
 
     bankApplyEnabledState();
   }
@@ -7996,8 +8040,6 @@
   function bankApplyEnabledState() {
     const enabled = bankGet('enabled', false);
     const toggle = document.getElementById('koc-banking-toggle');
-    const body = document.getElementById('koc-banking-body');
-    const settingsBtn = document.getElementById('koc-banking-settings-btn');
     const wlPill = document.getElementById('koc-banking-wakelock');
 
     if (toggle) {
@@ -8006,19 +8048,18 @@
         ? 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)'
         : 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
     }
-    if (body) body.style.display = enabled ? 'block' : 'none';
-    if (settingsBtn) settingsBtn.style.display = enabled ? '' : 'none';
     if (wlPill) wlPill.style.display = enabled ? '' : 'none';
 
     if (enabled) {
       bankHookForms();
       bankRequestWakeLock();
       bankStartTicker();
-      bankUpdateDisplay();
     } else {
       bankStopTicker();
       bankReleaseWakeLock();
     }
+    // Box is always visible now → always paint the current estimate; the ticker adds live updates when ON.
+    bankUpdateDisplay();
   }
 
   // The human press that arms everything (user gesture → wake lock + notify allowed).
@@ -8033,7 +8074,7 @@
   // Repaint the readouts (DISPLAY ONLY — no requests, no game actions).
   function bankUpdateDisplay() {
     const body = document.getElementById('koc-banking-body');
-    if (!body || body.style.display === 'none') return;
+    if (!body) return;
 
     const status = bankGetRiskStatus();
     const goldEl = document.getElementById('koc-banking-gold');
@@ -8047,14 +8088,18 @@
       bandEl.textContent = 'NO CALIBRATION';
       bandEl.style.color = '#999';
       cdEl.innerHTML = 'Visit the <a href="base.php">Command Centre</a> to calibrate';
+      const tEl = document.getElementById('koc-banking-times'); if (tEl) tEl.style.display = 'none';
       return;
     }
 
     const meta = BANK_BAND_META[status.band];
+    const showTimes = bankGetSettings().showTimes;
     goldEl.textContent = bankFormatGold(status.proj.gold);
     goldEl.title = status.proj.gold.toLocaleString() + ' gold';
-    goldEl.style.color = meta.color;
-    goldEl.style.textShadow = `0 0 22px ${meta.glow}`;
+    // Default: inherit the native funds-box colour (white) so the box blends into the page.
+    // Only when "show times" is enabled do we tint the value + glow it by risk band.
+    goldEl.style.color = showTimes ? meta.color : '';
+    goldEl.style.textShadow = showTimes ? `0 0 10px ${meta.glow}` : '';
     bandEl.textContent = meta.label + (status.model.source === 'fallback' ? ' (fallback bands)' : '');
     bandEl.style.color = meta.color;
 
@@ -8065,6 +8110,22 @@
     if (status.proj.stale) parts.push('⚠️ calibration stale — visit the <a href="base.php">Command Centre</a>');
     if (status.proj.noIncome) parts.push('⚠️ no income data — visit the <a href="base.php">Command Centre</a>');
     cdEl.innerHTML = parts.join(' · ') || '—';
+
+    // Compact countdown on the box itself — setting-gated (off by default to match the native box).
+    const timesEl = document.getElementById('koc-banking-times');
+    if (timesEl) {
+      if (showTimes) {
+        const compact = [];
+        if (status.band === 'green') compact.push(`🟡 ${bankFormatMinutes(status.minsToYellow)}`);
+        if (status.band !== 'red') compact.push(`🔴 ${bankFormatMinutes(status.minsToRed)}`);
+        if (status.band === 'red') compact.push('🔴 bank now');
+        timesEl.innerHTML = compact.join(' · ');
+        timesEl.style.color = meta.color;
+        timesEl.style.display = compact.length ? '' : 'none';
+      } else {
+        timesEl.style.display = 'none';
+      }
+    }
 
     const lastBank = bankGet('last_bank', null);
     const lastBankEl = document.getElementById('koc-banking-lastbank');
@@ -8090,7 +8151,7 @@
     if (vaultEl) vaultEl.textContent =
       vault === null || vault === undefined ? '?' : vault.toLocaleString() + ' gold';
 
-    bankMaybeNotifyBand(status.band, status.proj.gold);
+    if (bankGet('enabled', false)) bankMaybeNotifyBand(status.band, status.proj.gold);
   }
 
   // 1-second DISPLAY repaint. Redraws locally-known numbers only — never the network.
@@ -8178,6 +8239,9 @@
   }
 
   async function runFeatures() {
+    // Live-ticking Server Time clock (display-only) — runs on every page.
+    await safeExecute('startServerClock', () => startServerClock());
+
     // Load active competitions first (shared across base.php and rewards.php)
     const isBaseOrRewards = location.pathname.includes("base.php") || location.pathname.includes("rewards.php");
     if (isBaseOrRewards) {
