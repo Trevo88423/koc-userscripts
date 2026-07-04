@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         KoC Data Centre
 // @namespace    trevo88423
-// @version      2.11.2
+// @version      2.11.3
 // @description  Sweet Revenge alliance tool: tracks stats, syncs to API, adds dashboards, XP→Turn calculator, mini Top Stats panel. v2.11.2: Banking Mode redesigned — your exposed gold now shows in a native-style "Estimated Funds" box that matches the in-game funds boxes, with a ⚙ that holds the Banking Mode toggle, screen-awake, and all settings (including an optional "show yellow/red times" line); a live-ticking Server Time clock on every page; and the Upgrades "Upgrade Ready" row now uses realistic funds (drops full-armory-sell) and shows any shortfall as a slay estimate. v2.10.1: Fix — the slider Armory Preferences now also resync when you press KoC's "Clear Percentage Prefills" button (sliders drop to 0 instead of keeping their old values). v2.10.0: New slider-based Armory Preferences — drag to allocate with auto-balancing, theme-matched styling, and one-tap presets (Cheapest first, Optimizer, All spy, All defense) plus saved presets — replacing the in-game percentage form; rank Optimizer also fixed (weapon efficiency now synced). v2.9.0: "Time to upgrade" + "EXP still needed to be deposited" now show on ALL EXP-cost safe.php upgrades (Increase Soldiers, Economic Development, SAFE Upgrade) — not just Technological Development. v2.8.2: Fix — "EXP still needed to be deposited" now shows cost − Experience Bank (what must still be banked) instead of also subtracting on-hand EXP, so it no longer reads 0 when you hold the EXP but haven't deposited it. v2.8.1: Fix — sidebar abbreviates large gold/safe values (e.g. "2,560M"); getSidebarValue now parses K/M/B/T suffixes so SAFE Forecasts and gold-upgrade rows use real balances (previously read as ~0). SAFE Forecasts also uses the full-precision "Gold in Safe" value. v2.8.0: SAFE Forecasts on safe.php — time for your Safe to reach 1B/2B/5B/9B/10B(MAX) based on current Safe + deposit/min. v2.7.0: Gold upgrade timer — upgrades.php now shows "Upgrade Ready" (liquidation + safe-growth time) and "Gold Needed on top of Safe" under each skill upgrade (uses gold/vault/safe + full armory sell value from Armory + safe deposit rate from Safe). v2.6.0: Tech upgrade timer — safe.php now shows "Time to upgrade" + "EXP still needed to be deposited" under Technological Development (uses EXP on-hand + Experience Bank + your EXP/turn rate, auto-captured from the Upgrades page). v2.5.1: Banking Mode last-bank fix — now watches the per-weapon buy form (anotherbuyform), not just the hidden one-click form, and stamps banks reliably for high-income accounts. v2.5.0: 🏦 Banking Mode on the Armory page — toggleable inline widget that projects your exposed (stealable) gold every second, colour-codes the risk (SAFE/CAUTION/DANGER) from your attack-log steal history, shows time-to-yellow/red, and keeps the screen awake. Display-only: no automated requests, observes (never presses) the buy/repair forms. v2.4.0: Banking trend graph (📈 in the sidebar tracks your banked % over time) + manual override for Avg Gold/Atk (✏️ in the sidebar, survives attack-log recalibration). v2.3.4: Recons panel now shares counts alliance-wide via API (previously localStorage-only — each user only saw themselves). v2.3.0: Added "Stats If You Attacked Instead" table on safe.php to compare tech upgrades vs attacking. v2.2.9: Added optimizer auto-fill for armory (uses roster API to calculate optimal stat allocation). v2.2.8: Minor fixes. v2.1.0: Integrated slaying competition tracker (attack missions & gold stolen tracking, team competitions, leaderboards). v2.0.0: Optimized API architecture, previous versions deprecated.
 // @author       Blackheart
 // @match        https://www.kingsofchaos.com/*
@@ -42,7 +42,7 @@
   // ==================== VERSION CHECK ====================
   // Check if this script version is allowed to run
   const SCRIPT_NAME = 'koc-data-centre';
-  const SCRIPT_VERSION = '2.11.2'; // Must match @version above
+  const SCRIPT_VERSION = '2.11.3'; // Must match @version above
   const VERSION_CHECK_API = 'https://koc-roster-api-production.up.railway.app';
 
   async function checkScriptVersion() {
@@ -856,6 +856,30 @@
 
   // ==================== AUTH MANAGER ====================
 
+  // True when an element lives inside script-injected UI (SR stats panel,
+  // competition panels, calculators) rather than native KoC markup.
+  function isInjectedContent(el) {
+    return !!el.closest('[data-koc-injected], #sr-stats-tables, [id^="koc-comp-panel"], [class*="sr-stat-"]');
+  }
+
+  // Find your own id/name from the native "User Info" table on base.php:
+  // a row whose label cell is exactly "Name" and whose value cell holds your
+  // stats.php link. Never read identity from the first stats.php link on the
+  // page — injected leaderboards and farm lists come first in DOM order, which
+  // is how wrong identities (Tobi-SR id='self', 'Members') got stored.
+  function findOwnIdentityOnPage() {
+    for (const row of document.querySelectorAll("tr")) {
+      const labelCell = row.querySelector("td, th");
+      if (!labelCell || !/^name:?$/i.test(labelCell.innerText.trim())) continue;
+      const link = row.querySelector("a[href*='stats.php?id=']");
+      if (!link || isInjectedContent(link)) continue;
+      const id = link.href.match(/id=(\d+)/)?.[1];
+      const name = link.textContent.trim();
+      if (id && name) return { id, name };
+    }
+    return null;
+  }
+
   class AuthManager {
     constructor() {
       this.token = null;
@@ -971,33 +995,19 @@
         let id = null;
         let name = null;
 
-        // Look specifically for the "Name" row in the User Info table
-        const nameRow = [...document.querySelectorAll("tr")]
-          .find(tr => tr.textContent.includes("Name"));
-
-        if (nameRow) {
-          const link = nameRow.querySelector("a[href*='stats.php?id=']");
-          if (link) {
-            id = link.href.match(/id=(\d+)/)?.[1];
-            name = link.textContent.trim();
-          }
+        // Only trust the native User Info "Name" row — never arbitrary
+        // stats.php links (injected leaderboards poison the scrape).
+        const identity = findOwnIdentityOnPage();
+        if (identity) {
+          ({ id, name } = identity);
         }
 
-        // Fallback: first stats.php link
-        if (!id || !name) {
-          const link = document.querySelector("a[href*='stats.php?id=']");
-          if (link) {
-            id = link.href.match(/id=(\d+)/)?.[1];
-            name = link.textContent.trim();
-          }
-        }
-
-        // Final fallback: localStorage
+        // Fallback: previously verified identity from localStorage
         if (!id) id = SafeStorage.get("KoC_MyId", null);
         if (!name) name = SafeStorage.get("KoC_MyName", null);
 
         if (!id || !name) {
-          throw new Error("Could not detect your KoC ID/Name on this page");
+          throw new Error("Could not detect your KoC ID/Name — open your Command Center (base.php) and try again");
         }
 
         debugLog("🔍 Attempting login with:", { id, name });
@@ -2093,21 +2103,52 @@
     battlefieldTimeout = setTimeout(async () => {
       const rows = document.querySelectorAll("tr[user_id]");
       let newCount = 0;
-      const now = getKoCServerTimeUTC();
+
+      // Map column indexes from the table header — the battlefield sometimes
+      // renders rows without the Alliance column (mid-AJAX states drop cells),
+      // so fixed indexes corrupt data: name gets the army size and alliance
+      // gets the player name (the 'OwenN17'/'zeke1st' alliance rows in the DB).
+      const headerCells = rows[0]
+        ? [...(rows[0].closest("table")?.querySelectorAll("th") || [])]
+        : [];
+      const colIndex = {};
+      headerCells.forEach((th, i) => {
+        const label = th.innerText.trim().toLowerCase();
+        if (label === "alliance") colIndex.alliance = i;
+        else if (label === "rank") colIndex.rank = i;
+      });
 
       rows.forEach(row => {
         const id = row.getAttribute("user_id");
         if (collectedPlayers.has(id)) return;
 
         const cells = row.querySelectorAll("td");
+        // Positional columns are only trustworthy when the row actually has
+        // one cell per header column
+        const aligned = headerCells.length > 0 && cells.length === headerCells.length;
+
+        // Name: only trust the stats link that points at this row's own id
+        const nameLink = [...row.querySelectorAll("a[href*='stats.php?id=']")]
+          .find(a => a.href.match(/id=(\d+)/)?.[1] === id);
+        const name = nameLink?.textContent.trim() || "";
+
+        // Alliance: the alliances.php link in the alliance column (empty for
+        // unallied players — leave existing DB value untouched)
+        let alliance = "";
+        if (aligned && colIndex.alliance != null) {
+          alliance = cells[colIndex.alliance]?.querySelector("a[href*='alliances.php']")?.textContent.trim() || "";
+        }
+
+        const rank = (aligned && colIndex.rank != null) ? (cells[colIndex.rank]?.innerText.trim() || "") : "";
 
         // Build player object - ONLY alliance, name, id, rank (no timestamps - DB doesn't have those columns)
-        const player = sanitizePlayerData({
-          id,
-          name: cells[2]?.innerText.trim() || "Unknown",
-          alliance: cells[1]?.innerText.trim() || "",
-          rank: cells[7]?.innerText.trim() || ""
-        });
+        const patch = { id };
+        if (name) patch.name = name;
+        if (alliance) patch.alliance = alliance;
+        if (rank) patch.rank = rank;
+        if (Object.keys(patch).length === 1) return; // nothing trustworthy scraped
+
+        const player = sanitizePlayerData(patch);
 
         updatePlayerInfo(player.id, player);
         collectedPlayers.add(id);
@@ -2459,9 +2500,19 @@
     let myId = SafeStorage.get("KoC_MyId", null);
     let myName = SafeStorage.get("KoC_MyName", null);
 
-    // ALWAYS use authenticated user's name from JWT token (most reliable)
+    // Prefer the name from the native User Info table — it's the ground truth
+    // on base.php. Stored auth names have been poisoned by bad login scrapes
+    // before (the 'Members' incident) and would then overwrite the real name
+    // in the roster on every base.php visit.
     const authData = auth.getStoredAuth();
-    if (authData && authData.name) {
+    const nativeIdentity = findOwnIdentityOnPage();
+    if (nativeIdentity) {
+      if (authData?.name && authData.name !== nativeIdentity.name) {
+        console.warn(`⚠️ Stored auth name "${authData.name}" doesn't match page name "${nativeIdentity.name}" — using page name`);
+      }
+      myName = nativeIdentity.name;
+      myId = nativeIdentity.id;
+    } else if (authData && authData.name) {
       myName = authData.name;
     }
 
