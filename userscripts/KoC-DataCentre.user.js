@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         KoC Data Centre
 // @namespace    trevo88423
-// @version      2.11.3
+// @version      2.11.4
 // @description  Sweet Revenge alliance tool: tracks stats, syncs to API, adds dashboards, XP→Turn calculator, mini Top Stats panel. v2.11.2: Banking Mode redesigned — your exposed gold now shows in a native-style "Estimated Funds" box that matches the in-game funds boxes, with a ⚙ that holds the Banking Mode toggle, screen-awake, and all settings (including an optional "show yellow/red times" line); a live-ticking Server Time clock on every page; and the Upgrades "Upgrade Ready" row now uses realistic funds (drops full-armory-sell) and shows any shortfall as a slay estimate. v2.10.1: Fix — the slider Armory Preferences now also resync when you press KoC's "Clear Percentage Prefills" button (sliders drop to 0 instead of keeping their old values). v2.10.0: New slider-based Armory Preferences — drag to allocate with auto-balancing, theme-matched styling, and one-tap presets (Cheapest first, Optimizer, All spy, All defense) plus saved presets — replacing the in-game percentage form; rank Optimizer also fixed (weapon efficiency now synced). v2.9.0: "Time to upgrade" + "EXP still needed to be deposited" now show on ALL EXP-cost safe.php upgrades (Increase Soldiers, Economic Development, SAFE Upgrade) — not just Technological Development. v2.8.2: Fix — "EXP still needed to be deposited" now shows cost − Experience Bank (what must still be banked) instead of also subtracting on-hand EXP, so it no longer reads 0 when you hold the EXP but haven't deposited it. v2.8.1: Fix — sidebar abbreviates large gold/safe values (e.g. "2,560M"); getSidebarValue now parses K/M/B/T suffixes so SAFE Forecasts and gold-upgrade rows use real balances (previously read as ~0). SAFE Forecasts also uses the full-precision "Gold in Safe" value. v2.8.0: SAFE Forecasts on safe.php — time for your Safe to reach 1B/2B/5B/9B/10B(MAX) based on current Safe + deposit/min. v2.7.0: Gold upgrade timer — upgrades.php now shows "Upgrade Ready" (liquidation + safe-growth time) and "Gold Needed on top of Safe" under each skill upgrade (uses gold/vault/safe + full armory sell value from Armory + safe deposit rate from Safe). v2.6.0: Tech upgrade timer — safe.php now shows "Time to upgrade" + "EXP still needed to be deposited" under Technological Development (uses EXP on-hand + Experience Bank + your EXP/turn rate, auto-captured from the Upgrades page). v2.5.1: Banking Mode last-bank fix — now watches the per-weapon buy form (anotherbuyform), not just the hidden one-click form, and stamps banks reliably for high-income accounts. v2.5.0: 🏦 Banking Mode on the Armory page — toggleable inline widget that projects your exposed (stealable) gold every second, colour-codes the risk (SAFE/CAUTION/DANGER) from your attack-log steal history, shows time-to-yellow/red, and keeps the screen awake. Display-only: no automated requests, observes (never presses) the buy/repair forms. v2.4.0: Banking trend graph (📈 in the sidebar tracks your banked % over time) + manual override for Avg Gold/Atk (✏️ in the sidebar, survives attack-log recalibration). v2.3.4: Recons panel now shares counts alliance-wide via API (previously localStorage-only — each user only saw themselves). v2.3.0: Added "Stats If You Attacked Instead" table on safe.php to compare tech upgrades vs attacking. v2.2.9: Added optimizer auto-fill for armory (uses roster API to calculate optimal stat allocation). v2.2.8: Minor fixes. v2.1.0: Integrated slaying competition tracker (attack missions & gold stolen tracking, team competitions, leaderboards). v2.0.0: Optimized API architecture, previous versions deprecated.
 // @author       Blackheart
 // @match        https://www.kingsofchaos.com/*
@@ -42,7 +42,7 @@
   // ==================== VERSION CHECK ====================
   // Check if this script version is allowed to run
   const SCRIPT_NAME = 'koc-data-centre';
-  const SCRIPT_VERSION = '2.11.3'; // Must match @version above
+  const SCRIPT_VERSION = '2.11.4'; // Must match @version above
   const VERSION_CHECK_API = 'https://koc-roster-api-production.up.railway.app';
 
   async function checkScriptVersion() {
@@ -4545,11 +4545,21 @@
           const quantityText = cells[2]?.textContent.trim() || '';
           const quantity = parseInt(quantityText.replace(/,/g, ''), 10) || 0;
 
-          // Cell 3 contains the STRENGTH (format: "1,000 / 1,000")
+          // Cell 3 contains the STRENGTH. Repairable weapons (attack/defense) show
+          // "current / max" e.g. "1,000 / 1,000"; covert tools DON'T degrade so KoC
+          // prints a single number e.g. "1,000". Parse BOTH — the old slash-only regex
+          // read covert strength as 0, collapsing covert TIV/distribution to 0 (which
+          // zeroed the safe.php "Attacked Instead" table and under-reported covert TIV to the API).
           const strengthText = cells[3]?.textContent.trim() || '';
-          const strengthMatch = strengthText.match(/([\d,]+)\s*\/\s*([\d,]+)/);
-          const minStrength = strengthMatch ? parseInt(strengthMatch[1].replace(/,/g, ''), 10) : 0;
-          const maxStrength = strengthMatch ? parseInt(strengthMatch[2].replace(/,/g, ''), 10) : 0;
+          const slashMatch = strengthText.match(/([\d,]+)\s*\/\s*([\d,]+)/);
+          let minStrength, maxStrength;
+          if (slashMatch) {
+            minStrength = parseInt(slashMatch[1].replace(/,/g, ''), 10);
+            maxStrength = parseInt(slashMatch[2].replace(/,/g, ''), 10);
+          } else {
+            const single = strengthText.match(/([\d,]+)/);
+            maxStrength = minStrength = single ? parseInt(single[1].replace(/,/g, ''), 10) : 0;
+          }
 
           // No longer need totalStrength - we calculate it from quantity × strength
           const totalStrength = quantity * maxStrength;
@@ -6811,6 +6821,21 @@
       vigilance: 1000000 // Adamantine Bastion
     };
 
+    // Strength of each best weapon above (parallels bestWeaponPrices). The learned
+    // multiplier is stat per (quantity × strength) — see saveMultiplier — so the
+    // projected gain MUST include the weapon's strength. Omitting it made every
+    // gain come out 600× (attack/defense) to 1000× (covert) too small.
+    const bestWeaponStrength = {
+      attack: 600,     // Chariot
+      defense: 600,    // Ebony Platemail
+      spy: 1000,       // Nunchaku
+      sentry: 1000,    // Lookout Tower
+      poison: 1000,    // Plaguebringer Scythe
+      antidote: 1000,  // Serpentbane Arbalest
+      theft: 1000,     // Ethereal Grasp
+      vigilance: 1000  // Adamantine Bastion
+    };
+
     // Calculate attacks possible from tech XP
     const attacks = calculateXPTradeAttacks(techXpCost, 0);
     debugLog('[SafePage] Attacks from XP:', attacks);
@@ -6858,14 +6883,18 @@
 
     for (const cat of Object.keys(statLabels)) {
       const goldForStat = totalGold * (distribution[cat] || 0);
+      // Stored (learned) multipliers only — matches calculateWeaponEfficiency's
+      // convention (no fallback to DEFAULT_MULTIPLIERS); an uncalibrated stat stays 0.
       const multiplier = multipliers[cat]?.value || 0;
       const weaponPrice = bestWeaponPrices[cat];
+      const weaponStrength = bestWeaponStrength[cat] || 1;
 
-      // statGained = goldSpent × multiplier / weaponPrice
-      const statGained = multiplier > 0 ? Math.floor(goldForStat * multiplier / weaponPrice) : 0;
+      // weapons bought = goldForStat / weaponPrice; each weapon adds (strength × multiplier)
+      // stat, since multiplier is stat per (qty × strength). The strength factor was missing.
+      const statGained = multiplier > 0 ? Math.floor(goldForStat / weaponPrice * weaponStrength * multiplier) : 0;
       projectedStats[cat] = (currentStats[cat] || 0) + statGained;
 
-      debugLog(`[SafePage] ${cat}: gold=${goldForStat.toFixed(0)}, mult=${multiplier}, price=${weaponPrice}, gained=${statGained}`);
+      debugLog(`[SafePage] ${cat}: gold=${goldForStat.toFixed(0)}, mult=${multiplier}, str=${weaponStrength}, price=${weaponPrice}, gained=${statGained}`);
     }
 
     // Format gold for display
