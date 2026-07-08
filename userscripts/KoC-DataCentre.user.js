@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         KoC Data Centre
 // @namespace    trevo88423
-// @version      2.11.4
+// @version      2.12.0
 // @description  Sweet Revenge alliance tool: tracks stats, syncs to API, adds dashboards, XP→Turn calculator, mini Top Stats panel. v2.11.2: Banking Mode redesigned — your exposed gold now shows in a native-style "Estimated Funds" box that matches the in-game funds boxes, with a ⚙ that holds the Banking Mode toggle, screen-awake, and all settings (including an optional "show yellow/red times" line); a live-ticking Server Time clock on every page; and the Upgrades "Upgrade Ready" row now uses realistic funds (drops full-armory-sell) and shows any shortfall as a slay estimate. v2.10.1: Fix — the slider Armory Preferences now also resync when you press KoC's "Clear Percentage Prefills" button (sliders drop to 0 instead of keeping their old values). v2.10.0: New slider-based Armory Preferences — drag to allocate with auto-balancing, theme-matched styling, and one-tap presets (Cheapest first, Optimizer, All spy, All defense) plus saved presets — replacing the in-game percentage form; rank Optimizer also fixed (weapon efficiency now synced). v2.9.0: "Time to upgrade" + "EXP still needed to be deposited" now show on ALL EXP-cost safe.php upgrades (Increase Soldiers, Economic Development, SAFE Upgrade) — not just Technological Development. v2.8.2: Fix — "EXP still needed to be deposited" now shows cost − Experience Bank (what must still be banked) instead of also subtracting on-hand EXP, so it no longer reads 0 when you hold the EXP but haven't deposited it. v2.8.1: Fix — sidebar abbreviates large gold/safe values (e.g. "2,560M"); getSidebarValue now parses K/M/B/T suffixes so SAFE Forecasts and gold-upgrade rows use real balances (previously read as ~0). SAFE Forecasts also uses the full-precision "Gold in Safe" value. v2.8.0: SAFE Forecasts on safe.php — time for your Safe to reach 1B/2B/5B/9B/10B(MAX) based on current Safe + deposit/min. v2.7.0: Gold upgrade timer — upgrades.php now shows "Upgrade Ready" (liquidation + safe-growth time) and "Gold Needed on top of Safe" under each skill upgrade (uses gold/vault/safe + full armory sell value from Armory + safe deposit rate from Safe). v2.6.0: Tech upgrade timer — safe.php now shows "Time to upgrade" + "EXP still needed to be deposited" under Technological Development (uses EXP on-hand + Experience Bank + your EXP/turn rate, auto-captured from the Upgrades page). v2.5.1: Banking Mode last-bank fix — now watches the per-weapon buy form (anotherbuyform), not just the hidden one-click form, and stamps banks reliably for high-income accounts. v2.5.0: 🏦 Banking Mode on the Armory page — toggleable inline widget that projects your exposed (stealable) gold every second, colour-codes the risk (SAFE/CAUTION/DANGER) from your attack-log steal history, shows time-to-yellow/red, and keeps the screen awake. Display-only: no automated requests, observes (never presses) the buy/repair forms. v2.4.0: Banking trend graph (📈 in the sidebar tracks your banked % over time) + manual override for Avg Gold/Atk (✏️ in the sidebar, survives attack-log recalibration). v2.3.4: Recons panel now shares counts alliance-wide via API (previously localStorage-only — each user only saw themselves). v2.3.0: Added "Stats If You Attacked Instead" table on safe.php to compare tech upgrades vs attacking. v2.2.9: Added optimizer auto-fill for armory (uses roster API to calculate optimal stat allocation). v2.2.8: Minor fixes. v2.1.0: Integrated slaying competition tracker (attack missions & gold stolen tracking, team competitions, leaderboards). v2.0.0: Optimized API architecture, previous versions deprecated.
 // @author       Blackheart
 // @match        https://www.kingsofchaos.com/*
@@ -42,7 +42,7 @@
   // ==================== VERSION CHECK ====================
   // Check if this script version is allowed to run
   const SCRIPT_NAME = 'koc-data-centre';
-  const SCRIPT_VERSION = '2.11.4'; // Must match @version above
+  const SCRIPT_VERSION = '2.12.0'; // Must match @version above
   const VERSION_CHECK_API = 'https://koc-roster-api-production.up.railway.app';
 
   async function checkScriptVersion() {
@@ -4133,6 +4133,10 @@
     });
     debugLog('📊 Stored TIV distribution:', tivDistribution);
 
+    // Also cache the armory SPEND preferences (how gold is actually allocated when
+    // buying), so safe.php can project attack-gold by spend %, not current holdings.
+    collectSpendPrefs();
+
     // === CALCULATE GOLD-PER-POINT EFFICIENCY ===
     const efficiency = calculateWeaponEfficiency(weapons, stats);
 
@@ -4205,6 +4209,29 @@
 
     debugLog("📊 Armory data sent to API", { id: myId, name: myName, tiv, ...realRanks });
     debugLog("📊 Local stats captured for UI", { stats, weapons: weapons.length, efficiency });
+  }
+
+  // Read the armory spend preferences (prefs[...] % per weapon type) and cache them as a
+  // stat->fraction distribution. Re-read on every armory load so the safe.php "Attacked
+  // Instead" projection mirrors preference changes as soon as they're saved. KoC field
+  // names differ from our stat keys: defend->defense, medicine->antidote.
+  function collectSpendPrefs() {
+    const fieldToStat = { attack:'attack', defend:'defense', spy:'spy', sentry:'sentry', poison:'poison', medicine:'antidote', theft:'theft', vigilance:'vigilance' };
+    const raw = {}; let sum = 0, found = 0;
+    for (const field in fieldToStat) {
+      const el = document.querySelector(`input[name="prefs[${field}]"]`);
+      if (!el) continue;
+      found++;
+      const v = parseFloat(String(el.value).replace(/[^\d.]/g, ''));
+      if (!isNaN(v)) { raw[fieldToStat[field]] = v; sum += v; }
+    }
+    if (found < 8 || sum <= 0) { debugLog('[Armory] Spend prefs not fully readable - not caching'); return; }
+    const distribution = {};
+    for (const stat of ['attack','defense','spy','sentry','poison','antidote','theft','vigilance']) {
+      distribution[stat] = (raw[stat] || 0) / sum;
+    }
+    SafeStorage.set('KoC_SpendPrefs', { distribution, raw, timestamp: Date.now() });
+    debugLog('📊 Cached armory spend prefs:', distribution);
   }
 
   // ==================== WEAPON MULTIPLIER SYSTEM ====================
@@ -6761,9 +6788,18 @@
 
     debugLog('[SafePage] Current stats:', currentStats);
 
-    // Get TIV distribution from localStorage
+    // Inject the flat tech-upgrade % into the "Stats After Upgrading Tech" header
+    // (the upgrade raises every stat by the same ratio). Runs before any early-return
+    // so it shows even when the projection below can't be built.
+    augmentTechHeader(techStatsHeader, techStatsTable, currentStats);
+
+    // Distribution source: prefer the player's armory SPEND preferences (how they'd
+    // actually spend attack-gold); fall back to current-holdings TIV if not cached yet.
+    const spendData = SafeStorage.get('KoC_SpendPrefs', null);
     const tivData = SafeStorage.get('KoC_TivDistribution', null);
-    if (!tivData || !tivData.distribution) {
+    const distData = (spendData && spendData.distribution) ? spendData : tivData;
+    const usingSpendPrefs = !!(spendData && spendData.distribution);
+    if (!distData || !distData.distribution) {
       // Show warning table instead
       const warningTable = document.createElement('table');
       warningTable.id = TABLE_ID;
@@ -6868,7 +6904,7 @@
 
     // Calculate projected stats
     const projectedStats = {};
-    const distribution = tivData.distribution;
+    const distribution = distData.distribution;
 
     const statLabels = {
       attack: 'Strike',
@@ -6913,49 +6949,76 @@
     newTable.cellSpacing = '0';
     newTable.cellPadding = '6';
 
+    // Cell = "Label (projected · ▲ %)" with a tooltip explaining the spend + gain.
+    const src = usingSpendPrefs ? 'your armory preferences' : 'your current weapon mix';
+    const cell = (cat) => {
+      const label = statLabels[cat];
+      const curV = currentStats[cat] || 0;
+      const projV = projectedStats[cat] || 0;
+      const gain = projV - curV;
+      const pct = curV > 0 ? (gain / curV * 100) : 0;
+      const pctTxt = pct >= 10 ? pct.toFixed(0) : pct.toFixed(1);
+      const badge = gain > 0
+        ? `<span style="color:#9f9;">▲ ${pctTxt}%</span>`
+        : `<span style="color:#888;">—</span>`;
+      const goldForStat = totalGold * (distribution[cat] || 0);
+      const spendPct = Math.round((distribution[cat] || 0) * 100);
+      const tip = gain > 0
+        ? `Using ${src}, ${spendPct}% of that gold (~${formatGoldShort(goldForStat)}) buys ${label} weapons — raising ${label} by ${pctTxt}% (+${gain.toLocaleString()}).`
+        : `${src.charAt(0).toUpperCase() + src.slice(1)} allocate ${spendPct}% here, so attacking adds nothing to ${label}.`;
+      return `<span title="${tip.replace(/"/g, '&quot;')}">${label} (${projV.toLocaleString()} · ${badge})</span>`;
+    };
+    const headerTip = `If you traded this tech upgrade's experience for turns instead of upgrading, you could make ${attacks.toLocaleString()} attacks. At your current average of ${formatGoldShort(avgGold)} gold per attack, that's about ${formatGoldShort(totalGold)} to spend — split below by ${src}.`;
     newTable.innerHTML = `
       <tr>
-        <th colspan="2" style="color: #66ff66;">
+        <th colspan="2" style="color: #66ff66;" title="${headerTip.replace(/"/g, '&quot;')}">
           Stats If You Attacked Instead (${attacks.toLocaleString()} atks × ${formatGoldShort(avgGold)} = ${formatGoldShort(totalGold)})
         </th>
       </tr>
       <tr>
-        <td align="center" style="color: #66ff66;">
-          ${statLabels.attack} (${(currentStats.attack || 0).toLocaleString()} → ${projectedStats.attack.toLocaleString()})
-        </td>
-        <td align="center" style="color: #66ff66;">
-          ${statLabels.defense} (${(currentStats.defense || 0).toLocaleString()} → ${projectedStats.defense.toLocaleString()})
-        </td>
+        <td align="center" style="color: #66ff66;">${cell('attack')}</td>
+        <td align="center" style="color: #66ff66;">${cell('defense')}</td>
       </tr>
       <tr>
-        <td align="center" style="color: #66ff66;">
-          ${statLabels.spy} (${(currentStats.spy || 0).toLocaleString()} → ${projectedStats.spy.toLocaleString()})
-        </td>
-        <td align="center" style="color: #66ff66;">
-          ${statLabels.sentry} (${(currentStats.sentry || 0).toLocaleString()} → ${projectedStats.sentry.toLocaleString()})
-        </td>
+        <td align="center" style="color: #66ff66;">${cell('spy')}</td>
+        <td align="center" style="color: #66ff66;">${cell('sentry')}</td>
       </tr>
       <tr>
-        <td align="center" style="color: #66ff66;">
-          ${statLabels.poison} (${(currentStats.poison || 0).toLocaleString()} → ${projectedStats.poison.toLocaleString()})
-        </td>
-        <td align="center" style="color: #66ff66;">
-          ${statLabels.antidote} (${(currentStats.antidote || 0).toLocaleString()} → ${projectedStats.antidote.toLocaleString()})
-        </td>
+        <td align="center" style="color: #66ff66;">${cell('poison')}</td>
+        <td align="center" style="color: #66ff66;">${cell('antidote')}</td>
       </tr>
       <tr>
-        <td align="center" style="color: #66ff66;">
-          ${statLabels.theft} (${(currentStats.theft || 0).toLocaleString()} → ${projectedStats.theft.toLocaleString()})
-        </td>
-        <td align="center" style="color: #66ff66;">
-          ${statLabels.vigilance} (${(currentStats.vigilance || 0).toLocaleString()} → ${projectedStats.vigilance.toLocaleString()})
-        </td>
+        <td align="center" style="color: #66ff66;">${cell('theft')}</td>
+        <td align="center" style="color: #66ff66;">${cell('vigilance')}</td>
       </tr>
     `;
 
     // Insert after the tech stats table
     techStatsTable.parentNode.insertBefore(newTable, techStatsTable.nextSibling);
     debugLog('[SafePage] Attack alternative table injected');
+  }
+
+  // Append the tech-upgrade % to the "Stats After Upgrading Tech" header. The upgrade
+  // raises every stat by the same ratio (new tech bonus ÷ current), so we show one %.
+  function augmentTechHeader(headerTh, techTable, currentStats) {
+    try {
+      if (!headerTh || headerTh.dataset.kocTechPct || !techTable) return;
+      const nameKey = { strike:'attack', defense:'defense', spy:'spy', sentry:'sentry', poison:'poison', antidote:'antidote', theft:'theft', vigilance:'vigilance' };
+      let pct = null, m;
+      const re = /([A-Za-z]+)\s*\(([\d,]+)\)/g, txt = techTable.textContent;
+      while ((m = re.exec(txt))) {
+        const key = nameKey[m[1].toLowerCase()]; if (!key) continue;
+        const after = parseInt(m[2].replace(/,/g, ''), 10), cur = currentStats[key];
+        if (cur && after && after > cur) { pct = (after / cur - 1) * 100; break; }
+      }
+      if (pct == null) return;
+      const span = document.createElement('span');
+      span.style.cssText = 'color:#66ff66; font-weight:normal;';
+      span.title = 'This tech upgrade multiplies every stat by the same ratio (new tech bonus ÷ current stat).';
+      span.textContent = ` (every stat ▲ ${pct.toFixed(1)}%)`;
+      headerTh.appendChild(span);
+      headerTh.dataset.kocTechPct = '1';
+    } catch (e) { debugLog('[SafePage] augmentTechHeader failed:', e); }
   }
 
   // ==================== TECH UPGRADE: TIME TO UPGRADE + EXP NEEDED ====================
