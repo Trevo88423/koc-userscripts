@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name         KoC Data Centre
 // @namespace    trevo88423
-// @version      2.12.0
-// @description  Sweet Revenge alliance tool: tracks stats, syncs to API, adds dashboards, XP→Turn calculator, mini Top Stats panel. v2.11.2: Banking Mode redesigned — your exposed gold now shows in a native-style "Estimated Funds" box that matches the in-game funds boxes, with a ⚙ that holds the Banking Mode toggle, screen-awake, and all settings (including an optional "show yellow/red times" line); a live-ticking Server Time clock on every page; and the Upgrades "Upgrade Ready" row now uses realistic funds (drops full-armory-sell) and shows any shortfall as a slay estimate. v2.10.1: Fix — the slider Armory Preferences now also resync when you press KoC's "Clear Percentage Prefills" button (sliders drop to 0 instead of keeping their old values). v2.10.0: New slider-based Armory Preferences — drag to allocate with auto-balancing, theme-matched styling, and one-tap presets (Cheapest first, Optimizer, All spy, All defense) plus saved presets — replacing the in-game percentage form; rank Optimizer also fixed (weapon efficiency now synced). v2.9.0: "Time to upgrade" + "EXP still needed to be deposited" now show on ALL EXP-cost safe.php upgrades (Increase Soldiers, Economic Development, SAFE Upgrade) — not just Technological Development. v2.8.2: Fix — "EXP still needed to be deposited" now shows cost − Experience Bank (what must still be banked) instead of also subtracting on-hand EXP, so it no longer reads 0 when you hold the EXP but haven't deposited it. v2.8.1: Fix — sidebar abbreviates large gold/safe values (e.g. "2,560M"); getSidebarValue now parses K/M/B/T suffixes so SAFE Forecasts and gold-upgrade rows use real balances (previously read as ~0). SAFE Forecasts also uses the full-precision "Gold in Safe" value. v2.8.0: SAFE Forecasts on safe.php — time for your Safe to reach 1B/2B/5B/9B/10B(MAX) based on current Safe + deposit/min. v2.7.0: Gold upgrade timer — upgrades.php now shows "Upgrade Ready" (liquidation + safe-growth time) and "Gold Needed on top of Safe" under each skill upgrade (uses gold/vault/safe + full armory sell value from Armory + safe deposit rate from Safe). v2.6.0: Tech upgrade timer — safe.php now shows "Time to upgrade" + "EXP still needed to be deposited" under Technological Development (uses EXP on-hand + Experience Bank + your EXP/turn rate, auto-captured from the Upgrades page). v2.5.1: Banking Mode last-bank fix — now watches the per-weapon buy form (anotherbuyform), not just the hidden one-click form, and stamps banks reliably for high-income accounts. v2.5.0: 🏦 Banking Mode on the Armory page — toggleable inline widget that projects your exposed (stealable) gold every second, colour-codes the risk (SAFE/CAUTION/DANGER) from your attack-log steal history, shows time-to-yellow/red, and keeps the screen awake. Display-only: no automated requests, observes (never presses) the buy/repair forms. v2.4.0: Banking trend graph (📈 in the sidebar tracks your banked % over time) + manual override for Avg Gold/Atk (✏️ in the sidebar, survives attack-log recalibration). v2.3.4: Recons panel now shares counts alliance-wide via API (previously localStorage-only — each user only saw themselves). v2.3.0: Added "Stats If You Attacked Instead" table on safe.php to compare tech upgrades vs attacking. v2.2.9: Added optimizer auto-fill for armory (uses roster API to calculate optimal stat allocation). v2.2.8: Minor fixes. v2.1.0: Integrated slaying competition tracker (attack missions & gold stolen tracking, team competitions, leaderboards). v2.0.0: Optimized API architecture, previous versions deprecated.
+// @version      2.13.1
+// @description  Sweet Revenge alliance tool: tracks stats, syncs to API, adds dashboards, XP→Turn calculator, mini Top Stats panel. v2.13.1: Rank-neighbour links now blend into the native table — no dot markers or underline, the numbers just quietly became links (hover tooltip still shows who it is, data age, and gap/stale warnings). v2.13.0: Rank-neighbour recon links — the "Rating For Previous/Next Rank Gain" numbers are now hyperlinks to the player we believe holds that rank (matched by rating value from the roster DB, never by stale DB rank), with a tooltip showing who it is + how fresh their data is; an orange dot means a DB gap (recon upward), a red dot means DB rank/rating disagree (recon me first). Click → recon → DB refreshes; wrong candidates rotate out on the next page load, so the links self-correct toward the true neighbour. v2.11.2: Banking Mode redesigned — your exposed gold now shows in a native-style "Estimated Funds" box that matches the in-game funds boxes, with a ⚙ that holds the Banking Mode toggle, screen-awake, and all settings (including an optional "show yellow/red times" line); a live-ticking Server Time clock on every page; and the Upgrades "Upgrade Ready" row now uses realistic funds (drops full-armory-sell) and shows any shortfall as a slay estimate. v2.10.1: Fix — the slider Armory Preferences now also resync when you press KoC's "Clear Percentage Prefills" button (sliders drop to 0 instead of keeping their old values). v2.10.0: New slider-based Armory Preferences — drag to allocate with auto-balancing, theme-matched styling, and one-tap presets (Cheapest first, Optimizer, All spy, All defense) plus saved presets — replacing the in-game percentage form; rank Optimizer also fixed (weapon efficiency now synced). v2.9.0: "Time to upgrade" + "EXP still needed to be deposited" now show on ALL EXP-cost safe.php upgrades (Increase Soldiers, Economic Development, SAFE Upgrade) — not just Technological Development. v2.8.2: Fix — "EXP still needed to be deposited" now shows cost − Experience Bank (what must still be banked) instead of also subtracting on-hand EXP, so it no longer reads 0 when you hold the EXP but haven't deposited it. v2.8.1: Fix — sidebar abbreviates large gold/safe values (e.g. "2,560M"); getSidebarValue now parses K/M/B/T suffixes so SAFE Forecasts and gold-upgrade rows use real balances (previously read as ~0). SAFE Forecasts also uses the full-precision "Gold in Safe" value. v2.8.0: SAFE Forecasts on safe.php — time for your Safe to reach 1B/2B/5B/9B/10B(MAX) based on current Safe + deposit/min. v2.7.0: Gold upgrade timer — upgrades.php now shows "Upgrade Ready" (liquidation + safe-growth time) and "Gold Needed on top of Safe" under each skill upgrade (uses gold/vault/safe + full armory sell value from Armory + safe deposit rate from Safe). v2.6.0: Tech upgrade timer — safe.php now shows "Time to upgrade" + "EXP still needed to be deposited" under Technological Development (uses EXP on-hand + Experience Bank + your EXP/turn rate, auto-captured from the Upgrades page). v2.5.1: Banking Mode last-bank fix — now watches the per-weapon buy form (anotherbuyform), not just the hidden one-click form, and stamps banks reliably for high-income accounts. v2.5.0: 🏦 Banking Mode on the Armory page — toggleable inline widget that projects your exposed (stealable) gold every second, colour-codes the risk (SAFE/CAUTION/DANGER) from your attack-log steal history, shows time-to-yellow/red, and keeps the screen awake. Display-only: no automated requests, observes (never presses) the buy/repair forms. v2.4.0: Banking trend graph (📈 in the sidebar tracks your banked % over time) + manual override for Avg Gold/Atk (✏️ in the sidebar, survives attack-log recalibration). v2.3.4: Recons panel now shares counts alliance-wide via API (previously localStorage-only — each user only saw themselves). v2.3.0: Added "Stats If You Attacked Instead" table on safe.php to compare tech upgrades vs attacking. v2.2.9: Added optimizer auto-fill for armory (uses roster API to calculate optimal stat allocation). v2.2.8: Minor fixes. v2.1.0: Integrated slaying competition tracker (attack missions & gold stolen tracking, team competitions, leaderboards). v2.0.0: Optimized API architecture, previous versions deprecated.
 // @author       Blackheart
 // @match        https://www.kingsofchaos.com/*
 // @exclude      https://*.kingsofchaos.com/confirm.login.php*
@@ -42,7 +42,7 @@
   // ==================== VERSION CHECK ====================
   // Check if this script version is allowed to run
   const SCRIPT_NAME = 'koc-data-centre';
-  const SCRIPT_VERSION = '2.12.0'; // Must match @version above
+  const SCRIPT_VERSION = '2.13.1'; // Must match @version above
   const VERSION_CHECK_API = 'https://koc-roster-api-production.up.railway.app';
 
   async function checkScriptVersion() {
@@ -3101,6 +3101,22 @@
 
   // ==================== RANK-UP COST DISPLAY ====================
 
+  // Find the game's "Rating For Previous/Next Rank Gain" table (armory/safe/etc.)
+  function findRankGainTable() {
+    const tables = [...document.querySelectorAll('table')];
+    return tables.find(table => {
+      const header = table.querySelector('th');
+      if (!header) return false;
+
+      const headerText = header.textContent.trim();
+      // Try multiple variations of the header text
+      return headerText.includes('Rating For Previous/Next Rank Gain') ||
+             headerText.includes('Rating For') ||
+             headerText.includes('Previous/Next Rank') ||
+             headerText.includes('Next Rank Gain');
+    });
+  }
+
   // Store rank-up costs for auto-fill functionality
   let armoryRankCosts = {
     costs: {},        // { 'attack': 1234567, 'defense': 987654, ... }
@@ -3127,23 +3143,12 @@
     armoryRankCosts.efficiency = efficiency;
     armoryRankCosts.costs = {}; // Reset costs
 
-    // Find the rank progression table - try multiple selectors
-    const tables = [...document.querySelectorAll('table')];
-    const rankTable = tables.find(table => {
-      const header = table.querySelector('th');
-      if (!header) return false;
-
-      const headerText = header.textContent.trim();
-      // Try multiple variations of the header text
-      return headerText.includes('Rating For Previous/Next Rank Gain') ||
-             headerText.includes('Rating For') ||
-             headerText.includes('Previous/Next Rank') ||
-             headerText.includes('Next Rank Gain');
-    });
+    // Find the rank progression table
+    const rankTable = findRankGainTable();
 
     if (!rankTable) {
       debugLog('⚠️ displayRankUpCosts: Could not find rank progression table');
-      debugLog('Available table headers:', tables.map(t => t.querySelector('th')?.textContent.trim()).filter(Boolean));
+      debugLog('Available table headers:', [...document.querySelectorAll('table')].map(t => t.querySelector('th')?.textContent.trim()).filter(Boolean));
       return;
     }
 
@@ -3278,6 +3283,113 @@
     });
 
     debugLog(`✅ displayRankUpCosts: Processed ${processedCount} rank cost displays`);
+  }
+
+  // ==================== RANK NEIGHBOUR RECON LINKS ====================
+  // Turns each Previous/Next rating threshold into a hyperlink to the player we
+  // believe holds that rank. Clicking → recon → their stats refresh in the DB.
+  // Candidates are matched by RATING VALUE (the game's threshold is ground
+  // truth), never by the drift-prone DB rank columns, so a wrong candidate
+  // rotates out on the next page load — the loop self-corrects toward the true
+  // neighbour and curious clickers become a distributed recon workforce.
+
+  const RANK_NEIGHBOR_ACTION_MAP = {
+    'Strike': 'strikeAction',
+    'Defense': 'defensiveAction',
+    'Spy': 'spyRating',
+    'Sentry': 'sentryRating',
+    'Poison': 'poisonRating',
+    'Antidote': 'antidoteRating',
+    'Theft': 'theftRating',
+    'Vigilance': 'vigilanceRating'
+  };
+
+  async function enhanceRankNeighborLinks() {
+    const rankTable = findRankGainTable();
+    if (!rankTable) return; // Page doesn't show the Previous/Next Rank Gain table
+
+    const parseRating = (txt) => {
+      const n = parseInt(String(txt || '').replace(/,/g, ''), 10);
+      return Number.isFinite(n) && n > 0 ? n : null;
+    };
+
+    // Scrape the game's exact thresholds per stat row
+    const thresholds = {};
+    const cellsByStat = {};
+    rankTable.querySelectorAll('tr').forEach(row => {
+      const cells = row.querySelectorAll('td');
+      if (cells.length < 3) return;
+
+      const statKey = RANK_NEIGHBOR_ACTION_MAP[cells[0]?.textContent.trim()];
+      if (!statKey) return;
+
+      const prev = parseRating(cells[1]?.textContent);
+      const next = parseRating(cells[2]?.textContent);
+      if (!prev && !next) return;
+
+      thresholds[statKey] = {};
+      if (prev) thresholds[statKey].prev = prev;
+      if (next) thresholds[statKey].next = next;
+      cellsByStat[statKey] = cells;
+    });
+
+    if (Object.keys(thresholds).length === 0) {
+      debugLog('⚠️ Rank neighbours: table found but no parseable thresholds');
+      return;
+    }
+
+    const resp = await auth.apiCall('rankings/rank-neighbors', { thresholds });
+    if (!resp || !resp.neighbors) {
+      debugLog('⚠️ Rank neighbours: no API response');
+      return;
+    }
+
+    let linked = 0;
+    for (const [statKey, cells] of Object.entries(cellsByStat)) {
+      const neighbor = resp.neighbors[statKey];
+      if (!neighbor) continue;
+      if (linkifyRankNeighborCell(cells[1], neighbor.prev, 'Previous rank')) linked++;
+      if (linkifyRankNeighborCell(cells[2], neighbor.next, 'Next rank')) linked++;
+    }
+    debugLog(`🔗 Rank neighbours: linked ${linked} rating thresholds`);
+  }
+
+  function linkifyRankNeighborCell(cell, candidate, label) {
+    if (!cell || !candidate || !candidate.playerId) return false;
+
+    const container = cell.querySelector('font') || cell;
+    // The threshold number is the first digit-bearing text node — wrap only
+    // that, leaving other enhancers' additions (e.g. rank-up cost spans) alone
+    const textNode = [...container.childNodes].find(
+      node => node.nodeType === Node.TEXT_NODE && /\d/.test(node.textContent)
+    );
+    if (!textNode) return false;
+
+    const link = document.createElement('a');
+    link.href = `stats.php?id=${encodeURIComponent(candidate.playerId)}`;
+    link.textContent = textNode.textContent.trim();
+    // Blend in with the native table — the tooltip is the only visible hint
+    link.style.color = 'inherit';
+    link.style.textDecoration = 'none';
+
+    const age = candidate.ratingTime ? reconTimeAgo(candidate.ratingTime) : 'never';
+    const tooltip = [
+      `${label}: ${candidate.name}`,
+      `DB rating: ${Number(candidate.rating).toLocaleString()}`,
+      `Last stat update: ${age}`
+    ];
+    if (candidate.gap) {
+      tooltip.push('⚠️ Gap — nobody in DB at this rating. Recon upward!');
+    } else if (candidate.staleSignal) {
+      tooltip.push('🔴 DB rank and rating lookups disagree — recon me first!');
+    } else if (candidate.matched) {
+      tooltip.push('✅ DB rating matches the game exactly');
+    }
+    link.title = tooltip.join('\n');
+
+    container.replaceChild(link, textNode);
+
+    return true;
   }
 
   // ==================== ARMORY AUTO-FILL PREFERENCES ====================
@@ -8462,6 +8574,10 @@
       // Banking Mode: opportunistic G0 refresh from the sidebar Gold/Vault cells
       await safeExecute('bankCollectSidebarGold', () => bankCollectSidebarGold());
     }
+
+    // Rank neighbour recon links — any page showing the "Rating For
+    // Previous/Next Rank Gain" table (armory.php, safe.php, ...); no-ops fast elsewhere
+    await safeExecute('enhanceRankNeighborLinks', () => enhanceRankNeighborLinks());
 
     // Attack log
     if (location.pathname.includes("attacklog.php")) {
