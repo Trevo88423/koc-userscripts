@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name         KoC Data Centre
 // @namespace    trevo88423
-// @version      2.13.1
-// @description  Sweet Revenge alliance tool: tracks stats, syncs to API, adds dashboards, XP→Turn calculator, mini Top Stats panel. v2.13.1: Rank-neighbour links now blend into the native table — no dot markers or underline, the numbers just quietly became links (hover tooltip still shows who it is, data age, and gap/stale warnings). v2.13.0: Rank-neighbour recon links — the "Rating For Previous/Next Rank Gain" numbers are now hyperlinks to the player we believe holds that rank (matched by rating value from the roster DB, never by stale DB rank), with a tooltip showing who it is + how fresh their data is; an orange dot means a DB gap (recon upward), a red dot means DB rank/rating disagree (recon me first). Click → recon → DB refreshes; wrong candidates rotate out on the next page load, so the links self-correct toward the true neighbour. v2.11.2: Banking Mode redesigned — your exposed gold now shows in a native-style "Estimated Funds" box that matches the in-game funds boxes, with a ⚙ that holds the Banking Mode toggle, screen-awake, and all settings (including an optional "show yellow/red times" line); a live-ticking Server Time clock on every page; and the Upgrades "Upgrade Ready" row now uses realistic funds (drops full-armory-sell) and shows any shortfall as a slay estimate. v2.10.1: Fix — the slider Armory Preferences now also resync when you press KoC's "Clear Percentage Prefills" button (sliders drop to 0 instead of keeping their old values). v2.10.0: New slider-based Armory Preferences — drag to allocate with auto-balancing, theme-matched styling, and one-tap presets (Cheapest first, Optimizer, All spy, All defense) plus saved presets — replacing the in-game percentage form; rank Optimizer also fixed (weapon efficiency now synced). v2.9.0: "Time to upgrade" + "EXP still needed to be deposited" now show on ALL EXP-cost safe.php upgrades (Increase Soldiers, Economic Development, SAFE Upgrade) — not just Technological Development. v2.8.2: Fix — "EXP still needed to be deposited" now shows cost − Experience Bank (what must still be banked) instead of also subtracting on-hand EXP, so it no longer reads 0 when you hold the EXP but haven't deposited it. v2.8.1: Fix — sidebar abbreviates large gold/safe values (e.g. "2,560M"); getSidebarValue now parses K/M/B/T suffixes so SAFE Forecasts and gold-upgrade rows use real balances (previously read as ~0). SAFE Forecasts also uses the full-precision "Gold in Safe" value. v2.8.0: SAFE Forecasts on safe.php — time for your Safe to reach 1B/2B/5B/9B/10B(MAX) based on current Safe + deposit/min. v2.7.0: Gold upgrade timer — upgrades.php now shows "Upgrade Ready" (liquidation + safe-growth time) and "Gold Needed on top of Safe" under each skill upgrade (uses gold/vault/safe + full armory sell value from Armory + safe deposit rate from Safe). v2.6.0: Tech upgrade timer — safe.php now shows "Time to upgrade" + "EXP still needed to be deposited" under Technological Development (uses EXP on-hand + Experience Bank + your EXP/turn rate, auto-captured from the Upgrades page). v2.5.1: Banking Mode last-bank fix — now watches the per-weapon buy form (anotherbuyform), not just the hidden one-click form, and stamps banks reliably for high-income accounts. v2.5.0: 🏦 Banking Mode on the Armory page — toggleable inline widget that projects your exposed (stealable) gold every second, colour-codes the risk (SAFE/CAUTION/DANGER) from your attack-log steal history, shows time-to-yellow/red, and keeps the screen awake. Display-only: no automated requests, observes (never presses) the buy/repair forms. v2.4.0: Banking trend graph (📈 in the sidebar tracks your banked % over time) + manual override for Avg Gold/Atk (✏️ in the sidebar, survives attack-log recalibration). v2.3.4: Recons panel now shares counts alliance-wide via API (previously localStorage-only — each user only saw themselves). v2.3.0: Added "Stats If You Attacked Instead" table on safe.php to compare tech upgrades vs attacking. v2.2.9: Added optimizer auto-fill for armory (uses roster API to calculate optimal stat allocation). v2.2.8: Minor fixes. v2.1.0: Integrated slaying competition tracker (attack missions & gold stolen tracking, team competitions, leaderboards). v2.0.0: Optimized API architecture, previous versions deprecated.
+// @version      2.14.0
+// @description  Sweet Revenge alliance tool: tracks stats, syncs to API, adds dashboards, XP→Turn calculator, mini Top Stats panel. v2.14.0: Tech Level Projector — the "Stats After Upgrading Tech" table on safe.php gets a "Project to" dropdown: pick ANY future tech level (up to Obi Bon Kenobi) and the table shows your projected stats at that level, with the total ▲% vs now and the cumulative EXP needed across all the upgrades in between. v2.13.1: Rank-neighbour links now blend into the native table — no dot markers or underline, the numbers just quietly became links (hover tooltip still shows who it is, data age, and gap/stale warnings). v2.13.0: Rank-neighbour recon links — the "Rating For Previous/Next Rank Gain" numbers are now hyperlinks to the player we believe holds that rank (matched by rating value from the roster DB, never by stale DB rank), with a tooltip showing who it is + how fresh their data is; an orange dot means a DB gap (recon upward), a red dot means DB rank/rating disagree (recon me first). Click → recon → DB refreshes; wrong candidates rotate out on the next page load, so the links self-correct toward the true neighbour. v2.11.2: Banking Mode redesigned — your exposed gold now shows in a native-style "Estimated Funds" box that matches the in-game funds boxes, with a ⚙ that holds the Banking Mode toggle, screen-awake, and all settings (including an optional "show yellow/red times" line); a live-ticking Server Time clock on every page; and the Upgrades "Upgrade Ready" row now uses realistic funds (drops full-armory-sell) and shows any shortfall as a slay estimate. v2.10.1: Fix — the slider Armory Preferences now also resync when you press KoC's "Clear Percentage Prefills" button (sliders drop to 0 instead of keeping their old values). v2.10.0: New slider-based Armory Preferences — drag to allocate with auto-balancing, theme-matched styling, and one-tap presets (Cheapest first, Optimizer, All spy, All defense) plus saved presets — replacing the in-game percentage form; rank Optimizer also fixed (weapon efficiency now synced). v2.9.0: "Time to upgrade" + "EXP still needed to be deposited" now show on ALL EXP-cost safe.php upgrades (Increase Soldiers, Economic Development, SAFE Upgrade) — not just Technological Development. v2.8.2: Fix — "EXP still needed to be deposited" now shows cost − Experience Bank (what must still be banked) instead of also subtracting on-hand EXP, so it no longer reads 0 when you hold the EXP but haven't deposited it. v2.8.1: Fix — sidebar abbreviates large gold/safe values (e.g. "2,560M"); getSidebarValue now parses K/M/B/T suffixes so SAFE Forecasts and gold-upgrade rows use real balances (previously read as ~0). SAFE Forecasts also uses the full-precision "Gold in Safe" value. v2.8.0: SAFE Forecasts on safe.php — time for your Safe to reach 1B/2B/5B/9B/10B(MAX) based on current Safe + deposit/min. v2.7.0: Gold upgrade timer — upgrades.php now shows "Upgrade Ready" (liquidation + safe-growth time) and "Gold Needed on top of Safe" under each skill upgrade (uses gold/vault/safe + full armory sell value from Armory + safe deposit rate from Safe). v2.6.0: Tech upgrade timer — safe.php now shows "Time to upgrade" + "EXP still needed to be deposited" under Technological Development (uses EXP on-hand + Experience Bank + your EXP/turn rate, auto-captured from the Upgrades page). v2.5.1: Banking Mode last-bank fix — now watches the per-weapon buy form (anotherbuyform), not just the hidden one-click form, and stamps banks reliably for high-income accounts. v2.5.0: 🏦 Banking Mode on the Armory page — toggleable inline widget that projects your exposed (stealable) gold every second, colour-codes the risk (SAFE/CAUTION/DANGER) from your attack-log steal history, shows time-to-yellow/red, and keeps the screen awake. Display-only: no automated requests, observes (never presses) the buy/repair forms. v2.4.0: Banking trend graph (📈 in the sidebar tracks your banked % over time) + manual override for Avg Gold/Atk (✏️ in the sidebar, survives attack-log recalibration). v2.3.4: Recons panel now shares counts alliance-wide via API (previously localStorage-only — each user only saw themselves). v2.3.0: Added "Stats If You Attacked Instead" table on safe.php to compare tech upgrades vs attacking. v2.2.9: Added optimizer auto-fill for armory (uses roster API to calculate optimal stat allocation). v2.2.8: Minor fixes. v2.1.0: Integrated slaying competition tracker (attack missions & gold stolen tracking, team competitions, leaderboards). v2.0.0: Optimized API architecture, previous versions deprecated.
 // @author       Blackheart
 // @match        https://www.kingsofchaos.com/*
 // @exclude      https://*.kingsofchaos.com/confirm.login.php*
@@ -42,7 +42,7 @@
   // ==================== VERSION CHECK ====================
   // Check if this script version is allowed to run
   const SCRIPT_NAME = 'koc-data-centre';
-  const SCRIPT_VERSION = '2.13.1'; // Must match @version above
+  const SCRIPT_VERSION = '2.14.0'; // Must match @version above
   const VERSION_CHECK_API = 'https://koc-roster-api-production.up.railway.app';
 
   async function checkScriptVersion() {
@@ -7133,6 +7133,153 @@
     } catch (e) { debugLog('[SafePage] augmentTechHeader failed:', e); }
   }
 
+  // ==================== TECH LEVEL PROJECTOR ====================
+  // The game's "Stats After Upgrading Tech X To Y" table only shows the very next
+  // level. Add a level picker so any future tech can be selected — the table then
+  // shows the multiplier and projected stats at that level, plus the EXP to get there.
+  //
+  // Static Technological Development ladder (level → cumulative EXP + multiplier),
+  // from the game's official User Guide.
+  const TECH_LADDER = [
+    { level: 0,  name: 'None',           cumExp: 0,      mult: 1.00 },
+    { level: 1,  name: 'Spear',          cumExp: 300,    mult: 1.05 },
+    { level: 2,  name: 'Fire',           cumExp: 650,    mult: 1.10 },
+    { level: 3,  name: 'Oven',           cumExp: 1050,   mult: 1.16 },
+    { level: 4,  name: 'Pottery',        cumExp: 1510,   mult: 1.22 },
+    { level: 5,  name: 'Domestication',  cumExp: 2030,   mult: 1.28 },
+    { level: 6,  name: 'Copper',         cumExp: 2630,   mult: 1.34 },
+    { level: 7,  name: 'Wheel',          cumExp: 3320,   mult: 1.41 },
+    { level: 8,  name: 'Writing',        cumExp: 4120,   mult: 1.48 },
+    { level: 9,  name: 'Bronze',         cumExp: 5040,   mult: 1.55 },
+    { level: 10, name: 'Irrigation',     cumExp: 6100,   mult: 1.63 },
+    { level: 11, name: 'Woodworking',    cumExp: 7310,   mult: 1.71 },
+    { level: 12, name: 'Archery',        cumExp: 8710,   mult: 1.80 },
+    { level: 13, name: 'Salt',           cumExp: 10320,  mult: 1.89 },
+    { level: 14, name: 'Sailing',        cumExp: 12170,  mult: 1.98 },
+    { level: 15, name: 'Masonry',        cumExp: 14290,  mult: 2.08 },
+    { level: 16, name: 'Forum',          cumExp: 16730,  mult: 2.18 },
+    { level: 17, name: 'Furnace',        cumExp: 19540,  mult: 2.29 },
+    { level: 18, name: 'Ironworking',    cumExp: 22770,  mult: 2.41 },
+    { level: 19, name: 'Library',        cumExp: 26480,  mult: 2.53 },
+    { level: 20, name: 'Medicine',       cumExp: 30750,  mult: 2.65 },
+    { level: 21, name: 'Timekeeping',    cumExp: 35660,  mult: 2.79 },
+    { level: 22, name: 'Market',         cumExp: 41310,  mult: 2.93 },
+    { level: 23, name: 'Monastery',      cumExp: 47800,  mult: 3.07 },
+    { level: 24, name: 'Windmill',       cumExp: 55270,  mult: 3.23 },
+    { level: 25, name: 'Printing',       cumExp: 63860,  mult: 3.39 },
+    { level: 26, name: 'Civil Code',     cumExp: 73740,  mult: 3.56 },
+    { level: 27, name: 'Shipbuilding',   cumExp: 85100,  mult: 3.73 },
+    { level: 28, name: 'Astronomy',      cumExp: 98160,  mult: 3.92 },
+    { level: 29, name: 'Chemistry',      cumExp: 113180, mult: 4.12 },
+    { level: 30, name: 'Gunpowder',      cumExp: 130450, mult: 4.32 },
+    { level: 31, name: 'Economics',      cumExp: 150310, mult: 4.54 },
+    { level: 32, name: 'Cotton Gin',     cumExp: 173150, mult: 4.76 },
+    { level: 33, name: 'Ballistics',     cumExp: 199420, mult: 5.00 },
+    { level: 34, name: 'Metallurgy',     cumExp: 229630, mult: 5.25 },
+    { level: 35, name: 'Laboratory',     cumExp: 264370, mult: 5.52 },
+    { level: 36, name: 'Mechanics',      cumExp: 304320, mult: 5.79 },
+    { level: 37, name: 'Textiles',       cumExp: 350270, mult: 6.08 },
+    { level: 38, name: 'Thermodynamics', cumExp: 403110, mult: 6.39 },
+    { level: 39, name: 'Steam Engine',   cumExp: 463870, mult: 6.70 },
+    { level: 40, name: 'Assembly Line',  cumExp: 533750, mult: 7.04 },
+    { level: 41, name: 'Electricity',    cumExp: 614110, mult: 7.39 },
+    { level: 42, name: 'Cooking',        cumExp: 706520, mult: 7.76 },
+    { level: 43, name: 'Obi Bon Kenobi', cumExp: 812790, mult: 8.15 }
+  ];
+
+  function enhanceTechLevelPicker() {
+    const headerTh = [...document.querySelectorAll('th')]
+      .find(th => th.textContent.includes('Stats After Upgrading Tech'));
+    if (!headerTh || headerTh.dataset.kocTechPicker) return;
+    const techTable = headerTh.closest('table');
+    if (!techTable) return;
+
+    // Current + next tech names sit in <font class="stattech"> inside the header
+    const nameFonts = headerTh.querySelectorAll('font.stattech');
+    const curName = nameFonts[0]?.textContent.trim().toLowerCase();
+    const nextName = nameFonts[1]?.textContent.trim().toLowerCase();
+    const nextIdx = TECH_LADDER.findIndex(t => t.name.toLowerCase() === nextName);
+    const curIdx = nextIdx > 0 ? nextIdx - 1
+      : TECH_LADDER.findIndex(t => t.name.toLowerCase() === curName);
+    if (curIdx < 0 || curIdx >= TECH_LADDER.length - 1) {
+      debugLog('[TechProjector] Unknown tech names:', curName, nextName);
+      return;
+    }
+    const cur = TECH_LADDER[curIdx];
+    const next = TECH_LADDER[curIdx + 1];
+
+    // Snapshot the stat cells. The displayed numbers are the game's EXACT values
+    // for the next level, so a target projection is just: shown × (target ÷ next
+    // multiplier) — no rescrape needed, and selecting the next level restores the
+    // native numbers verbatim.
+    const statNames = /^(strike|defense|spy|sentry|poison|antidote|theft|vigilance)$/i;
+    const statCells = [...techTable.querySelectorAll('td')]
+      .filter(td => /[A-Za-z]+\s*\([\d,]+\)/.test(td.textContent))
+      .map(td => ({ el: td, html: td.innerHTML }));
+    if (statCells.length === 0) return;
+
+    // Picker row just under the header
+    const pickerRow = document.createElement('tr');
+    const pickerTd = document.createElement('td');
+    pickerTd.colSpan = headerTh.colSpan || 2;
+    pickerTd.align = 'center';
+    pickerTd.style.cssText = 'padding: 4px 6px;';
+
+    const select = document.createElement('select');
+    select.style.cssText = 'background:#000; color:#66ff66; border:1px solid #444; padding:2px; font-size:12px;';
+    for (let i = curIdx + 1; i < TECH_LADDER.length; i++) {
+      const t = TECH_LADDER[i];
+      const opt = document.createElement('option');
+      opt.value = String(i);
+      opt.textContent = `Lvl ${t.level} — ${t.name} (x${t.mult.toFixed(2)})`;
+      select.appendChild(opt);
+    }
+    select.value = String(curIdx + 1);
+
+    const summary = document.createElement('span');
+    summary.style.cssText = 'color:#66ff66; font-size:12px; margin-left:8px;';
+
+    const applyTarget = (idx) => {
+      const target = TECH_LADDER[idx];
+      const ratioVsNow = target.mult / cur.mult;
+      const ratioVsShown = target.mult / next.mult;
+      const expNeeded = target.cumExp - cur.cumExp;
+      const upgrades = target.level - cur.level;
+
+      summary.textContent = ` every stat ▲ ${((ratioVsNow - 1) * 100).toFixed(1)}% · ` +
+        `${expNeeded.toLocaleString()} EXP (${upgrades} upgrade${upgrades === 1 ? '' : 's'})`;
+      summary.title = `From ${cur.name} (x${cur.mult.toFixed(2)}) to ${target.name} (x${target.mult.toFixed(2)}).\n` +
+        `Projected stats = the shown next-level values × ${ratioVsShown.toFixed(4)}.\n` +
+        `EXP is cumulative across all ${upgrades} upgrade${upgrades === 1 ? '' : 's'}.`;
+
+      statCells.forEach(({ el, html }) => {
+        el.innerHTML = idx === curIdx + 1 ? html : html.replace(
+          /([A-Za-z]+)(\s*\()([\d,]+)(\))/g,
+          (all, name, open, num, close) => {
+            if (!statNames.test(name)) return all;
+            const projected = Math.round(parseInt(num.replace(/,/g, ''), 10) * ratioVsShown);
+            return name + open + projected.toLocaleString() + close;
+          }
+        );
+      });
+    };
+
+    select.addEventListener('change', () => applyTarget(parseInt(select.value, 10)));
+
+    const label = document.createElement('span');
+    label.textContent = 'Project to: ';
+    label.style.cssText = 'color:#ccc; font-size:12px;';
+    pickerTd.appendChild(label);
+    pickerTd.appendChild(select);
+    pickerTd.appendChild(summary);
+    pickerRow.appendChild(pickerTd);
+    headerTh.closest('tr').after(pickerRow);
+    headerTh.dataset.kocTechPicker = '1';
+
+    applyTarget(curIdx + 1);
+    debugLog(`[TechProjector] Picker added (${cur.name} → up to ${TECH_LADDER[TECH_LADDER.length - 1].name})`);
+  }
+
   // ==================== TECH UPGRADE: TIME TO UPGRADE + EXP NEEDED ====================
 
   /**
@@ -8684,6 +8831,7 @@
       await safeExecute('addSafeForecasts', () => addSafeForecasts());
       await safeExecute('addExpUpgradeTimeRows', () => addExpUpgradeTimeRows());
       await safeExecute('addAttackAlternativeTable', () => addAttackAlternativeTable());
+      await safeExecute('enhanceTechLevelPicker', () => enhanceTechLevelPicker());
     }
 
     // Upgrades page (EXP-per-turn capture + gold-upgrade readiness/time rows)
