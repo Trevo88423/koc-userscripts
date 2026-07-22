@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name         KoC Data Centre
 // @namespace    trevo88423
-// @version      2.14.0
-// @description  Sweet Revenge alliance tool: tracks stats, syncs to API, adds dashboards, XP→Turn calculator, mini Top Stats panel. v2.14.0: Tech Level Projector — the "Stats After Upgrading Tech" table on safe.php gets a "Project to" dropdown: pick ANY future tech level (up to Obi Bon Kenobi) and the table shows your projected stats at that level, with the total ▲% vs now and the cumulative EXP needed across all the upgrades in between. v2.13.1: Rank-neighbour links now blend into the native table — no dot markers or underline, the numbers just quietly became links (hover tooltip still shows who it is, data age, and gap/stale warnings). v2.13.0: Rank-neighbour recon links — the "Rating For Previous/Next Rank Gain" numbers are now hyperlinks to the player we believe holds that rank (matched by rating value from the roster DB, never by stale DB rank), with a tooltip showing who it is + how fresh their data is; an orange dot means a DB gap (recon upward), a red dot means DB rank/rating disagree (recon me first). Click → recon → DB refreshes; wrong candidates rotate out on the next page load, so the links self-correct toward the true neighbour. v2.11.2: Banking Mode redesigned — your exposed gold now shows in a native-style "Estimated Funds" box that matches the in-game funds boxes, with a ⚙ that holds the Banking Mode toggle, screen-awake, and all settings (including an optional "show yellow/red times" line); a live-ticking Server Time clock on every page; and the Upgrades "Upgrade Ready" row now uses realistic funds (drops full-armory-sell) and shows any shortfall as a slay estimate. v2.10.1: Fix — the slider Armory Preferences now also resync when you press KoC's "Clear Percentage Prefills" button (sliders drop to 0 instead of keeping their old values). v2.10.0: New slider-based Armory Preferences — drag to allocate with auto-balancing, theme-matched styling, and one-tap presets (Cheapest first, Optimizer, All spy, All defense) plus saved presets — replacing the in-game percentage form; rank Optimizer also fixed (weapon efficiency now synced). v2.9.0: "Time to upgrade" + "EXP still needed to be deposited" now show on ALL EXP-cost safe.php upgrades (Increase Soldiers, Economic Development, SAFE Upgrade) — not just Technological Development. v2.8.2: Fix — "EXP still needed to be deposited" now shows cost − Experience Bank (what must still be banked) instead of also subtracting on-hand EXP, so it no longer reads 0 when you hold the EXP but haven't deposited it. v2.8.1: Fix — sidebar abbreviates large gold/safe values (e.g. "2,560M"); getSidebarValue now parses K/M/B/T suffixes so SAFE Forecasts and gold-upgrade rows use real balances (previously read as ~0). SAFE Forecasts also uses the full-precision "Gold in Safe" value. v2.8.0: SAFE Forecasts on safe.php — time for your Safe to reach 1B/2B/5B/9B/10B(MAX) based on current Safe + deposit/min. v2.7.0: Gold upgrade timer — upgrades.php now shows "Upgrade Ready" (liquidation + safe-growth time) and "Gold Needed on top of Safe" under each skill upgrade (uses gold/vault/safe + full armory sell value from Armory + safe deposit rate from Safe). v2.6.0: Tech upgrade timer — safe.php now shows "Time to upgrade" + "EXP still needed to be deposited" under Technological Development (uses EXP on-hand + Experience Bank + your EXP/turn rate, auto-captured from the Upgrades page). v2.5.1: Banking Mode last-bank fix — now watches the per-weapon buy form (anotherbuyform), not just the hidden one-click form, and stamps banks reliably for high-income accounts. v2.5.0: 🏦 Banking Mode on the Armory page — toggleable inline widget that projects your exposed (stealable) gold every second, colour-codes the risk (SAFE/CAUTION/DANGER) from your attack-log steal history, shows time-to-yellow/red, and keeps the screen awake. Display-only: no automated requests, observes (never presses) the buy/repair forms. v2.4.0: Banking trend graph (📈 in the sidebar tracks your banked % over time) + manual override for Avg Gold/Atk (✏️ in the sidebar, survives attack-log recalibration). v2.3.4: Recons panel now shares counts alliance-wide via API (previously localStorage-only — each user only saw themselves). v2.3.0: Added "Stats If You Attacked Instead" table on safe.php to compare tech upgrades vs attacking. v2.2.9: Added optimizer auto-fill for armory (uses roster API to calculate optimal stat allocation). v2.2.8: Minor fixes. v2.1.0: Integrated slaying competition tracker (attack missions & gold stolen tracking, team competitions, leaderboards). v2.0.0: Optimized API architecture, previous versions deprecated.
+// @version      2.15.0
+// @description  Sweet Revenge alliance tool: tracks stats, syncs to API, adds dashboards, XP→Turn calculator, mini Top Stats panel. v2.15.0: Sabotage Tracker on attack.php — "You last sabbed / poisoned / stole" and the revenge timestamps now show colour-coded ages like the stats pages (hover for the raw server time); the Sabotage and Revenge Sabotage sections get a live status line: attempts left in the rolling 24h window with a ticking "Can sab again in …" countdown when you're out of slots (10 sabs / 4 revenge per target per 24h, tracked automatically whenever you fire a sab and backfilled with exact server times when you open the target's Intelligence file), plus a "sab damage left before maxed" line (Maximum Daily Sabotage loss − lost in last 24h) that flips to TARGET MAXED when the cap is hit. Display-only: it records only missions you fire by hand and never presses anything. v2.14.0: Tech Level Projector — the "Stats After Upgrading Tech" table on safe.php gets a "Project to" dropdown: pick ANY future tech level (up to Obi Bon Kenobi) and the table shows your projected stats at that level, with the total ▲% vs now and the cumulative EXP needed across all the upgrades in between. v2.13.1: Rank-neighbour links now blend into the native table — no dot markers or underline, the numbers just quietly became links (hover tooltip still shows who it is, data age, and gap/stale warnings). v2.13.0: Rank-neighbour recon links — the "Rating For Previous/Next Rank Gain" numbers are now hyperlinks to the player we believe holds that rank (matched by rating value from the roster DB, never by stale DB rank), with a tooltip showing who it is + how fresh their data is; an orange dot means a DB gap (recon upward), a red dot means DB rank/rating disagree (recon me first). Click → recon → DB refreshes; wrong candidates rotate out on the next page load, so the links self-correct toward the true neighbour. v2.11.2: Banking Mode redesigned — your exposed gold now shows in a native-style "Estimated Funds" box that matches the in-game funds boxes, with a ⚙ that holds the Banking Mode toggle, screen-awake, and all settings (including an optional "show yellow/red times" line); a live-ticking Server Time clock on every page; and the Upgrades "Upgrade Ready" row now uses realistic funds (drops full-armory-sell) and shows any shortfall as a slay estimate. v2.10.1: Fix — the slider Armory Preferences now also resync when you press KoC's "Clear Percentage Prefills" button (sliders drop to 0 instead of keeping their old values). v2.10.0: New slider-based Armory Preferences — drag to allocate with auto-balancing, theme-matched styling, and one-tap presets (Cheapest first, Optimizer, All spy, All defense) plus saved presets — replacing the in-game percentage form; rank Optimizer also fixed (weapon efficiency now synced). v2.9.0: "Time to upgrade" + "EXP still needed to be deposited" now show on ALL EXP-cost safe.php upgrades (Increase Soldiers, Economic Development, SAFE Upgrade) — not just Technological Development. v2.8.2: Fix — "EXP still needed to be deposited" now shows cost − Experience Bank (what must still be banked) instead of also subtracting on-hand EXP, so it no longer reads 0 when you hold the EXP but haven't deposited it. v2.8.1: Fix — sidebar abbreviates large gold/safe values (e.g. "2,560M"); getSidebarValue now parses K/M/B/T suffixes so SAFE Forecasts and gold-upgrade rows use real balances (previously read as ~0). SAFE Forecasts also uses the full-precision "Gold in Safe" value. v2.8.0: SAFE Forecasts on safe.php — time for your Safe to reach 1B/2B/5B/9B/10B(MAX) based on current Safe + deposit/min. v2.7.0: Gold upgrade timer — upgrades.php now shows "Upgrade Ready" (liquidation + safe-growth time) and "Gold Needed on top of Safe" under each skill upgrade (uses gold/vault/safe + full armory sell value from Armory + safe deposit rate from Safe). v2.6.0: Tech upgrade timer — safe.php now shows "Time to upgrade" + "EXP still needed to be deposited" under Technological Development (uses EXP on-hand + Experience Bank + your EXP/turn rate, auto-captured from the Upgrades page). v2.5.1: Banking Mode last-bank fix — now watches the per-weapon buy form (anotherbuyform), not just the hidden one-click form, and stamps banks reliably for high-income accounts. v2.5.0: 🏦 Banking Mode on the Armory page — toggleable inline widget that projects your exposed (stealable) gold every second, colour-codes the risk (SAFE/CAUTION/DANGER) from your attack-log steal history, shows time-to-yellow/red, and keeps the screen awake. Display-only: no automated requests, observes (never presses) the buy/repair forms. v2.4.0: Banking trend graph (📈 in the sidebar tracks your banked % over time) + manual override for Avg Gold/Atk (✏️ in the sidebar, survives attack-log recalibration). v2.3.4: Recons panel now shares counts alliance-wide via API (previously localStorage-only — each user only saw themselves). v2.3.0: Added "Stats If You Attacked Instead" table on safe.php to compare tech upgrades vs attacking. v2.2.9: Added optimizer auto-fill for armory (uses roster API to calculate optimal stat allocation). v2.2.8: Minor fixes. v2.1.0: Integrated slaying competition tracker (attack missions & gold stolen tracking, team competitions, leaderboards). v2.0.0: Optimized API architecture, previous versions deprecated.
 // @author       Blackheart
 // @match        https://www.kingsofchaos.com/*
 // @exclude      https://*.kingsofchaos.com/confirm.login.php*
@@ -42,7 +42,7 @@
   // ==================== VERSION CHECK ====================
   // Check if this script version is allowed to run
   const SCRIPT_NAME = 'koc-data-centre';
-  const SCRIPT_VERSION = '2.14.0'; // Must match @version above
+  const SCRIPT_VERSION = '2.15.0'; // Must match @version above
   const VERSION_CHECK_API = 'https://koc-roster-api-production.up.railway.app';
 
   async function checkScriptVersion() {
@@ -8616,6 +8616,434 @@
     }
   };
 
+  // ==================== SABOTAGE TRACKER (attack.php) ====================
+  // Tracks YOUR OWN sabotage / revenge-sabotage attempts per target (KoC allows
+  // 10 sabs + 4 revenge sabs per target in a rolling 24h window) and shows:
+  //   • "You last sabbed/poisoned/stole" timestamps as colour-coded ages (stats-page style)
+  //   • attempts left in the window + a ticking "Can sab again in …" countdown
+  //   • sab damage left before the target is maxed (cap − lost in last 24h)
+  // Compliance: display + passive recording only. It listens for missions the
+  // player fires by hand, and reconciles against the counters KoC itself renders.
+  // It never submits, clicks, or fetches anything.
+
+  const SAB_LOG_KEY = "KoC_SabLog";
+  const SAB_WINDOW_MS = 24 * 60 * 60 * 1000;
+  const SAB_DEFAULT_CAP = 10;      // regular sab attempts per target per 24h
+  const REV_DEFAULT_CAP = 4;       // revenge sab attempts per target per 24h
+
+  function getSabLog() {
+    const log = SafeStorage.get(SAB_LOG_KEY, {});
+    return (log && typeof log === 'object' && !Array.isArray(log)) ? log : {};
+  }
+
+  function saveSabLog(log) {
+    const now = Date.now();
+    const grace = SAB_WINDOW_MS + 60 * 60 * 1000; // keep 1h past the window for reconciling
+    for (const [id, rec] of Object.entries(log)) {
+      rec.sab = (rec.sab || []).filter(e => e && now - e.t < grace);
+      rec.rev = (rec.rev || []).filter(e => e && now - e.t < grace);
+      if (!rec.sab.length && !rec.rev.length && (!rec.seen || now - rec.seen > 7 * 86400000)) {
+        delete log[id];
+      }
+    }
+    return SafeStorage.set(SAB_LOG_KEY, log);
+  }
+
+  function recordSabAttempt(targetId, kind, tMs) {
+    const log = getSabLog();
+    const rec = log[targetId] || (log[targetId] = { sab: [], rev: [] });
+    const arr = kind === 'rev' ? (rec.rev = rec.rev || []) : (rec.sab = rec.sab || []);
+    arr.push({ t: tMs });
+    arr.sort((a, b) => a.t - b.t);
+    rec.seen = tMs;
+    saveSabLog(log);
+  }
+
+  /** Age text + colour, matching the Shared Recon Info table tiers */
+  function sabAgeInfo(ageMs) {
+    const min = Math.floor(ageMs / 60000);
+    const hr = Math.floor(ageMs / 3600000);
+    const day = Math.floor(ageMs / 86400000);
+    if (min < 1) return { text: 'just now', color: '#6f6' };
+    if (min < 60) return { text: `${min}m ago`, color: '#6f6' };
+    if (hr < 24) return { text: `${hr}h ago`, color: hr < 6 ? '#6f6' : '#ff6' };
+    return { text: `${day}d ago`, color: day < 3 ? '#f90' : '#f44' };
+  }
+
+  function fmtSabCountdown(ms) {
+    if (ms <= 0) return 'now';
+    const s = Math.ceil(ms / 1000);
+    const h = Math.floor(s / 3600), m = Math.floor((s % 3600) / 60), sec = s % 60;
+    const p = n => (n < 10 ? '0' + n : '' + n);
+    if (h > 0) return `${h}h ${p(m)}m ${p(sec)}s`;
+    if (m > 0) return `${m}m ${p(sec)}s`;
+    return `${sec}s`;
+  }
+
+  /**
+   * Replace "You last sabbed/poisoned/stole" + revenge-sab timestamps with
+   * colour-coded relative ages (raw server time kept in the hover tooltip).
+   */
+  function relativizeMissionTimestamps() {
+    const labelRe = /You last (sabbed|poisoned|stole)|last successful/i;
+    const dtRe = /(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})/;
+    const nodes = [];
+    const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, null);
+    let n;
+    while ((n = walker.nextNode())) {
+      if (!dtRe.test(n.nodeValue || '')) continue;
+      const row = n.parentElement && n.parentElement.closest('tr');
+      if (!row || !labelRe.test(row.textContent || '')) continue; // sidebar clock etc. have no label
+      nodes.push(n);
+    }
+    for (const node of nodes) {
+      try {
+        const m = (node.nodeValue || '').match(dtRe);
+        if (!m) continue;
+        const ms = Date.parse(convertKoCServerTimeToUTC(m[1]));
+        if (isNaN(ms)) continue;
+        const age = sabAgeInfo(Date.now() - ms);
+        const span = document.createElement('span');
+        span.textContent = age.text;
+        span.style.cssText = `color:${age.color}; font-weight:bold; cursor:help;`;
+        span.title = `${m[1]} (server time)`;
+        const after = node.splitText(m.index);
+        after.nodeValue = after.nodeValue.slice(m[1].length);
+        node.parentNode.insertBefore(span, after);
+        // tidy the dangling "on" ("538 Nunchaku on 4d ago" → "538 Nunchaku 4d ago")
+        if (/\bon\s*$/i.test(node.nodeValue || '')) {
+          node.nodeValue = node.nodeValue.replace(/\s*\bon\s*$/i, ' ');
+        } else if (!(node.nodeValue || '').trim()) {
+          // timestamp sat alone inside its own (coloured) element — look just before it
+          const before = span.parentElement && span.parentElement.previousSibling;
+          if (before && before.nodeType === 3 && /\bon\s*$/i.test(before.nodeValue || '')) {
+            before.nodeValue = before.nodeValue.replace(/\s*\bon\s*$/i, ' ');
+          }
+        }
+      } catch (err) {
+        debugLog('⚠️ Sab Tracker: failed to relativize a timestamp', err);
+      }
+    }
+  }
+
+  /** Scrape the sab-related numbers KoC renders on attack.php?id=… */
+  function parseSabPageInfo() {
+    const idMatch = location.search.match(/[?&]id=(\d+)/);
+    if (!idMatch) return null;
+    const body = document.body.textContent || '';
+    if (!/Sabotage Mission/i.test(body)) return null;
+
+    const cellFrac = (re, bodyRe, bodyText) => {
+      for (const td of document.querySelectorAll('td, th')) {
+        const t = (td.textContent || '').replace(/\s+/g, ' ').trim();
+        const m = t.match(re);
+        if (m) return { used: parseInt(m[1], 10), cap: parseInt(m[2], 10) };
+      }
+      // fallback: label and numbers may sit in separate cells
+      if (bodyRe) {
+        const m = (bodyText != null ? bodyText : body).match(bodyRe);
+        if (m) return { used: parseInt(m[1], 10), cap: parseInt(m[2], 10) };
+      }
+      return null;
+    };
+    const bodyNum = (re) => {
+      const m = body.match(re);
+      return m ? parseInt(m[1].replace(/,/g, ''), 10) : null;
+    };
+    const stampMs = (re) => {
+      const m = body.match(re);
+      if (!m) return null;
+      const ms = Date.parse(convertKoCServerTimeToUTC(m[1]));
+      return isNaN(ms) ? null : ms;
+    };
+
+    // "^Sabotage Attempts" cannot match the revenge row (that one starts with "Revenge").
+    // For the body-text fallback, blank out the revenge phrase first instead of using
+    // a lookbehind (older Safari would die parsing a lookbehind literal).
+    const bodySansRev = body.replace(/Revenge\s+Sabotage\s+Attempts/gi, '#');
+    const sabFrac = cellFrac(/^Sabotage Attempts:?\s*(\d+)\s*\/\s*(\d+)$/i,
+                             /Sabotage Attempts:?\s*(\d+)\s*\/\s*(\d+)/i, bodySansRev);
+    const revFrac = cellFrac(/^Revenge Sabotage Attempts:?\s*(\d+)\s*\/\s*(\d+)$/i,
+                             /Revenge Sabotage Attempts:?\s*(\d+)\s*\/\s*(\d+)/i);
+    const nameLink = document.querySelector(`a[href*="stats.php?id=${idMatch[1]}"]`);
+
+    const info = {
+      targetId: idMatch[1],
+      name: nameLink ? (nameLink.textContent || '').trim() : null,
+      sabAttempts: sabFrac ? sabFrac.used : null,
+      sabCap: sabFrac ? sabFrac.cap : SAB_DEFAULT_CAP,
+      revAttempts: revFrac ? revFrac.used : null,
+      revCap: revFrac ? revFrac.cap : REV_DEFAULT_CAP,
+      maxLoss: bodyNum(/Maximum Daily Sabotage loss:\s*\(([\d,]+)\)/i),
+      lost24: bodyNum(/Total lost from sabbs in the last 24\s*hours:\s*([\d,]+)/i),
+      lastSabMs: stampMs(/You last sabbed:[^]{0,80}?(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})/i),
+      lastRevMs: stampMs(/last successful Reven\w*ge Sab on this player[^]{0,60}?(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})/i),
+      revSection: /Revenge Sabotage Mission/i.test(body)
+    };
+    // Maxed = the game says so (revenge section / "maxxed" text), or regular sab
+    // losses in the last 24h have reached the daily cap. Revenge losses are
+    // tracked separately by KoC and do NOT count toward the cap.
+    info.maxed = info.revSection || /is\s+maxx?ed/i.test(body) ||
+                 (info.maxLoss != null && info.lost24 != null && info.lost24 >= info.maxLoss);
+    return info;
+  }
+
+  /**
+   * Make the tracked log agree with the counters KoC itself renders (they are
+   * authoritative): drop the oldest tracked entries if KoC says fewer are in the
+   * window, and pad with estimated entries (stamped from "You last sabbed", the
+   * newest possible time) if KoC counted attempts we never saw — those show a
+   * "≤" upper-bound countdown until real times arrive from the Intelligence file.
+   */
+  function reconcileSabLog(info) {
+    const log = getSabLog();
+    const rec = log[info.targetId] || (log[info.targetId] = { sab: [], rev: [] });
+    const now = Date.now();
+    const fit = (arr, pageCount, lastMs) => {
+      const inWin = (arr || []).filter(e => e && now - e.t < SAB_WINDOW_MS).sort((a, b) => a.t - b.t);
+      if (pageCount != null) {
+        while (inWin.length > pageCount) inWin.shift();
+        const estT = (lastMs && now - lastMs < SAB_WINDOW_MS) ? lastMs : now;
+        while (inWin.length < pageCount) inWin.unshift({ t: estT, est: 1 });
+        inWin.sort((a, b) => a.t - b.t);
+      }
+      return inWin;
+    };
+    rec.sab = fit(rec.sab, info.sabAttempts, info.lastSabMs);
+    rec.rev = fit(rec.rev, info.revAttempts, info.lastRevMs);
+    rec.seen = now;
+    if (info.name) rec.name = info.name;
+    saveSabLog(log);
+    return rec;
+  }
+
+  /** Tightest <tr> whose collapsed text matches (nested-table safe) */
+  function findRowByText(re) {
+    let best = null, bestLen = Infinity;
+    for (const row of document.querySelectorAll('tr')) {
+      const t = (row.textContent || '').replace(/\s+/g, ' ').trim();
+      if (!re.test(t)) continue;
+      if (t.length < bestLen) { best = row; bestLen = t.length; }
+    }
+    return best;
+  }
+
+  function renderSabSlotsLine(el, entries, cap, slotLabel, verb, maxed) {
+    const now = Date.now();
+    const inWin = (entries || []).filter(e => e && now - e.t < SAB_WINDOW_MS).sort((a, b) => a.t - b.t);
+    const left = Math.max(cap - inWin.length, 0);
+    const grey = 'color:#bbb;';
+    let html;
+    if (maxed) {
+      html = `<span style="color:#f66; font-weight:bold;">🚫 Regular sabs will abort while the target is maxed</span>` +
+             `<span style="${grey}"> — ${left} of ${cap} ${slotLabel} left</span>`;
+      if (!left && inWin.length) {
+        html += `<span style="${grey}"> · next slot in ${inWin[0].est ? '≤ ' : ''}${fmtSabCountdown(inWin[0].t + SAB_WINDOW_MS - now)}</span>`;
+      }
+    } else if (left > 0) {
+      html = `<span style="color:#6f6; font-weight:bold;">✅ Can ${verb} now</span>` +
+             `<span style="${grey}"> — ${left} of ${cap} ${slotLabel} left in this 24h window</span>`;
+    } else {
+      html = `<span style="color:#ff6; font-weight:bold;">⏳ Can ${verb} again in ${inWin[0].est ? '≤ ' : ''}${fmtSabCountdown(inWin[0].t + SAB_WINDOW_MS - now)}</span>` +
+             `<span style="${grey}"> — ${cap}/${cap} ${slotLabel} used</span>`;
+    }
+    el.innerHTML = html;
+    el.title = inWin.length
+      ? 'Tracked attempts (server time):\n' + inWin.map((e, i) =>
+          `#${i + 1}: ${convertUTCToKoCServerTime(new Date(e.t).toISOString())}${e.est ? ' (estimated)' : ''}` +
+          ` → slot frees ${convertUTCToKoCServerTime(new Date(e.t + SAB_WINDOW_MS).toISOString())}`).join('\n')
+      : `No ${slotLabel} tracked in the current 24h window.`;
+  }
+
+  function buildSabMaxedLineHTML(info) {
+    if (info.maxLoss == null || info.lost24 == null) return '';
+    const rem = info.maxLoss - info.lost24;
+    if (info.maxed || rem <= 0) {
+      return `<span style="color:#f66; font-weight:bold;">🔴 TARGET MAXED</span>` +
+             `<span style="color:#bbb;"> — lost ${info.lost24.toLocaleString()} of ${info.maxLoss.toLocaleString()} sab cap in the last 24h` +
+             `${info.revSection ? ' · revenge sabs only' : ''}</span>`;
+    }
+    return `<span style="color:#ffd700; font-weight:bold;">💥 ${rem.toLocaleString()}</span>` +
+           `<span style="color:#bbb;"> sab damage left before maxed (cap ${info.maxLoss.toLocaleString()} − lost ${info.lost24.toLocaleString()} in 24h)</span>`;
+  }
+
+  function injectSabPanels(info, rec) {
+    const renders = [];
+    if (document.getElementById('tdc-sab-panel') || document.getElementById('tdc-rev-panel')) return renders;
+
+    const mkPanel = (id, anchorRow) => {
+      if (!anchorRow) return null;
+      const tr = document.createElement('tr');
+      const td = document.createElement('td');
+      let span = 0;
+      for (const c of anchorRow.cells) span += c.colSpan || 1;
+      td.colSpan = Math.max(span, 1);
+      td.style.cssText = 'padding:6px 12px; text-align:center;';
+      const div = document.createElement('div');
+      div.id = id;
+      div.style.cssText = 'font-size:12px; line-height:1.8;';
+      td.appendChild(div);
+      tr.appendChild(td);
+      anchorRow.after(tr);
+      return div;
+    };
+
+    // Regular sabotage panel
+    const sabAnchor = findRowByText(/You last sabbed/i) ||
+                      findRowByText(/Total lost from sabbs in the last 24/i) ||
+                      findRowByText(/^Sabotage Attempts/i);
+    const sabDiv = mkPanel('tdc-sab-panel', sabAnchor);
+    if (sabDiv) {
+      const slots = document.createElement('div');
+      sabDiv.appendChild(slots);
+      const maxedHTML = buildSabMaxedLineHTML(info);
+      if (maxedHTML) {
+        const maxedLine = document.createElement('div');
+        maxedLine.innerHTML = maxedHTML;
+        sabDiv.appendChild(maxedLine);
+      }
+      renders.push({ el: slots, fn: () => renderSabSlotsLine(slots, rec.sab, info.sabCap, 'sab attempts', 'sab', info.maxed) });
+    }
+
+    // Revenge panel (KoC only renders this section while the target is maxed)
+    const revAnchor = findRowByText(/last successful Reven/i) ||
+                      findRowByText(/Successful Revenge Sabbs/i) ||
+                      findRowByText(/Revenge Sabotage Attempts/i);
+    const revDiv = mkPanel('tdc-rev-panel', revAnchor);
+    if (revDiv) {
+      const slots = document.createElement('div');
+      revDiv.appendChild(slots);
+      renders.push({ el: slots, fn: () => renderSabSlotsLine(slots, rec.rev, info.revCap, 'revenge sabs', 'revenge sab', false) });
+    }
+    return renders;
+  }
+
+  let __sabTickId = null;
+  function startSabTicker(renders) {
+    if (__sabTickId) return;
+    const tick = () => {
+      let alive = false;
+      for (const r of renders) {
+        if (r.el.isConnected) { alive = true; r.fn(); }
+      }
+      if (!alive) { clearInterval(__sabTickId); __sabTickId = null; }
+    };
+    tick();
+    __sabTickId = setInterval(tick, 1000);
+  }
+
+  function initSabTracker() {
+    const info = parseSabPageInfo();
+    if (!info) return;
+    relativizeMissionTimestamps();
+    const rec = reconcileSabLog(info);
+    const renders = injectSabPanels(info, rec);
+    if (renders.length) startSabTicker(renders);
+    debugLog('🕵️ Sab Tracker initialised', {
+      target: info.targetId, sab: rec.sab.length, rev: rec.rev.length, maxed: info.maxed
+    });
+  }
+
+  /**
+   * Passive capture of sab submissions on EVERY page (covert mission reports
+   * carry direct "Sabotage Again!"/"Revenge Again!" re-fire buttons too).
+   * Listens on both click and submit — KoC's inline onclick handlers call
+   * form.submit(), which does not fire a submit event — deduped via a mark.
+   */
+  function hookSabFormCapture() {
+    if (window.__tdcSabHooked) return;
+    window.__tdcSabHooked = true;
+
+    const maybeRecord = (form, btn) => {
+      if (!form || form.tagName !== 'FORM') return;
+      if ((form.method || 'get').toLowerCase() !== 'post') return; // report-page "Sabotage!" nav buttons are GET
+      const action = (form.getAttribute('action') || '').toLowerCase();
+      if (action && !/attack\.php|inteldetail\.php/.test(action)) return;
+      const mtEl = form.querySelector('input[name="mission_type"]');
+      const mt = ((mtEl && mtEl.value) || '').toLowerCase();
+      const btnVal = ((btn && btn.value) || '').toLowerCase();
+      if (!(mt.includes('sab') || (!mt && btnVal.includes('sabotage')))) return;
+      if (form.__tdcSabMark && Date.now() - form.__tdcSabMark < 4000) return;
+
+      // Revenge if the field says so, or the form sits under a "Revenge Sabotage" header
+      let isRev = mt.includes('revenge');
+      if (!isRev) {
+        let tbl = (btn || form).closest ? (btn || form).closest('table') : null;
+        for (let i = 0; i < 4 && tbl && !isRev; i++) {
+          const th = tbl.querySelector('th');
+          if (th && /Revenge Sabotage/i.test(th.textContent || '')) isRev = true;
+          else if (th && /^\s*Sabotage Mission\s*$/i.test(th.textContent || '')) break;
+          tbl = tbl.parentElement ? tbl.parentElement.closest('table') : null;
+        }
+      }
+
+      const didEl = form.querySelector('input[name="defender_id"]');
+      const didVal = didEl && /^\d+$/.test(didEl.value || '') ? didEl.value : null;
+      const targetId = didVal || (location.search.match(/[?&]id=(\d+)/) || [])[1];
+      if (!targetId) return;
+
+      form.__tdcSabMark = Date.now();
+      recordSabAttempt(String(targetId), isRev ? 'rev' : 'sab', Date.now());
+      debugLog(`🕵️ Sab Tracker: recorded ${isRev ? 'revenge ' : ''}sab attempt on ${targetId}`);
+    };
+
+    document.addEventListener('click', (e) => {
+      try {
+        const btn = e.target && e.target.closest ? e.target.closest('input[type="submit"], button[type="submit"]') : null;
+        if (btn && btn.form) maybeRecord(btn.form, btn);
+      } catch (err) { /* never interfere with the game's own handlers */ }
+    }, true);
+
+    document.addEventListener('submit', (e) => {
+      try {
+        if (e.target && e.target.tagName === 'FORM') maybeRecord(e.target, e.submitter || null);
+      } catch (err) { /* never interfere with the game's own handlers */ }
+    }, true);
+  }
+
+  /**
+   * intelfile.php?asset_id=… lists every mission you've run on that target with
+   * exact server timestamps — use it to backfill/correct the tracked window.
+   */
+  function collectFromIntelFilePage() {
+    const idMatch = location.search.match(/[?&]asset_id=(\d+)/);
+    if (!idMatch) return;
+    const targetId = idMatch[1];
+    const now = Date.now();
+    const found = { sab: [], rev: [] };
+
+    for (const row of document.querySelectorAll('tr')) {
+      const cells = row.cells;
+      if (!cells || cells.length < 5) continue;
+      const type = (cells[1].textContent || '').trim().toLowerCase();
+      let kind = null;
+      if (type === 'sabotage') kind = 'sab';
+      else if (type.includes('revenge')) kind = 'rev'; // "Revenge_sabotage"
+      else continue;
+      const tsm = (cells[cells.length - 1].textContent || '').match(/(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})/);
+      if (!tsm) continue;
+      const t = Date.parse(convertKoCServerTimeToUTC(tsm[1]));
+      if (isNaN(t) || now - t >= SAB_WINDOW_MS) continue;
+      found[kind].push({ t }); // aborted attempts still count toward the 10/4 caps
+    }
+    if (!found.sab.length && !found.rev.length) return;
+
+    const log = getSabLog();
+    const rec = log[targetId] || (log[targetId] = { sab: [], rev: [] });
+    for (const kind of ['sab', 'rev']) {
+      if (!found[kind].length) continue;
+      const cur = (rec[kind] || []).filter(e => e && now - e.t < SAB_WINDOW_MS);
+      // Server timestamps are authoritative — adopt them when at least as complete
+      // (page 1 only shows the 10 newest reports, so never shrink the tracked set)
+      if (found[kind].length >= cur.length) rec[kind] = found[kind].sort((a, b) => a.t - b.t);
+    }
+    rec.seen = now;
+    saveSabLog(log);
+    debugLog(`🕵️ Sab Tracker: intel-file backfill for ${targetId}`, {
+      sab: found.sab.length, rev: found.rev.length
+    });
+  }
+
   // ==================== PAGE-SPECIFIC INITIALIZERS ====================
 
   /**
@@ -8643,6 +9071,10 @@
   async function runFeatures() {
     // Live-ticking Server Time clock (display-only) — runs on every page.
     await safeExecute('startServerClock', () => startServerClock());
+
+    // Sab Tracker: passive capture of sab submissions — every page, since covert
+    // mission reports carry direct "Sabotage Again!"/"Revenge Again!" buttons
+    await safeExecute('hookSabFormCapture', () => hookSabFormCapture());
 
     // Load active competitions first (shared across base.php and rewards.php)
     const isBaseOrRewards = location.pathname.includes("base.php") || location.pathname.includes("rewards.php");
@@ -8798,6 +9230,12 @@
     // Attack page
     if (location.pathname.includes("attack.php")) {
       await safeExecute('collectTIVFromAttackPage', () => collectTIVFromAttackPage());
+      await safeExecute('initSabTracker', () => initSabTracker());
+    }
+
+    // Intel file (per-target mission log) — backfills the Sab Tracker with exact server times
+    if (location.pathname.includes("intelfile.php")) {
+      await safeExecute('collectFromIntelFilePage', () => collectFromIntelFilePage());
     }
 
     // Attack detail
@@ -8899,6 +9337,12 @@
     debugLog("📊 Full TIV log requested");
     const log = getTivLog();
     debugLog("📊 Log:", log);
+    return log;
+  };
+
+  window.showSabLog = function() {
+    const log = getSabLog();
+    debugLog("🕵️ Sab log:", log);
     return log;
   };
 
