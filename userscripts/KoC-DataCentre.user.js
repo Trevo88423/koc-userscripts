@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name         KoC Data Centre
 // @namespace    trevo88423
-// @version      2.16.0
-// @description  Sweet Revenge alliance tool: tracks stats, syncs to API, adds dashboards, XP→Turn calculator, mini Top Stats panel. v2.16.0: Sab Tracker learns the exclusivity rule — per target you either regular-sab OR revenge-sab in a 24h window, so the panels now show 🔒 "Regular sabs locked — you revenge-sabbed this target" with an unlock countdown that keeps working after the Revenge section vanishes (target un-maxed — exactly when KoC hides the info), and 🔒 "Revenge locked — you've sabbed this target this window" when the Revenge form is up but unusable; the native "First sab (last 24hrs)" row is age-formatted like the rest and its exact server stamp now anchors the tracker, making the "Can sab again in …" countdown precise instead of an estimate. v2.15.0: Sabotage Tracker on attack.php — "You last sabbed / poisoned / stole" and the revenge timestamps now show colour-coded ages like the stats pages (hover for the raw server time); the Sabotage and Revenge Sabotage sections get a live status line: attempts left in the rolling 24h window with a ticking "Can sab again in …" countdown when you're out of slots (10 sabs / 4 revenge per target per 24h, tracked automatically whenever you fire a sab and backfilled with exact server times when you open the target's Intelligence file), plus a "sab damage left before maxed" line (Maximum Daily Sabotage loss − lost in last 24h) that flips to TARGET MAXED when the cap is hit. Display-only: it records only missions you fire by hand and never presses anything. v2.14.0: Tech Level Projector — the "Stats After Upgrading Tech" table on safe.php gets a "Project to" dropdown: pick ANY future tech level (up to Obi Bon Kenobi) and the table shows your projected stats at that level, with the total ▲% vs now and the cumulative EXP needed across all the upgrades in between. v2.13.1: Rank-neighbour links now blend into the native table — no dot markers or underline, the numbers just quietly became links (hover tooltip still shows who it is, data age, and gap/stale warnings). v2.13.0: Rank-neighbour recon links — the "Rating For Previous/Next Rank Gain" numbers are now hyperlinks to the player we believe holds that rank (matched by rating value from the roster DB, never by stale DB rank), with a tooltip showing who it is + how fresh their data is; an orange dot means a DB gap (recon upward), a red dot means DB rank/rating disagree (recon me first). Click → recon → DB refreshes; wrong candidates rotate out on the next page load, so the links self-correct toward the true neighbour. v2.11.2: Banking Mode redesigned — your exposed gold now shows in a native-style "Estimated Funds" box that matches the in-game funds boxes, with a ⚙ that holds the Banking Mode toggle, screen-awake, and all settings (including an optional "show yellow/red times" line); a live-ticking Server Time clock on every page; and the Upgrades "Upgrade Ready" row now uses realistic funds (drops full-armory-sell) and shows any shortfall as a slay estimate. v2.10.1: Fix — the slider Armory Preferences now also resync when you press KoC's "Clear Percentage Prefills" button (sliders drop to 0 instead of keeping their old values). v2.10.0: New slider-based Armory Preferences — drag to allocate with auto-balancing, theme-matched styling, and one-tap presets (Cheapest first, Optimizer, All spy, All defense) plus saved presets — replacing the in-game percentage form; rank Optimizer also fixed (weapon efficiency now synced). v2.9.0: "Time to upgrade" + "EXP still needed to be deposited" now show on ALL EXP-cost safe.php upgrades (Increase Soldiers, Economic Development, SAFE Upgrade) — not just Technological Development. v2.8.2: Fix — "EXP still needed to be deposited" now shows cost − Experience Bank (what must still be banked) instead of also subtracting on-hand EXP, so it no longer reads 0 when you hold the EXP but haven't deposited it. v2.8.1: Fix — sidebar abbreviates large gold/safe values (e.g. "2,560M"); getSidebarValue now parses K/M/B/T suffixes so SAFE Forecasts and gold-upgrade rows use real balances (previously read as ~0). SAFE Forecasts also uses the full-precision "Gold in Safe" value. v2.8.0: SAFE Forecasts on safe.php — time for your Safe to reach 1B/2B/5B/9B/10B(MAX) based on current Safe + deposit/min. v2.7.0: Gold upgrade timer — upgrades.php now shows "Upgrade Ready" (liquidation + safe-growth time) and "Gold Needed on top of Safe" under each skill upgrade (uses gold/vault/safe + full armory sell value from Armory + safe deposit rate from Safe). v2.6.0: Tech upgrade timer — safe.php now shows "Time to upgrade" + "EXP still needed to be deposited" under Technological Development (uses EXP on-hand + Experience Bank + your EXP/turn rate, auto-captured from the Upgrades page). v2.5.1: Banking Mode last-bank fix — now watches the per-weapon buy form (anotherbuyform), not just the hidden one-click form, and stamps banks reliably for high-income accounts. v2.5.0: 🏦 Banking Mode on the Armory page — toggleable inline widget that projects your exposed (stealable) gold every second, colour-codes the risk (SAFE/CAUTION/DANGER) from your attack-log steal history, shows time-to-yellow/red, and keeps the screen awake. Display-only: no automated requests, observes (never presses) the buy/repair forms. v2.4.0: Banking trend graph (📈 in the sidebar tracks your banked % over time) + manual override for Avg Gold/Atk (✏️ in the sidebar, survives attack-log recalibration). v2.3.4: Recons panel now shares counts alliance-wide via API (previously localStorage-only — each user only saw themselves). v2.3.0: Added "Stats If You Attacked Instead" table on safe.php to compare tech upgrades vs attacking. v2.2.9: Added optimizer auto-fill for armory (uses roster API to calculate optimal stat allocation). v2.2.8: Minor fixes. v2.1.0: Integrated slaying competition tracker (attack missions & gold stolen tracking, team competitions, leaderboards). v2.0.0: Optimized API architecture, previous versions deprecated.
+// @version      2.17.0
+// @description  Sweet Revenge alliance tool: tracks stats, syncs to API, adds dashboards, XP→Turn calculator, mini Top Stats panel. v2.17.0: Feature Settings — a new "⚙ Data Centre" link in the sidebar opens a settings panel where EVERY feature can be switched on/off individually (or all at once with the master switch), each with a plain-English description of what it does and a badge showing whether it only changes your display or also records data to the alliance roster; toggles apply on the next page load and everything stays ON by default, so nothing changes until you say so. Under the hood the script's ~40 page hooks were rebuilt onto a single feature registry that drives both the dispatcher and the panel, ~600 lines of dead legacy code were removed, and small fixes landed (DST helper deduplicated, script load message now always visible in console, toast animation style no longer re-injected per notification). Also: the sidebar Sweet Revenge logo is now a link to the Data Centre (with a hover glow), and the Top Stats panel's Debug button is gone — debug mode lives in the console via KoCDebug.toggle(). v2.16.0: Sab Tracker learns the exclusivity rule — per target you either regular-sab OR revenge-sab in a 24h window, so the panels now show 🔒 "Regular sabs locked — you revenge-sabbed this target" with an unlock countdown that keeps working after the Revenge section vanishes (target un-maxed — exactly when KoC hides the info), and 🔒 "Revenge locked — you've sabbed this target this window" when the Revenge form is up but unusable; the native "First sab (last 24hrs)" row is age-formatted like the rest and its exact server stamp now anchors the tracker, making the "Can sab again in …" countdown precise instead of an estimate. v2.15.0: Sabotage Tracker on attack.php — "You last sabbed / poisoned / stole" and the revenge timestamps now show colour-coded ages like the stats pages (hover for the raw server time); the Sabotage and Revenge Sabotage sections get a live status line: attempts left in the rolling 24h window with a ticking "Can sab again in …" countdown when you're out of slots (10 sabs / 4 revenge per target per 24h, tracked automatically whenever you fire a sab and backfilled with exact server times when you open the target's Intelligence file), plus a "sab damage left before maxed" line (Maximum Daily Sabotage loss − lost in last 24h) that flips to TARGET MAXED when the cap is hit. Display-only: it records only missions you fire by hand and never presses anything. v2.14.0: Tech Level Projector — the "Stats After Upgrading Tech" table on safe.php gets a "Project to" dropdown: pick ANY future tech level (up to Obi Bon Kenobi) and the table shows your projected stats at that level, with the total ▲% vs now and the cumulative EXP needed across all the upgrades in between. v2.13.1: Rank-neighbour links now blend into the native table — no dot markers or underline, the numbers just quietly became links (hover tooltip still shows who it is, data age, and gap/stale warnings). v2.13.0: Rank-neighbour recon links — the "Rating For Previous/Next Rank Gain" numbers are now hyperlinks to the player we believe holds that rank (matched by rating value from the roster DB, never by stale DB rank), with a tooltip showing who it is + how fresh their data is; an orange dot means a DB gap (recon upward), a red dot means DB rank/rating disagree (recon me first). Click → recon → DB refreshes; wrong candidates rotate out on the next page load, so the links self-correct toward the true neighbour. v2.11.2: Banking Mode redesigned — your exposed gold now shows in a native-style "Estimated Funds" box that matches the in-game funds boxes, with a ⚙ that holds the Banking Mode toggle, screen-awake, and all settings (including an optional "show yellow/red times" line); a live-ticking Server Time clock on every page; and the Upgrades "Upgrade Ready" row now uses realistic funds (drops full-armory-sell) and shows any shortfall as a slay estimate. v2.10.1: Fix — the slider Armory Preferences now also resync when you press KoC's "Clear Percentage Prefills" button (sliders drop to 0 instead of keeping their old values). v2.10.0: New slider-based Armory Preferences — drag to allocate with auto-balancing, theme-matched styling, and one-tap presets (Cheapest first, Optimizer, All spy, All defense) plus saved presets — replacing the in-game percentage form; rank Optimizer also fixed (weapon efficiency now synced). v2.9.0: "Time to upgrade" + "EXP still needed to be deposited" now show on ALL EXP-cost safe.php upgrades (Increase Soldiers, Economic Development, SAFE Upgrade) — not just Technological Development. v2.8.2: Fix — "EXP still needed to be deposited" now shows cost − Experience Bank (what must still be banked) instead of also subtracting on-hand EXP, so it no longer reads 0 when you hold the EXP but haven't deposited it. v2.8.1: Fix — sidebar abbreviates large gold/safe values (e.g. "2,560M"); getSidebarValue now parses K/M/B/T suffixes so SAFE Forecasts and gold-upgrade rows use real balances (previously read as ~0). SAFE Forecasts also uses the full-precision "Gold in Safe" value. v2.8.0: SAFE Forecasts on safe.php — time for your Safe to reach 1B/2B/5B/9B/10B(MAX) based on current Safe + deposit/min. v2.7.0: Gold upgrade timer — upgrades.php now shows "Upgrade Ready" (liquidation + safe-growth time) and "Gold Needed on top of Safe" under each skill upgrade (uses gold/vault/safe + full armory sell value from Armory + safe deposit rate from Safe). v2.6.0: Tech upgrade timer — safe.php now shows "Time to upgrade" + "EXP still needed to be deposited" under Technological Development (uses EXP on-hand + Experience Bank + your EXP/turn rate, auto-captured from the Upgrades page). v2.5.1: Banking Mode last-bank fix — now watches the per-weapon buy form (anotherbuyform), not just the hidden one-click form, and stamps banks reliably for high-income accounts. v2.5.0: 🏦 Banking Mode on the Armory page — toggleable inline widget that projects your exposed (stealable) gold every second, colour-codes the risk (SAFE/CAUTION/DANGER) from your attack-log steal history, shows time-to-yellow/red, and keeps the screen awake. Display-only: no automated requests, observes (never presses) the buy/repair forms. v2.4.0: Banking trend graph (📈 in the sidebar tracks your banked % over time) + manual override for Avg Gold/Atk (✏️ in the sidebar, survives attack-log recalibration). v2.3.4: Recons panel now shares counts alliance-wide via API (previously localStorage-only — each user only saw themselves). v2.3.0: Added "Stats If You Attacked Instead" table on safe.php to compare tech upgrades vs attacking. v2.2.9: Added optimizer auto-fill for armory (uses roster API to calculate optimal stat allocation). v2.2.8: Minor fixes. v2.1.0: Integrated slaying competition tracker (attack missions & gold stolen tracking, team competitions, leaderboards). v2.0.0: Optimized API architecture, previous versions deprecated.
 // @author       Blackheart
 // @match        https://www.kingsofchaos.com/*
 // @exclude      https://*.kingsofchaos.com/confirm.login.php*
@@ -42,7 +42,7 @@
   // ==================== VERSION CHECK ====================
   // Check if this script version is allowed to run
   const SCRIPT_NAME = 'koc-data-centre';
-  const SCRIPT_VERSION = '2.16.0'; // Must match @version above
+  const SCRIPT_VERSION = '2.17.0'; // Must match @version above
   const VERSION_CHECK_API = 'https://koc-roster-api-production.up.railway.app';
 
   async function checkScriptVersion() {
@@ -144,10 +144,8 @@
   // The rate isn't shown on safe.php, so we capture it from upgrades.php and cache it here.
   const DEFAULT_EXP_PER_TURN = 6;            // KoC max "Increase Experience" level
   const EXP_PER_TURN_KEY = "KoC_ExpPerTurn"; // cached rate (EXP per turn == per minute)
-  // Gold-cost upgrade timer (upgrades.php). Two inputs live on other pages, so we cache them:
-  //   - "Full Armory Sell" = the game's Total Sell Value, captured on armory.php
+  // Gold-cost upgrade timer (upgrades.php). Its one off-page input is cached here:
   //   - Safe deposit per minute = "SAFE Gold Deposited / Every Minute", captured on safe.php
-  const ARMORY_SELL_KEY = "KoC_ArmorySellValue";
   const SAFE_DEPOSIT_PER_MIN_KEY = "KoC_SafeDepositPerMin";
   const SAFE_GOLD_CAP = 10e9;                // safe balance caps at 10 Billion
   // "SAFE Forecasts" milestones on safe.php (the SAFE_GOLD_CAP entry is labelled "(MAX)")
@@ -224,7 +222,7 @@
    * Use sparingly for critical info only
    */
   function infoLog(...args) {
-    debugLog(...args);
+    console.log(...args);
   }
 
   // Always show script load message
@@ -299,6 +297,21 @@
   }
 
   /**
+   * Whether US Eastern DST (EDT, UTC-4) applies on the given date.
+   * US DST: 2nd Sunday in March to 1st Sunday in November.
+   */
+  function isEasternDST(year, month, day) {
+    const marchFirst = new Date(year, 2, 1);
+    const dstStart = 8 + (7 - marchFirst.getDay()) % 7; // 2nd Sunday in March
+
+    const novFirst = new Date(year, 10, 1);
+    const dstEnd = 1 + (7 - novFirst.getDay()) % 7; // 1st Sunday in November
+
+    const currentDate = new Date(year, month, day);
+    return currentDate >= new Date(year, 2, dstStart) && currentDate < new Date(year, 10, dstEnd);
+  }
+
+  /**
    * Convert KoC Server Time string to UTC ISO format
    * @param {string} serverTimeStr - Format: "2025-10-13 06:36:06"
    * @returns {string} UTC ISO string like "2025-10-13T10:36:06.000Z"
@@ -314,26 +327,6 @@
       const hour = parseInt(parts[4]);
       const minute = parseInt(parts[5]);
       const second = parseInt(parts[6]);
-
-      // Determine if EDT (UTC-4) or EST (UTC-5) applies
-      // US DST: 2nd Sunday in March to 1st Sunday in November
-      function isEasternDST(year, month, day) {
-        // Get 2nd Sunday in March
-        const marchFirst = new Date(year, 2, 1);
-        const marchFirstDay = marchFirst.getDay();
-        const dstStart = 8 + (7 - marchFirstDay) % 7;
-
-        // Get 1st Sunday in November
-        const novFirst = new Date(year, 10, 1);
-        const novFirstDay = novFirst.getDay();
-        const dstEnd = 1 + (7 - novFirstDay) % 7;
-
-        const currentDate = new Date(year, month, day);
-        const startDate = new Date(year, 2, dstStart);
-        const endDate = new Date(year, 10, dstEnd);
-
-        return currentDate >= startDate && currentDate < endDate;
-      }
 
       const isDST = isEasternDST(year, month, day);
       const offset = isDST ? 4 : 5; // EDT = UTC-4, EST = UTC-5
@@ -361,26 +354,6 @@
       const hour = utcDate.getUTCHours();
       const minute = utcDate.getUTCMinutes();
       const second = utcDate.getUTCSeconds();
-
-      // Determine if EDT (UTC-4) or EST (UTC-5) applies
-      // US DST: 2nd Sunday in March to 1st Sunday in November
-      function isEasternDST(year, month, day) {
-        // Get 2nd Sunday in March
-        const marchFirst = new Date(year, 2, 1);
-        const marchFirstDay = marchFirst.getDay();
-        const dstStart = 8 + (7 - marchFirstDay) % 7;
-
-        // Get 1st Sunday in November
-        const novFirst = new Date(year, 10, 1);
-        const novFirstDay = novFirst.getDay();
-        const dstEnd = 1 + (7 - novFirstDay) % 7;
-
-        const currentDate = new Date(year, month, day);
-        const startDate = new Date(year, 2, dstStart);
-        const endDate = new Date(year, 10, dstEnd);
-
-        return currentDate >= startDate && currentDate < endDate;
-      }
 
       const isDST = isEasternDST(year, month, day);
       const offset = isDST ? 4 : 5; // EDT = UTC-4, EST = UTC-5
@@ -504,15 +477,18 @@
       `;
       notification.textContent = message;
 
-      // Add animation
-      const style = document.createElement('style');
-      style.textContent = `
-        @keyframes slideIn {
-          from { transform: translateX(400px); opacity: 0; }
-          to { transform: translateX(0); opacity: 1; }
-        }
-      `;
-      document.head.appendChild(style);
+      // Add animation (style injected once, reused by every toast)
+      if (!document.getElementById('kdc-toast-style')) {
+        const style = document.createElement('style');
+        style.id = 'kdc-toast-style';
+        style.textContent = `
+          @keyframes slideIn {
+            from { transform: translateX(400px); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+          }
+        `;
+        document.head.appendChild(style);
+      }
       document.body.appendChild(notification);
 
       // Auto-remove after configured duration
@@ -1572,9 +1548,11 @@
         <tr><td align="center" style="color:black;">Banked <span id="xp-banked">—</span> <span id="xp-banked-graph" title="Banking % trend over time" style="cursor:pointer;">📈</span></td></tr>
         <tr>
           <td align="center">
-            <img src="https://raw.githubusercontent.com/Trevo88423/koc-userscripts/main/images/SR_Logo.png"
-                 alt="Sweet Revenge"
-                 style="max-width:110px; height:auto; margin-top:6px; display:block; margin-left:auto; margin-right:auto;">
+            <a href="stats.php?id=datacentre" class="koc-button" title="Open the Data Centre">
+              <img src="https://raw.githubusercontent.com/Trevo88423/koc-userscripts/main/images/SR_Logo.png"
+                   alt="Sweet Revenge"
+                   style="max-width:110px; height:auto; margin-top:6px; display:block; margin-left:auto; margin-right:auto;">
+            </a>
             <button id="sr-auth-btn" style="
               margin-top: 8px;
               padding: 6px 12px;
@@ -1742,13 +1720,19 @@
       goldEditBtn.addEventListener("click", (e) => {
         e.preventDefault();
         const current = SafeStorage.get("xpTool_avgGold", 0);
+        const isManual = SafeStorage.get("xpTool_avgGold_isManual", false);
+        const prefill = current ? String(current) : "";
         const input = prompt(
           "Set Avg Gold/Atk manually (overrides the auto-calibration from the attack log).\n\n" +
+          "Currently: " + (isManual ? "manual override" : "auto-calibrated from the attack log") + ".\n\n" +
           "Enter a number — suffixes ok, e.g. 1.5b, 750m, 250000000.\n" +
           "Type 'auto' (or leave blank) to go back to the calculated value.",
-          current ? String(current) : ""
+          prefill
         );
         if (input === null) return; // cancelled
+        // OK without editing must not silently convert an auto-calibrated value
+        // into a locked manual override — keep whichever mode is active.
+        if (input === prefill) return;
 
         const trimmed = input.trim().toLowerCase();
         if (trimmed === "" || trimmed === "auto") {
@@ -2054,46 +2038,6 @@
 
   let battlefieldTimeout = null;
   let collectedPlayers = new Set();
-
-  function parseGoldWithAge(text) {
-    if (!text) return { gold: null, ageMinutes: null };
-
-    // Parse gold value
-    const goldMatch = text.match(/^([\d\.,]+[kmbt]?)/i);
-    let gold = null;
-
-    if (goldMatch) {
-      const str = goldMatch[1].toLowerCase().replace(/,/g, "");
-      let multiplier = 1;
-      if (str.endsWith('k')) multiplier = 1e3;
-      else if (str.endsWith('m')) multiplier = 1e6;
-      else if (str.endsWith('b')) multiplier = 1e9;
-      else if (str.endsWith('t')) multiplier = 1e12;
-      gold = parseFloat(str) * multiplier;
-    }
-
-    // Parse age (e.g., "(26s)", "(22m)", "(1h13m)")
-    let ageMinutes = null;
-    const hoursMatch = text.match(/\((\d+)\s*h(?:\s*(\d+)\s*m)?\)/);
-
-    if (hoursMatch) {
-      const hours = parseInt(hoursMatch[1], 10) || 0;
-      const minutes = hoursMatch[2] ? (parseInt(hoursMatch[2], 10) || 0) : 0;
-      ageMinutes = hours * 60 + minutes;
-    } else {
-      const minutesMatch = text.match(/\((\d+)\s*m(?:\s*(\d+)\s*s)?\)/);
-      if (minutesMatch) {
-        ageMinutes = parseInt(minutesMatch[1], 10) || 0;
-      } else {
-        const secondsMatch = text.match(/\((\d+)\s*s\)/);
-        if (secondsMatch) {
-          ageMinutes = (parseInt(secondsMatch[1], 10) || 0) / 60;
-        }
-      }
-    }
-
-    return { gold, ageMinutes };
-  }
 
   async function collectFromBattlefield() {
     if (battlefieldTimeout) {
@@ -2964,21 +2908,13 @@
     cell.colSpan = 2;
     container.appendChild(cell);
 
-    // Header with toggles and debug mode button
+    // Header with column toggles (debug mode stays reachable via KoCDebug.toggle() in the console)
     const header = document.createElement("div");
     header.style.cssText = "margin-bottom:8px; color:gold; font-size:12px; font-weight:bold;";
-
-    const debugIcon = DebugMode.isEnabled() ? "🐛" : "🔇";
-    const debugTitle = DebugMode.isEnabled() ? "Debug ON (click to disable)" : "Debug OFF (click to enable)";
 
     header.innerHTML = `
       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
         <span>Sweet Revenge Stats</span>
-        <button id="koc-debug-toggle"
-                title="${debugTitle}"
-                style="cursor:pointer; background:#333; color:#ccc; border:1px solid #555; border-radius:3px; padding:2px 6px; font-size:10px;">
-          ${debugIcon} Debug
-        </button>
       </div>
     `;
 
@@ -3082,15 +3018,6 @@
         redistributeTables();
       });
     });
-
-    // Add debug mode toggle event listener
-    const debugToggleBtn = header.querySelector("#koc-debug-toggle");
-    if (debugToggleBtn) {
-      debugToggleBtn.addEventListener("click", () => {
-        DebugMode.toggle();
-        location.reload(); // Reload to update UI
-      });
-    }
 
     // Build cell
     cell.appendChild(header);
@@ -3805,162 +3732,6 @@
     }
   }
 
-  function addAutoFillButton() {
-    // Find the armory preferences form
-    const attackInput = document.querySelector('input[name="prefs[attack]"]');
-
-    if (!attackInput) {
-      debugLog('⚠️ Could not find armory preferences form - button not added');
-      return;
-    }
-
-    const form = attackInput.closest('form');
-    if (!form) {
-      debugLog('⚠️ Could not find form container - button not added');
-      return;
-    }
-
-    // Find insertion point - look for submit button
-    const submitButton = form.querySelector('input[type="submit"]');
-    let insertionPoint = submitButton?.closest('td') || submitButton?.parentElement;
-
-    // Create button
-    const autoFillBtn = document.createElement('button');
-    autoFillBtn.type = 'button'; // Important: don't submit form
-    autoFillBtn.textContent = '⚡ Auto-Fill (Cheapest First)';
-    autoFillBtn.title = 'Automatically fill preferences based on cheapest rank upgrades first';
-    autoFillBtn.style.cssText = `
-      padding: 8px 16px;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      color: white;
-      border: none;
-      border-radius: 4px;
-      font-weight: bold;
-      cursor: pointer;
-      font-size: 14px;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-      transition: all 0.2s ease;
-      margin-left: 10px;
-    `;
-
-    // Add hover effect
-    autoFillBtn.addEventListener('mouseenter', () => {
-      autoFillBtn.style.transform = 'scale(1.05)';
-      autoFillBtn.style.boxShadow = '0 4px 8px rgba(0,0,0,0.3)';
-    });
-
-    autoFillBtn.addEventListener('mouseleave', () => {
-      autoFillBtn.style.transform = 'scale(1)';
-      autoFillBtn.style.boxShadow = '0 2px 4px rgba(0,0,0,0.2)';
-    });
-
-    // Add click handler
-    autoFillBtn.addEventListener('click', () => {
-      debugLog('🎯 Auto-fill button clicked');
-      autoFillBtn.disabled = true;
-      autoFillBtn.textContent = '⏳ Calculating...';
-
-      try {
-        autoFillArmoryPreferences();
-      } catch (error) {
-        debugLog('❌ Error during auto-fill:', error);
-        showAutoFillMessage(`❌ Error: ${error.message}`, 'error');
-      } finally {
-        setTimeout(() => {
-          autoFillBtn.disabled = false;
-          autoFillBtn.textContent = '⚡ Auto-Fill (Cheapest First)';
-        }, 500);
-      }
-    });
-
-    // Insert button into form
-    if (insertionPoint) {
-      insertionPoint.appendChild(autoFillBtn);
-      debugLog('✅ Auto-fill button added to armory form');
-    } else {
-      // Fallback: create a new row in the table
-      const formTable = form.querySelector('table');
-      if (formTable) {
-        const lastRow = formTable.querySelector('tr:last-child');
-        if (lastRow) {
-          const buttonCell = lastRow.querySelector('td');
-          if (buttonCell) {
-            buttonCell.appendChild(autoFillBtn);
-            debugLog('✅ Auto-fill button added to armory form (table row)');
-          }
-        }
-      }
-    }
-
-    // Create optimizer button
-    const optimizerBtn = document.createElement('button');
-    optimizerBtn.type = 'button';
-    optimizerBtn.textContent = '🚀 Auto-Fill (Optimizer)';
-    optimizerBtn.title = 'Use optimizer API to calculate best allocation based on total potential gold from XP calculator';
-    optimizerBtn.style.cssText = `
-      padding: 8px 16px;
-      background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-      color: white;
-      border: none;
-      border-radius: 4px;
-      font-weight: bold;
-      cursor: pointer;
-      font-size: 14px;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-      transition: all 0.2s ease;
-      margin-left: 10px;
-    `;
-
-    // Add hover effect
-    optimizerBtn.addEventListener('mouseenter', () => {
-      optimizerBtn.style.transform = 'scale(1.05)';
-      optimizerBtn.style.boxShadow = '0 4px 8px rgba(0,0,0,0.3)';
-    });
-
-    optimizerBtn.addEventListener('mouseleave', () => {
-      optimizerBtn.style.transform = 'scale(1)';
-      optimizerBtn.style.boxShadow = '0 2px 4px rgba(0,0,0,0.2)';
-    });
-
-    // Add click handler
-    optimizerBtn.addEventListener('click', async () => {
-      debugLog('🚀 Optimizer button clicked');
-      optimizerBtn.disabled = true;
-      optimizerBtn.textContent = '⏳ Optimizing...';
-
-      try {
-        await autoFillArmoryWithOptimizer();
-      } catch (error) {
-        debugLog('❌ Error during optimizer auto-fill:', error);
-        // Error message already shown by autoFillArmoryWithOptimizer
-      } finally {
-        setTimeout(() => {
-          optimizerBtn.disabled = false;
-          optimizerBtn.textContent = '🚀 Auto-Fill (Optimizer)';
-        }, 500);
-      }
-    });
-
-    // Insert optimizer button into form
-    if (insertionPoint) {
-      insertionPoint.appendChild(optimizerBtn);
-      debugLog('✅ Optimizer button added to armory form');
-    } else {
-      // Fallback: create a new row in the table
-      const formTable = form.querySelector('table');
-      if (formTable) {
-        const lastRow = formTable.querySelector('tr:last-child');
-        if (lastRow) {
-          const buttonCell = lastRow.querySelector('td');
-          if (buttonCell) {
-            buttonCell.appendChild(optimizerBtn);
-            debugLog('✅ Optimizer button added to armory form (table row)');
-          }
-        }
-      }
-    }
-  }
-
   // ==================== NATIVE ARMORY PREFERENCES SLIDER UI ====================
   // Replaces KoC's percentage number-inputs with an auto-balancing slider allocator that
   // INHERITS the player's active theme: transparent backgrounds, inherited text, the accent
@@ -4250,13 +4021,9 @@
     collectSpendPrefs();
 
     // === CALCULATE GOLD-PER-POINT EFFICIENCY ===
+    // Sent to the API below — the server rank optimizer needs gold_per_point.
+    // (The rank-up display and slider UI are separate registry features now.)
     const efficiency = calculateWeaponEfficiency(weapons, stats);
-
-    // === DISPLAY RANK-UP COSTS ===
-    displayRankUpCosts(stats, efficiency);
-
-    // === ADD AUTO-FILL BUTTON ===
-    enhanceArmoryPrefsUI();
 
     const now = getKoCServerTimeUTC();
 
@@ -5934,23 +5701,6 @@
           const minute = parseInt(parts[5]);
           const second = parseInt(parts[6]);
 
-          // Determine DST offset
-          function isEasternDST(year, month, day) {
-            const marchFirst = new Date(year, 2, 1);
-            const marchFirstDay = marchFirst.getDay();
-            const dstStart = 8 + (7 - marchFirstDay) % 7;
-
-            const novFirst = new Date(year, 10, 1);
-            const novFirstDay = novFirst.getDay();
-            const dstEnd = 1 + (7 - novFirstDay) % 7;
-
-            const currentDate = new Date(year, month, day);
-            const startDate = new Date(year, 2, dstStart);
-            const endDate = new Date(year, 10, dstEnd);
-
-            return currentDate >= startDate && currentDate < endDate;
-          }
-
           const isDST = isEasternDST(year, month, day);
           const offset = isDST ? 4 : 5;
           const reconTime = new Date(Date.UTC(year, month, day, hour + offset, minute, second));
@@ -5992,188 +5742,6 @@
     } catch (err) {
       console.warn("⚠️ Failed to enhance Shared Recon Info table:", err);
     }
-  }
-
-  function parseSharedReconInfo() {
-    const sharedRecon = {};
-
-    try {
-      // Find "Shared Recon Info" header
-      const header = [...document.querySelectorAll("th, td")]
-        .find(el => el.textContent.includes("Shared Recon Info"));
-
-      if (!header) {
-        debugLog("⚠️ 'Shared Recon Info' header not found on page");
-        // Debug: Show all table headers found
-        const allHeaders = [...document.querySelectorAll("th, td")]
-          .filter(el => el.textContent.trim().length > 0 && el.textContent.trim().length < 50)
-          .map(el => el.textContent.trim())
-          .slice(0, 10);
-        debugLog("📋 First 10 table headers found:", allHeaders);
-        return sharedRecon;
-      }
-
-      const table = header.closest("table");
-      if (!table) return sharedRecon;
-
-      // Parse each row in the table
-      const rows = table.querySelectorAll("tr");
-      rows.forEach(row => {
-        const cells = row.querySelectorAll("td");
-
-        // Debug: Log all rows to see TBG structure (COMMENTED OUT - too verbose)
-        // const cellTexts = Array.from(cells).map(c => c.innerText.trim());
-        // debugLog(`🔍 Row with ${cells.length} cells: [${cellTexts.join(' | ')}]`);
-
-        // Check for TBG row FIRST (might have different structure)
-        // TBG row might be: "TBG | 19,281,848 Gold (in 1 min) | ..." in a single cell or multiple cells
-        if (cells.length >= 1) {
-          const firstCellText = cells[0]?.innerText.trim().toLowerCase() || "";
-
-          // Check if this is the TBG row
-          if (firstCellText.includes("tbg")) {
-            debugLog(`🔍 Found TBG row! Cell 0: "${cells[0]?.innerText.trim()}"`);
-
-            // Try to parse from first cell (might contain entire TBG string)
-            const cellText = cells[0]?.innerText.trim() || "";
-            const match = cellText.match(/([0-9,]+)\s+Gold\s+\(in 1 min\)/i);
-            if (match) {
-              const goldPerMin = match[1];
-              // Use previous row's timestamp if available (Last Recon timestamp)
-              sharedRecon.projectedIncome = { value: goldPerMin, time: null };
-              debugLog(`✅ Parsed TBG from first cell: ${goldPerMin} gold/min`);
-              return; // Skip rest of processing for this row
-            }
-
-            // Try to parse from second cell
-            if (cells.length >= 2) {
-              const cellText = cells[1]?.innerText.trim() || "";
-              const match = cellText.match(/([0-9,]+)\s+Gold\s+\(in 1 min\)/i);
-              if (match) {
-                const goldPerMin = match[1];
-                sharedRecon.projectedIncome = { value: goldPerMin, time: null };
-                debugLog(`✅ Parsed TBG from second cell: ${goldPerMin} gold/min`);
-                return;
-              }
-            }
-
-            debugLog(`⚠️ TBG row found but couldn't parse gold value`);
-            return;
-          }
-        }
-
-        if (cells.length < 3) return;
-
-        const statName = cells[0]?.innerText.trim().toLowerCase();
-        const statValue = cells[1]?.innerText.trim();
-        const timestamp = cells[2]?.innerText.trim();
-
-        if (!statName || !statValue || !timestamp) return;
-
-        // Convert timestamp from "2025-10-13 06:36:06" (KoC Server Time = US Eastern) to UTC ISO format
-        let isoTimestamp = null;
-        try {
-          // Parse as local time, then convert to UTC
-          // KoC Server Time is US Eastern (EDT/EST)
-          // EDT = UTC-4 (spring-fall), EST = UTC-5 (winter)
-
-          // Parse the timestamp parts
-          const parts = timestamp.match(/(\d{4})-(\d{2})-(\d{2}) (\d{2}):(\d{2}):(\d{2})/);
-          if (parts) {
-            const year = parseInt(parts[1]);
-            const month = parseInt(parts[2]) - 1; // JS months are 0-indexed
-            const day = parseInt(parts[3]);
-            const hour = parseInt(parts[4]);
-            const minute = parseInt(parts[5]);
-            const second = parseInt(parts[6]);
-
-            // Determine if EDT (UTC-4) or EST (UTC-5) applies
-            // US DST: 2nd Sunday in March to 1st Sunday in November
-            function isEasternDST(year, month, day) {
-              // Get 2nd Sunday in March
-              const marchFirst = new Date(year, 2, 1); // March is month 2
-              const marchFirstDay = marchFirst.getDay();
-              const dstStart = 8 + (7 - marchFirstDay) % 7; // 2nd Sunday
-
-              // Get 1st Sunday in November
-              const novFirst = new Date(year, 10, 1); // November is month 10
-              const novFirstDay = novFirst.getDay();
-              const dstEnd = 1 + (7 - novFirstDay) % 7; // 1st Sunday
-
-              const currentDate = new Date(year, month, day);
-              const startDate = new Date(year, 2, dstStart);
-              const endDate = new Date(year, 10, dstEnd);
-
-              return currentDate >= startDate && currentDate < endDate;
-            }
-
-            const isDST = isEasternDST(year, month, day);
-            const offset = isDST ? 4 : 5; // EDT = UTC-4, EST = UTC-5
-
-            // Create date object in Eastern Time, then convert to UTC by adding offset
-            const date = new Date(Date.UTC(year, month, day, hour + offset, minute, second));
-
-            isoTimestamp = date.toISOString();
-            debugLog(`🕐 Converted KoC Server Time "${timestamp}" (${isDST ? 'EDT' : 'EST'}) to UTC: ${isoTimestamp}`);
-          }
-        } catch (e) {
-          console.warn("⚠️ Failed to parse timestamp:", timestamp, e);
-          isoTimestamp = null;
-        }
-
-        // Map stat names to our field names
-        if (statName.includes("strike action")) {
-          sharedRecon.strikeAction = { value: statValue, time: isoTimestamp };
-        } else if (statName.includes("defensive action")) {
-          sharedRecon.defensiveAction = { value: statValue, time: isoTimestamp };
-        } else if (statName.includes("spy rating")) {
-          sharedRecon.spyRating = { value: statValue, time: isoTimestamp };
-        } else if (statName.includes("sentry rating")) {
-          sharedRecon.sentryRating = { value: statValue, time: isoTimestamp };
-        } else if (statName.includes("poison rating")) {
-          sharedRecon.poisonRating = { value: statValue, time: isoTimestamp };
-        } else if (statName.includes("antidote rating")) {
-          sharedRecon.antidoteRating = { value: statValue, time: isoTimestamp };
-        } else if (statName.includes("theft rating")) {
-          sharedRecon.theftRating = { value: statValue, time: isoTimestamp };
-        } else if (statName.includes("vigilance rating")) {
-          sharedRecon.vigilanceRating = { value: statValue, time: isoTimestamp };
-        }
-        // Note: TBG is now handled earlier in the function (before the cells.length < 3 check)
-      });
-
-      debugLog("📡 Parsed Shared Recon Info:", sharedRecon);
-    } catch (err) {
-      console.warn("⚠️ Failed to parse Shared Recon Info:", err);
-    }
-
-    return sharedRecon;
-  }
-
-  function grabStat(id, key, cell, sharedReconData = {}) {
-    const val = cell?.innerText.trim();
-    const prev = getNameMap()[id] || {};
-
-    // PRIORITY 1: Check if we have Shared Recon Info data (always prefer this - it's alliance-shared and timestamped)
-    // This prevents corrupted partial values from main table when full values exist in Shared Recon
-    const sharedData = sharedReconData[key];
-    if (sharedData && sharedData.value && sharedData.time) {
-      debugLog(`✅ Using shared recon for ${key}: ${sharedData.value} (${sharedData.time})`);
-      return { value: sharedData.value, time: sharedData.time };
-    }
-
-    // PRIORITY 2: Use main table value (accept any value including low numbers like 0, 1, 2)
-    // Low values are legitimate for new players or after being attacked
-    if (val && val !== "???") {
-      debugLog(`✅ Using main table for ${key}: ${val}`);
-      return { value: val, time: getKoCServerTimeUTC() };
-    }
-
-    // PRIORITY 3: When recon shows "???" and no shared data available
-    // DON'T return cached values to API - the cached values will still be used by UI enhancement
-    // But we shouldn't send potentially stale/bad data to the API
-    debugLog(`ℹ️ No valid data for ${key} (main table: "${val || 'empty'}", shared recon: none)`);
-    return { value: "???", time: null };
   }
 
   async function collectFromIntelDetailPage() {
@@ -6541,79 +6109,7 @@
     }
   }
 
-  // Update Shared Recon Info table cells with our fresh collected data
-  function updateSharedReconInfoWithFreshData(stats) {
-    try {
-      // Find "Shared Recon Info" table
-      const header = [...document.querySelectorAll("th, td")]
-        .find(el => el.textContent.includes("Shared Recon Info"));
-
-      if (!header) return;
-
-      const table = header.closest("table");
-      if (!table) return;
-
-      // Map our stat keys to the display names in the table
-      const statMapping = {
-        strikeAction: "strike action",
-        defensiveAction: "defensive action",
-        spyRating: "spy rating",
-        sentryRating: "sentry rating",
-        poisonRating: "poison rating",
-        antidoteRating: "antidote rating",
-        theftRating: "theft rating",
-        vigilanceRating: "vigilance rating"
-      };
-
-      let updatedCount = 0;
-
-      // Process each row in the table
-      const rows = table.querySelectorAll("tr");
-      rows.forEach(row => {
-        const cells = row.querySelectorAll("td");
-        if (cells.length < 3) return;
-
-        const statName = cells[0]?.innerText.trim().toLowerCase();
-        const currentValue = cells[1]?.innerText.trim();
-        const timestampCell = cells[2];
-
-        // Find matching stat in our collected data
-        for (const [key, displayName] of Object.entries(statMapping)) {
-          if (statName.includes(displayName)) {
-            const ourValue = stats[key];
-            const ourTime = stats[key + "Time"];
-
-            // If shared recon shows "???" but we have a value, replace it
-            if (currentValue === "???" && ourValue && ourValue !== "???") {
-              // Update value cell
-              cells[1].innerText = ourValue;
-              cells[1].style.color = "#6f6"; // Green for fresh
-
-              // Update timestamp cell if we have one
-              if (ourTime && timestampCell) {
-                const date = new Date(ourTime);
-                // Format as "2025-10-13 07:30:00" (KoC Server Time format)
-                const formatted = date.toISOString().slice(0, 19).replace('T', ' ');
-                timestampCell.innerText = formatted;
-                timestampCell.style.color = "#6f6"; // Green for fresh
-              }
-
-              updatedCount++;
-            }
-            break;
-          }
-        }
-      });
-
-      if (updatedCount > 0) {
-        debugLog(`✅ Updated ${updatedCount} "???" values in Shared Recon Info with fresh data`);
-      }
-    } catch (err) {
-      console.warn("⚠️ Failed to update Shared Recon Info table:", err);
-    }
-  }
-
-  // ==================== RECON UI ENHANCER ====================
+  // ==================== RECON AGE FORMATTER ====================
 
   function reconTimeAgo(input) {
     const d = input instanceof Date ? input : new Date(input);
@@ -6631,161 +6127,6 @@
 
     const day = Math.floor(hr / 24);
     return `${day}d ago`;
-  }
-
-  function fillMissingReconValue(cell, cachedValue, cachedTime) {
-    if (!cell) return;
-
-    if (cell.textContent.trim() === "???" && cachedValue && cachedValue !== "???") {
-      const rel = cachedTime ? reconTimeAgo(cachedTime) : "";
-      const abs = cachedTime ? new Date(cachedTime).toLocaleString() : "";
-
-      // Format large numbers with commas (e.g., 53019083823 → "53,019,083,823")
-      let displayValue = cachedValue;
-      if (typeof cachedValue === 'number' && cachedValue >= 1000) {
-        displayValue = cachedValue.toLocaleString('en-US');
-      }
-
-      cell.innerHTML = `
-        <div style="float:left;color:#FBC;font-size:0.8em;" title="${escapeHtml(abs)} • from cache">
-          ${escapeHtml(rel)}
-        </div>
-        <div title="${escapeHtml(abs)} • from cache">${escapeHtml(displayValue)}</div>
-      `;
-    }
-  }
-
-  async function enhanceReconUI(id, freshStats = null) {
-    let prev = {};
-
-    // If we have fresh stats from collection, use them first (they include Shared Recon data with timestamps)
-    if (freshStats && Object.keys(freshStats).length > 0) {
-      // Merge fresh stats with any existing cached data
-      const map = getNameMap();
-      const cached = map[id] || {};
-      prev = { ...cached, ...freshStats };
-      debugLog("✅ Using fresh stats from collection for UI enhancement:", freshStats);
-    } else {
-      // Otherwise fetch from API
-      try {
-        const token = await auth.getToken();
-        if (token) {
-          const resp = await fetch(`${API_URL}/players/${id}`, {
-            headers: {
-              "Authorization": "Bearer " + token,
-              "X-Script-Name": SCRIPT_NAME,
-              "X-Script-Version": SCRIPT_VERSION
-            }
-          });
-          if (resp.ok) {
-            prev = await resp.json();
-            debugLog("🌐 Recon fallback loaded from API:", prev);
-          }
-        }
-      } catch (err) {
-        console.warn("⚠️ API recon lookup failed, using local cache", err);
-      }
-
-      // Fallback to local cache
-      if (!prev || Object.keys(prev).length === 0) {
-        const map = getNameMap();
-        prev = map[id] || {};
-      }
-    }
-
-    // === FILL MILITARY STATS ===
-    const ms = getTableByHeader("Military Stats")?.querySelectorAll("tr");
-    if (!ms) return;
-
-    fillMissingReconValue(ms?.[1]?.cells[1], prev.strikeAction, prev.strikeActionTime);
-    fillMissingReconValue(ms?.[2]?.cells[1], prev.defensiveAction, prev.defensiveActionTime);
-    fillMissingReconValue(ms?.[3]?.cells[1], prev.spyRating, prev.spyRatingTime);
-    fillMissingReconValue(ms?.[4]?.cells[1], prev.sentryRating, prev.sentryRatingTime);
-    fillMissingReconValue(ms?.[5]?.cells[1], prev.poisonRating, prev.poisonRatingTime);
-    fillMissingReconValue(ms?.[6]?.cells[1], prev.antidoteRating, prev.antidoteRatingTime);
-    fillMissingReconValue(ms?.[7]?.cells[1], prev.theftRating, prev.theftRatingTime);
-    fillMissingReconValue(ms?.[8]?.cells[1], prev.vigilanceRating, prev.vigilanceRatingTime);
-    fillMissingReconValue(ms?.[10]?.cells[1], prev.covertSkill, prev.covertSkillTime);
-    fillMissingReconValue(ms?.[11]?.cells[1], prev.sentrySkill, prev.sentrySkillTime);
-    fillMissingReconValue(ms?.[12]?.cells[1], prev.siegeTechnology, prev.siegeTechnologyTime);
-    fillMissingReconValue(ms?.[13]?.cells[1], prev.toxicInfusionLevel, prev.toxicInfusionLevelTime);
-    fillMissingReconValue(ms?.[14]?.cells[1], prev.viperbaneLevel, prev.viperbaneLevelTime);
-    fillMissingReconValue(ms?.[15]?.cells[1], prev.shadowmeldLevel, prev.shadowmeldLevelTime);
-    fillMissingReconValue(ms?.[16]?.cells[1], prev.sentinelVigilLevel, prev.sentinelVigilLevelTime);
-
-    // Fill economy/technology (use parsed fields if available)
-    if (prev.economyLevel && prev.goldPerTurn) {
-      const economyValue = `${prev.economyLevel} ( ${prev.goldPerTurn} gold per turn)`;
-      fillMissingReconValue(ms?.[17]?.cells[1], economyValue, prev.economyLevelTime);
-    } else {
-      fillMissingReconValue(ms?.[17]?.cells[1], prev.economy, prev.economyTime);
-    }
-
-    if (prev.technologyLevel && prev.technologyMultiplier) {
-      const technologyValue = `${prev.technologyLevel} (x ${prev.technologyMultiplier})`;
-      fillMissingReconValue(ms?.[18]?.cells[1], technologyValue, prev.technologyLevelTime);
-    } else {
-      fillMissingReconValue(ms?.[18]?.cells[1], prev.technology, prev.technologyTime);
-    }
-
-    fillMissingReconValue(ms?.[19]?.cells[1], prev.experiencePerTurn, prev.experiencePerTurnTime);
-    fillMissingReconValue(ms?.[20]?.cells[1], prev.soldiersPerTurn, prev.soldiersPerTurnTime);
-    fillMissingReconValue(ms?.[22]?.cells[1], prev.attackTurns, prev.attackTurnsTime);
-    fillMissingReconValue(ms?.[23]?.cells[1], prev.experience, prev.experienceTime);
-
-    // === FILL ARMY BREAKDOWN ===
-    const armyTable = getTableByHeader("Army Breakdown");
-    if (armyTable) {
-      const armyRows = armyTable.querySelectorAll("tr");
-      fillMissingReconValue(armyRows?.[5]?.cells[1], prev.attackSoldiers, prev.attackSoldiersTime);
-      fillMissingReconValue(armyRows?.[6]?.cells[1], prev.attackMercenaries, prev.attackMercenariesTime);
-      fillMissingReconValue(armyRows?.[7]?.cells[1], prev.defenseSoldiers, prev.defenseSoldiersTime);
-      fillMissingReconValue(armyRows?.[8]?.cells[1], prev.defenseMercenaries, prev.defenseMercenariesTime);
-      fillMissingReconValue(armyRows?.[9]?.cells[1], prev.covertSpies, prev.covertSpiesTime);
-      fillMissingReconValue(armyRows?.[10]?.cells[1], prev.sentries, prev.sentriesTime);
-      fillMissingReconValue(armyRows?.[11]?.cells[1], prev.venomweavers, prev.venomweaversTime);
-      fillMissingReconValue(armyRows?.[12]?.cells[1], prev.serpentwardens, prev.serpentwardensTime);
-      fillMissingReconValue(armyRows?.[13]?.cells[1], prev.thieves, prev.thievesTime);
-      fillMissingReconValue(armyRows?.[14]?.cells[1], prev.rangers, prev.rangersTime);
-      fillMissingReconValue(armyRows?.[15]?.cells[1], prev.hostageTotal, prev.hostageTotalTime);
-      fillMissingReconValue(armyRows?.[16]?.cells[1], prev.hostageDeaths, prev.hostageDeathsTime);
-      fillMissingReconValue(armyRows?.[17]?.cells[1], prev.untrained, prev.untrainedTime);
-      fillMissingReconValue(armyRows?.[18]?.cells[1], prev.untrainedMercenaries, prev.untrainedMercenariesTime);
-    }
-
-    // === SHOW WEAPONS CACHE INFO ===
-    const weaponsTable = getTableByHeader("Weapons");
-    if (weaponsTable && prev.weapons) {
-      try {
-        const cachedWeapons = JSON.parse(prev.weapons);
-        const weaponsAge = prev.weaponsTime ? reconTimeAgo(prev.weaponsTime) : "unknown";
-
-        // Check if weapons table has lots of ???
-        const weaponRows = Array.from(weaponsTable.querySelectorAll("tr")).slice(2);
-        const emptyCount = weaponRows.filter(row => row.innerText.includes("???")).length;
-
-        if (emptyCount > 3 && cachedWeapons.length > 0) {
-          // Show cached weapon count
-          const tbody = weaponsTable.querySelector("tbody");
-          const cacheNotice = document.createElement("tr");
-          cacheNotice.style.backgroundColor = "#222";
-          cacheNotice.innerHTML = `
-            <td colspan="4" style="text-align:center; padding:8px; color:#FBC; font-size:0.9em;">
-              <div>📦 ${cachedWeapons.length} cached weapon${cachedWeapons.length !== 1 ? 's' : ''} from ${weaponsAge}</div>
-              <div style="font-size:0.8em; color:#999; margin-top:4px;">
-                <a href="#" onclick="console.table(${escapeHtml(prev.weapons)}); return false;" style="color:#9cf;">
-                  View in console
-                </a>
-              </div>
-            </td>
-          `;
-          tbody.appendChild(cacheNotice);
-          debugLog(`📦 Cached weapons (${weaponsAge}):`, cachedWeapons);
-        }
-      } catch (e) {
-        console.warn("Failed to parse cached weapons", e);
-      }
-    }
   }
 
   // ==================== DATA CENTRE REDIRECT ====================
@@ -6815,21 +6156,6 @@
     }
 
     return true; // Redirect was handled
-  }
-
-  // ==================== BUTTON INJECTION ====================
-
-  function addButtons() {
-    // Only inject if logged in
-    if (!document.querySelector("a[href='logout.php']")) return;
-
-    const infoRow = document.querySelector("a[href='info.php']")?.closest("tr");
-    if (!infoRow) {
-      setTimeout(addButtons, PAGE_LOAD_DELAY_MS);
-      return;
-    }
-
-    // Don't clear the row - competition panel needs it
   }
 
   // ==================== SAFE.PHP ATTACK ALTERNATIVE TABLE ====================
@@ -7403,34 +6729,6 @@
   // ==================== GOLD UPGRADES: READINESS + TIME (upgrades.php) ====================
 
   /**
-   * Capture the game's "Total Sell Value" (full-armory liquidation value, fully repaired)
-   * from the armory.php summary table and cache it for the upgrades.php readiness rows.
-   */
-  function collectArmorySellValue() {
-    const sellTh = [...document.querySelectorAll('th')]
-      .find(th => /Total Sell Value/i.test(th.textContent));
-    if (!sellTh) return;
-
-    const headerRow = sellTh.closest('tr');
-    const headers = [...headerRow.querySelectorAll('th')];
-    const colIndex = headers.findIndex(th => /Total Sell Value/i.test(th.textContent));
-    if (colIndex < 0) return;
-
-    let dataRow = headerRow.nextElementSibling;
-    while (dataRow && dataRow.querySelectorAll('td').length === 0) dataRow = dataRow.nextElementSibling;
-    if (!dataRow) return;
-
-    const cell = [...dataRow.querySelectorAll('td')][colIndex];
-    if (!cell) return;
-
-    const val = parseInt(cell.textContent.replace(/[^\d]/g, ''), 10);
-    if (val > 0) {
-      SafeStorage.set(ARMORY_SELL_KEY, val);
-      debugLog('[Armory] Captured Total Sell Value:', val);
-    }
-  }
-
-  /**
    * Read the current "SAFE Gold Deposited / Every Minute" rate from the safe.php DOM.
    * Reads the rate under the current-level header only (stops before "Next Safe upgrade").
    * Returns the gold/min as a number, or null if not found.
@@ -7535,7 +6833,6 @@
     const goldOnHand = getSidebarValue('Gold') || 0;
     const vault = getSidebarValue('Vault') || 0;
     const safe = getSidebarValue('Safe') || 0;
-    const armorySell = SafeStorage.get(ARMORY_SELL_KEY, null);
     const safePerMin = SafeStorage.get(SAFE_DEPOSIT_PER_MIN_KEY, null);
 
     const SECTION_RE = /(Siege|Fortification|Covert Skill|Sentry Skill|Poison Skill|Antidote Skill|Theft Skill|Vigilance Skill)/i;
@@ -7610,7 +6907,7 @@
       tbody.appendChild(row3);
     });
 
-    debugLog('[Upgrades] Upgrade-ready rows injected', { goldOnHand, vault, safe, armorySell, safePerMin, count: buttons.length });
+    debugLog('[Upgrades] Upgrade-ready rows injected', { goldOnHand, vault, safe, safePerMin, count: buttons.length });
   }
 
   // ==================== BANKING MODE (inline armory enhancement) ====================
@@ -9073,6 +8370,367 @@
     });
   }
 
+  // ==================== FEATURE REGISTRY & SETTINGS ====================
+  //
+  // Every user-facing feature is declared once in FEATURES (name, plain-English
+  // description, where it runs) and executed via the FEATURE_STEPS list in the
+  // page dispatcher below. The Settings panel ("⚙ Data Centre" in the sidebar)
+  // renders straight from FEATURES, so a feature added there automatically gets
+  // a toggle and a description.
+  //
+  // Toggle state lives in localStorage[FEATURES_KEY] as {featureId: false} —
+  // only disabled features are stored and a missing entry means enabled, so new
+  // features ship ON and updates never change what existing users see.
+
+  const FEATURES_KEY = "KoC_DataCentre_Features";
+
+  // kind: 'display' = only changes what YOU see; 'sync' = records/shares data
+  // with the alliance roster; 'both' = does both.
+  const FEATURES = [
+    // — Everywhere —
+    {
+      id: 'server-clock', group: 'Everywhere', kind: 'display',
+      name: 'Live Server Time clock',
+      desc: 'Makes the Server Time shown on every page tick forward each second instead of staying frozen at the moment the page loaded.'
+    },
+    {
+      id: 'sidebar-calculator', group: 'Everywhere', kind: 'both',
+      name: 'Sidebar XP→Turns calculator',
+      desc: 'The calculator box under the sidebar: how many attacks your Experience and Attack Turns are worth, projected gold from them, your banked-% pill with trend graph (📈), the ✏️ manual average-gold override, and the SR logo (click it to open the Data Centre) with the Login/Logout button. Clicking the box title opens a pop-up calculator.',
+      note: 'Uses the average gold calibrated by the Attack log enhancer; the banked % also needs Own stats sync (income) and attack-log visits (gold lost). While on, the box quietly uploads throttled banking snapshots (banked %, gold on hand, gold lost, projected income) to the alliance server — not only when you open the graph.'
+    },
+    {
+      id: 'rank-neighbor-links', group: 'Everywhere', kind: 'display',
+      name: 'Rank-neighbour recon links',
+      desc: 'Turns the "Rating For Previous/Next Rank Gain" numbers into links to the player we believe holds that rank, with a tooltip showing who they are and how fresh our data on them is.'
+    },
+    {
+      id: 'sab-tracker', group: 'Everywhere', kind: 'display',
+      name: 'Sabotage Tracker',
+      desc: 'On attack pages: sab and revenge-sab attempts left on the target in the rolling 24h window, a countdown until your next slot opens, damage left before the target is maxed, and colour-coded ages on "You last sabbed" timestamps. Quietly records sab missions you fire by hand and reads the target\'s Intelligence file for exact times.',
+      note: 'Everything it records is kept in your own browser only — nothing is sent to the alliance server.'
+    },
+
+    // — Command Centre —
+    {
+      id: 'top-stats-panel', group: 'Command Centre', kind: 'display',
+      name: 'Sweet Revenge Top Stats panel',
+      desc: 'The alliance dashboard on your Command Centre: mini leaderboards (TIV, Strike, Spy, Defense and more) built from the shared roster, plus who still has recon attempts left. Each column can be shown or hidden.'
+    },
+    {
+      id: 'base-collector', group: 'Command Centre', kind: 'sync',
+      name: 'Own stats sync',
+      desc: 'Reads your own Command Centre stats. Most are only cached on your device; what goes to the alliance server is your name, projected income per turn (feeds the banked-% calculator), a last-seen timestamp and your real stat ranks (feeds Stat Hunt).',
+      note: 'Your TIV and combat stats sync from the Armory page, not here.'
+    },
+    {
+      id: 'slaying-comp', group: 'Command Centre', kind: 'both',
+      name: 'Slaying competitions',
+      desc: 'Competition panels on the Command Centre with team leaderboards. Captures your attack missions (Rewards page) and gold stolen (Command Centre) and submits them — along with your current Experience, Turns and Gold — to every running competition, unless you switch that competition\'s tracking off in its panel.',
+      note: 'For a submission to count, visit Rewards and then the Command Centre within 30 seconds. Auto-submission runs at most once every 5 minutes per competition; the 📊 Leaderboard button submits fresh stats right away.'
+    },
+
+    // — Armory —
+    {
+      id: 'banking-mode', group: 'Armory', kind: 'display',
+      name: 'Banking Mode',
+      desc: 'The "Estimated Funds" widget on the Armory: a live projection of your exposed (stealable) gold, colour-coded steal risk with time-to-yellow/red, screen-awake option and last-bank detection. Quietly recalibrates from your sidebar gold, Command Centre and attack log. The widget\'s own ⚙ holds its display settings.'
+    },
+    {
+      id: 'armory-sliders', group: 'Armory', kind: 'display',
+      name: 'Armory preference sliders',
+      desc: 'Replaces the armory percentage boxes with auto-balancing sliders, plus one-tap presets: Cheapest first, Optimizer (uses alliance data to pick the best stat per gold), All spy, All defense, and your own saved presets.',
+      note: 'The "Cheapest first" preset needs Rank-up cost display switched on, and the Optimizer\'s gold budget comes from the sidebar XP calculator (it also asks the alliance server, read-only, for the allocation).'
+    },
+    {
+      id: 'rank-up-costs', group: 'Armory', kind: 'display',
+      name: 'Rank-up cost display',
+      desc: 'Shows how much gold of weapons you would need to buy to claim the next rank in each stat (the "Next Rank Gain" number), using your personal weapon efficiency learned from your own purchases.',
+      note: 'Needs Purchase check alerts to have learned a stat\'s weapon multiplier — buy weapons in that stat once to calibrate it. Its numbers also power the armory sliders\' "Cheapest first" preset.'
+    },
+    {
+      id: 'purchase-alerts', group: 'Armory', kind: 'display',
+      name: 'Purchase check alerts',
+      desc: 'After you buy weapons, checks the "You Purchased..." message: warns when a purchase gained you nothing (no trained soldiers to hold the weapons) and quietly learns your real per-stat weapon multipliers, which keeps the Optimizer and rank-up costs accurate.',
+      note: 'Learned multipliers stay on your device. Armory data sync uploads the gold-per-stat efficiency calculated from them — that upload is what the Optimizer preset relies on.'
+    },
+    {
+      id: 'armory-collector', group: 'Armory', kind: 'sync',
+      name: 'Armory data sync',
+      desc: 'Reads your Armory page and syncs your TIV, all eight stats with timestamps, your real stat ranks and your gold-per-stat efficiency to the alliance roster. Your weapons inventory and spend preferences are only cached on your device.',
+      note: 'The Safe page "Attacked Instead" comparison relies on the locally cached weapon distribution and spend preferences.'
+    },
+
+    // — Attack & Intel —
+    {
+      id: 'attack-collectors', group: 'Attack & Intel', kind: 'sync',
+      name: 'Attack data capture',
+      desc: 'Records TIV sightings from attack pages and your battle reports — gold stolen, hostages, casualties on both sides, and the trained/untrained soldier counts the report shows for you and the target — into the alliance database. This powers everyone\'s target intel.'
+    },
+    {
+      id: 'attack-log-enhancer', group: 'Attack & Intel', kind: 'display',
+      name: 'Attack log enhancer',
+      desc: 'Adds your average gold per attack to the attack log\'s 24-hour summary headers, and quietly notes how much gold attackers stole from you. Both numbers are saved only on your device.',
+      note: 'The sidebar calculator, Optimizer preset, Safe-page comparison and Upgrades-page slay estimates all build on the average-gold number. The gold-lost figure feeds the sidebar calculator\'s banked-% trend, which does upload snapshots to the alliance server.'
+    },
+    {
+      id: 'recon-sharing', group: 'Attack & Intel', kind: 'both',
+      name: 'Recon sharing',
+      desc: 'When you recon someone or view their stats page, quietly shares what you saw (plus your recon-attempts count from the Rewards page) with the alliance database. Also fills "???" rows on your recon reports with the alliance\'s last known values.',
+      note: 'The "???" backfill on recon reports belongs to this feature, not Recon display extras — turning this off turns that off too.'
+    },
+    {
+      id: 'recon-display', group: 'Attack & Intel', kind: 'display',
+      name: 'Recon display extras',
+      desc: 'Fills "???" values on stats pages from the alliance database, adds the freshness age column to Shared Recon Info, and a "max attacks" row on recon reports.',
+      note: 'The matching "???" backfill on recon reports (fresh recon pages) is part of Recon sharing, not this feature.'
+    },
+    {
+      id: 'battlefield-collector', group: 'Attack & Intel', kind: 'sync',
+      name: 'Battlefield scanner',
+      desc: 'Quietly records every player you scroll past on the battlefield into the alliance roster — name, alliance and rank only. No gold or army numbers are captured.'
+    },
+
+    // — Safe & Upgrades —
+    {
+      id: 'safe-forecasts', group: 'Safe & Upgrades', kind: 'display',
+      name: 'SAFE forecasts',
+      desc: 'On the Safe page: how long until your safe reaches 1B / 2B / 5B / 9B / 10B (MAX) at your current deposit rate.'
+    },
+    {
+      id: 'upgrade-timers', group: 'Safe & Upgrades', kind: 'display',
+      name: 'Upgrade timers & readiness',
+      desc: '"Time to upgrade" and "EXP still needed to be deposited" under every EXP upgrade on the Safe page, and "Upgrade Ready" time and shortfall rows under the gold upgrades on the Upgrades page.',
+      note: 'Uses your EXP rate captured on the Upgrades page, your safe deposit rate captured on the Safe page, and the Attack log enhancer\'s average gold for the slay estimate.'
+    },
+    {
+      id: 'attack-alternative', group: 'Safe & Upgrades', kind: 'display',
+      name: '"Attacked Instead" comparison',
+      desc: 'On the Safe page: what your stats would look like if you traded the tech upgrade\'s EXP for turns and spent the stolen gold on weapons instead, split by your actual spend preferences.',
+      note: 'Needs Armory data sync, the Attack log enhancer, and the weapon multipliers learned by Purchase check alerts before it can show numbers.'
+    },
+    {
+      id: 'tech-projector', group: 'Safe & Upgrades', kind: 'display',
+      name: 'Tech Level Projector',
+      desc: 'Adds a "Project to" dropdown to the tech-upgrade table so you can preview your stats at ANY future tech level, with the total ▲% versus now and the cumulative EXP cost to get there.'
+    },
+
+    // — Other pages —
+    {
+      id: 'training-warnings', group: 'Other pages', kind: 'display',
+      name: 'Training page warnings',
+      desc: 'A warning box at the top of the Training page: weapons or tools sitting unheld, more SA/DA weapons than trained soldiers to hold them (those drop to half effectiveness), and a missing mercenary buffer that lets your real soldiers die in combat.'
+    }
+  ];
+
+  function getFeatureFlags() {
+    const flags = SafeStorage.get(FEATURES_KEY, {});
+    return (flags && typeof flags === 'object') ? flags : {};
+  }
+
+  function featureEnabled(id) {
+    return getFeatureFlags()[id] !== false;
+  }
+
+  // Shared feeder steps declare several owners; they run while ANY owner is on.
+  function stepEnabled(f) {
+    return Array.isArray(f) ? f.some(featureEnabled) : featureEnabled(f);
+  }
+
+  function setFeatureFlag(id, enabled) {
+    const flags = getFeatureFlags();
+    if (enabled) {
+      delete flags[id];
+    } else {
+      flags[id] = false;
+    }
+    SafeStorage.set(FEATURES_KEY, flags);
+  }
+
+  const FEATURE_KIND_BADGES = {
+    display: { text: '🖥 display only', tip: 'Only changes what you see — nothing is recorded or shared.' },
+    sync: { text: '📡 alliance sync', tip: 'Records data into the shared alliance roster.' },
+    both: { text: '🖥+📡 display + sync', tip: 'Changes what you see AND records data into the shared alliance roster.' }
+  };
+
+  function buildFeatureRow(feat) {
+    const row = document.createElement('label');
+    row.style.cssText = 'display:block;padding:8px 12px;border-bottom:1px solid #262c38;cursor:pointer;';
+
+    const top = document.createElement('div');
+    top.style.cssText = 'display:flex;align-items:center;gap:8px;';
+
+    const cb = document.createElement('input');
+    cb.type = 'checkbox';
+    cb.checked = featureEnabled(feat.id);
+    cb.dataset.featureId = feat.id;
+    cb.className = 'kdc-feature-toggle';
+    cb.style.cssText = 'width:15px;height:15px;flex:0 0 auto;margin:0;';
+
+    const name = document.createElement('span');
+    name.textContent = feat.name;
+    name.style.cssText = 'font-weight:bold;color:#e8edf5;';
+
+    const badgeInfo = FEATURE_KIND_BADGES[feat.kind] || FEATURE_KIND_BADGES.display;
+    const badge = document.createElement('span');
+    badge.textContent = badgeInfo.text;
+    badge.title = badgeInfo.tip;
+    badge.style.cssText = 'margin-left:auto;font-size:10px;color:#8b94a7;white-space:nowrap;';
+
+    top.appendChild(cb);
+    top.appendChild(name);
+    top.appendChild(badge);
+    row.appendChild(top);
+
+    const desc = document.createElement('div');
+    desc.textContent = feat.desc;
+    desc.style.cssText = 'margin:4px 0 0 23px;color:#a7b0c0;line-height:1.45;';
+    row.appendChild(desc);
+
+    if (feat.note) {
+      const note = document.createElement('div');
+      note.textContent = '⚠ ' + feat.note;
+      note.style.cssText = 'margin:3px 0 0 23px;color:#c9a35a;font-size:11px;line-height:1.4;';
+      row.appendChild(note);
+    }
+
+    return row;
+  }
+
+  function openFeatureSettings() {
+    if (document.getElementById('kdc-settings-overlay')) return;
+
+    const overlay = document.createElement('div');
+    overlay.id = 'kdc-settings-overlay';
+    overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.65);z-index:1000000;display:flex;align-items:center;justify-content:center;';
+
+    const panel = document.createElement('div');
+    panel.style.cssText = 'background:linear-gradient(160deg,#1d222b,#12151b);color:#d8dee9;border:1px solid #3a4150;border-radius:10px;width:min(560px,94vw);max-height:86vh;display:flex;flex-direction:column;font-family:Verdana,Arial,sans-serif;font-size:12px;box-shadow:0 8px 30px rgba(0,0,0,0.6);';
+
+    // Header
+    const header = document.createElement('div');
+    header.style.cssText = 'display:flex;align-items:center;gap:8px;padding:10px 12px;border-bottom:1px solid #3a4150;';
+    const title = document.createElement('div');
+    title.innerHTML = '<b style="color:#e8edf5;">⚙ KoC Data Centre — Features</b> <span style="color:#8b94a7;font-size:10px;">v' + escapeHtml(VERSION) + '</span>';
+    const closeBtn = document.createElement('button');
+    closeBtn.textContent = '✕';
+    closeBtn.title = 'Close';
+    closeBtn.style.cssText = 'margin-left:auto;background:none;border:none;color:#8b94a7;font-size:14px;cursor:pointer;padding:2px 6px;';
+    header.appendChild(title);
+    header.appendChild(closeBtn);
+    panel.appendChild(header);
+
+    // Scrollable body
+    const body = document.createElement('div');
+    body.style.cssText = 'overflow-y:auto;flex:1 1 auto;';
+
+    // Master toggle
+    const masterRow = document.createElement('label');
+    masterRow.style.cssText = 'display:flex;align-items:center;gap:8px;padding:10px 12px;border-bottom:2px solid #3a4150;cursor:pointer;background:rgba(255,255,255,0.03);';
+    const masterCb = document.createElement('input');
+    masterCb.type = 'checkbox';
+    masterCb.style.cssText = 'width:16px;height:16px;flex:0 0 auto;margin:0;';
+    const masterLabel = document.createElement('span');
+    masterLabel.innerHTML = '<b style="color:#e8edf5;">All features</b> <span style="color:#8b94a7;">— master switch</span>';
+    masterRow.appendChild(masterCb);
+    masterRow.appendChild(masterLabel);
+    body.appendChild(masterRow);
+
+    // Feature groups
+    const groups = [];
+    for (const feat of FEATURES) {
+      if (!groups.includes(feat.group)) groups.push(feat.group);
+    }
+    for (const group of groups) {
+      const gh = document.createElement('div');
+      gh.textContent = group;
+      gh.style.cssText = 'padding:8px 12px 4px 12px;color:#7ea0c9;font-size:10px;font-weight:bold;letter-spacing:1px;text-transform:uppercase;';
+      body.appendChild(gh);
+      for (const feat of FEATURES) {
+        if (feat.group === group) body.appendChild(buildFeatureRow(feat));
+      }
+    }
+    panel.appendChild(body);
+
+    // Reload notice (revealed on first change)
+    const reloadBar = document.createElement('div');
+    reloadBar.style.cssText = 'display:none;align-items:center;gap:8px;padding:8px 12px;background:#3d2f13;color:#f0c674;border-top:1px solid #57431d;font-size:11px;';
+    const reloadMsg = document.createElement('span');
+    reloadMsg.textContent = 'Changes take effect after the page reloads.';
+    const reloadBtn = document.createElement('button');
+    reloadBtn.textContent = 'Reload now';
+    reloadBtn.style.cssText = 'margin-left:auto;background:#f0c674;color:#2a2008;border:none;border-radius:4px;padding:4px 10px;font-weight:bold;cursor:pointer;';
+    reloadBtn.addEventListener('click', () => location.reload());
+    reloadBar.appendChild(reloadMsg);
+    reloadBar.appendChild(reloadBtn);
+    panel.appendChild(reloadBar);
+
+    function refreshMaster() {
+      const boxes = [...body.querySelectorAll('.kdc-feature-toggle')];
+      const onCount = boxes.filter(b => b.checked).length;
+      masterCb.checked = onCount === boxes.length;
+      masterCb.indeterminate = onCount > 0 && onCount < boxes.length;
+    }
+    refreshMaster();
+
+    body.addEventListener('change', (e) => {
+      const cb = e.target;
+      if (!(cb instanceof HTMLInputElement) || cb.type !== 'checkbox') return;
+      if (cb === masterCb) {
+        const on = masterCb.checked;
+        body.querySelectorAll('.kdc-feature-toggle').forEach(b => {
+          b.checked = on;
+          setFeatureFlag(b.dataset.featureId, on);
+        });
+      } else if (cb.classList.contains('kdc-feature-toggle')) {
+        setFeatureFlag(cb.dataset.featureId, cb.checked);
+      } else {
+        return;
+      }
+      refreshMaster();
+      reloadBar.style.display = 'flex';
+    });
+
+    const close = () => overlay.remove();
+    closeBtn.addEventListener('click', close);
+    // Close only when the press STARTED on the backdrop — a text-selection drag
+    // ending over the backdrop composes a click that targets the overlay too.
+    let pressOnOverlay = false;
+    overlay.addEventListener('pointerdown', (e) => { pressOnOverlay = e.target === overlay; });
+    overlay.addEventListener('click', (e) => {
+      if (e.target === overlay && pressOnOverlay) close();
+    });
+
+    overlay.appendChild(panel);
+    document.body.appendChild(overlay);
+  }
+
+  // The "⚙ Data Centre" sidebar link is the settings entry point. It is NOT a
+  // registry feature: it must stay reachable even with every feature disabled.
+  function injectSettingsLink() {
+    if (document.getElementById('kdc-settings-link')) return;
+    const menu = document.querySelector('td.menu_cell');
+    if (!menu) return;
+    const wrap = document.createElement('div');
+    wrap.style.cssText = 'margin:6px 0 4px 0;text-align:center;';
+    const link = document.createElement('a');
+    link.id = 'kdc-settings-link';
+    link.href = '#';
+    link.textContent = '⚙ Data Centre';
+    link.title = 'Turn Data Centre features on/off and see what each one does';
+    link.addEventListener('click', (e) => {
+      e.preventDefault();
+      openFeatureSettings();
+    });
+    wrap.appendChild(link);
+    menu.appendChild(wrap);
+  }
+
+  window.KoCDataCentre = {
+    settings: openFeatureSettings,
+    features: () => FEATURES.map(f => ({ id: f.id, name: f.name, enabled: featureEnabled(f.id) }))
+  };
+
   // ==================== PAGE-SPECIFIC INITIALIZERS ====================
 
   /**
@@ -9097,214 +8755,184 @@
     }
   }
 
-  async function runFeatures() {
-    // Live-ticking Server Time clock (display-only) — runs on every page.
-    await safeExecute('startServerClock', () => startServerClock());
+  // Command Centre leg of competition tracking: capture gold stolen, add the
+  // panels, and auto-submit fresh stats (throttled per competition).
+  async function captureCompetitionStatsOnBase() {
+    if (activeCompetitions.length === 0) return;
 
-    // Sab Tracker: passive capture of sab submissions — every page, since covert
-    // mission reports carry direct "Sabotage Again!"/"Revenge Again!" buttons
-    await safeExecute('hookSabFormCapture', () => hookSabFormCapture());
+    const goldStolen = extractGoldStolen();
+    if (goldStolen !== null) {
+      const now = Date.now();
+      // Update gold stolen for ALL active competitions
+      for (const comp of activeCompetitions) {
+        const cached = getCompStats(comp.id);
+        cached.goldStolenEra = goldStolen;
+        cached.goldStolenTimestamp = now;
+        cached.lastUpdate = now;
+        saveCompStats(comp.id, cached);
+      }
+    }
 
-    // Load active competitions first (shared across base.php and rewards.php)
-    const isBaseOrRewards = location.pathname.includes("base.php") || location.pathname.includes("rewards.php");
-    if (isBaseOrRewards) {
-      await safeExecute('loadActiveCompetitions', async () => {
+    await safeExecute('addAllCompetitionPanels', () => addAllCompetitionPanels());
+
+    // Submit stats for each competition if enabled and we have the required data
+    for (const comp of activeCompetitions) {
+      const settings = getCompSettings(comp.id);
+      if (settings.enabled !== false) {
+        const cached = getCompStats(comp.id);
+
+        // Only submit if we have attack missions data and stats are fresh
+        if (cached.attackMissions) {
+          const isFresh = areCompStatsFresh(cached, 30);
+          if (!isFresh) {
+            debugLog(`⚠️ Stats for ${comp.name} are not fresh (captured >30s apart). Skipping auto-submit.`);
+            continue;
+          }
+
+          // Throttle submissions (max once per 5 minutes per competition)
+          const submitKey = `${COMP_LAST_SUBMIT_PREFIX}_${comp.id}`;
+          const lastSubmit = parseInt(localStorage.getItem(submitKey) || "0");
+          const now = Date.now();
+          if (now - lastSubmit > 5 * 60 * 1000) {
+            await safeExecute(`submitCompStats-${comp.id}`, async () => {
+              await submitCompStats(comp);
+              localStorage.setItem(submitKey, now.toString());
+            });
+          }
+        } else {
+          debugLog(`ℹ️ Visit rewards.php to capture Attack Missions data for ${comp.name}`);
+        }
+      }
+    }
+  }
+
+  // Rewards-page leg: capture Attack Missions for every active competition.
+  function captureCompetitionStatsOnRewards() {
+    if (activeCompetitions.length === 0) return;
+
+    const attackMissions = extractAttackMissions();
+    if (attackMissions !== null) {
+      const now = Date.now();
+      for (const comp of activeCompetitions) {
+        const cached = getCompStats(comp.id);
+        cached.attackMissions = attackMissions;
+        cached.attackMissionsTimestamp = now;
+        cached.lastUpdate = now;
+        saveCompStats(comp.id, cached);
+      }
+      debugLog(`✅ Captured Attack Missions: ${attackMissions} for ${activeCompetitions.length} competitions`);
+    }
+  }
+
+  // Battlefield pages redraw as you scroll; re-collect (debounced) on DOM churn.
+  function startBattlefieldObserver() {
+    const table = document.querySelector("table.battlefield") || document.querySelector("table.table_lines");
+    if (!table) return;
+
+    const debouncedCollect = debounce(async () => {
+      await safeExecute('collectFromBattlefield (observer)', () => collectFromBattlefield());
+    }, BATTLEFIELD_DEBOUNCE_MS);
+
+    const observer = new MutationObserver((mutations) => {
+      if (mutations.length > 1) {
+        debouncedCollect();
+      }
+    });
+    observer.observe(table, { childList: true, subtree: true });
+    debugLog("[DataCentre] Battlefield observer active (debounced)");
+  }
+
+  const onPage = (sub) => location.pathname.includes(sub);
+  const hasSidebar = () => !!document.querySelector("td.menu_cell");
+
+  // Execution order is behaviour: steps run top-to-bottom exactly as the old
+  // per-page dispatcher did (e.g. Banking Mode's armory widget is injected
+  // before the roster-API armory steps so it never waits on the network, and
+  // competitions are loaded before their capture/panel steps).
+  // `f` names the owning FEATURES entry; an array means the step is a shared
+  // feeder that runs while ANY of the listed features is enabled.
+  const FEATURE_STEPS = [
+    { f: 'server-clock', label: 'startServerClock', when: () => true, run: () => startServerClock() },
+    // Covert mission reports carry "Sabotage Again!" buttons, so capture everywhere
+    { f: 'sab-tracker', label: 'hookSabFormCapture', when: () => true, run: () => hookSabFormCapture() },
+    { f: 'slaying-comp', label: 'loadActiveCompetitions', when: () => onPage("base.php") || onPage("rewards.php"), run: async () => {
         const hasComps = await loadActiveCompetitions();
         if (hasComps) {
           debugLog(`✅ Loaded ${activeCompetitions.length} active competitions`);
         }
-      });
-    }
-
-    // Command Center (base.php)
-    if (location.pathname.includes("base.php")) {
-      await safeExecute('addButtons', () => addButtons());
-      await safeExecute('initSidebarCalculator', () => initSidebarCalculator());
-      await safeExecute('insertTopStatsPanel', () => insertTopStatsPanel());
-      await safeExecute('collectFromBasePage', () => collectFromBasePage());
-      // Banking Mode: full recalibration (G0 / income / SPM) from the Command Centre
-      await safeExecute('bankCollectCommandCentre', () => bankCollectCommandCentre());
-
-      // Competition tracking: capture gold stolen and add UI panels
-      if (activeCompetitions.length > 0) {
-        const goldStolen = extractGoldStolen();
-        if (goldStolen !== null) {
-          const now = Date.now();
-          // Update gold stolen for ALL active competitions
-          for (const comp of activeCompetitions) {
-            const cached = getCompStats(comp.id);
-            cached.goldStolenEra = goldStolen;
-            cached.goldStolenTimestamp = now;
-            cached.lastUpdate = now;
-            saveCompStats(comp.id, cached);
-          }
-        }
-
-        // Add competition panels to base.php
-        await safeExecute('addAllCompetitionPanels', () => addAllCompetitionPanels());
-
-        // Submit stats for each competition if enabled and we have the required data
-        for (const comp of activeCompetitions) {
-          const settings = getCompSettings(comp.id);
-          if (settings.enabled !== false) {
-            const cached = getCompStats(comp.id);
-
-            // Only submit if we have attack missions data and stats are fresh
-            if (cached.attackMissions) {
-              const isFresh = areCompStatsFresh(cached, 30);
-              if (!isFresh) {
-                debugLog(`⚠️ Stats for ${comp.name} are not fresh (captured >30s apart). Skipping auto-submit.`);
-                continue;
-              }
-
-              // Throttle submissions (max once per 5 minutes per competition)
-              const submitKey = `${COMP_LAST_SUBMIT_PREFIX}_${comp.id}`;
-              const lastSubmit = parseInt(localStorage.getItem(submitKey) || "0");
-              const now = Date.now();
-              if (now - lastSubmit > 5 * 60 * 1000) {
-                await safeExecute(`submitCompStats-${comp.id}`, async () => {
-                  await submitCompStats(comp);
-                  localStorage.setItem(submitKey, now.toString());
-                });
-              }
-            } else {
-              debugLog(`ℹ️ Visit rewards.php to capture Attack Missions data for ${comp.name}`);
-            }
-          }
-        }
-      }
-    }
-
-    // Any page with sidebar (menu_cell)
-    if (document.querySelector("td.menu_cell")) {
-      await safeExecute('initSidebarCalculator', () => initSidebarCalculator());
-      await safeExecute('hookSidebarPopup', () => hookSidebarPopup());
-      // Banking Mode: opportunistic G0 refresh from the sidebar Gold/Vault cells
-      await safeExecute('bankCollectSidebarGold', () => bankCollectSidebarGold());
-    }
-
-    // Rank neighbour recon links — any page showing the "Rating For
-    // Previous/Next Rank Gain" table (armory.php, safe.php, ...); no-ops fast elsewhere
-    await safeExecute('enhanceRankNeighborLinks', () => enhanceRankNeighborLinks());
-
-    // Attack log
-    if (location.pathname.includes("attacklog.php")) {
-      await safeExecute('enhanceAttackLog', () => enhanceAttackLog());
-      // Banking Mode: cache new "Attacks Against You" steals (keyed by attack_id)
-      await safeExecute('bankCollectAttackLog', () => bankCollectAttackLog());
-    }
-
-    // Rewards page (track recons)
-    if (location.pathname.includes("rewards.php")) {
-      await safeExecute('collectFromRewardsPage', () => collectFromRewardsPage());
-
-      // Competition tracking: capture attack missions
-      if (activeCompetitions.length > 0) {
-        const attackMissions = extractAttackMissions();
-        if (attackMissions !== null) {
-          const now = Date.now();
-          // Update stats for ALL active competitions
-          for (const comp of activeCompetitions) {
-            const cached = getCompStats(comp.id);
-            cached.attackMissions = attackMissions;
-            cached.attackMissionsTimestamp = now;
-            cached.lastUpdate = now;
-            saveCompStats(comp.id, cached);
-          }
-          debugLog(`✅ Captured Attack Missions: ${attackMissions} for ${activeCompetitions.length} competitions`);
-        }
-      }
-    }
-
-    // Fresh recon detail page
-    if (location.pathname.includes("inteldetail.php")) {
-      await safeExecute('addMaxAttacksRecon', () => addMaxAttacksRecon());
-      await safeExecute('collectFromIntelDetailPage', () => collectFromIntelDetailPage());
-    }
-
-    // Stats pages (shared recon info)
-    if (location.pathname.includes("stats.php")) {
-      // Collect visible stats first (before filling ??? from API)
-      await safeExecute('collectFromStatsPage', () => collectFromStatsPage());
-      await safeExecute('enhanceSharedReconInfoTable', () => enhanceSharedReconInfoTable());
-      // Fill missing ??? values from API
-      const playerId = new URLSearchParams(location.search).get('id');
-      if (playerId) {
-        await safeExecute('fillSharedReconInfoFromAPI', () => fillSharedReconInfoFromAPI(playerId));
-      }
-    }
-
-    // Battlefield
-    if (location.pathname.includes("battlefield.php")) {
-      await safeExecute('collectFromBattlefield', () => collectFromBattlefield());
-      await safeExecute('battlefieldObserver', () => {
-        const table = document.querySelector("table.battlefield") || document.querySelector("table.table_lines");
-        if (table) {
-          // Debounce the collector to prevent excessive calls during rapid DOM updates
-          const debouncedCollect = debounce(async () => {
-            await safeExecute('collectFromBattlefield (observer)', () => collectFromBattlefield());
-          }, BATTLEFIELD_DEBOUNCE_MS);
-
-          const observer = new MutationObserver((mutations) => {
-            if (mutations.length > 1) {
-              debouncedCollect();
-            }
-          });
-          observer.observe(table, { childList: true, subtree: true });
-          debugLog("[DataCentre] Battlefield observer active (debounced)");
-        }
-      });
-    }
-
-    // Attack page
-    if (location.pathname.includes("attack.php")) {
-      await safeExecute('collectTIVFromAttackPage', () => collectTIVFromAttackPage());
-      await safeExecute('initSabTracker', () => initSabTracker());
-    }
-
-    // Intel file (per-target mission log) — backfills the Sab Tracker with exact server times
-    if (location.pathname.includes("intelfile.php")) {
-      await safeExecute('collectFromIntelFilePage', () => collectFromIntelFilePage());
-    }
-
-    // Attack detail
-    if (location.pathname.includes("detail.php") && /attack_id=/.test(location.search)) {
-      await safeExecute('collectAttackLog', async () => {
+      } },
+    { f: 'sidebar-calculator', label: 'initSidebarCalculator', when: () => onPage("base.php"), run: () => initSidebarCalculator() },
+    { f: 'top-stats-panel', label: 'insertTopStatsPanel', when: () => onPage("base.php"), run: () => insertTopStatsPanel() },
+    { f: 'base-collector', label: 'collectFromBasePage', when: () => onPage("base.php"), run: () => collectFromBasePage() },
+    // Banking Mode: full recalibration (G0 / income / SPM) from the Command Centre
+    { f: 'banking-mode', label: 'bankCollectCommandCentre', when: () => onPage("base.php"), run: () => bankCollectCommandCentre() },
+    { f: 'slaying-comp', label: 'captureCompetitionStatsOnBase', when: () => onPage("base.php"), run: () => captureCompetitionStatsOnBase() },
+    { f: 'sidebar-calculator', label: 'initSidebarCalculator (sidebar)', when: hasSidebar, run: () => initSidebarCalculator() },
+    { f: 'sidebar-calculator', label: 'hookSidebarPopup', when: hasSidebar, run: () => hookSidebarPopup() },
+    // Banking Mode: opportunistic G0 refresh from the sidebar Gold/Vault cells
+    { f: 'banking-mode', label: 'bankCollectSidebarGold', when: hasSidebar, run: () => bankCollectSidebarGold() },
+    // No-ops fast on pages without the "Rating For Previous/Next Rank Gain" table
+    { f: 'rank-neighbor-links', label: 'enhanceRankNeighborLinks', when: () => true, run: () => enhanceRankNeighborLinks() },
+    { f: 'attack-log-enhancer', label: 'enhanceAttackLog', when: () => onPage("attacklog.php"), run: () => enhanceAttackLog() },
+    // Banking Mode: cache new "Attacks Against You" steals (keyed by attack_id)
+    { f: 'banking-mode', label: 'bankCollectAttackLog', when: () => onPage("attacklog.php"), run: () => bankCollectAttackLog() },
+    { f: 'recon-sharing', label: 'collectFromRewardsPage', when: () => onPage("rewards.php"), run: () => collectFromRewardsPage() },
+    { f: 'slaying-comp', label: 'captureCompetitionStatsOnRewards', when: () => onPage("rewards.php"), run: () => captureCompetitionStatsOnRewards() },
+    { f: 'recon-display', label: 'addMaxAttacksRecon', when: () => onPage("inteldetail.php"), run: () => addMaxAttacksRecon() },
+    { f: 'recon-sharing', label: 'collectFromIntelDetailPage', when: () => onPage("inteldetail.php"), run: () => collectFromIntelDetailPage() },
+    // Collect visible stats first (before filling ??? from API)
+    { f: 'recon-sharing', label: 'collectFromStatsPage', when: () => onPage("stats.php"), run: () => collectFromStatsPage() },
+    { f: 'recon-display', label: 'enhanceSharedReconInfoTable', when: () => onPage("stats.php"), run: () => enhanceSharedReconInfoTable() },
+    { f: 'recon-display', label: 'fillSharedReconInfoFromAPI', when: () => onPage("stats.php") && !!new URLSearchParams(location.search).get('id'),
+      run: () => fillSharedReconInfoFromAPI(new URLSearchParams(location.search).get('id')) },
+    { f: 'battlefield-collector', label: 'collectFromBattlefield', when: () => onPage("battlefield.php"), run: () => collectFromBattlefield() },
+    { f: 'battlefield-collector', label: 'battlefieldObserver', when: () => onPage("battlefield.php"), run: () => startBattlefieldObserver() },
+    { f: 'attack-collectors', label: 'collectTIVFromAttackPage', when: () => onPage("attack.php"), run: () => collectTIVFromAttackPage() },
+    { f: 'sab-tracker', label: 'initSabTracker', when: () => onPage("attack.php"), run: () => initSabTracker() },
+    // Intel file (per-target mission log) backfills the Sab Tracker with exact server times
+    { f: 'sab-tracker', label: 'collectFromIntelFilePage', when: () => onPage("intelfile.php"), run: () => collectFromIntelFilePage() },
+    // detail.php also substring-matches inteldetail.php — the attack_id guard is what keeps this attack-only
+    { f: 'attack-collectors', label: 'collectAttackLog', when: () => onPage("detail.php") && /attack_id=/.test(location.search), run: async () => {
         collectAttackLog();
         setTimeout(async () => await safeExecute('collectAttackLog (delayed)', () => collectAttackLog()), ATTACK_LOG_DELAY_MS);
-      });
-    }
+      } },
+    // Banking Mode first on armory: it only reads the DOM/localStorage, so inject the
+    // inline widget promptly rather than making it wait behind the roster-API calls below.
+    { f: 'banking-mode', label: 'bankOnArmory', when: () => onPage("armory.php"), run: () => bankOnArmory() },
+    { f: 'purchase-alerts', label: 'scrapePurchaseConfirmation', when: () => onPage("armory.php"), run: () => scrapePurchaseConfirmation() },
+    // DOM-only UI steps run before the roster-API collector so they never wait on the network
+    { f: 'rank-up-costs', label: 'displayRankUpCosts', when: () => onPage("armory.php"), run: () => {
+        const stats = collectMilitaryStats();
+        const weapons = collectWeaponsFromArmory();
+        displayRankUpCosts(stats, calculateWeaponEfficiency(weapons, stats));
+      } },
+    { f: 'armory-sliders', label: 'enhanceArmoryPrefsUI', when: () => onPage("armory.php"), run: () => enhanceArmoryPrefsUI() },
+    { f: 'armory-collector', label: 'collectTIVAndStatsFromArmory', when: () => onPage("armory.php"), run: () => collectTIVAndStatsFromArmory() },
+    { f: 'training-warnings', label: 'enhanceTrainingPage', when: () => onPage("training.php"), run: () => enhanceTrainingPage() },
+    // Shared feeder: deposit rate powers both SAFE forecasts and the upgrades-page readiness rows
+    { f: ['safe-forecasts', 'upgrade-timers'], label: 'collectSafeDepositRate', when: () => onPage("safe.php"), run: () => collectSafeDepositRate() },
+    { f: 'safe-forecasts', label: 'addSafeForecasts', when: () => onPage("safe.php"), run: () => addSafeForecasts() },
+    { f: 'upgrade-timers', label: 'addExpUpgradeTimeRows', when: () => onPage("safe.php"), run: () => addExpUpgradeTimeRows() },
+    { f: 'attack-alternative', label: 'addAttackAlternativeTable', when: () => onPage("safe.php"), run: () => addAttackAlternativeTable() },
+    { f: 'tech-projector', label: 'enhanceTechLevelPicker', when: () => onPage("safe.php"), run: () => enhanceTechLevelPicker() },
+    { f: 'upgrade-timers', label: 'collectExpPerTurn', when: () => onPage("upgrades.php"), run: () => collectExpPerTurn() },
+    { f: 'upgrade-timers', label: 'addUpgradeReadyRows', when: () => onPage("upgrades.php"), run: () => addUpgradeReadyRows() }
+  ];
 
-    // Armory
-    if (location.pathname.includes("armory.php")) {
-      // Banking Mode first: it only reads the DOM/localStorage, so inject the inline
-      // widget promptly rather than making it wait behind the roster-API calls below.
-      await safeExecute('bankOnArmory', () => bankOnArmory());
-      // Check for weapon purchases (auto-learns multipliers)
-      await safeExecute('scrapePurchaseConfirmation', () => scrapePurchaseConfirmation());
-      await safeExecute('collectTIVAndStatsFromArmory', () => collectTIVAndStatsFromArmory());
-      // Cache full-armory sell value for the upgrades.php readiness rows
-      await safeExecute('collectArmorySellValue', () => collectArmorySellValue());
-    }
+  async function runFeatures() {
+    // Settings entry point first — must stay reachable even with every feature off
+    await safeExecute('injectSettingsLink', () => injectSettingsLink());
 
-    // Training
-    if (location.pathname.includes("training.php")) {
-      await safeExecute('enhanceTrainingPage', () => enhanceTrainingPage());
-    }
-
-    // Safe page (tech upgrade time + attack alternative table)
-    if (location.pathname.includes("safe.php")) {
-      await safeExecute('collectSafeDepositRate', () => collectSafeDepositRate());
-      await safeExecute('addSafeForecasts', () => addSafeForecasts());
-      await safeExecute('addExpUpgradeTimeRows', () => addExpUpgradeTimeRows());
-      await safeExecute('addAttackAlternativeTable', () => addAttackAlternativeTable());
-      await safeExecute('enhanceTechLevelPicker', () => enhanceTechLevelPicker());
-    }
-
-    // Upgrades page (EXP-per-turn capture + gold-upgrade readiness/time rows)
-    if (location.pathname.includes("upgrades.php")) {
-      await safeExecute('collectExpPerTurn', () => collectExpPerTurn());
-      await safeExecute('addUpgradeReadyRows', () => addUpgradeReadyRows());
+    for (const step of FEATURE_STEPS) {
+      if (!stepEnabled(step.f)) continue;
+      let applies = false;
+      try {
+        applies = !!step.when();
+      } catch (e) {
+        applies = false;
+      }
+      if (!applies) continue;
+      await safeExecute(step.label, step.run);
     }
   }
 
