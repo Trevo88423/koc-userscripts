@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name         KoC Data Centre
 // @namespace    trevo88423
-// @version      2.15.0
-// @description  Sweet Revenge alliance tool: tracks stats, syncs to API, adds dashboards, XP→Turn calculator, mini Top Stats panel. v2.15.0: Sabotage Tracker on attack.php — "You last sabbed / poisoned / stole" and the revenge timestamps now show colour-coded ages like the stats pages (hover for the raw server time); the Sabotage and Revenge Sabotage sections get a live status line: attempts left in the rolling 24h window with a ticking "Can sab again in …" countdown when you're out of slots (10 sabs / 4 revenge per target per 24h, tracked automatically whenever you fire a sab and backfilled with exact server times when you open the target's Intelligence file), plus a "sab damage left before maxed" line (Maximum Daily Sabotage loss − lost in last 24h) that flips to TARGET MAXED when the cap is hit. Display-only: it records only missions you fire by hand and never presses anything. v2.14.0: Tech Level Projector — the "Stats After Upgrading Tech" table on safe.php gets a "Project to" dropdown: pick ANY future tech level (up to Obi Bon Kenobi) and the table shows your projected stats at that level, with the total ▲% vs now and the cumulative EXP needed across all the upgrades in between. v2.13.1: Rank-neighbour links now blend into the native table — no dot markers or underline, the numbers just quietly became links (hover tooltip still shows who it is, data age, and gap/stale warnings). v2.13.0: Rank-neighbour recon links — the "Rating For Previous/Next Rank Gain" numbers are now hyperlinks to the player we believe holds that rank (matched by rating value from the roster DB, never by stale DB rank), with a tooltip showing who it is + how fresh their data is; an orange dot means a DB gap (recon upward), a red dot means DB rank/rating disagree (recon me first). Click → recon → DB refreshes; wrong candidates rotate out on the next page load, so the links self-correct toward the true neighbour. v2.11.2: Banking Mode redesigned — your exposed gold now shows in a native-style "Estimated Funds" box that matches the in-game funds boxes, with a ⚙ that holds the Banking Mode toggle, screen-awake, and all settings (including an optional "show yellow/red times" line); a live-ticking Server Time clock on every page; and the Upgrades "Upgrade Ready" row now uses realistic funds (drops full-armory-sell) and shows any shortfall as a slay estimate. v2.10.1: Fix — the slider Armory Preferences now also resync when you press KoC's "Clear Percentage Prefills" button (sliders drop to 0 instead of keeping their old values). v2.10.0: New slider-based Armory Preferences — drag to allocate with auto-balancing, theme-matched styling, and one-tap presets (Cheapest first, Optimizer, All spy, All defense) plus saved presets — replacing the in-game percentage form; rank Optimizer also fixed (weapon efficiency now synced). v2.9.0: "Time to upgrade" + "EXP still needed to be deposited" now show on ALL EXP-cost safe.php upgrades (Increase Soldiers, Economic Development, SAFE Upgrade) — not just Technological Development. v2.8.2: Fix — "EXP still needed to be deposited" now shows cost − Experience Bank (what must still be banked) instead of also subtracting on-hand EXP, so it no longer reads 0 when you hold the EXP but haven't deposited it. v2.8.1: Fix — sidebar abbreviates large gold/safe values (e.g. "2,560M"); getSidebarValue now parses K/M/B/T suffixes so SAFE Forecasts and gold-upgrade rows use real balances (previously read as ~0). SAFE Forecasts also uses the full-precision "Gold in Safe" value. v2.8.0: SAFE Forecasts on safe.php — time for your Safe to reach 1B/2B/5B/9B/10B(MAX) based on current Safe + deposit/min. v2.7.0: Gold upgrade timer — upgrades.php now shows "Upgrade Ready" (liquidation + safe-growth time) and "Gold Needed on top of Safe" under each skill upgrade (uses gold/vault/safe + full armory sell value from Armory + safe deposit rate from Safe). v2.6.0: Tech upgrade timer — safe.php now shows "Time to upgrade" + "EXP still needed to be deposited" under Technological Development (uses EXP on-hand + Experience Bank + your EXP/turn rate, auto-captured from the Upgrades page). v2.5.1: Banking Mode last-bank fix — now watches the per-weapon buy form (anotherbuyform), not just the hidden one-click form, and stamps banks reliably for high-income accounts. v2.5.0: 🏦 Banking Mode on the Armory page — toggleable inline widget that projects your exposed (stealable) gold every second, colour-codes the risk (SAFE/CAUTION/DANGER) from your attack-log steal history, shows time-to-yellow/red, and keeps the screen awake. Display-only: no automated requests, observes (never presses) the buy/repair forms. v2.4.0: Banking trend graph (📈 in the sidebar tracks your banked % over time) + manual override for Avg Gold/Atk (✏️ in the sidebar, survives attack-log recalibration). v2.3.4: Recons panel now shares counts alliance-wide via API (previously localStorage-only — each user only saw themselves). v2.3.0: Added "Stats If You Attacked Instead" table on safe.php to compare tech upgrades vs attacking. v2.2.9: Added optimizer auto-fill for armory (uses roster API to calculate optimal stat allocation). v2.2.8: Minor fixes. v2.1.0: Integrated slaying competition tracker (attack missions & gold stolen tracking, team competitions, leaderboards). v2.0.0: Optimized API architecture, previous versions deprecated.
+// @version      2.16.0
+// @description  Sweet Revenge alliance tool: tracks stats, syncs to API, adds dashboards, XP→Turn calculator, mini Top Stats panel. v2.16.0: Sab Tracker learns the exclusivity rule — per target you either regular-sab OR revenge-sab in a 24h window, so the panels now show 🔒 "Regular sabs locked — you revenge-sabbed this target" with an unlock countdown that keeps working after the Revenge section vanishes (target un-maxed — exactly when KoC hides the info), and 🔒 "Revenge locked — you've sabbed this target this window" when the Revenge form is up but unusable; the native "First sab (last 24hrs)" row is age-formatted like the rest and its exact server stamp now anchors the tracker, making the "Can sab again in …" countdown precise instead of an estimate. v2.15.0: Sabotage Tracker on attack.php — "You last sabbed / poisoned / stole" and the revenge timestamps now show colour-coded ages like the stats pages (hover for the raw server time); the Sabotage and Revenge Sabotage sections get a live status line: attempts left in the rolling 24h window with a ticking "Can sab again in …" countdown when you're out of slots (10 sabs / 4 revenge per target per 24h, tracked automatically whenever you fire a sab and backfilled with exact server times when you open the target's Intelligence file), plus a "sab damage left before maxed" line (Maximum Daily Sabotage loss − lost in last 24h) that flips to TARGET MAXED when the cap is hit. Display-only: it records only missions you fire by hand and never presses anything. v2.14.0: Tech Level Projector — the "Stats After Upgrading Tech" table on safe.php gets a "Project to" dropdown: pick ANY future tech level (up to Obi Bon Kenobi) and the table shows your projected stats at that level, with the total ▲% vs now and the cumulative EXP needed across all the upgrades in between. v2.13.1: Rank-neighbour links now blend into the native table — no dot markers or underline, the numbers just quietly became links (hover tooltip still shows who it is, data age, and gap/stale warnings). v2.13.0: Rank-neighbour recon links — the "Rating For Previous/Next Rank Gain" numbers are now hyperlinks to the player we believe holds that rank (matched by rating value from the roster DB, never by stale DB rank), with a tooltip showing who it is + how fresh their data is; an orange dot means a DB gap (recon upward), a red dot means DB rank/rating disagree (recon me first). Click → recon → DB refreshes; wrong candidates rotate out on the next page load, so the links self-correct toward the true neighbour. v2.11.2: Banking Mode redesigned — your exposed gold now shows in a native-style "Estimated Funds" box that matches the in-game funds boxes, with a ⚙ that holds the Banking Mode toggle, screen-awake, and all settings (including an optional "show yellow/red times" line); a live-ticking Server Time clock on every page; and the Upgrades "Upgrade Ready" row now uses realistic funds (drops full-armory-sell) and shows any shortfall as a slay estimate. v2.10.1: Fix — the slider Armory Preferences now also resync when you press KoC's "Clear Percentage Prefills" button (sliders drop to 0 instead of keeping their old values). v2.10.0: New slider-based Armory Preferences — drag to allocate with auto-balancing, theme-matched styling, and one-tap presets (Cheapest first, Optimizer, All spy, All defense) plus saved presets — replacing the in-game percentage form; rank Optimizer also fixed (weapon efficiency now synced). v2.9.0: "Time to upgrade" + "EXP still needed to be deposited" now show on ALL EXP-cost safe.php upgrades (Increase Soldiers, Economic Development, SAFE Upgrade) — not just Technological Development. v2.8.2: Fix — "EXP still needed to be deposited" now shows cost − Experience Bank (what must still be banked) instead of also subtracting on-hand EXP, so it no longer reads 0 when you hold the EXP but haven't deposited it. v2.8.1: Fix — sidebar abbreviates large gold/safe values (e.g. "2,560M"); getSidebarValue now parses K/M/B/T suffixes so SAFE Forecasts and gold-upgrade rows use real balances (previously read as ~0). SAFE Forecasts also uses the full-precision "Gold in Safe" value. v2.8.0: SAFE Forecasts on safe.php — time for your Safe to reach 1B/2B/5B/9B/10B(MAX) based on current Safe + deposit/min. v2.7.0: Gold upgrade timer — upgrades.php now shows "Upgrade Ready" (liquidation + safe-growth time) and "Gold Needed on top of Safe" under each skill upgrade (uses gold/vault/safe + full armory sell value from Armory + safe deposit rate from Safe). v2.6.0: Tech upgrade timer — safe.php now shows "Time to upgrade" + "EXP still needed to be deposited" under Technological Development (uses EXP on-hand + Experience Bank + your EXP/turn rate, auto-captured from the Upgrades page). v2.5.1: Banking Mode last-bank fix — now watches the per-weapon buy form (anotherbuyform), not just the hidden one-click form, and stamps banks reliably for high-income accounts. v2.5.0: 🏦 Banking Mode on the Armory page — toggleable inline widget that projects your exposed (stealable) gold every second, colour-codes the risk (SAFE/CAUTION/DANGER) from your attack-log steal history, shows time-to-yellow/red, and keeps the screen awake. Display-only: no automated requests, observes (never presses) the buy/repair forms. v2.4.0: Banking trend graph (📈 in the sidebar tracks your banked % over time) + manual override for Avg Gold/Atk (✏️ in the sidebar, survives attack-log recalibration). v2.3.4: Recons panel now shares counts alliance-wide via API (previously localStorage-only — each user only saw themselves). v2.3.0: Added "Stats If You Attacked Instead" table on safe.php to compare tech upgrades vs attacking. v2.2.9: Added optimizer auto-fill for armory (uses roster API to calculate optimal stat allocation). v2.2.8: Minor fixes. v2.1.0: Integrated slaying competition tracker (attack missions & gold stolen tracking, team competitions, leaderboards). v2.0.0: Optimized API architecture, previous versions deprecated.
 // @author       Blackheart
 // @match        https://www.kingsofchaos.com/*
 // @exclude      https://*.kingsofchaos.com/confirm.login.php*
@@ -42,7 +42,7 @@
   // ==================== VERSION CHECK ====================
   // Check if this script version is allowed to run
   const SCRIPT_NAME = 'koc-data-centre';
-  const SCRIPT_VERSION = '2.15.0'; // Must match @version above
+  const SCRIPT_VERSION = '2.16.0'; // Must match @version above
   const VERSION_CHECK_API = 'https://koc-roster-api-production.up.railway.app';
 
   async function checkScriptVersion() {
@@ -8685,7 +8685,7 @@
    * colour-coded relative ages (raw server time kept in the hover tooltip).
    */
   function relativizeMissionTimestamps() {
-    const labelRe = /You last (sabbed|poisoned|stole)|last successful/i;
+    const labelRe = /You last (sabbed|poisoned|stole)|last successful|First sab/i;
     const dtRe = /(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})/;
     const nodes = [];
     const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, null);
@@ -8777,6 +8777,8 @@
       maxLoss: bodyNum(/Maximum Daily Sabotage loss:\s*\(([\d,]+)\)/i),
       lost24: bodyNum(/Total lost from sabbs in the last 24\s*hours:\s*([\d,]+)/i),
       lastSabMs: stampMs(/You last sabbed:[^]{0,80}?(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})/i),
+      // native row that appears once you've sabbed in the current window — exact oldest-sab time
+      firstSabMs: stampMs(/First sab[^]{0,60}?(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})/i),
       lastRevMs: stampMs(/last successful Reven\w*ge Sab on this player[^]{0,60}?(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})/i),
       revSection: /Revenge Sabotage Mission/i.test(body)
     };
@@ -8799,18 +8801,26 @@
     const log = getSabLog();
     const rec = log[info.targetId] || (log[info.targetId] = { sab: [], rev: [] });
     const now = Date.now();
-    const fit = (arr, pageCount, lastMs) => {
+    const fit = (arr, pageCount, lastMs, firstMs) => {
+      const okFirst = firstMs && now - firstMs < SAB_WINDOW_MS;
       const inWin = (arr || []).filter(e => e && now - e.t < SAB_WINDOW_MS).sort((a, b) => a.t - b.t);
       if (pageCount != null) {
         while (inWin.length > pageCount) inWin.shift();
+        if (inWin.length < pageCount && okFirst && (!inWin.length || firstMs < inWin[0].t)) {
+          inWin.unshift({ t: firstMs }); // KoC's own "First sab (last 24hrs)" stamp — exact
+        }
         const estT = (lastMs && now - lastMs < SAB_WINDOW_MS) ? lastMs : now;
-        while (inWin.length < pageCount) inWin.unshift({ t: estT, est: 1 });
+        while (inWin.length < pageCount) inWin.push({ t: estT, est: 1 });
         inWin.sort((a, b) => a.t - b.t);
+        if (okFirst && inWin.length && inWin[0].est) {
+          inWin[0] = { t: firstMs }; // upgrade an estimated oldest to the exact stamp
+          inWin.sort((a, b) => a.t - b.t);
+        }
       }
       return inWin;
     };
-    rec.sab = fit(rec.sab, info.sabAttempts, info.lastSabMs);
-    rec.rev = fit(rec.rev, info.revAttempts, info.lastRevMs);
+    rec.sab = fit(rec.sab, info.sabAttempts, info.lastSabMs, info.firstSabMs);
+    rec.rev = fit(rec.rev, info.revAttempts, info.lastRevMs, null);
     rec.seen = now;
     if (info.name) rec.name = info.name;
     saveSabLog(log);
@@ -8828,31 +8838,51 @@
     return best;
   }
 
-  function renderSabSlotsLine(el, entries, cap, slotLabel, verb, maxed) {
+  function renderSabSlotsLine(el, rec, kind, cap, info) {
     const now = Date.now();
-    const inWin = (entries || []).filter(e => e && now - e.t < SAB_WINDOW_MS).sort((a, b) => a.t - b.t);
-    const left = Math.max(cap - inWin.length, 0);
+    const inWin = arr => (arr || []).filter(e => e && now - e.t < SAB_WINDOW_MS).sort((a, b) => a.t - b.t);
+    const mine = inWin(kind === 'rev' ? rec.rev : rec.sab);
+    const other = inWin(kind === 'rev' ? rec.sab : rec.rev);
+    const left = Math.max(cap - mine.length, 0);
+    const slotLabel = kind === 'rev' ? 'revenge sabs' : 'sab attempts';
+    const verb = kind === 'rev' ? 'revenge sab' : 'sab';
     const grey = 'color:#bbb;';
-    let html;
-    if (maxed) {
+    const list = arr => arr.map((e, i) =>
+      `#${i + 1}: ${convertUTCToKoCServerTime(new Date(e.t).toISOString())}${e.est ? ' (estimated)' : ''}` +
+      ` → expires ${convertUTCToKoCServerTime(new Date(e.t + SAB_WINDOW_MS).toISOString())}`).join('\n');
+    const mineTitle = mine.length
+      ? `Tracked ${slotLabel} (server time):\n${list(mine)}`
+      : `No ${slotLabel} tracked in the current 24h window.`;
+    let html, title;
+
+    if (other.length) {
+      // Sab and revenge sab are mutually exclusive per target per 24h window —
+      // this is the state KoC hides (the Revenge section vanishes once un-maxed).
+      const unlockMs = other[other.length - 1].t + SAB_WINDOW_MS - now;
+      const otherEst = other.some(e => e.est);
+      html = `<span style="color:#f90; font-weight:bold;">🔒 ${kind === 'rev' ? 'Revenge locked' : 'Regular sabs locked'} — you ${kind === 'rev' ? 'sabbed' : 'revenge-sabbed'} this target in this 24h window</span>` +
+             `<span style="${grey}"> — opens in ${otherEst ? '≤ ' : ''}${fmtSabCountdown(unlockMs)}${kind === 'rev' ? ' (if still maxed)' : ''}</span>`;
+      title = `Sab and revenge sab are mutually exclusive per target per 24h window.\n` +
+              `Unlock shown = when your last ${kind === 'rev' ? 'sab' : 'revenge sab'} leaves the window.\n` +
+              `Your ${kind === 'rev' ? 'sab attempts' : 'revenge sabs'} (server time):\n${list(other)}`;
+    } else if (kind === 'sab' && info.maxed) {
       html = `<span style="color:#f66; font-weight:bold;">🚫 Regular sabs will abort while the target is maxed</span>` +
              `<span style="${grey}"> — ${left} of ${cap} ${slotLabel} left</span>`;
-      if (!left && inWin.length) {
-        html += `<span style="${grey}"> · next slot in ${inWin[0].est ? '≤ ' : ''}${fmtSabCountdown(inWin[0].t + SAB_WINDOW_MS - now)}</span>`;
+      if (!left && mine.length) {
+        html += `<span style="${grey}"> · next slot in ${mine[0].est ? '≤ ' : ''}${fmtSabCountdown(mine[0].t + SAB_WINDOW_MS - now)}</span>`;
       }
+      title = mineTitle;
     } else if (left > 0) {
       html = `<span style="color:#6f6; font-weight:bold;">✅ Can ${verb} now</span>` +
              `<span style="${grey}"> — ${left} of ${cap} ${slotLabel} left in this 24h window</span>`;
+      title = mineTitle;
     } else {
-      html = `<span style="color:#ff6; font-weight:bold;">⏳ Can ${verb} again in ${inWin[0].est ? '≤ ' : ''}${fmtSabCountdown(inWin[0].t + SAB_WINDOW_MS - now)}</span>` +
+      html = `<span style="color:#ff6; font-weight:bold;">⏳ Can ${verb} again in ${mine[0].est ? '≤ ' : ''}${fmtSabCountdown(mine[0].t + SAB_WINDOW_MS - now)}</span>` +
              `<span style="${grey}"> — ${cap}/${cap} ${slotLabel} used</span>`;
+      title = mineTitle;
     }
     el.innerHTML = html;
-    el.title = inWin.length
-      ? 'Tracked attempts (server time):\n' + inWin.map((e, i) =>
-          `#${i + 1}: ${convertUTCToKoCServerTime(new Date(e.t).toISOString())}${e.est ? ' (estimated)' : ''}` +
-          ` → slot frees ${convertUTCToKoCServerTime(new Date(e.t + SAB_WINDOW_MS).toISOString())}`).join('\n')
-      : `No ${slotLabel} tracked in the current 24h window.`;
+    el.title = title;
   }
 
   function buildSabMaxedLineHTML(info) {
@@ -8860,8 +8890,7 @@
     const rem = info.maxLoss - info.lost24;
     if (info.maxed || rem <= 0) {
       return `<span style="color:#f66; font-weight:bold;">🔴 TARGET MAXED</span>` +
-             `<span style="color:#bbb;"> — lost ${info.lost24.toLocaleString()} of ${info.maxLoss.toLocaleString()} sab cap in the last 24h` +
-             `${info.revSection ? ' · revenge sabs only' : ''}</span>`;
+             `<span style="color:#bbb;"> — lost ${info.lost24.toLocaleString()} of ${info.maxLoss.toLocaleString()} sab cap in the last 24h</span>`;
     }
     return `<span style="color:#ffd700; font-weight:bold;">💥 ${rem.toLocaleString()}</span>` +
            `<span style="color:#bbb;"> sab damage left before maxed (cap ${info.maxLoss.toLocaleString()} − lost ${info.lost24.toLocaleString()} in 24h)</span>`;
@@ -8902,7 +8931,7 @@
         maxedLine.innerHTML = maxedHTML;
         sabDiv.appendChild(maxedLine);
       }
-      renders.push({ el: slots, fn: () => renderSabSlotsLine(slots, rec.sab, info.sabCap, 'sab attempts', 'sab', info.maxed) });
+      renders.push({ el: slots, fn: () => renderSabSlotsLine(slots, rec, 'sab', info.sabCap, info) });
     }
 
     // Revenge panel (KoC only renders this section while the target is maxed)
@@ -8913,7 +8942,7 @@
     if (revDiv) {
       const slots = document.createElement('div');
       revDiv.appendChild(slots);
-      renders.push({ el: slots, fn: () => renderSabSlotsLine(slots, rec.rev, info.revCap, 'revenge sabs', 'revenge sab', false) });
+      renders.push({ el: slots, fn: () => renderSabSlotsLine(slots, rec, 'rev', info.revCap, info) });
     }
     return renders;
   }
