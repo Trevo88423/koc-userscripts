@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         KoC Mobile Skin
 // @namespace    trevo88423
-// @version      1.6.0
+// @version      1.7.0
 // @description  Makes kingsofchaos.com usable one-handed on a phone: hamburger nav drawer, sticky stats bar (tap to expand), full-width content. v1 = sidebar only. No-op on desktop.
 // @author       Trevor
 // @match        *://*.kingsofchaos.com/*
@@ -78,6 +78,12 @@
  *   cells are never hidden or restructured. Player-name links, paging links,
  *   and the search box get 36-44px targets; the width=550 search table is
  *   relaxed to fit.
+ *
+ * v1.7 (stats.php — the player action hub): mode by URL or the stats-only
+ *   addbuddy/commander_change forms. The player-info two-column wrapper
+ *   stacks via the shared machinery, residuals auto-scroll, and the action
+ *   buttons (Attack/Raid/Recon/Sab/Poison/Steal/Message/Farm List...) get
+ *   46px+ thumb targets.
  *
  * Page anatomy this is written against (view-source of training.php, Era 23):
  *   <table height=164 background=".../small_repeater.gif">   ← decorative banner
@@ -353,6 +359,21 @@
     'html.kocm-on.kocm-battlefield td.content table[width]:not([width="100%"]) {',
     '  width: auto !important;',
     '  max-width: 100% !important;',
+    '}',
+
+    /* ---- Player stats page (stats.php) ---- */
+    /* the page is mostly the action hub: Attack / Recon / Sab / Message etc. */
+    'html.kocm-on.kocm-stats td.content input[type="submit"] {',
+    '  min-height: 46px;',
+    '  font-size: 14px;',
+    '  padding: 6px 10px;',
+    '}',
+    'html.kocm-on.kocm-stats td.content input[type="text"],',
+    'html.kocm-on.kocm-stats td.content input[type="number"] {',
+    '  min-height: 44px;',
+    '  font-size: 16px;',
+    '  padding: 4px 6px;',
+    '  box-sizing: border-box;',
     '}',
     /* empty right rail: any td after td.content in the same layout row */
     'html.kocm-on td.content ~ td { display: none !important; }',
@@ -763,6 +784,9 @@
       } else if (/\/battlefield\.php/i.test(location.pathname) ||     // battlefield.php
                  contentCell.querySelector('table.battlefield')) {
         pageMode = 'kocm-battlefield';
+      } else if (/\/stats\.php/i.test(location.pathname) ||           // stats.php (player page)
+                 contentCell.querySelector('form[action^="addbuddy"], form[action*="commander_change"]')) {
+        pageMode = 'kocm-stats';
       }
       if (pageMode) {
         document.documentElement.classList.add(pageMode);
