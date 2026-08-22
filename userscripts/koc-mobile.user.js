@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         KoC Mobile Skin
 // @namespace    trevo88423
-// @version      1.5.0
+// @version      1.6.0
 // @description  Makes kingsofchaos.com usable one-handed on a phone: hamburger nav drawer, sticky stats bar (tap to expand), full-width content. v1 = sidebar only. No-op on desktop.
 // @author       Trevor
 // @match        *://*.kingsofchaos.com/*
@@ -69,6 +69,15 @@
  *   quantity inputs (grid-scoped so vault amount fields keep room) — the BUY
  *   grid then fits phone width inline (548→~354); the inventory grids, TIV
  *   breakdown, and rating table stay wide and fall through to .kocm-scroll.
+ *
+ * v1.6 (battlefield.php): mode by URL or table.battlefield. The player grid
+ *   (8 cols incl. DataCentre's injected Recon column) swipes internally via
+ *   .kocm-scroll with a FROZEN Name column (position:sticky on the 3rd cell,
+ *   background inherited from the row so DataCentre's row colors survive).
+ *   STYLING ONLY on that table — DataCentre parses it by cell position, so
+ *   cells are never hidden or restructured. Player-name links, paging links,
+ *   and the search box get 36-44px targets; the width=550 search table is
+ *   relaxed to fit.
  *
  * Page anatomy this is written against (view-source of training.php, Era 23):
  *   <table height=164 background=".../small_repeater.gif">   ← decorative banner
@@ -298,6 +307,53 @@
     'html.kocm-on.kocm-armory td.content input[type="submit"] { min-height: 48px; }',
     'html.kocm-on.kocm-armory td.content input[type="button"], ',
     'html.kocm-on.kocm-armory td.content button { min-height: 44px; }',
+
+    /* ---- Battlefield (battlefield.php) ---- */
+    /* The 8-col player grid (incl. DataCentre's injected Recon column) can't
+     * fit 375px; it auto-becomes a .kocm-scroll scroller. STYLING ONLY here —
+     * DataCentre parses this table by cell position, so cells are never
+     * hidden, moved, or restructured. */
+    'html.kocm-on.kocm-battlefield table.battlefield td,',
+    'html.kocm-on.kocm-battlefield table.battlefield th {',
+    '  padding: 3px !important;',
+    '  font-size: 12px;',
+    '}',
+    /* rows get a solid default bg (DataCentre inline row colors still win)
+     * so the frozen column below can inherit it opaquely */
+    'html.kocm-on.kocm-battlefield table.battlefield tr { background-color: #140f0b; }',
+    /* frozen Name column (3rd cell) while the grid swipes */
+    'html.kocm-on.kocm-battlefield table.battlefield.kocm-scroll td:nth-child(3),',
+    'html.kocm-on.kocm-battlefield table.battlefield.kocm-scroll th:nth-child(3) {',
+    '  position: sticky;',
+    '  left: 0;',
+    '  z-index: 2;',
+    '  background-color: inherit;',
+    '  box-shadow: 2px 0 4px rgba(0,0,0,.5);',
+    '}',
+    /* comfortable taps: player names, paging links, search */
+    'html.kocm-on.kocm-battlefield table.battlefield td:nth-child(3) a {',
+    '  display: inline-block;',
+    '  padding: 10px 4px;',
+    '}',
+    'html.kocm-on.kocm-battlefield td.content a[href*="start="] {',
+    '  display: inline-block;',
+    '  min-height: 40px;',
+    '  line-height: 40px;',
+    '  padding: 0 14px;',
+    '}',
+    'html.kocm-on.kocm-battlefield td.content input[type="text"],',
+    'html.kocm-on.kocm-battlefield td.content input[type="number"] {',
+    '  min-height: 44px;',
+    '  font-size: 16px;',
+    '  padding: 4px 6px;',
+    '  box-sizing: border-box;',
+    '}',
+    'html.kocm-on.kocm-battlefield td.content input[type="submit"] { min-height: 44px; }',
+    /* the search/jump box is hard-sized width=550 — let it fit the phone */
+    'html.kocm-on.kocm-battlefield td.content table[width]:not([width="100%"]) {',
+    '  width: auto !important;',
+    '  max-width: 100% !important;',
+    '}',
     /* empty right rail: any td after td.content in the same layout row */
     'html.kocm-on td.content ~ td { display: none !important; }',
     /* Linearize the layout table (table→tbody→tr→content cell all block) so
@@ -704,6 +760,9 @@
       } else if (/\/armory\.php/i.test(location.pathname) ||          // armory.php
                  contentCell.querySelector('table.buywep, table.curwep')) {
         pageMode = 'kocm-armory';
+      } else if (/\/battlefield\.php/i.test(location.pathname) ||     // battlefield.php
+                 contentCell.querySelector('table.battlefield')) {
+        pageMode = 'kocm-battlefield';
       }
       if (pageMode) {
         document.documentElement.classList.add(pageMode);
