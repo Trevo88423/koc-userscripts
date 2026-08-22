@@ -38,6 +38,22 @@ Track your performance in slaying competitions:
 
 ---
 
+### KoC Mobile Skin
+
+**Version:** 1.5.0
+
+Makes Kings of Chaos comfortable to play one-handed on a phone (no effect on desktop browsers):
+- **Hamburger Menu**: sidebar navigation in a slide-in drawer with an unread-mail badge
+- **Sticky Stats Bar**: Gold · Turns · Attacks Left always on screen — tap to expand the full panel
+- **Phone-Width Pages**: Training, Command Center, and Armory reflow to fit with no sideways scrolling
+- **Big Touch Targets**: 44px+ inputs and buttons with numeric keyboards
+- **Sidebar Tools**: panels added by other userscripts stay available below the page content
+- **Desktop View Toggle**: switch back to the stock layout any time from the menu
+
+[Install KoC Mobile Skin](https://raw.githubusercontent.com/Trevo88423/koc-userscripts/main/userscripts/koc-mobile.user.js)
+
+---
+
 ## Installation
 
 1. Install a userscript manager for your browser:
