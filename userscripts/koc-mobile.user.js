@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         KoC Mobile Skin
 // @namespace    trevo88423
-// @version      1.7.0
+// @version      1.8.0
 // @description  Makes kingsofchaos.com usable one-handed on a phone: hamburger nav drawer, sticky stats bar (tap to expand), full-width content. v1 = sidebar only. No-op on desktop.
 // @author       Trevor
 // @match        *://*.kingsofchaos.com/*
@@ -84,6 +84,15 @@
  *   stacks via the shared machinery, residuals auto-scroll, and the action
  *   buttons (Attack/Raid/Recon/Sab/Poison/Steal/Message/Farm List...) get
  *   46px+ thumb targets.
+ *
+ * v1.8 (swipe columns, Trevor's ask): two-column rows become horizontal
+ *   snap-scrollers by default — swipe sideways to flip between the halves
+ *   (94% panes leave a peek of the next). Drawer toggle "Columns:
+ *   Swipe/Stacked" persists via localStorage kocmSplit. Inner .kocm-scroll
+ *   tables chain to the pane at their edge (overscroll auto inside swipe
+ *   rows, contain elsewhere); the scroll tagger measures against the PANE
+ *   width for pane-nested tables; armory grids squeeze a notch further in
+ *   swipe mode so the buy grid stays inline in its pane.
  *
  * Page anatomy this is written against (view-source of training.php, Era 23):
  *   <table height=164 background=".../small_repeater.gif">   ← decorative banner
@@ -231,6 +240,44 @@
      * (must out-specify the block rule above) */
     'html.kocm-on table.kocm-cols > tbody > tr > td.kocm-blank[width="50%"] {',
     '  display: none !important;',
+    '}',
+    /* SWIPE column mode (default; drawer toggle ⇄ stacked): rows that held
+     * two side-by-side columns become horizontal snap-scrollers — swipe to
+     * flip between the halves; 94% panes leave a peek of the next one.
+     * Must out-specify the stack rules above. */
+    'html.kocm-on.kocm-swipe table.kocm-cols > tbody > tr.kocm-swipe-row {',
+    '  display: flex !important;',
+    '  flex-direction: row !important;',
+    '  width: 100% !important;',
+    '  overflow-x: auto !important;',
+    '  gap: 8px;',
+    '  scroll-snap-type: x mandatory;',
+    '  overscroll-behavior-x: contain;',
+    '  -webkit-overflow-scrolling: touch;',
+    '}',
+    'html.kocm-on.kocm-swipe table.kocm-cols > tbody > tr.kocm-swipe-row > td.kocm-pane {',
+    '  display: block !important;',
+    '  flex: 0 0 94% !important;',
+    '  width: 94% !important;',
+    '  box-sizing: border-box !important;',
+    '  scroll-snap-align: start;',
+    '}',
+    /* wide-table scrollers don\'t leak the gesture into browser nav… */
+    'html.kocm-on table.kocm-scroll { overscroll-behavior-x: contain; }',
+    /* …but INSIDE a swipe row they chain to the pane at their edge, so a
+     * continued swipe still flips panes */
+    'html.kocm-on .kocm-swipe-row table.kocm-scroll { overscroll-behavior-x: auto; }',
+    /* swipe panes are ~6% narrower than the page: nudge the armory grids so
+     * the buy grid keeps fitting inline inside its pane */
+    'html.kocm-on.kocm-swipe.kocm-armory table.buywep td, html.kocm-on.kocm-swipe.kocm-armory table.buywep th,',
+    'html.kocm-on.kocm-swipe.kocm-armory table.curwep td, html.kocm-on.kocm-swipe.kocm-armory table.curwep th,',
+    'html.kocm-on.kocm-swipe.kocm-armory table.curtool td, html.kocm-on.kocm-swipe.kocm-armory table.curtool th {',
+    '  padding: 2px !important;',
+    '}',
+    'html.kocm-on.kocm-swipe.kocm-armory table.buywep input,',
+    'html.kocm-on.kocm-swipe.kocm-armory table.curwep input,',
+    'html.kocm-on.kocm-swipe.kocm-armory table.curtool input {',
+    '  width: 4em !important;',
     '}',
     /* comfortable one-handed inputs: 44px+ targets, 16px text */
     'html.kocm-on.kocm-training td.content input[type="number"],',
@@ -739,6 +786,18 @@
         var wrapper = td.closest('table');
         if (wrapper) wrapper.classList.add('kocm-cols');
         if (!td.textContent.trim() && !td.querySelector('*')) td.classList.add('kocm-blank');
+        // rows that really hold two side-by-side columns become swipe rows
+        // (the 2nd cell often lacks a width attr, so tag cells explicitly)
+        var row = td.parentElement;
+        if (row && row.tagName === 'TR' && !row.classList.contains('kocm-swipe-row')) {
+          var panes = Array.prototype.filter.call(row.cells, function (c) {
+            return !c.classList.contains('kocm-blank');
+          });
+          if (panes.length >= 2) {
+            row.classList.add('kocm-swipe-row');
+            panes.forEach(function (c) { c.classList.add('kocm-pane'); });
+          }
+        }
       });
     }
 
@@ -758,11 +817,18 @@
         t.style.cssText = prev;
         return w;
       };
+      // tables inside a swipe pane must fit the (narrower) pane, not the page
+      var limitFor = function (t) {
+        var pane = t.closest('td.kocm-pane');
+        return (pane && pane.clientWidth > 100 ? pane.clientWidth : limit - 4) + 4;
+      };
+      // no early scrollWidth exit: swipe rows contain their own overflow, so
+      // a pane-level offender never widens contentCell — the !deepest.length
+      // break below is the loop's true fixpoint
       for (var pass = 0; pass < 4; pass++) {
-        if (contentCell.scrollWidth <= limit) break;
         var tables = Array.prototype.slice.call(
           contentCell.querySelectorAll('table:not(.kocm-scroll)'));
-        var wide = tables.filter(function (t) { return minContentWidth(t) > limit; });
+        var wide = tables.filter(function (t) { return minContentWidth(t) > limitFor(t); });
         var deepest = wide.filter(function (t) {
           return !wide.some(function (o) { return o !== t && t.contains(o); });
         });
@@ -790,6 +856,10 @@
       }
       if (pageMode) {
         document.documentElement.classList.add(pageMode);
+        // column presentation: swipe panes (default) or stacked, per toggle
+        if (store.get('kocmSplit') !== 'stack') {
+          document.documentElement.classList.add('kocm-swipe');
+        }
         stackTwoColumnWrappers();
         requestAnimationFrame(tagWideScrollers);
         window.addEventListener('load', tagWideScrollers, { once: true });
@@ -955,6 +1025,20 @@
           sidebar.scrollIntoView({ behavior: 'smooth', block: 'start' });
         });
         drawer.appendChild(jump);
+      }
+
+      // column presentation toggle — only shown when this page has swipe rows
+      if (document.querySelector('.kocm-swipe-row')) {
+        var swipeOn = document.documentElement.classList.contains('kocm-swipe');
+        var splitRow = el('a', 'kocm-row', 'Columns: ' + (swipeOn ? 'Swipe sideways' : 'Stacked'));
+        splitRow.href = '#';
+        splitRow.appendChild(el('span', 'kocm-row-value', swipeOn ? 'tap for stacked ↓' : 'tap for swipe ⇄'));
+        splitRow.addEventListener('click', function (e) {
+          e.preventDefault();
+          store.set('kocmSplit', swipeOn ? 'stack' : 'swipe');
+          location.reload();
+        });
+        drawer.appendChild(splitRow);
       }
 
       // escape hatch: stock desktop layout until toggled back via the 📱 chip

@@ -40,12 +40,13 @@ Track your performance in slaying competitions:
 
 ### KoC Mobile Skin
 
-**Version:** 1.7.0
+**Version:** 1.8.0
 
 Makes Kings of Chaos comfortable to play one-handed on a phone (no effect on desktop browsers):
 - **Hamburger Menu**: sidebar navigation in a slide-in drawer with an unread-mail badge
 - **Sticky Stats Bar**: Gold · Turns · Attacks Left always on screen — tap to expand the full panel
 - **Phone-Width Pages**: Training, Command Center, Armory, Battlefield, and player Stats pages reflow to fit
+- **Swipe Columns**: pages that had two side-by-side columns flip between them with a sideways swipe (or switch to stacked in the menu)
 - **Battlefield On The Go**: the player grid swipes sideways with the Name column frozen in place
 - **Thumb-Sized Actions**: Attack / Recon / Sabotage and friends are proper 46px+ buttons on player pages
 - **Big Touch Targets**: 44px+ inputs and buttons with numeric keyboards
