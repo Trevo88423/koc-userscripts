@@ -40,7 +40,7 @@ Track your performance in slaying competitions:
 
 ### KoC Mobile Skin
 
-**Version:** 1.9.0
+**Version:** 1.9.1
 
 Makes Kings of Chaos comfortable to play one-handed on a phone (no effect on desktop browsers):
 - **Hamburger Menu**: sidebar navigation in a slide-in drawer with an unread-mail badge

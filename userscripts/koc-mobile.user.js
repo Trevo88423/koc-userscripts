@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         KoC Mobile Skin
 // @namespace    trevo88423
-// @version      1.9.0
+// @version      1.9.1
 // @description  Makes kingsofchaos.com usable one-handed on a phone: hamburger nav drawer, sticky stats bar (tap to expand), full-width content. v1 = sidebar only. No-op on desktop.
 // @author       Trevor
 // @match        *://*.kingsofchaos.com/*
@@ -275,6 +275,32 @@
     '  box-sizing: border-box !important;',
     '  scroll-snap-align: start;',
     '}',
+    /* ACTION rows (stats.php Attack/Message/Farm cluster): never swipe panes —
+     * flatten the table scaffolding with display:contents so every button
+     * (and script-injected panels like DataCentre\'s farm-scan box) flows
+     * into one wrapping, centered grid, all visible without scrolling.
+     * Ties with the stack td rule are resolved by source order (this later). */
+    'html.kocm-on table.kocm-cols > tbody > tr.kocm-actions-row {',
+    '  display: flex !important;',
+    '  flex-wrap: wrap !important;',
+    '  justify-content: center;',
+    '  align-items: center;',
+    '  gap: 8px;',
+    '  width: 100% !important;',
+    '  padding: 6px 2px;',
+    '  box-sizing: border-box !important;',
+    '}',
+    'html.kocm-on table.kocm-cols > tbody > tr.kocm-actions-row > td[width="50%"],',
+    'html.kocm-on table.kocm-cols > tbody > tr.kocm-actions-row > td,',
+    'html.kocm-on tr.kocm-actions-row > td table,',
+    'html.kocm-on tr.kocm-actions-row > td tbody,',
+    'html.kocm-on tr.kocm-actions-row > td tr,',
+    'html.kocm-on tr.kocm-actions-row > td th,',
+    'html.kocm-on tr.kocm-actions-row > td td {',
+    '  display: contents !important;',
+    '}',
+    'html.kocm-on tr.kocm-actions-row form { margin: 0 !important; }',
+    'html.kocm-on tr.kocm-actions-row > td div { max-width: 100%; box-sizing: border-box; }',
     /* wide-table scrollers don\'t leak the gesture into browser nav… */
     'html.kocm-on table.kocm-scroll { overscroll-behavior-x: contain; }',
     /* …but INSIDE a swipe row they chain to the pane at their edge, so a
@@ -840,21 +866,33 @@
       return !!c.querySelector('img:not([width="1"]):not([src*="/images/menubar/"]), input:not([type="hidden"]), select, button, iframe');
     }
 
+    // action cell = a button cluster (stats.php's Attack/Message/Farm row),
+    // possibly with a short script-injected panel next to the buttons —
+    // NOT an info pane full of text
+    function isActionCell(c) {
+      return !!c.querySelector('input[type="submit"], input[type="image"], button') &&
+             c.textContent.replace(/\s+/g, ' ').trim().length < 300;
+    }
+
     // idempotent + re-runnable: late script injections can fill cells
     function stackTwoColumnWrappers() {
       contentCell.querySelectorAll('td[width="50%"]').forEach(function (td) {
         var wrapper = td.closest('table');
         if (wrapper) wrapper.classList.add('kocm-cols');
         // rows that really hold two side-by-side columns become swipe rows
-        // (the 2nd cell often lacks a width attr, so tag cells explicitly)
+        // (the 2nd cell often lacks a width attr, so tag cells explicitly);
+        // rows that are pure button clusters become a wrapping action grid
+        // instead — every button visible, no swiping
         var row = td.parentElement;
         if (row && row.tagName === 'TR') {
           var panes = Array.prototype.filter.call(row.cells, cellHasContent);
-          row.classList.toggle('kocm-swipe-row', panes.length >= 2);
+          var actionsRow = panes.length >= 1 && panes.every(isActionCell);
+          row.classList.toggle('kocm-actions-row', actionsRow);
+          row.classList.toggle('kocm-swipe-row', !actionsRow && panes.length >= 2);
           Array.prototype.forEach.call(row.cells, function (c) {
             var hasContent = cellHasContent(c);
             c.classList.toggle('kocm-blank', !hasContent);
-            c.classList.toggle('kocm-pane', hasContent && panes.length >= 2);
+            c.classList.toggle('kocm-pane', hasContent && !actionsRow && panes.length >= 2);
           });
         }
       });
