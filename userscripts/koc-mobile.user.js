@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         KoC Mobile Skin
 // @namespace    trevo88423
-// @version      1.8.0
+// @version      1.9.0
 // @description  Makes kingsofchaos.com usable one-handed on a phone: hamburger nav drawer, sticky stats bar (tap to expand), full-width content. v1 = sidebar only. No-op on desktop.
 // @author       Trevor
 // @match        *://*.kingsofchaos.com/*
@@ -93,6 +93,17 @@
  *   rows, contain elsewhere); the scroll tagger measures against the PANE
  *   width for pane-nested tables; armory grids squeeze a notch further in
  *   swipe mode so the buy grid stays inline in its pane.
+ *
+ * v1.9 (alliance feedback — Cizzle): battlefield grid densified (11px, 2px
+ *   cells, capped icon/alliance columns, ellipsized names, Race column
+ *   hidden VISUALLY only — cells stay in the DOM for position-parsers) so
+ *   gold shows without swiping and gold+recon+rank all fit in ONE swipe.
+ *   Armory inventory grids freeze the weapon column LEFT and the
+ *   Repair/Scrap/Sell column RIGHT (:first-of-type/:last-of-type — rows
+ *   carry stray <script> elements, so :last-child misses) — sell values are
+ *   always visible while the middle scrolls. Blank-cell detection now
+ *   understands that button VALUES don't appear in textContent (stats.php's
+ *   action row) and that hidden inputs aren't content.
  *
  * Page anatomy this is written against (view-source of training.php, Era 23):
  *   <table height=164 background=".../small_repeater.gif">   ← decorative banner
@@ -236,9 +247,11 @@
     '  width: 100% !important;',
     '  box-sizing: border-box !important;',
     '}',
-    /* parser-orphaned empty cell from malformed wrapper markup
-     * (must out-specify the block rule above) */
-    'html.kocm-on table.kocm-cols > tbody > tr > td.kocm-blank[width="50%"] {',
+    /* parser-orphaned/blank cells: the [width] variant must out-specify the
+     * block rule above; the classless variant catches blank second cells
+     * that never had a width attr (e.g. stats.php's empty spacer tables) */
+    'html.kocm-on table.kocm-cols > tbody > tr > td.kocm-blank[width="50%"],',
+    'html.kocm-on table.kocm-cols td.kocm-blank {',
     '  display: none !important;',
     '}',
     /* SWIPE column mode (default; drawer toggle ⇄ stacked): rows that held
@@ -278,6 +291,27 @@
     'html.kocm-on.kocm-swipe.kocm-armory table.curwep input,',
     'html.kocm-on.kocm-swipe.kocm-armory table.curtool input {',
     '  width: 4em !important;',
+    '}',
+    /* inventory grids: weapon name frozen LEFT, Repair/Scrap/Sell frozen
+     * RIGHT — sell values stay visible while the middle columns scroll
+     * (alliance feedback: couldn\'t see sell values) */
+    'html.kocm-on.kocm-armory table.curwep tr,',
+    'html.kocm-on.kocm-armory table.curtool tr { background-color: #140f0b; }',
+    'html.kocm-on.kocm-armory table.curwep.kocm-scroll td:first-of-type,',
+    'html.kocm-on.kocm-armory table.curwep.kocm-scroll th:first-of-type,',
+    'html.kocm-on.kocm-armory table.curtool.kocm-scroll td:first-of-type,',
+    'html.kocm-on.kocm-armory table.curtool.kocm-scroll th:first-of-type {',
+    '  position: sticky; left: 0; z-index: 2;',
+    '  background-color: inherit;',
+    '  box-shadow: 2px 0 4px rgba(0,0,0,.5);',
+    '}',
+    'html.kocm-on.kocm-armory table.curwep.kocm-scroll td:last-of-type,',
+    'html.kocm-on.kocm-armory table.curwep.kocm-scroll th:last-of-type,',
+    'html.kocm-on.kocm-armory table.curtool.kocm-scroll td:last-of-type,',
+    'html.kocm-on.kocm-armory table.curtool.kocm-scroll th:last-of-type {',
+    '  position: sticky; right: 0; z-index: 2;',
+    '  background-color: inherit;',
+    '  box-shadow: -2px 0 4px rgba(0,0,0,.5);',
     '}',
     /* comfortable one-handed inputs: 44px+ targets, 16px text */
     'html.kocm-on.kocm-training td.content input[type="number"],',
@@ -366,10 +400,27 @@
      * fit 375px; it auto-becomes a .kocm-scroll scroller. STYLING ONLY here —
      * DataCentre parses this table by cell position, so cells are never
      * hidden, moved, or restructured. */
+    /* dense grid so Treasury (gold) is visible without swiping and the recon
+     * column is one short swipe away (alliance feedback: slay flow speed) */
     'html.kocm-on.kocm-battlefield table.battlefield td,',
     'html.kocm-on.kocm-battlefield table.battlefield th {',
-    '  padding: 3px !important;',
-    '  font-size: 12px;',
+    '  padding: 2px 3px !important;',
+    '  font-size: 11px;',
+    '}',
+    /* Race column hidden VISUALLY only — the cell stays in the DOM for
+     * scripts that parse rows by position; race shows on the player page */
+    'html.kocm-on.kocm-battlefield table.battlefield td:nth-child(5),',
+    'html.kocm-on.kocm-battlefield table.battlefield th:nth-child(5) { display: none !important; }',
+    /* slim the icon/alliance art and ellipsize long names */
+    'html.kocm-on.kocm-battlefield table.battlefield td:nth-child(1) img,',
+    'html.kocm-on.kocm-battlefield table.battlefield td:nth-child(2) img {',
+    '  max-width: 40px; height: auto;',
+    '}',
+    'html.kocm-on.kocm-battlefield table.battlefield td:nth-child(2) {',
+    '  max-width: 48px; overflow: hidden;',
+    '}',
+    'html.kocm-on.kocm-battlefield table.battlefield td:nth-child(3) {',
+    '  max-width: 105px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;',
     '}',
     /* rows get a solid default bg (DataCentre inline row colors still win)
      * so the frozen column below can inherit it opaquely */
@@ -386,7 +437,7 @@
     /* comfortable taps: player names, paging links, search */
     'html.kocm-on.kocm-battlefield table.battlefield td:nth-child(3) a {',
     '  display: inline-block;',
-    '  padding: 10px 4px;',
+    '  padding: 10px 2px;',
     '}',
     'html.kocm-on.kocm-battlefield td.content a[href*="start="] {',
     '  display: inline-block;',
@@ -781,22 +832,30 @@
     // logic also works against saved copies of the pages (and the harness).
     var contentCell = document.querySelector('td.content');
 
+    // blank = nothing a player could see. Careful: button VALUES don't appear
+    // in textContent (stats.php's action row looks text-empty but holds six
+    // submits), and hidden inputs must not count as content.
+    function cellHasContent(c) {
+      if (c.textContent.trim()) return true;
+      return !!c.querySelector('img:not([width="1"]):not([src*="/images/menubar/"]), input:not([type="hidden"]), select, button, iframe');
+    }
+
+    // idempotent + re-runnable: late script injections can fill cells
     function stackTwoColumnWrappers() {
       contentCell.querySelectorAll('td[width="50%"]').forEach(function (td) {
         var wrapper = td.closest('table');
         if (wrapper) wrapper.classList.add('kocm-cols');
-        if (!td.textContent.trim() && !td.querySelector('*')) td.classList.add('kocm-blank');
         // rows that really hold two side-by-side columns become swipe rows
         // (the 2nd cell often lacks a width attr, so tag cells explicitly)
         var row = td.parentElement;
-        if (row && row.tagName === 'TR' && !row.classList.contains('kocm-swipe-row')) {
-          var panes = Array.prototype.filter.call(row.cells, function (c) {
-            return !c.classList.contains('kocm-blank');
+        if (row && row.tagName === 'TR') {
+          var panes = Array.prototype.filter.call(row.cells, cellHasContent);
+          row.classList.toggle('kocm-swipe-row', panes.length >= 2);
+          Array.prototype.forEach.call(row.cells, function (c) {
+            var hasContent = cellHasContent(c);
+            c.classList.toggle('kocm-blank', !hasContent);
+            c.classList.toggle('kocm-pane', hasContent && panes.length >= 2);
           });
-          if (panes.length >= 2) {
-            row.classList.add('kocm-swipe-row');
-            panes.forEach(function (c) { c.classList.add('kocm-pane'); });
-          }
         }
       });
     }
@@ -860,10 +919,14 @@
         if (store.get('kocmSplit') !== 'stack') {
           document.documentElement.classList.add('kocm-swipe');
         }
+        var refreshLayout = function () {
+          stackTwoColumnWrappers(); // re-check blanks: scripts may fill cells late
+          tagWideScrollers();
+        };
         stackTwoColumnWrappers();
-        requestAnimationFrame(tagWideScrollers);
-        window.addEventListener('load', tagWideScrollers, { once: true });
-        setTimeout(tagWideScrollers, 2500);
+        requestAnimationFrame(refreshLayout);
+        window.addEventListener('load', refreshLayout, { once: true });
+        setTimeout(refreshLayout, 2500);
       }
     }
 
