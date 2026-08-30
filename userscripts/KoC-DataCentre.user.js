@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name         KoC Data Centre
 // @namespace    trevo88423
-// @version      2.17.1
-// @description  Sweet Revenge alliance tool: tracks stats, syncs to API, adds dashboards, XP→Turn calculator, mini Top Stats panel. v2.17.1: Fix — clicking the sidebar Sweet Revenge logo now opens the feature-settings popup (same as the ⚙ Data Centre link) instead of navigating away. Internal cleanup: removed the unused armory sell-value cache (nothing has used it since the v2.11.2 "Upgrade Ready" rework). v2.17.0: Feature Settings — a new "⚙ Data Centre" link in the sidebar opens a settings panel where EVERY feature can be switched on/off individually (or all at once with the master switch), each with a plain-English description of what it does and a badge showing whether it only changes your display or also records data to the alliance roster; toggles apply on the next page load and everything stays ON by default, so nothing changes until you say so. Under the hood the script's ~40 page hooks were rebuilt onto a single feature registry that drives both the dispatcher and the panel, ~600 lines of dead legacy code were removed, and small fixes landed (DST helper deduplicated, script load message now always visible in console, toast animation style no longer re-injected per notification). Also: the sidebar Sweet Revenge logo is now a link to the Data Centre (with a hover glow), and the Top Stats panel's Debug button is gone — debug mode lives in the console via KoCDebug.toggle(). v2.16.0: Sab Tracker learns the exclusivity rule — per target you either regular-sab OR revenge-sab in a 24h window, so the panels now show 🔒 "Regular sabs locked — you revenge-sabbed this target" with an unlock countdown that keeps working after the Revenge section vanishes (target un-maxed — exactly when KoC hides the info), and 🔒 "Revenge locked — you've sabbed this target this window" when the Revenge form is up but unusable; the native "First sab (last 24hrs)" row is age-formatted like the rest and its exact server stamp now anchors the tracker, making the "Can sab again in …" countdown precise instead of an estimate. v2.15.0: Sabotage Tracker on attack.php — "You last sabbed / poisoned / stole" and the revenge timestamps now show colour-coded ages like the stats pages (hover for the raw server time); the Sabotage and Revenge Sabotage sections get a live status line: attempts left in the rolling 24h window with a ticking "Can sab again in …" countdown when you're out of slots (10 sabs / 4 revenge per target per 24h, tracked automatically whenever you fire a sab and backfilled with exact server times when you open the target's Intelligence file), plus a "sab damage left before maxed" line (Maximum Daily Sabotage loss − lost in last 24h) that flips to TARGET MAXED when the cap is hit. Display-only: it records only missions you fire by hand and never presses anything. v2.14.0: Tech Level Projector — the "Stats After Upgrading Tech" table on safe.php gets a "Project to" dropdown: pick ANY future tech level (up to Obi Bon Kenobi) and the table shows your projected stats at that level, with the total ▲% vs now and the cumulative EXP needed across all the upgrades in between. v2.13.1: Rank-neighbour links now blend into the native table — no dot markers or underline, the numbers just quietly became links (hover tooltip still shows who it is, data age, and gap/stale warnings). v2.13.0: Rank-neighbour recon links — the "Rating For Previous/Next Rank Gain" numbers are now hyperlinks to the player we believe holds that rank (matched by rating value from the roster DB, never by stale DB rank), with a tooltip showing who it is + how fresh their data is; an orange dot means a DB gap (recon upward), a red dot means DB rank/rating disagree (recon me first). Click → recon → DB refreshes; wrong candidates rotate out on the next page load, so the links self-correct toward the true neighbour. v2.11.2: Banking Mode redesigned — your exposed gold now shows in a native-style "Estimated Funds" box that matches the in-game funds boxes, with a ⚙ that holds the Banking Mode toggle, screen-awake, and all settings (including an optional "show yellow/red times" line); a live-ticking Server Time clock on every page; and the Upgrades "Upgrade Ready" row now uses realistic funds (drops full-armory-sell) and shows any shortfall as a slay estimate. v2.10.1: Fix — the slider Armory Preferences now also resync when you press KoC's "Clear Percentage Prefills" button (sliders drop to 0 instead of keeping their old values). v2.10.0: New slider-based Armory Preferences — drag to allocate with auto-balancing, theme-matched styling, and one-tap presets (Cheapest first, Optimizer, All spy, All defense) plus saved presets — replacing the in-game percentage form; rank Optimizer also fixed (weapon efficiency now synced). v2.9.0: "Time to upgrade" + "EXP still needed to be deposited" now show on ALL EXP-cost safe.php upgrades (Increase Soldiers, Economic Development, SAFE Upgrade) — not just Technological Development. v2.8.2: Fix — "EXP still needed to be deposited" now shows cost − Experience Bank (what must still be banked) instead of also subtracting on-hand EXP, so it no longer reads 0 when you hold the EXP but haven't deposited it. v2.8.1: Fix — sidebar abbreviates large gold/safe values (e.g. "2,560M"); getSidebarValue now parses K/M/B/T suffixes so SAFE Forecasts and gold-upgrade rows use real balances (previously read as ~0). SAFE Forecasts also uses the full-precision "Gold in Safe" value. v2.8.0: SAFE Forecasts on safe.php — time for your Safe to reach 1B/2B/5B/9B/10B(MAX) based on current Safe + deposit/min. v2.7.0: Gold upgrade timer — upgrades.php now shows "Upgrade Ready" (liquidation + safe-growth time) and "Gold Needed on top of Safe" under each skill upgrade (uses gold/vault/safe + full armory sell value from Armory + safe deposit rate from Safe). v2.6.0: Tech upgrade timer — safe.php now shows "Time to upgrade" + "EXP still needed to be deposited" under Technological Development (uses EXP on-hand + Experience Bank + your EXP/turn rate, auto-captured from the Upgrades page). v2.5.1: Banking Mode last-bank fix — now watches the per-weapon buy form (anotherbuyform), not just the hidden one-click form, and stamps banks reliably for high-income accounts. v2.5.0: 🏦 Banking Mode on the Armory page — toggleable inline widget that projects your exposed (stealable) gold every second, colour-codes the risk (SAFE/CAUTION/DANGER) from your attack-log steal history, shows time-to-yellow/red, and keeps the screen awake. Display-only: no automated requests, observes (never presses) the buy/repair forms. v2.4.0: Banking trend graph (📈 in the sidebar tracks your banked % over time) + manual override for Avg Gold/Atk (✏️ in the sidebar, survives attack-log recalibration). v2.3.4: Recons panel now shares counts alliance-wide via API (previously localStorage-only — each user only saw themselves). v2.3.0: Added "Stats If You Attacked Instead" table on safe.php to compare tech upgrades vs attacking. v2.2.9: Added optimizer auto-fill for armory (uses roster API to calculate optimal stat allocation). v2.2.8: Minor fixes. v2.1.0: Integrated slaying competition tracker (attack missions & gold stolen tracking, team competitions, leaderboards). v2.0.0: Optimized API architecture, previous versions deprecated.
+// @version      2.18.3
+// @description  Sweet Revenge alliance tool: tracks stats, syncs to API, adds dashboards, XP→Turn calculator, mini Top Stats panel. v2.18.3: Stat Reshuffler — the launcher moved: it now sits as a full-width banner directly above the "Armory Preferences" header, styled by cloning that header's own theme (background, border, font) so it looks native in any skin; falls back to the old Total Invested Value spot if the header isn't found. v2.18.2: Stat Reshuffler — stale-multiplier warning: a learned weapon multiplier quietly goes wrong after skill/tech upgrades (it only refreshes when you buy), which left phantom rating behind on sell-all scenarios; the reshuffler now compares each learned multiplier against what your live rating implies and flags "⚠ stale multiplier — buy 1 to recalibrate" per stat plus a summary warning, with the multiplier's age shown. v2.18.1: Stat Reshuffler — new "Ignore carrier caps" toggle for when you're happy to train soldiers/covert units as needed: projections then count every weapon as held (including ones currently sitting unheld) and the ⚠ unheld warnings disappear; the choice is remembered. v2.18.0: Stat Reshuffler — a 🔀 button under the Armory's Total Invested Value box opens a full what-if rework calculator: choose weapons (or whole categories) to sell, optionally switch race, and pour the proceeds — plus your on-hand + vault gold if you tick it — into any mix of the eight stats. It projects the gold you'd recover (sales pay 50% and land in your Vault), how many of each weapon you could buy, whether your units can actually carry them (unheld weapons add nothing), your projected new ratings including the race-bonus swing, and your new TIV. Pure calculator — it never sells, buys or presses anything. v2.17.1: Fix — clicking the sidebar Sweet Revenge logo now opens the feature-settings popup (same as the ⚙ Data Centre link) instead of navigating away. Internal cleanup: removed the unused armory sell-value cache (nothing has used it since the v2.11.2 "Upgrade Ready" rework). v2.17.0: Feature Settings — a new "⚙ Data Centre" link in the sidebar opens a settings panel where EVERY feature can be switched on/off individually (or all at once with the master switch), each with a plain-English description of what it does and a badge showing whether it only changes your display or also records data to the alliance roster; toggles apply on the next page load and everything stays ON by default, so nothing changes until you say so. Under the hood the script's ~40 page hooks were rebuilt onto a single feature registry that drives both the dispatcher and the panel, ~600 lines of dead legacy code were removed, and small fixes landed (DST helper deduplicated, script load message now always visible in console, toast animation style no longer re-injected per notification). Also: the sidebar Sweet Revenge logo is now a link to the Data Centre (with a hover glow), and the Top Stats panel's Debug button is gone — debug mode lives in the console via KoCDebug.toggle(). v2.16.0: Sab Tracker learns the exclusivity rule — per target you either regular-sab OR revenge-sab in a 24h window, so the panels now show 🔒 "Regular sabs locked — you revenge-sabbed this target" with an unlock countdown that keeps working after the Revenge section vanishes (target un-maxed — exactly when KoC hides the info), and 🔒 "Revenge locked — you've sabbed this target this window" when the Revenge form is up but unusable; the native "First sab (last 24hrs)" row is age-formatted like the rest and its exact server stamp now anchors the tracker, making the "Can sab again in …" countdown precise instead of an estimate. v2.15.0: Sabotage Tracker on attack.php — "You last sabbed / poisoned / stole" and the revenge timestamps now show colour-coded ages like the stats pages (hover for the raw server time); the Sabotage and Revenge Sabotage sections get a live status line: attempts left in the rolling 24h window with a ticking "Can sab again in …" countdown when you're out of slots (10 sabs / 4 revenge per target per 24h, tracked automatically whenever you fire a sab and backfilled with exact server times when you open the target's Intelligence file), plus a "sab damage left before maxed" line (Maximum Daily Sabotage loss − lost in last 24h) that flips to TARGET MAXED when the cap is hit. Display-only: it records only missions you fire by hand and never presses anything. v2.14.0: Tech Level Projector — the "Stats After Upgrading Tech" table on safe.php gets a "Project to" dropdown: pick ANY future tech level (up to Obi Bon Kenobi) and the table shows your projected stats at that level, with the total ▲% vs now and the cumulative EXP needed across all the upgrades in between. v2.13.1: Rank-neighbour links now blend into the native table — no dot markers or underline, the numbers just quietly became links (hover tooltip still shows who it is, data age, and gap/stale warnings). v2.13.0: Rank-neighbour recon links — the "Rating For Previous/Next Rank Gain" numbers are now hyperlinks to the player we believe holds that rank (matched by rating value from the roster DB, never by stale DB rank), with a tooltip showing who it is + how fresh their data is; an orange dot means a DB gap (recon upward), a red dot means DB rank/rating disagree (recon me first). Click → recon → DB refreshes; wrong candidates rotate out on the next page load, so the links self-correct toward the true neighbour. v2.11.2: Banking Mode redesigned — your exposed gold now shows in a native-style "Estimated Funds" box that matches the in-game funds boxes, with a ⚙ that holds the Banking Mode toggle, screen-awake, and all settings (including an optional "show yellow/red times" line); a live-ticking Server Time clock on every page; and the Upgrades "Upgrade Ready" row now uses realistic funds (drops full-armory-sell) and shows any shortfall as a slay estimate. v2.10.1: Fix — the slider Armory Preferences now also resync when you press KoC's "Clear Percentage Prefills" button (sliders drop to 0 instead of keeping their old values). v2.10.0: New slider-based Armory Preferences — drag to allocate with auto-balancing, theme-matched styling, and one-tap presets (Cheapest first, Optimizer, All spy, All defense) plus saved presets — replacing the in-game percentage form; rank Optimizer also fixed (weapon efficiency now synced). v2.9.0: "Time to upgrade" + "EXP still needed to be deposited" now show on ALL EXP-cost safe.php upgrades (Increase Soldiers, Economic Development, SAFE Upgrade) — not just Technological Development. v2.8.2: Fix — "EXP still needed to be deposited" now shows cost − Experience Bank (what must still be banked) instead of also subtracting on-hand EXP, so it no longer reads 0 when you hold the EXP but haven't deposited it. v2.8.1: Fix — sidebar abbreviates large gold/safe values (e.g. "2,560M"); getSidebarValue now parses K/M/B/T suffixes so SAFE Forecasts and gold-upgrade rows use real balances (previously read as ~0). SAFE Forecasts also uses the full-precision "Gold in Safe" value. v2.8.0: SAFE Forecasts on safe.php — time for your Safe to reach 1B/2B/5B/9B/10B(MAX) based on current Safe + deposit/min. v2.7.0: Gold upgrade timer — upgrades.php now shows "Upgrade Ready" (liquidation + safe-growth time) and "Gold Needed on top of Safe" under each skill upgrade (uses gold/vault/safe + full armory sell value from Armory + safe deposit rate from Safe). v2.6.0: Tech upgrade timer — safe.php now shows "Time to upgrade" + "EXP still needed to be deposited" under Technological Development (uses EXP on-hand + Experience Bank + your EXP/turn rate, auto-captured from the Upgrades page). v2.5.1: Banking Mode last-bank fix — now watches the per-weapon buy form (anotherbuyform), not just the hidden one-click form, and stamps banks reliably for high-income accounts. v2.5.0: 🏦 Banking Mode on the Armory page — toggleable inline widget that projects your exposed (stealable) gold every second, colour-codes the risk (SAFE/CAUTION/DANGER) from your attack-log steal history, shows time-to-yellow/red, and keeps the screen awake. Display-only: no automated requests, observes (never presses) the buy/repair forms. v2.4.0: Banking trend graph (📈 in the sidebar tracks your banked % over time) + manual override for Avg Gold/Atk (✏️ in the sidebar, survives attack-log recalibration). v2.3.4: Recons panel now shares counts alliance-wide via API (previously localStorage-only — each user only saw themselves). v2.3.0: Added "Stats If You Attacked Instead" table on safe.php to compare tech upgrades vs attacking. v2.2.9: Added optimizer auto-fill for armory (uses roster API to calculate optimal stat allocation). v2.2.8: Minor fixes. v2.1.0: Integrated slaying competition tracker (attack missions & gold stolen tracking, team competitions, leaderboards). v2.0.0: Optimized API architecture, previous versions deprecated.
 // @author       Blackheart
 // @match        https://www.kingsofchaos.com/*
 // @exclude      https://*.kingsofchaos.com/confirm.login.php*
@@ -42,7 +42,7 @@
   // ==================== VERSION CHECK ====================
   // Check if this script version is allowed to run
   const SCRIPT_NAME = 'koc-data-centre';
-  const SCRIPT_VERSION = '2.17.1'; // Must match @version above
+  const SCRIPT_VERSION = '2.18.3'; // Must match @version above
   const VERSION_CHECK_API = 'https://koc-roster-api-production.up.railway.app';
 
   async function checkScriptVersion() {
@@ -4454,6 +4454,11 @@
           // Remove "*Sell value (number)" from name (note: space before paren, not colon)
           weaponName = weaponName.split('*Sell')[0].trim();
 
+          // Capture the per-weapon sell value the game prints in the same cell
+          // ("*Sell value (63,829)") — the Stat Reshuffler prices sales with it.
+          const sellMatch = nameText.match(/\*\s*Sell value\s*\(\s*([\d,]+)/i);
+          const sellValue = sellMatch ? parseInt(sellMatch[1].replace(/,/g, ''), 10) : null;
+
           // Cell 1 is ignored (has unrelated values)
 
           // Cell 2 contains the QUANTITY
@@ -4486,7 +4491,8 @@
               quantity: quantity,
               minStrength: minStrength,
               maxStrength: maxStrength,
-              totalStrength: totalStrength  // Use game's pre-calculated total
+              totalStrength: totalStrength,  // Use game's pre-calculated total
+              sellValue: sellValue           // per-unit sell value as printed (null if unreadable)
             });
           }
         } catch (err) {
@@ -4498,6 +4504,517 @@
 
     debugLog(`📦 Total weapons collected: ${weapons.length}`);
     return weapons;
+  }
+
+  // ==================== STAT RESHUFFLER ====================
+  // "What if I completely reworked my army?" calculator for the Armory page.
+  // Pick weapons to sell (or whole categories), optionally switch race, and
+  // pour the proceeds (plus gold on hand, if ticked) into any mix of stats.
+  // Projects gold recovered, weapons bought, carrier caps (unheld weapons add
+  // nothing), new ratings with the race-bonus swing, and new TIV after the
+  // 50% sell tax. Display-only: it reads the page and computes — it never
+  // sells, buys or presses any game control.
+
+  const RESHUF_CATS = ['attack', 'defense', 'spy', 'sentry', 'poison', 'antidote', 'theft', 'vigilance'];
+  const RESHUF_LABELS = { attack: 'Attack', defense: 'Defense', spy: 'Spy', sentry: 'Sentry', poison: 'Poison', antidote: 'Antidote', theft: 'Theft', vigilance: 'Vigilance' };
+  const RESHUF_CATALOG = {
+    attack:    [{ name: 'Sarumans Ball', price: 100, strength: 1 }, { name: 'Heavy Steed', price: 50000, strength: 100 }, { name: 'Chariot', price: 450000, strength: 600 }, { name: 'Blackpowder Missile', price: 1000000, strength: 1000 }],
+    defense:   [{ name: 'Spider', price: 5000, strength: 10 }, { name: 'Mithril', price: 50000, strength: 100 }, { name: 'Ebony Platemail', price: 450000, strength: 600 }, { name: 'Invisibility Shield', price: 1000000, strength: 1000 }],
+    spy:       [{ name: 'Cloak', price: 140000, strength: 140 }, { name: 'Grappling Hook', price: 250000, strength: 250 }, { name: 'Skeleton Key', price: 600000, strength: 600 }, { name: 'Nunchaku', price: 1000000, strength: 1000 }],
+    sentry:    [{ name: 'Horn', price: 140000, strength: 140 }, { name: 'Tripwire', price: 250000, strength: 250 }, { name: 'Guard Dog', price: 600000, strength: 600 }, { name: 'Lookout Tower', price: 1000000, strength: 1000 }],
+    poison:    [{ name: 'Toxic Needle Dagger', price: 140000, strength: 140 }, { name: 'Venomfang Staff', price: 250000, strength: 250 }, { name: 'Blightbane Bow', price: 600000, strength: 600 }, { name: 'Plaguebringer Scythe', price: 1000000, strength: 1000 }],
+    antidote:  [{ name: 'Viperfang Dirk', price: 140000, strength: 140 }, { name: 'Basiliskbane Halberd', price: 250000, strength: 250 }, { name: 'Wyrmclaw Longsword', price: 600000, strength: 600 }, { name: 'Serpentbane Arbalest', price: 1000000, strength: 1000 }],
+    theft:     [{ name: 'Greasy Gloves', price: 140000, strength: 140 }, { name: 'Rusty Lockpick', price: 250000, strength: 250 }, { name: 'Shadow Cloak', price: 600000, strength: 600 }, { name: 'Ethereal Grasp', price: 1000000, strength: 1000 }],
+    vigilance: [{ name: 'Wooden Whistle', price: 140000, strength: 140 }, { name: 'Steel Shackles', price: 250000, strength: 250 }, { name: 'Silver Scepter', price: 600000, strength: 600 }, { name: 'Adamantine Bastion', price: 1000000, strength: 1000 }]
+  };
+  // Era 23 race bonuses that touch armory stats (Humans' 15% Hostage isn't one).
+  const RESHUF_RACES = ['Humans', 'Dwarves', 'Elves', 'Orcs', 'Undead', 'Trolls', 'Goblins'];
+  const RESHUF_RACE_BONUS = { Humans: { poison: 0.10 }, Dwarves: { defense: 0.25 }, Elves: { spy: 0.25 }, Orcs: { attack: 0.25 }, Undead: { sentry: 0.25 }, Trolls: { theft: 0.25 }, Goblins: { vigilance: 0.25 } };
+  // Which units carry each category's weapons (personnel-table labels).
+  const RESHUF_UNIT_LABEL = { attack: 'Trained Attack Soldiers', defense: 'Trained Defense Soldiers', spy: 'Spies', sentry: 'Sentries', poison: 'Venomweavers', antidote: 'Serpentwardens', theft: 'Thieves', vigilance: 'Rangers' };
+
+  function reshufRaceBonus(race, cat) {
+    return (RESHUF_RACE_BONUS[race] && RESHUF_RACE_BONUS[race][cat]) || 0;
+  }
+
+  // Per-category weapon-carrier counts from the personnel table (null = unknown).
+  function reshufUnitCaps() {
+    try {
+      const table = document.querySelector('table.table_lines.personnel') ||
+                    bankFindInnermostTable('Trained Attack Soldiers');
+      if (!table) return null;
+      const counts = {};
+      [...table.rows].forEach(row => {
+        if (row.cells.length < 2) return;
+        const label = row.cells[0].textContent.trim();
+        const val = parseInt(row.cells[1].textContent.replace(/[^\d]/g, ''), 10);
+        if (!isNaN(val)) counts[label] = val;
+      });
+      const caps = {};
+      for (const cat of RESHUF_CATS) {
+        caps[cat] = (RESHUF_UNIT_LABEL[cat] in counts) ? counts[RESHUF_UNIT_LABEL[cat]] : null;
+      }
+      // Mercenaries carry attack/defense weapons too
+      for (const label in counts) {
+        if (!/mercenar/i.test(label)) continue;
+        if (/attack/i.test(label) && caps.attack !== null) caps.attack += counts[label];
+        else if (/defen/i.test(label) && caps.defense !== null) caps.defense += counts[label];
+      }
+      return caps;
+    } catch (e) {
+      debugLog('⚠️ Reshuffler: personnel read failed:', e);
+      return null;
+    }
+  }
+
+  // Per-unit sell value for an inventory row. The armory prints "*Sell value (…)"
+  // per weapon; guard against a row-total reading (a per-unit sell can never top
+  // 50% of purchase price) and fall back to 50% of the condition-scaled price.
+  function reshufPerUnitSell(w) {
+    const spec = (RESHUF_CATALOG[w.category] || []).find(s => s.name === w.name);
+    const price = spec ? spec.price : null;
+    let sell = (typeof w.sellValue === 'number' && !isNaN(w.sellValue)) ? w.sellValue : null;
+    if (sell !== null && price && w.quantity > 1 && sell > price * 0.55) {
+      const per = sell / w.quantity;
+      if (per <= price * 0.55) sell = per;
+    }
+    if (sell === null) {
+      sell = (price && w.maxStrength > 0) ? 0.5 * price * ((w.minStrength || 0) / w.maxStrength) : 0;
+    }
+    return sell;
+  }
+
+  // Strength the carriers can actually hold: strongest weapons first, capped at
+  // the unit count (capacity null = unknown, everything counts).
+  function reshufHeldStrength(list, capacity) {
+    let space = (capacity === null || capacity === undefined) ? Infinity : capacity;
+    let total = 0;
+    for (const it of list) {
+      if (space <= 0) break;
+      const held = Math.min(it.qty, space);
+      total += held * it.str;
+      space -= held;
+    }
+    return total;
+  }
+
+  function reshufSnapshot() {
+    const weapons = collectWeaponsFromArmory();
+    const statsRaw = collectMilitaryStats();
+    const num = v => parseInt(String(v == null ? '0' : v).replace(/,/g, ''), 10) || 0;
+    const ratings = {
+      attack: num(statsRaw.strikeAction), defense: num(statsRaw.defensiveAction),
+      spy: num(statsRaw.spyRating), sentry: num(statsRaw.sentryRating),
+      poison: num(statsRaw.poisonRating), antidote: num(statsRaw.antidoteRating),
+      theft: num(statsRaw.theftRating), vigilance: num(statsRaw.vigilanceRating)
+    };
+    const tivHeader = [...document.querySelectorAll('th.subh')].find(th => th.textContent.includes('Total Invested Value'));
+    const tivCell = tivHeader?.closest('tr').nextElementSibling?.querySelector('td b');
+    const tiv = tivCell ? num(tivCell.textContent) : 0;
+    // Same live-tested funds regexes as Banking Mode (read-only, no side effects)
+    const bodyText = document.body.textContent;
+    const funds = num(bodyText.match(/Available\s+Funds:\s*([\d,]+)\s*Gold/i)?.[1]);
+    const vault = num(bodyText.match(/Vault\s+Gold:\s*([\d,]+)\s*Gold/i)?.[1]);
+    const caps = reshufUnitCaps();
+    const mults = getStoredMultipliers();
+
+    const cats = {};
+    for (const cat of RESHUF_CATS) {
+      const rows = weapons.filter(w => w.category === cat).map(w => ({
+        name: w.name, qty: w.quantity, cur: w.minStrength || 0, max: w.maxStrength || 0,
+        sell: reshufPerUnitSell(w)
+      }));
+      rows.sort((a, b) => b.cur - a.cur); // carriers grab the strongest first
+      const capacity = caps ? caps[cat] : null;
+      const heldNow = reshufHeldStrength(rows.map(r => ({ qty: r.qty, str: r.cur })), capacity);
+      const learned = (mults[cat] && mults[cat].value) ? mults[cat].value : null;
+      // Fallback multiplier: what the page shows right now (rating per held strength).
+      const derived = (!learned && heldNow > 0 && ratings[cat] > 0) ? ratings[cat] / heldNow : null;
+      cats[cat] = {
+        rows, capacity, heldNow, rating: ratings[cat],
+        mult: learned !== null ? learned : derived,
+        multSource: learned !== null ? 'learned' : (derived !== null ? 'derived' : null),
+        multTs: (learned !== null && mults[cat].timestamp) ? mults[cat].timestamp : null
+      };
+    }
+    return { cats, tiv, funds, vault, capsKnown: caps !== null };
+  }
+
+  // Learned multipliers go quietly stale: every skill/tech upgrade multiplies
+  // the rating, but the stored value only refreshes on a purchase — so an old
+  // one under-counts what your weapons contribute and leaves phantom rating
+  // behind on sell-all scenarios. The page itself implies rating/heldNow
+  // (a hair HIGH — it includes the tiny unarmed-unit base, ~0.1% on live
+  // data), so a learned value well below it predates upgrades. Fresh mults
+  // sit at ~1.0× implied; real stale cases measured 0.23–0.86× (2026-08-30).
+  function reshufStaleCheck(c) {
+    if (c.multSource !== 'learned' || !(c.heldNow > 0) || !(c.rating > 0)) return null;
+    const implied = c.rating / c.heldNow;
+    return c.mult < implied * 0.9 ? { learned: c.mult, implied } : null;
+  }
+
+  function reshufSimulate(snap, plan) {
+    let proceeds = 0, removedValue = 0;
+    const afterRows = {};
+    for (const cat of RESHUF_CATS) {
+      const c = snap.cats[cat];
+      const sellMap = plan.sell[cat] || {};
+      const after = [];
+      c.rows.forEach((r, i) => {
+        const sellQty = Math.max(0, Math.min(r.qty, Math.floor(sellMap[i] || 0)));
+        proceeds += sellQty * r.sell;
+        removedValue += sellQty * r.sell * 2; // TIV loses the full value; you get half back
+        if (r.qty - sellQty > 0) after.push({ qty: r.qty - sellQty, str: r.cur });
+      });
+      afterRows[cat] = after;
+    }
+    const pool = proceeds + (plan.includeOnHand ? (snap.funds + snap.vault) : 0);
+    let totalSpent = 0, allocTotal = 0;
+    for (const cat of RESHUF_CATS) allocTotal += (plan.alloc[cat] || 0);
+    const results = {};
+    for (const cat of RESHUF_CATS) {
+      const c = snap.cats[cat];
+      const pct = plan.alloc[cat] || 0;
+      const tiers = RESHUF_CATALOG[cat];
+      const spec = tiers.find(s => s.name === plan.buyWeapon[cat]) || tiers[tiers.length - 1];
+      const bought = pct > 0 ? Math.floor((pool * pct / 100) / spec.price) : 0;
+      const spent = bought * spec.price;
+      totalSpent += spent;
+      const list = afterRows[cat].slice();
+      if (bought > 0) list.push({ qty: bought, str: spec.strength });
+      list.sort((a, b) => b.str - a.str);
+      // "Ignore carrier caps" = the player will train units as needed: every
+      // weapon counts as held — including ones unheld TODAY, since Δ is taken
+      // against the capped heldNow (so training alone can show a gain).
+      const effCapacity = plan.ignoreCaps ? null : c.capacity;
+      const heldAfter = reshufHeldStrength(list, effCapacity);
+      const unitsAfter = list.reduce((s, it) => s + it.qty, 0);
+      const unheld = (effCapacity === null) ? 0 : Math.max(0, unitsAfter - effCapacity);
+      const scale = (1 + reshufRaceBonus(plan.raceTo, cat)) / (1 + reshufRaceBonus(plan.raceFrom, cat));
+      let newRating = null;
+      if (c.mult !== null) {
+        newRating = Math.max(0, Math.round(scale * (c.rating + c.mult * (heldAfter - c.heldNow))));
+      } else if (heldAfter === c.heldNow) {
+        newRating = Math.round(scale * c.rating);
+      }
+      results[cat] = {
+        bought, weapon: spec.name, spent, newRating, unheld, scale,
+        changed: heldAfter !== c.heldNow || scale !== 1
+      };
+    }
+    return {
+      proceeds, pool, totalSpent,
+      leftover: pool - totalSpent,
+      newTiv: snap.tiv - removedValue + totalSpent,
+      removedValue, results, allocTotal
+    };
+  }
+
+  function openStatReshuffler() {
+    if (document.getElementById('kdc-reshuffle-overlay')) return;
+    const snap = reshufSnapshot();
+    const h = escapeHtml;
+    const fmt = n => (n === null || n === undefined || isNaN(n)) ? '?' : Math.round(n).toLocaleString('en-US');
+
+    // Best guess at current race: last manual pick, else the roster's view of us
+    const raceStored = SafeStorage.get('KoC_MyRace', null);
+    const mapRace = (getNameMap()[SafeStorage.get('KoC_MyId', 'self')] || {}).race || null;
+    const guessRace = [raceStored, mapRace]
+      .map(r => RESHUF_RACES.find(x => r && x.toLowerCase() === String(r).toLowerCase()))
+      .find(Boolean) || '';
+
+    const overlay = document.createElement('div');
+    overlay.id = 'kdc-reshuffle-overlay';
+    overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.65);z-index:1000000;display:flex;align-items:center;justify-content:center;';
+    const panel = document.createElement('div');
+    panel.style.cssText = 'background:linear-gradient(160deg,#1d222b,#12151b);color:#d8dee9;border:1px solid #3a4150;border-radius:10px;width:min(760px,96vw);max-height:88vh;display:flex;flex-direction:column;font-family:Verdana,Arial,sans-serif;font-size:12px;box-shadow:0 8px 30px rgba(0,0,0,0.6);';
+
+    // Header
+    const header = document.createElement('div');
+    header.style.cssText = 'display:flex;align-items:center;gap:8px;padding:10px 12px;border-bottom:1px solid #3a4150;';
+    const title = document.createElement('div');
+    title.innerHTML = '<b style="color:#e8edf5;">🔀 Stat Reshuffler</b> <span style="color:#8b94a7;font-size:10px;">what-if only — nothing is sold or bought</span>';
+    const resetBtn = document.createElement('button');
+    resetBtn.textContent = '↺ Reset';
+    resetBtn.title = 'Clear the scenario and re-read the page';
+    resetBtn.style.cssText = 'margin-left:auto;background:none;border:1px solid #3a4150;border-radius:4px;color:#8b94a7;font-size:11px;cursor:pointer;padding:2px 8px;';
+    const closeBtn = document.createElement('button');
+    closeBtn.textContent = '✕';
+    closeBtn.title = 'Close';
+    closeBtn.style.cssText = 'background:none;border:none;color:#8b94a7;font-size:14px;cursor:pointer;padding:2px 6px;';
+    header.appendChild(title);
+    header.appendChild(resetBtn);
+    header.appendChild(closeBtn);
+    panel.appendChild(header);
+
+    const inpCss = 'background:#12151b;color:#d8dee9;border:1px solid #3a4150;border-radius:4px;padding:3px 5px;';
+    const selCss = inpCss + 'max-width:220px;';
+    const secCss = 'padding:8px 12px 4px 12px;color:#7ea0c9;font-size:10px;font-weight:bold;letter-spacing:1px;text-transform:uppercase;';
+    const thCss = 'padding:4px 10px;color:#7ea0c9;font-size:10px;text-transform:uppercase;letter-spacing:1px;text-align:left;';
+
+    const raceOpt = r => {
+      const b = RESHUF_RACE_BONUS[r];
+      const cat = b ? Object.keys(b)[0] : null;
+      return '<option value="' + r + '">' + r + (cat ? ' (+' + Math.round(b[cat] * 100) + '% ' + RESHUF_LABELS[cat] + ')' : '') + '</option>';
+    };
+
+    // — Sell section rows —
+    let sellHtml = '';
+    for (const cat of RESHUF_CATS) {
+      const c = snap.cats[cat];
+      if (!c.rows.length) continue;
+      const capTxt = c.capacity !== null ? fmt(c.capacity) + ' ' + h(RESHUF_UNIT_LABEL[cat]) : 'carriers unknown';
+      sellHtml += '<tr style="background:rgba(255,255,255,0.05);">' +
+        '<td colspan="3" style="padding:7px 10px;"><b style="color:#7ea0c9;">' + h(RESHUF_LABELS[cat]) + '</b> ' +
+        '<span style="color:#8b94a7;font-size:10px;">rating ' + fmt(c.rating) + ' · ' + capTxt + '</span></td>' +
+        '<td style="padding:4px 10px;text-align:right;"><button type="button" class="kdc-rs-sellall" data-cat="' + cat + '" style="background:#3d2f13;color:#f0c674;border:1px solid #57431d;border-radius:4px;padding:2px 8px;font-size:10px;cursor:pointer;">Sell all</button></td></tr>';
+      c.rows.forEach((r, i) => {
+        sellHtml += '<tr style="border-top:1px solid #262c37;">' +
+          '<td style="padding:4px 10px;">' + h(r.name) + ' <span style="color:#5c6472;font-size:10px;">' + fmt(r.cur) + (r.max !== r.cur ? '/' + fmt(r.max) : '') + '</span></td>' +
+          '<td style="padding:4px 10px;text-align:right;">' + fmt(r.qty) + '</td>' +
+          '<td style="padding:4px 10px;text-align:right;color:#c9a959;">' + fmt(r.sell) + '</td>' +
+          '<td style="padding:4px 10px;text-align:right;white-space:nowrap;">' +
+          '<input type="number" class="kdc-rs-sell" data-cat="' + cat + '" data-row="' + i + '" min="0" max="' + r.qty + '" value="0" style="width:90px;' + inpCss + '"> ' +
+          '<a href="#" class="kdc-rs-rowall" data-cat="' + cat + '" data-row="' + i + '" style="color:#7ea0c9;font-size:10px;text-decoration:none;">all</a></td></tr>';
+      });
+    }
+    if (!sellHtml) sellHtml = '<tr><td colspan="4" style="padding:8px 10px;color:#8b94a7;">No weapons found in your armory inventory.</td></tr>';
+
+    // — Buy section rows —
+    let buyHtml = '';
+    for (const cat of RESHUF_CATS) {
+      const tiers = RESHUF_CATALOG[cat];
+      const opts = tiers.map((s, i) =>
+        '<option value="' + h(s.name) + '"' + (i === tiers.length - 1 ? ' selected' : '') + '>' + h(s.name) + ' (' + fmt(s.price) + 'g)</option>').join('');
+      buyHtml += '<tr style="border-top:1px solid #262c37;">' +
+        '<td style="padding:4px 10px;"><b>' + h(RESHUF_LABELS[cat]) + '</b></td>' +
+        '<td style="padding:4px 10px;"><select class="kdc-rs-weap" data-cat="' + cat + '" style="' + selCss + '">' + opts + '</select></td>' +
+        '<td style="padding:4px 10px;text-align:right;white-space:nowrap;">' +
+        '<input type="number" class="kdc-rs-alloc" data-cat="' + cat + '" min="0" max="100" value="0" style="width:64px;' + inpCss + '"> % ' +
+        '<a href="#" class="kdc-rs-allocall" data-cat="' + cat + '" style="color:#7ea0c9;font-size:10px;text-decoration:none;">all</a></td></tr>';
+    }
+
+    const body = document.createElement('div');
+    body.style.cssText = 'overflow-y:auto;flex:1 1 auto;';
+    body.innerHTML =
+      '<div style="padding:8px 12px;color:#8b94a7;font-size:11px;border-bottom:1px solid #262c37;">Every sale returns <b>50%</b> of a weapon\'s value (and lands in your Vault), so a full rework costs half of what you liquidate. Projections use the weapon multipliers learned from your own purchases.</div>' +
+      '<div style="' + secCss + '">Race</div>' +
+      '<div style="display:flex;align-items:center;gap:8px;padding:2px 12px 8px 12px;font-size:11px;flex-wrap:wrap;">' +
+      '<span style="color:#8b94a7;">Now:</span><select id="kdc-rs-race-from" style="' + selCss + '"><option value="">— set race —</option>' + RESHUF_RACES.map(raceOpt).join('') + '</select>' +
+      '<span style="color:#8b94a7;">→ after:</span><select id="kdc-rs-race-to" style="' + selCss + '"><option value="">No change</option>' + RESHUF_RACES.map(raceOpt).join('') + '</select>' +
+      '</div>' +
+      '<div style="' + secCss + '">1 · Sell</div>' +
+      '<table style="width:100%;border-collapse:collapse;font-size:11px;">' +
+      '<tr><td style="' + thCss + '">Weapon</td><td style="' + thCss + 'text-align:right;">Have</td><td style="' + thCss + 'text-align:right;">Sell each</td><td style="' + thCss + 'text-align:right;">Sell qty</td></tr>' +
+      sellHtml + '</table>' +
+      '<div style="' + secCss + '">2 · Re-buy</div>' +
+      '<label style="display:flex;align-items:center;gap:7px;padding:2px 12px 2px 12px;font-size:11px;cursor:pointer;">' +
+      '<input type="checkbox" id="kdc-rs-onhand" style="margin:0;"> Also spend gold on hand + vault (' + fmt(snap.funds + snap.vault) + ' gold)</label>' +
+      '<label style="display:flex;align-items:center;gap:7px;padding:2px 12px 6px 12px;font-size:11px;cursor:pointer;">' +
+      '<input type="checkbox" id="kdc-rs-ignorecap" style="margin:0;"> Ignore carrier caps — I\'ll train units to hold everything (currently-unheld weapons count too)</label>' +
+      '<table style="width:100%;border-collapse:collapse;font-size:11px;">' +
+      '<tr><td style="' + thCss + '">Stat</td><td style="' + thCss + '">Weapon to buy</td><td style="' + thCss + 'text-align:right;">% of pool</td></tr>' +
+      buyHtml + '</table>' +
+      '<div style="' + secCss + '">3 · Result</div>' +
+      '<div id="kdc-rs-results"></div>' +
+      '<div style="padding:6px 12px 10px 12px;color:#5c6472;font-size:10px;">Estimates only — repairs, purchases and battle damage between now and the rework will shift the numbers. This tool never touches the game\'s forms.</div>';
+    panel.appendChild(body);
+
+    const resDiv = body.querySelector('#kdc-rs-results');
+    const raceFromSel = body.querySelector('#kdc-rs-race-from');
+    if (guessRace) raceFromSel.value = guessRace;
+
+    function renderResults(sim, plan) {
+      const rowsHtml = RESHUF_CATS.map(cat => {
+        const c = snap.cats[cat];
+        const r = sim.results[cat];
+        const after = r.newRating;
+        let delta;
+        if (after === null) delta = '<span style="color:#e6b450;">?</span>';
+        else if (c.rating > 0) {
+          const pc = (after - c.rating) / c.rating * 100;
+          if (Math.abs(pc) < 0.05) delta = '<span style="color:#5c6472;">—</span>';
+          else delta = '<span style="color:' + (pc >= 0 ? '#5fcf7a' : '#e06a6a') + ';">' + (pc >= 0 ? '+' : '') + pc.toFixed(1) + '%</span>';
+        } else if (after > 0) delta = '<span style="color:#5fcf7a;">new</span>';
+        else delta = '<span style="color:#5c6472;">—</span>';
+        const notes = [];
+        const staleInfo = reshufStaleCheck(c);
+        if (staleInfo) {
+          const age = c.multTs ? Math.max(0, Math.round((Date.now() - c.multTs) / 86400000)) : null;
+          notes.push('<span style="color:#e6b450;">⚠ stale multiplier — learned ×' + staleInfo.learned.toFixed(1) +
+            (age !== null ? ' (' + (age === 0 ? 'today' : age + 'd old') + ')' : '') +
+            ' but the page implies ×' + staleInfo.implied.toFixed(1) + '; buy 1 to recalibrate</span>');
+        }
+        if (r.bought > 0) notes.push(fmt(r.bought) + ' × ' + h(r.weapon));
+        if (r.unheld > 0) notes.push('<span style="color:#e6b450;">⚠ ' + fmt(r.unheld) + ' unheld (only ' + fmt(c.capacity) + ' ' + h(RESHUF_UNIT_LABEL[cat]) + ')</span>');
+        if (c.multSource === 'derived' && r.changed) notes.push('<span style="color:#8b94a7;">est. multiplier</span>');
+        if (c.mult === null && after === null) notes.push('<span style="color:#e6b450;">no multiplier — buy 1 ' + h(RESHUF_LABELS[cat].toLowerCase()) + ' item once to calibrate</span>');
+        return '<tr style="border-top:1px solid #262c37;' + (r.changed ? '' : 'opacity:.55;') + '">' +
+          '<td style="padding:4px 10px;">' + h(RESHUF_LABELS[cat]) + '</td>' +
+          '<td style="padding:4px 10px;text-align:right;">' + fmt(c.rating) + '</td>' +
+          '<td style="padding:4px 10px;text-align:right;font-weight:bold;">' + (after === null ? '?' : fmt(after)) + '</td>' +
+          '<td style="padding:4px 10px;text-align:right;">' + delta + '</td>' +
+          '<td style="padding:4px 10px;font-size:10px;">' + notes.join(' · ') + '</td></tr>';
+      }).join('');
+
+      const tivDelta = sim.newTiv - snap.tiv;
+      const tivPc = snap.tiv > 0 ? (tivDelta / snap.tiv * 100) : 0;
+      const allocNote = sim.allocTotal > 100
+        ? '<span style="color:#e06a6a;">Allocation is ' + sim.allocTotal.toFixed(0) + '% — over 100%, the pool is overspent!</span>'
+        : (sim.allocTotal > 0 && sim.allocTotal < 100 ? '<span style="color:#8b94a7;">' + (100 - sim.allocTotal).toFixed(0) + '% of the pool is unallocated.</span>' : '');
+      const warn = [];
+      const staleCats = RESHUF_CATS.filter(cat => reshufStaleCheck(snap.cats[cat]));
+      if (staleCats.length) warn.push('⚠ Stale multiplier' + (staleCats.length > 1 ? 's' : '') + ': ' +
+        staleCats.map(cat => RESHUF_LABELS[cat]).join(', ') +
+        ' — buy 1 weapon/tool in each and reload before trusting these projections.');
+      if (!snap.capsKnown && !plan.ignoreCaps) warn.push('⚠ Personnel table not readable — every weapon is assumed held (no carrier caps applied).');
+      if (plan.raceTo && plan.raceTo !== plan.raceFrom && !plan.raceFrom) warn.push('⚠ Set your CURRENT race for the race switch to be calculated.');
+
+      resDiv.innerHTML =
+        '<div style="display:grid;grid-template-columns:auto auto;gap:2px 14px;padding:8px 10px;font-size:11px;max-width:420px;">' +
+        '<span style="color:#8b94a7;">Gold from sales (→ Vault)</span><b style="text-align:right;color:#c9a959;">' + fmt(sim.proceeds) + '</b>' +
+        '<span style="color:#8b94a7;">Buying pool' + (plan.includeOnHand ? ' (incl. on-hand + vault)' : '') + '</span><b style="text-align:right;">' + fmt(sim.pool) + '</b>' +
+        '<span style="color:#8b94a7;">Spent on new weapons</span><b style="text-align:right;">' + fmt(sim.totalSpent) + '</b>' +
+        '<span style="color:#8b94a7;">Gold left over</span><b style="text-align:right;color:' + (sim.leftover < 0 ? '#e06a6a' : '#c9a959') + ';">' + fmt(sim.leftover) + '</b>' +
+        '<span style="color:#8b94a7;">TIV now → after</span><b style="text-align:right;">' + fmt(snap.tiv) + ' → ' + fmt(sim.newTiv) +
+        ' <span style="color:' + (tivDelta >= 0 ? '#5fcf7a' : '#e06a6a') + ';">(' + (tivDelta >= 0 ? '+' : '') + fmt(tivDelta) + ', ' + tivPc.toFixed(1) + '%)</span></b>' +
+        '</div>' +
+        (plan.ignoreCaps ? '<div style="padding:0 10px 6px 10px;font-size:11px;color:#8b94a7;">Carrier caps ignored — assumes you train enough units to hold every weapon.</div>' : '') +
+        (allocNote ? '<div style="padding:0 10px 6px 10px;font-size:11px;">' + allocNote + '</div>' : '') +
+        (warn.length ? '<div style="padding:0 10px 6px 10px;font-size:11px;color:#e6b450;">' + warn.join('<br>') + '</div>' : '') +
+        '<table style="width:100%;border-collapse:collapse;font-size:11px;">' +
+        '<tr><td style="' + thCss + '">Stat</td><td style="' + thCss + 'text-align:right;">Now</td><td style="' + thCss + 'text-align:right;">Projected</td><td style="' + thCss + 'text-align:right;">Δ</td><td style="' + thCss + '">Notes</td></tr>' +
+        rowsHtml + '</table>';
+    }
+
+    const recalc = () => {
+      try {
+        const plan = { sell: {}, alloc: {}, buyWeapon: {}, raceFrom: '', raceTo: '', includeOnHand: false };
+        body.querySelectorAll('input.kdc-rs-sell').forEach(inp => {
+          const v = Math.floor(parseFloat(inp.value) || 0);
+          if (v > 0) (plan.sell[inp.dataset.cat] = plan.sell[inp.dataset.cat] || {})[parseInt(inp.dataset.row, 10)] = v;
+        });
+        body.querySelectorAll('input.kdc-rs-alloc').forEach(inp => { plan.alloc[inp.dataset.cat] = Math.max(0, parseFloat(inp.value) || 0); });
+        body.querySelectorAll('select.kdc-rs-weap').forEach(sel => { plan.buyWeapon[sel.dataset.cat] = sel.value; });
+        plan.raceFrom = raceFromSel.value;
+        plan.raceTo = body.querySelector('#kdc-rs-race-to').value || plan.raceFrom;
+        plan.includeOnHand = body.querySelector('#kdc-rs-onhand').checked;
+        plan.ignoreCaps = body.querySelector('#kdc-rs-ignorecap').checked;
+        renderResults(reshufSimulate(snap, plan), plan);
+      } catch (e) {
+        debugLog('⚠️ Reshuffler recalc failed:', e);
+      }
+    };
+
+    body.addEventListener('input', recalc);
+    body.addEventListener('change', recalc);
+    body.addEventListener('click', (e) => {
+      const t = e.target;
+      if (t.classList.contains('kdc-rs-sellall')) {
+        body.querySelectorAll('input.kdc-rs-sell[data-cat="' + t.dataset.cat + '"]').forEach(inp => { inp.value = inp.max; });
+        recalc();
+      } else if (t.classList.contains('kdc-rs-rowall')) {
+        e.preventDefault();
+        const inp = body.querySelector('input.kdc-rs-sell[data-cat="' + t.dataset.cat + '"][data-row="' + t.dataset.row + '"]');
+        if (inp) { inp.value = inp.max; recalc(); }
+      } else if (t.classList.contains('kdc-rs-allocall')) {
+        e.preventDefault();
+        body.querySelectorAll('input.kdc-rs-alloc').forEach(inp => { inp.value = (inp.dataset.cat === t.dataset.cat) ? 100 : 0; });
+        recalc();
+      }
+    });
+    raceFromSel.addEventListener('change', () => {
+      if (raceFromSel.value) SafeStorage.set('KoC_MyRace', raceFromSel.value);
+    });
+    // "Ignore carrier caps" is a standing stance ("I'll train as needed") — remember it
+    const ignoreCapCb = body.querySelector('#kdc-rs-ignorecap');
+    ignoreCapCb.checked = !!SafeStorage.get('KoC_ReshufIgnoreCaps', false);
+    ignoreCapCb.addEventListener('change', () => {
+      SafeStorage.set('KoC_ReshufIgnoreCaps', ignoreCapCb.checked);
+    });
+
+    const close = () => overlay.remove();
+    closeBtn.addEventListener('click', close);
+    resetBtn.addEventListener('click', () => { close(); openStatReshuffler(); });
+    // Close only when the press STARTED on the backdrop (same guard as settings)
+    let pressOnOverlay = false;
+    overlay.addEventListener('pointerdown', (e) => { pressOnOverlay = e.target === overlay; });
+    overlay.addEventListener('click', (e) => {
+      if (e.target === overlay && pressOnOverlay) close();
+    });
+
+    overlay.appendChild(panel);
+    document.body.appendChild(overlay);
+    recalc();
+  }
+
+  function initStatReshuffler() {
+    try {
+      if (document.getElementById('kdc-reshuffle-btn')) return;
+      const openIt = () => { try { openStatReshuffler(); } catch (e) { console.warn('⚠️ Reshuffler failed to open:', e); } };
+
+      // Preferred spot: a full-width banner row directly ABOVE the "Armory
+      // Preferences" header, cloned from that header's computed style so it
+      // matches whatever theme the player runs.
+      const prefsHeader = [...document.querySelectorAll('th, td')]
+        .find(el => el.textContent.replace(/[\s ]+/g, ' ').trim().toLowerCase() === 'armory preferences');
+      const prefsRow = prefsHeader && prefsHeader.closest('tr');
+      if (prefsRow && prefsRow.parentNode) {
+        const cs = getComputedStyle(prefsHeader);
+        const cell = document.createElement(prefsHeader.tagName.toLowerCase() === 'td' ? 'td' : 'th');
+        cell.id = 'kdc-reshuffle-btn';
+        cell.colSpan = prefsHeader.colSpan || 1;
+        cell.textContent = '🔀 Stat Reshuffler';
+        cell.title = 'What-if calculator: sell weapons, switch race, re-buy other stats — nothing is actually sold or bought';
+        let css = 'cursor:pointer;user-select:none;';
+        ['background-color', 'background-image', 'color', 'border-top', 'border-right', 'border-bottom', 'border-left', 'padding', 'font-family', 'font-size', 'font-weight', 'text-align', 'text-shadow', 'letter-spacing'].forEach(p => {
+          const v = cs.getPropertyValue(p);
+          if (v) css += p + ':' + v + ';';
+        });
+        cell.style.cssText = css;
+        cell.addEventListener('mouseenter', () => { cell.style.filter = 'brightness(1.35)'; });
+        cell.addEventListener('mouseleave', () => { cell.style.filter = ''; });
+        cell.addEventListener('click', openIt);
+        const bannerRow = document.createElement('tr');
+        bannerRow.appendChild(cell);
+        prefsRow.parentNode.insertBefore(bannerRow, prefsRow);
+        debugLog('✅ Stat Reshuffler banner injected above Armory Preferences');
+        return;
+      }
+
+      // Fallback: the old native-styled button under the Total Invested Value box
+      const tivHeader = [...document.querySelectorAll('th.subh')].find(th => th.textContent.includes('Total Invested Value'));
+      const anchorRow = tivHeader && tivHeader.closest('tr');
+      if (!anchorRow || !anchorRow.parentNode) { debugLog('🔀 Reshuffler: neither Armory Preferences nor TIV anchor found — skipped'); return; }
+      // Clone a native button's look so the launcher matches the theme (same
+      // trick as the prefs sliders' preset buttons)
+      let bcss = '';
+      const nbtn = document.querySelector('input[type="submit"]') || document.querySelector('input[type="button"]') || document.querySelector('button');
+      if (nbtn) {
+        const bcs = getComputedStyle(nbtn);
+        ['background-color', 'background-image', 'color', 'border-width', 'border-style', 'border-color', 'border-radius', 'padding', 'font-family', 'font-size', 'font-weight', 'text-shadow'].forEach(p => {
+          const v = bcs.getPropertyValue(p);
+          if (v) bcss += p + ':' + v + ';';
+        });
+      }
+      const tr = document.createElement('tr');
+      const td = document.createElement('td');
+      td.colSpan = tivHeader.colSpan || 1;
+      td.style.cssText = 'text-align:center;padding:5px;';
+      const btn = document.createElement('input');
+      btn.type = 'button';
+      btn.id = 'kdc-reshuffle-btn';
+      btn.value = '🔀 Stat Reshuffler';
+      btn.title = 'What-if calculator: sell weapons, switch race, re-buy other stats — nothing is actually sold or bought';
+      btn.style.cssText = bcss + 'cursor:pointer;';
+      btn.addEventListener('click', openIt);
+      td.appendChild(btn);
+      tr.appendChild(td);
+      anchorRow.parentNode.appendChild(tr);
+      debugLog('✅ Stat Reshuffler button injected');
+    } catch (e) {
+      debugLog('⚠️ initStatReshuffler failed:', e);
+    }
   }
 
   // ==================== TRAINING PAGE WARNINGS ====================
@@ -8452,6 +8969,12 @@
       note: 'The "Cheapest first" preset needs Rank-up cost display switched on, and the Optimizer\'s gold budget comes from the sidebar XP calculator (it also asks the alliance server, read-only, for the allocation).'
     },
     {
+      id: 'stat-reshuffler', group: 'Armory', kind: 'display',
+      name: 'Stat Reshuffler',
+      desc: 'The 🔀 Stat Reshuffler banner above the Armory Preferences section opens a what-if calculator: pick weapons (or whole categories) to sell, optionally switch race, and pour the proceeds — plus gold on hand if you tick it — into other stats. Projects the gold recovered, weapons you could buy, your new ratings and your new TIV after the 50% sell tax. Pure calculator: it never sells, buys or presses anything.',
+      note: 'Most accurate for stats where Purchase check alerts has learned a multiplier; otherwise it derives one from your current rating and weapon strength. Warns when a learned multiplier looks stale (it predates skill upgrades — buy 1 weapon there to refresh it). Weapons your units can\'t carry count as adding nothing — unless you tick "Ignore carrier caps" because you\'ll train units as needed.'
+    },
+    {
       id: 'rank-up-costs', group: 'Armory', kind: 'display',
       name: 'Rank-up cost display',
       desc: 'Shows how much gold of weapons you would need to buy to claim the next rank in each stat (the "Next Rank Gain" number), using your personal weapon efficiency learned from your own purchases.',
@@ -8916,6 +9439,7 @@
         displayRankUpCosts(stats, calculateWeaponEfficiency(weapons, stats));
       } },
     { f: 'armory-sliders', label: 'enhanceArmoryPrefsUI', when: () => onPage("armory.php"), run: () => enhanceArmoryPrefsUI() },
+    { f: 'stat-reshuffler', label: 'initStatReshuffler', when: () => onPage("armory.php"), run: () => initStatReshuffler() },
     { f: 'armory-collector', label: 'collectTIVAndStatsFromArmory', when: () => onPage("armory.php"), run: () => collectTIVAndStatsFromArmory() },
     { f: 'training-warnings', label: 'enhanceTrainingPage', when: () => onPage("training.php"), run: () => enhanceTrainingPage() },
     // Shared feeder: deposit rate powers both SAFE forecasts and the upgrades-page readiness rows
