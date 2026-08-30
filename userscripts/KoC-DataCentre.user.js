@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name         KoC Data Centre
 // @namespace    trevo88423
-// @version      2.18.3
-// @description  Sweet Revenge alliance tool: tracks stats, syncs to API, adds dashboards, XP→Turn calculator, mini Top Stats panel. v2.18.3: Stat Reshuffler — the launcher moved: it now sits as a full-width banner directly above the "Armory Preferences" header, styled by cloning that header's own theme (background, border, font) so it looks native in any skin; falls back to the old Total Invested Value spot if the header isn't found. v2.18.2: Stat Reshuffler — stale-multiplier warning: a learned weapon multiplier quietly goes wrong after skill/tech upgrades (it only refreshes when you buy), which left phantom rating behind on sell-all scenarios; the reshuffler now compares each learned multiplier against what your live rating implies and flags "⚠ stale multiplier — buy 1 to recalibrate" per stat plus a summary warning, with the multiplier's age shown. v2.18.1: Stat Reshuffler — new "Ignore carrier caps" toggle for when you're happy to train soldiers/covert units as needed: projections then count every weapon as held (including ones currently sitting unheld) and the ⚠ unheld warnings disappear; the choice is remembered. v2.18.0: Stat Reshuffler — a 🔀 button under the Armory's Total Invested Value box opens a full what-if rework calculator: choose weapons (or whole categories) to sell, optionally switch race, and pour the proceeds — plus your on-hand + vault gold if you tick it — into any mix of the eight stats. It projects the gold you'd recover (sales pay 50% and land in your Vault), how many of each weapon you could buy, whether your units can actually carry them (unheld weapons add nothing), your projected new ratings including the race-bonus swing, and your new TIV. Pure calculator — it never sells, buys or presses anything. v2.17.1: Fix — clicking the sidebar Sweet Revenge logo now opens the feature-settings popup (same as the ⚙ Data Centre link) instead of navigating away. Internal cleanup: removed the unused armory sell-value cache (nothing has used it since the v2.11.2 "Upgrade Ready" rework). v2.17.0: Feature Settings — a new "⚙ Data Centre" link in the sidebar opens a settings panel where EVERY feature can be switched on/off individually (or all at once with the master switch), each with a plain-English description of what it does and a badge showing whether it only changes your display or also records data to the alliance roster; toggles apply on the next page load and everything stays ON by default, so nothing changes until you say so. Under the hood the script's ~40 page hooks were rebuilt onto a single feature registry that drives both the dispatcher and the panel, ~600 lines of dead legacy code were removed, and small fixes landed (DST helper deduplicated, script load message now always visible in console, toast animation style no longer re-injected per notification). Also: the sidebar Sweet Revenge logo is now a link to the Data Centre (with a hover glow), and the Top Stats panel's Debug button is gone — debug mode lives in the console via KoCDebug.toggle(). v2.16.0: Sab Tracker learns the exclusivity rule — per target you either regular-sab OR revenge-sab in a 24h window, so the panels now show 🔒 "Regular sabs locked — you revenge-sabbed this target" with an unlock countdown that keeps working after the Revenge section vanishes (target un-maxed — exactly when KoC hides the info), and 🔒 "Revenge locked — you've sabbed this target this window" when the Revenge form is up but unusable; the native "First sab (last 24hrs)" row is age-formatted like the rest and its exact server stamp now anchors the tracker, making the "Can sab again in …" countdown precise instead of an estimate. v2.15.0: Sabotage Tracker on attack.php — "You last sabbed / poisoned / stole" and the revenge timestamps now show colour-coded ages like the stats pages (hover for the raw server time); the Sabotage and Revenge Sabotage sections get a live status line: attempts left in the rolling 24h window with a ticking "Can sab again in …" countdown when you're out of slots (10 sabs / 4 revenge per target per 24h, tracked automatically whenever you fire a sab and backfilled with exact server times when you open the target's Intelligence file), plus a "sab damage left before maxed" line (Maximum Daily Sabotage loss − lost in last 24h) that flips to TARGET MAXED when the cap is hit. Display-only: it records only missions you fire by hand and never presses anything. v2.14.0: Tech Level Projector — the "Stats After Upgrading Tech" table on safe.php gets a "Project to" dropdown: pick ANY future tech level (up to Obi Bon Kenobi) and the table shows your projected stats at that level, with the total ▲% vs now and the cumulative EXP needed across all the upgrades in between. v2.13.1: Rank-neighbour links now blend into the native table — no dot markers or underline, the numbers just quietly became links (hover tooltip still shows who it is, data age, and gap/stale warnings). v2.13.0: Rank-neighbour recon links — the "Rating For Previous/Next Rank Gain" numbers are now hyperlinks to the player we believe holds that rank (matched by rating value from the roster DB, never by stale DB rank), with a tooltip showing who it is + how fresh their data is; an orange dot means a DB gap (recon upward), a red dot means DB rank/rating disagree (recon me first). Click → recon → DB refreshes; wrong candidates rotate out on the next page load, so the links self-correct toward the true neighbour. v2.11.2: Banking Mode redesigned — your exposed gold now shows in a native-style "Estimated Funds" box that matches the in-game funds boxes, with a ⚙ that holds the Banking Mode toggle, screen-awake, and all settings (including an optional "show yellow/red times" line); a live-ticking Server Time clock on every page; and the Upgrades "Upgrade Ready" row now uses realistic funds (drops full-armory-sell) and shows any shortfall as a slay estimate. v2.10.1: Fix — the slider Armory Preferences now also resync when you press KoC's "Clear Percentage Prefills" button (sliders drop to 0 instead of keeping their old values). v2.10.0: New slider-based Armory Preferences — drag to allocate with auto-balancing, theme-matched styling, and one-tap presets (Cheapest first, Optimizer, All spy, All defense) plus saved presets — replacing the in-game percentage form; rank Optimizer also fixed (weapon efficiency now synced). v2.9.0: "Time to upgrade" + "EXP still needed to be deposited" now show on ALL EXP-cost safe.php upgrades (Increase Soldiers, Economic Development, SAFE Upgrade) — not just Technological Development. v2.8.2: Fix — "EXP still needed to be deposited" now shows cost − Experience Bank (what must still be banked) instead of also subtracting on-hand EXP, so it no longer reads 0 when you hold the EXP but haven't deposited it. v2.8.1: Fix — sidebar abbreviates large gold/safe values (e.g. "2,560M"); getSidebarValue now parses K/M/B/T suffixes so SAFE Forecasts and gold-upgrade rows use real balances (previously read as ~0). SAFE Forecasts also uses the full-precision "Gold in Safe" value. v2.8.0: SAFE Forecasts on safe.php — time for your Safe to reach 1B/2B/5B/9B/10B(MAX) based on current Safe + deposit/min. v2.7.0: Gold upgrade timer — upgrades.php now shows "Upgrade Ready" (liquidation + safe-growth time) and "Gold Needed on top of Safe" under each skill upgrade (uses gold/vault/safe + full armory sell value from Armory + safe deposit rate from Safe). v2.6.0: Tech upgrade timer — safe.php now shows "Time to upgrade" + "EXP still needed to be deposited" under Technological Development (uses EXP on-hand + Experience Bank + your EXP/turn rate, auto-captured from the Upgrades page). v2.5.1: Banking Mode last-bank fix — now watches the per-weapon buy form (anotherbuyform), not just the hidden one-click form, and stamps banks reliably for high-income accounts. v2.5.0: 🏦 Banking Mode on the Armory page — toggleable inline widget that projects your exposed (stealable) gold every second, colour-codes the risk (SAFE/CAUTION/DANGER) from your attack-log steal history, shows time-to-yellow/red, and keeps the screen awake. Display-only: no automated requests, observes (never presses) the buy/repair forms. v2.4.0: Banking trend graph (📈 in the sidebar tracks your banked % over time) + manual override for Avg Gold/Atk (✏️ in the sidebar, survives attack-log recalibration). v2.3.4: Recons panel now shares counts alliance-wide via API (previously localStorage-only — each user only saw themselves). v2.3.0: Added "Stats If You Attacked Instead" table on safe.php to compare tech upgrades vs attacking. v2.2.9: Added optimizer auto-fill for armory (uses roster API to calculate optimal stat allocation). v2.2.8: Minor fixes. v2.1.0: Integrated slaying competition tracker (attack missions & gold stolen tracking, team competitions, leaderboards). v2.0.0: Optimized API architecture, previous versions deprecated.
+// @version      2.19.0
+// @description  Sweet Revenge alliance tool: tracks stats, syncs to API, adds dashboards, XP→Turn calculator, mini Top Stats panel. v2.19.0: Stat Reshuffler — Goal mode: pick a stat and type a target rating (commas fine, or shorthand like 4.78T) and the calculator shows the gap from your PROJECTED rating — so your sells, race change and re-buys are already counted — plus how many weapons and how much gold on top of the plan would close it, netting off any unspent pool. Warns when your units couldn't hold that many more weapons. The goal is remembered between visits and updates live as you tweak the scenario. v2.18.3: Stat Reshuffler — the launcher moved: it now sits as a full-width banner directly above the "Armory Preferences" header, styled by cloning that header's own theme (background, border, font) so it looks native in any skin; falls back to the old Total Invested Value spot if the header isn't found. v2.18.2: Stat Reshuffler — stale-multiplier warning: a learned weapon multiplier quietly goes wrong after skill/tech upgrades (it only refreshes when you buy), which left phantom rating behind on sell-all scenarios; the reshuffler now compares each learned multiplier against what your live rating implies and flags "⚠ stale multiplier — buy 1 to recalibrate" per stat plus a summary warning, with the multiplier's age shown. v2.18.1: Stat Reshuffler — new "Ignore carrier caps" toggle for when you're happy to train soldiers/covert units as needed: projections then count every weapon as held (including ones currently sitting unheld) and the ⚠ unheld warnings disappear; the choice is remembered. v2.18.0: Stat Reshuffler — a 🔀 button under the Armory's Total Invested Value box opens a full what-if rework calculator: choose weapons (or whole categories) to sell, optionally switch race, and pour the proceeds — plus your on-hand + vault gold if you tick it — into any mix of the eight stats. It projects the gold you'd recover (sales pay 50% and land in your Vault), how many of each weapon you could buy, whether your units can actually carry them (unheld weapons add nothing), your projected new ratings including the race-bonus swing, and your new TIV. Pure calculator — it never sells, buys or presses anything. v2.17.1: Fix — clicking the sidebar Sweet Revenge logo now opens the feature-settings popup (same as the ⚙ Data Centre link) instead of navigating away. Internal cleanup: removed the unused armory sell-value cache (nothing has used it since the v2.11.2 "Upgrade Ready" rework). v2.17.0: Feature Settings — a new "⚙ Data Centre" link in the sidebar opens a settings panel where EVERY feature can be switched on/off individually (or all at once with the master switch), each with a plain-English description of what it does and a badge showing whether it only changes your display or also records data to the alliance roster; toggles apply on the next page load and everything stays ON by default, so nothing changes until you say so. Under the hood the script's ~40 page hooks were rebuilt onto a single feature registry that drives both the dispatcher and the panel, ~600 lines of dead legacy code were removed, and small fixes landed (DST helper deduplicated, script load message now always visible in console, toast animation style no longer re-injected per notification). Also: the sidebar Sweet Revenge logo is now a link to the Data Centre (with a hover glow), and the Top Stats panel's Debug button is gone — debug mode lives in the console via KoCDebug.toggle(). v2.16.0: Sab Tracker learns the exclusivity rule — per target you either regular-sab OR revenge-sab in a 24h window, so the panels now show 🔒 "Regular sabs locked — you revenge-sabbed this target" with an unlock countdown that keeps working after the Revenge section vanishes (target un-maxed — exactly when KoC hides the info), and 🔒 "Revenge locked — you've sabbed this target this window" when the Revenge form is up but unusable; the native "First sab (last 24hrs)" row is age-formatted like the rest and its exact server stamp now anchors the tracker, making the "Can sab again in …" countdown precise instead of an estimate. v2.15.0: Sabotage Tracker on attack.php — "You last sabbed / poisoned / stole" and the revenge timestamps now show colour-coded ages like the stats pages (hover for the raw server time); the Sabotage and Revenge Sabotage sections get a live status line: attempts left in the rolling 24h window with a ticking "Can sab again in …" countdown when you're out of slots (10 sabs / 4 revenge per target per 24h, tracked automatically whenever you fire a sab and backfilled with exact server times when you open the target's Intelligence file), plus a "sab damage left before maxed" line (Maximum Daily Sabotage loss − lost in last 24h) that flips to TARGET MAXED when the cap is hit. Display-only: it records only missions you fire by hand and never presses anything. v2.14.0: Tech Level Projector — the "Stats After Upgrading Tech" table on safe.php gets a "Project to" dropdown: pick ANY future tech level (up to Obi Bon Kenobi) and the table shows your projected stats at that level, with the total ▲% vs now and the cumulative EXP needed across all the upgrades in between. v2.13.1: Rank-neighbour links now blend into the native table — no dot markers or underline, the numbers just quietly became links (hover tooltip still shows who it is, data age, and gap/stale warnings). v2.13.0: Rank-neighbour recon links — the "Rating For Previous/Next Rank Gain" numbers are now hyperlinks to the player we believe holds that rank (matched by rating value from the roster DB, never by stale DB rank), with a tooltip showing who it is + how fresh their data is; an orange dot means a DB gap (recon upward), a red dot means DB rank/rating disagree (recon me first). Click → recon → DB refreshes; wrong candidates rotate out on the next page load, so the links self-correct toward the true neighbour. v2.11.2: Banking Mode redesigned — your exposed gold now shows in a native-style "Estimated Funds" box that matches the in-game funds boxes, with a ⚙ that holds the Banking Mode toggle, screen-awake, and all settings (including an optional "show yellow/red times" line); a live-ticking Server Time clock on every page; and the Upgrades "Upgrade Ready" row now uses realistic funds (drops full-armory-sell) and shows any shortfall as a slay estimate. v2.10.1: Fix — the slider Armory Preferences now also resync when you press KoC's "Clear Percentage Prefills" button (sliders drop to 0 instead of keeping their old values). v2.10.0: New slider-based Armory Preferences — drag to allocate with auto-balancing, theme-matched styling, and one-tap presets (Cheapest first, Optimizer, All spy, All defense) plus saved presets — replacing the in-game percentage form; rank Optimizer also fixed (weapon efficiency now synced). v2.9.0: "Time to upgrade" + "EXP still needed to be deposited" now show on ALL EXP-cost safe.php upgrades (Increase Soldiers, Economic Development, SAFE Upgrade) — not just Technological Development. v2.8.2: Fix — "EXP still needed to be deposited" now shows cost − Experience Bank (what must still be banked) instead of also subtracting on-hand EXP, so it no longer reads 0 when you hold the EXP but haven't deposited it. v2.8.1: Fix — sidebar abbreviates large gold/safe values (e.g. "2,560M"); getSidebarValue now parses K/M/B/T suffixes so SAFE Forecasts and gold-upgrade rows use real balances (previously read as ~0). SAFE Forecasts also uses the full-precision "Gold in Safe" value. v2.8.0: SAFE Forecasts on safe.php — time for your Safe to reach 1B/2B/5B/9B/10B(MAX) based on current Safe + deposit/min. v2.7.0: Gold upgrade timer — upgrades.php now shows "Upgrade Ready" (liquidation + safe-growth time) and "Gold Needed on top of Safe" under each skill upgrade (uses gold/vault/safe + full armory sell value from Armory + safe deposit rate from Safe). v2.6.0: Tech upgrade timer — safe.php now shows "Time to upgrade" + "EXP still needed to be deposited" under Technological Development (uses EXP on-hand + Experience Bank + your EXP/turn rate, auto-captured from the Upgrades page). v2.5.1: Banking Mode last-bank fix — now watches the per-weapon buy form (anotherbuyform), not just the hidden one-click form, and stamps banks reliably for high-income accounts. v2.5.0: 🏦 Banking Mode on the Armory page — toggleable inline widget that projects your exposed (stealable) gold every second, colour-codes the risk (SAFE/CAUTION/DANGER) from your attack-log steal history, shows time-to-yellow/red, and keeps the screen awake. Display-only: no automated requests, observes (never presses) the buy/repair forms. v2.4.0: Banking trend graph (📈 in the sidebar tracks your banked % over time) + manual override for Avg Gold/Atk (✏️ in the sidebar, survives attack-log recalibration). v2.3.4: Recons panel now shares counts alliance-wide via API (previously localStorage-only — each user only saw themselves). v2.3.0: Added "Stats If You Attacked Instead" table on safe.php to compare tech upgrades vs attacking. v2.2.9: Added optimizer auto-fill for armory (uses roster API to calculate optimal stat allocation). v2.2.8: Minor fixes. v2.1.0: Integrated slaying competition tracker (attack missions & gold stolen tracking, team competitions, leaderboards). v2.0.0: Optimized API architecture, previous versions deprecated.
 // @author       Blackheart
 // @match        https://www.kingsofchaos.com/*
 // @exclude      https://*.kingsofchaos.com/confirm.login.php*
@@ -42,7 +42,7 @@
   // ==================== VERSION CHECK ====================
   // Check if this script version is allowed to run
   const SCRIPT_NAME = 'koc-data-centre';
-  const SCRIPT_VERSION = '2.18.3'; // Must match @version above
+  const SCRIPT_VERSION = '2.19.0'; // Must match @version above
   const VERSION_CHECK_API = 'https://koc-roster-api-production.up.railway.app';
 
   async function checkScriptVersion() {
@@ -4653,6 +4653,46 @@
     return c.mult < implied * 0.9 ? { learned: c.mult, implied } : null;
   }
 
+  // Parse a goal target: plain digits, commas/spaces, or K/M/B/T shorthand
+  // ("4,784,687,574,927", "4.78T", "500b"). Returns null when unreadable.
+  function reshufParseTarget(s) {
+    if (!s) return null;
+    const m = String(s).trim().replace(/[,\s]/g, '').match(/^([\d.]+)([kmbt])?$/i);
+    if (!m) return null;
+    let v = parseFloat(m[1]);
+    if (isNaN(v) || v <= 0) return null;
+    const suf = (m[2] || '').toLowerCase();
+    if (suf === 'k') v *= 1e3;
+    else if (suf === 'm') v *= 1e6;
+    else if (suf === 'b') v *= 1e9;
+    else if (suf === 't') v *= 1e12;
+    return Math.round(v);
+  }
+
+  // Goal mode: how far is the scenario's PROJECTED rating from a target, and
+  // what would closing the gap cost with the selected weapon? Uses the
+  // race-ADJUSTED multiplier (buying happens as the new race), and reports
+  // how many of the needed weapons your units could actually hold.
+  function reshufGoalCalc(snap, plan, sim, cat, target) {
+    const c = snap.cats[cat];
+    const r = sim.results[cat];
+    if (r.newRating === null) return { unknown: true };
+    const projected = r.newRating;
+    const gap = target - projected;
+    if (gap <= 0) return { projected, gap, reached: true, surplus: -gap };
+    const scale = (1 + reshufRaceBonus(plan.raceTo, cat)) / (1 + reshufRaceBonus(plan.raceFrom, cat));
+    const multEff = (c.mult !== null) ? c.mult * scale : null;
+    if (!multEff) return { projected, gap, noMult: true };
+    const tiers = RESHUF_CATALOG[cat];
+    const spec = tiers.find(s => s.name === plan.buyWeapon[cat]) || tiers[tiers.length - 1];
+    const perWeapon = multEff * spec.strength;
+    const weaponsNeeded = Math.ceil(gap / perWeapon);
+    const goldNeeded = weaponsNeeded * spec.price;
+    let slotsLeft = null;
+    if (!plan.ignoreCaps && c.capacity !== null) slotsLeft = Math.max(0, c.capacity - r.unitsAfter);
+    return { projected, gap, weapon: spec.name, weaponsNeeded, goldNeeded, perWeapon, slotsLeft };
+  }
+
   function reshufSimulate(snap, plan) {
     let proceeds = 0, removedValue = 0;
     const afterRows = {};
@@ -4698,7 +4738,7 @@
         newRating = Math.round(scale * c.rating);
       }
       results[cat] = {
-        bought, weapon: spec.name, spent, newRating, unheld, scale,
+        bought, weapon: spec.name, spent, newRating, unheld, scale, unitsAfter,
         changed: heldAfter !== c.heldNow || scale !== 1
       };
     }
@@ -4815,7 +4855,16 @@
       '<table style="width:100%;border-collapse:collapse;font-size:11px;">' +
       '<tr><td style="' + thCss + '">Stat</td><td style="' + thCss + '">Weapon to buy</td><td style="' + thCss + 'text-align:right;">% of pool</td></tr>' +
       buyHtml + '</table>' +
-      '<div style="' + secCss + '">3 · Result</div>' +
+      '<div style="' + secCss + '">3 · Goal <span style="letter-spacing:0;text-transform:none;color:#5c6472;">(optional)</span></div>' +
+      '<div style="display:flex;align-items:center;gap:8px;padding:2px 12px 4px 12px;font-size:11px;flex-wrap:wrap;">' +
+      '<span style="color:#8b94a7;">Reach</span>' +
+      '<select id="kdc-rs-goal-stat" style="' + selCss + '"><option value="">— pick a stat —</option>' +
+      RESHUF_CATS.map(c => '<option value="' + c + '">' + RESHUF_LABELS[c] + '</option>').join('') + '</select>' +
+      '<span style="color:#8b94a7;">of</span>' +
+      '<input type="text" id="kdc-rs-goal-target" placeholder="e.g. 4,784,687,574,927 or 4.78T" style="width:190px;' + inpCss + '">' +
+      '</div>' +
+      '<div id="kdc-rs-goal-out"></div>' +
+      '<div style="' + secCss + '">4 · Result</div>' +
       '<div id="kdc-rs-results"></div>' +
       '<div style="padding:6px 12px 10px 12px;color:#5c6472;font-size:10px;">Estimates only — repairs, purchases and battle damage between now and the rework will shift the numbers. This tool never touches the game\'s forms.</div>';
     panel.appendChild(body);
@@ -4823,6 +4872,43 @@
     const resDiv = body.querySelector('#kdc-rs-results');
     const raceFromSel = body.querySelector('#kdc-rs-race-from');
     if (guessRace) raceFromSel.value = guessRace;
+
+    const goalOut = body.querySelector('#kdc-rs-goal-out');
+    const goalStatSel = body.querySelector('#kdc-rs-goal-stat');
+    const goalTargetInp = body.querySelector('#kdc-rs-goal-target');
+
+    function renderGoal(sim, plan) {
+      const cat = goalStatSel.value;
+      const raw = goalTargetInp.value;
+      const target = reshufParseTarget(raw);
+      if (!cat || target === null) {
+        goalOut.innerHTML = (cat && raw.trim()) ? '<div style="padding:0 12px 6px 12px;font-size:11px;color:#e6b450;">Couldn\'t read that target — use digits with commas, or K/M/B/T shorthand (e.g. 4.78T).</div>' : '';
+        return;
+      }
+      const g = reshufGoalCalc(snap, plan, sim, cat, target);
+      const L = h(RESHUF_LABELS[cat]);
+      let html = '<div style="padding:0 12px 6px 12px;font-size:11px;line-height:1.7;">';
+      if (g.unknown) {
+        html += '<span style="color:#e6b450;">Projected ' + L + ' is unknown (no multiplier learned) — buy 1 ' + L.toLowerCase() + ' item once to calibrate.</span>';
+      } else {
+        html += '<span style="color:#8b94a7;">Projected ' + L + ' after this plan:</span> <b>' + fmt(g.projected) + '</b> &nbsp;·&nbsp; <span style="color:#8b94a7;">goal:</span> <b>' + fmt(target) + '</b><br>';
+        if (g.reached) {
+          html += '<span style="color:#5fcf7a;">✅ Goal reached — ' + fmt(g.surplus) + ' over the target.</span>';
+        } else if (g.noMult) {
+          html += '<span style="color:#e6b450;">Gap ' + fmt(g.gap) + ', but no ' + L + ' multiplier is known — buy 1 item once to calibrate.</span>';
+        } else {
+          html += '<span style="color:#8b94a7;">Gap:</span> <b style="color:#e06a6a;">' + fmt(g.gap) + '</b> &nbsp;≈&nbsp; <b>' + fmt(g.weaponsNeeded) + ' × ' + h(g.weapon) + '</b> &nbsp;=&nbsp; <b style="color:#c9a959;">' + fmt(g.goldNeeded) + ' gold</b> on top of this plan';
+          if (sim.leftover > 0) {
+            html += '<br><span style="color:#8b94a7;">This plan leaves ' + fmt(sim.leftover) + ' gold unspent — net extra needed ≈ </span><b style="color:#c9a959;">' + fmt(Math.max(0, g.goldNeeded - sim.leftover)) + '</b>';
+          }
+          if (g.slotsLeft !== null && g.weaponsNeeded > g.slotsLeft) {
+            html += '<br><span style="color:#e6b450;">⚠ Only ' + fmt(g.slotsLeft) + ' more can be held by your ' + fmt(snap.cats[cat].capacity) + ' ' + h(RESHUF_UNIT_LABEL[cat]) + ' — train more or tick Ignore carrier caps.</span>';
+          }
+        }
+      }
+      html += '</div>';
+      goalOut.innerHTML = html;
+    }
 
     function renderResults(sim, plan) {
       const rowsHtml = RESHUF_CATS.map(cat => {
@@ -4900,7 +4986,9 @@
         plan.raceTo = body.querySelector('#kdc-rs-race-to').value || plan.raceFrom;
         plan.includeOnHand = body.querySelector('#kdc-rs-onhand').checked;
         plan.ignoreCaps = body.querySelector('#kdc-rs-ignorecap').checked;
-        renderResults(reshufSimulate(snap, plan), plan);
+        const sim = reshufSimulate(snap, plan);
+        renderResults(sim, plan);
+        renderGoal(sim, plan);
       } catch (e) {
         debugLog('⚠️ Reshuffler recalc failed:', e);
       }
@@ -4932,6 +5020,15 @@
     ignoreCapCb.addEventListener('change', () => {
       SafeStorage.set('KoC_ReshufIgnoreCaps', ignoreCapCb.checked);
     });
+    // The goal usually outlives one visit (chasing a rank threshold) — remember it
+    const savedGoal = SafeStorage.get('KoC_ReshufGoal', null);
+    if (savedGoal && savedGoal.cat && RESHUF_CATS.includes(savedGoal.cat)) {
+      goalStatSel.value = savedGoal.cat;
+      goalTargetInp.value = savedGoal.target || '';
+    }
+    const saveGoal = () => SafeStorage.set('KoC_ReshufGoal', { cat: goalStatSel.value, target: goalTargetInp.value });
+    goalStatSel.addEventListener('change', saveGoal);
+    goalTargetInp.addEventListener('input', saveGoal);
 
     const close = () => overlay.remove();
     closeBtn.addEventListener('click', close);
@@ -8971,7 +9068,7 @@
     {
       id: 'stat-reshuffler', group: 'Armory', kind: 'display',
       name: 'Stat Reshuffler',
-      desc: 'The 🔀 Stat Reshuffler banner above the Armory Preferences section opens a what-if calculator: pick weapons (or whole categories) to sell, optionally switch race, and pour the proceeds — plus gold on hand if you tick it — into other stats. Projects the gold recovered, weapons you could buy, your new ratings and your new TIV after the 50% sell tax. Pure calculator: it never sells, buys or presses anything.',
+      desc: 'The 🔀 Stat Reshuffler banner above the Armory Preferences section opens a what-if calculator: pick weapons (or whole categories) to sell, optionally switch race, and pour the proceeds — plus gold on hand if you tick it — into other stats. Projects the gold recovered, weapons you could buy, your new ratings and your new TIV after the 50% sell tax. Set a Goal (a target rating for one stat) and it also shows the gold still needed to reach it, updating live as you tweak the plan. Pure calculator: it never sells, buys or presses anything.',
       note: 'Most accurate for stats where Purchase check alerts has learned a multiplier; otherwise it derives one from your current rating and weapon strength. Warns when a learned multiplier looks stale (it predates skill upgrades — buy 1 weapon there to refresh it). Weapons your units can\'t carry count as adding nothing — unless you tick "Ignore carrier caps" because you\'ll train units as needed.'
     },
     {
