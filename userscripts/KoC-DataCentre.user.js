@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name         KoC Data Centre
 // @namespace    trevo88423
-// @version      2.25.0
-// @description  Sweet Revenge alliance tool: tracks stats, syncs to API, adds dashboards, XP→Turn calculator, mini Top Stats panel. v2.25.0: Mission history — the pages that list missions are now read when you open them and shared with the alliance roster: a target's Intelligence file (your recon and sab missions on them, Success or Aborted), the Poison Log and Theft Log (both directions, with what was stolen), your Intelligence page (recon and sab missions run against you, and how many of their spies were caught) and the Attack Log (attacks and raids both ways, with gold stolen and losses). Any sab report you open adds its details too — what it destroyed, spies and sentries executed, gold and XP. This feeds the War Room's new success rates — per member and per mission type, never per target — which are visible to everyone with roster access, as the settings panel now says. The script sends each page's own wording and the server interprets it, so a result nobody has seen yet (a successful poison, say) is kept rather than lost and is sorted out once it turns up. Only the page you open is read: it never turns a page, opens a report or fetches anything, and those pages look exactly as before. Also: the Sab Tracker's Intelligence-file backfill now shares that same read. v2.24.0: Attack page range warnings — under each mission's "can … up to …" line the attack page now says whether the target is actually in reach: their sentry, antidote, vigilance or defensive action as last recorded by the alliance, against the limit the game prints for you, with how old that reading is. ⛔ Out of range means the mission will fail — the game lets an out-of-range theft fire anyway, which is how four thefts on one target all failed. The Theft box also gets a theft-cap line: how much of the target's daily theft cap is left, or THEFT MAXED. New Target check log: every attack page you open records that you checked that target — whether it was maxed, how much of its sab and theft caps is used, and your own attempt and success counters on it — so the War Room can show who saw a target maxed and how long ago; those counters are visible to everyone with roster access and will feed members' success rates. The War List collector now also shares who is on the list, when and why they were added, and your own "My 24hr" counters — and on the War List and Farm List the script now makes no changes at all (no toasts, no styles, no overlays), as the game's rules require. The settings panel now says exactly what the Sab Tracker sends. v2.23.2: Fix — the Sab Tracker vanished on the page the game shows after refusing a sab on a maxed target ("This player has been maxxed…"): that page has no player id in its address, so the tracker, the TIV reading and the sab-cap sharing all quietly gave up — at the one moment the script knew for certain the target was maxed. They now read the target from the page itself. Also fixes the Intelligence-file backfill for the Sab Tracker, which looked for the mission type in the wrong column and so never matched a row; it now finds the column by its header. v2.23.1: Inactive Accounts sync now works while you are logged out — including while you are on vacation and cannot log in — using the login saved from your last visit. On that page, logged out, it is the only thing the script does; every other feature still needs you logged in. Also: a network blip or server restart while renewing your session no longer logs you out of the script. v2.23.0: Inactive Accounts sync — opening the in-game Inactive Accounts page now shares the list with the alliance roster: who went into Vacation Mode and exactly when, and who has been deleted. Anyone who has dropped off the list since the last visit is marked back from vacation. This powers the new Vacation Watch tab on the dashboard, with live countdowns to when each player can return. The script only reads the page you open; the more often members check it, the sooner returns show up. v2.22.0: The War List's "Last Sab" column is now collected too — who last hit each target, for how much, and how long ago — giving the war dashboard a "Last hit" column that shows which targets the alliance is actually working and which nobody has touched, plus a running log of destroyed value for the war. v2.21.2: Fix — TIV readings from the attack page and your Armory were being sent with a timestamp field nothing reads, so they arrived unstamped and skipped the server's "only overwrite if newer" guard, letting an older reading quietly replace a fresher one. v2.21.1: War List collector reads the AAT and Sentry cells from their own DOM nodes instead of the cell's flattened text — those cells hold two numbers separated only by a line break, so any flattening ran "488" and "488,000,000 damage per sab" together into 488 billion. Works on both the Alliance and Single Target lists. v2.21.0: War List collector — opening the War List now records, for every player on it at once, their sentry (stamped with the age the game itself shows, so it never overwrites fresher recon), the weapon the game recommends sabbing them with, and the AAT: how many of that weapon they actually hold plus the gold one full sab would destroy. The war dashboard gets an AAT column and a "Min AAT" filter, so targets who simply do not own enough weapons to be worth organising around can be filtered out in one click. v2.20.1: Fix — race now updates when a player switches race. Race was only ever read from a full recon report, so a race change sat wrong in the roster until somebody spent a recon on that player, even though every visit to their stats page showed the new race in plain sight; the stats-page collector now reads the Information table too (race and rank), and it no longer gives up on players who have no shared recon data. v2.20.0: Sab cap sharing — opening any attack page now records that target's "Total lost from sabbs in the last 24hours" and "Maximum Daily Sabotage loss" to the alliance roster, so the War Room can show how much of every player's daily cap is already gone and how much gold is still worth sabbing, with a share button that copies a Discord-ready line. Also fixes the sab-cap reader: KoC prints the cap with decimals when it isn't a whole number, which the old pattern could not match, so the in-game "sab damage left before maxed" line silently never appeared on those targets. v2.19.1: Fix — a target sabbed flat reads "Total Invested Value: ()" with empty brackets, which the TIV collector could not parse, so the roster kept that player's pre-sab value forever and never stopped asking for a recon that could not land; empty brackets now record as a real 0 (on your own Armory too), while a box the script genuinely cannot read is left alone instead of writing a false zero. v2.19.0: Stat Reshuffler — Goal mode: pick a stat and type a target rating (commas fine, or shorthand like 4.78T) and the calculator shows the gap from your PROJECTED rating — so your sells, race change and re-buys are already counted — plus how many weapons and how much gold on top of the plan would close it, netting off any unspent pool. Warns when your units couldn't hold that many more weapons. The goal is remembered between visits and updates live as you tweak the scenario. v2.18.3: Stat Reshuffler — the launcher moved: it now sits as a full-width banner directly above the "Armory Preferences" header, styled by cloning that header's own theme (background, border, font) so it looks native in any skin; falls back to the old Total Invested Value spot if the header isn't found. v2.18.2: Stat Reshuffler — stale-multiplier warning: a learned weapon multiplier quietly goes wrong after skill/tech upgrades (it only refreshes when you buy), which left phantom rating behind on sell-all scenarios; the reshuffler now compares each learned multiplier against what your live rating implies and flags "⚠ stale multiplier — buy 1 to recalibrate" per stat plus a summary warning, with the multiplier's age shown. v2.18.1: Stat Reshuffler — new "Ignore carrier caps" toggle for when you're happy to train soldiers/covert units as needed: projections then count every weapon as held (including ones currently sitting unheld) and the ⚠ unheld warnings disappear; the choice is remembered. v2.18.0: Stat Reshuffler — a 🔀 button under the Armory's Total Invested Value box opens a full what-if rework calculator: choose weapons (or whole categories) to sell, optionally switch race, and pour the proceeds — plus your on-hand + vault gold if you tick it — into any mix of the eight stats. It projects the gold you'd recover (sales pay 50% and land in your Vault), how many of each weapon you could buy, whether your units can actually carry them (unheld weapons add nothing), your projected new ratings including the race-bonus swing, and your new TIV. Pure calculator — it never sells, buys or presses anything. v2.17.1: Fix — clicking the sidebar Sweet Revenge logo now opens the feature-settings popup (same as the ⚙ Data Centre link) instead of navigating away. Internal cleanup: removed the unused armory sell-value cache (nothing has used it since the v2.11.2 "Upgrade Ready" rework). v2.17.0: Feature Settings — a new "⚙ Data Centre" link in the sidebar opens a settings panel where EVERY feature can be switched on/off individually (or all at once with the master switch), each with a plain-English description of what it does and a badge showing whether it only changes your display or also records data to the alliance roster; toggles apply on the next page load and everything stays ON by default, so nothing changes until you say so. Under the hood the script's ~40 page hooks were rebuilt onto a single feature registry that drives both the dispatcher and the panel, ~600 lines of dead legacy code were removed, and small fixes landed (DST helper deduplicated, script load message now always visible in console, toast animation style no longer re-injected per notification). Also: the sidebar Sweet Revenge logo is now a link to the Data Centre (with a hover glow), and the Top Stats panel's Debug button is gone — debug mode lives in the console via KoCDebug.toggle(). v2.16.0: Sab Tracker learns the exclusivity rule — per target you either regular-sab OR revenge-sab in a 24h window, so the panels now show 🔒 "Regular sabs locked — you revenge-sabbed this target" with an unlock countdown that keeps working after the Revenge section vanishes (target un-maxed — exactly when KoC hides the info), and 🔒 "Revenge locked — you've sabbed this target this window" when the Revenge form is up but unusable; the native "First sab (last 24hrs)" row is age-formatted like the rest and its exact server stamp now anchors the tracker, making the "Can sab again in …" countdown precise instead of an estimate. v2.15.0: Sabotage Tracker on attack.php — "You last sabbed / poisoned / stole" and the revenge timestamps now show colour-coded ages like the stats pages (hover for the raw server time); the Sabotage and Revenge Sabotage sections get a live status line: attempts left in the rolling 24h window with a ticking "Can sab again in …" countdown when you're out of slots (10 sabs / 4 revenge per target per 24h, tracked automatically whenever you fire a sab and backfilled with exact server times when you open the target's Intelligence file), plus a "sab damage left before maxed" line (Maximum Daily Sabotage loss − lost in last 24h) that flips to TARGET MAXED when the cap is hit. Display-only: it records only missions you fire by hand and never presses anything. v2.14.0: Tech Level Projector — the "Stats After Upgrading Tech" table on safe.php gets a "Project to" dropdown: pick ANY future tech level (up to Obi Bon Kenobi) and the table shows your projected stats at that level, with the total ▲% vs now and the cumulative EXP needed across all the upgrades in between. v2.13.1: Rank-neighbour links now blend into the native table — no dot markers or underline, the numbers just quietly became links (hover tooltip still shows who it is, data age, and gap/stale warnings). v2.13.0: Rank-neighbour recon links — the "Rating For Previous/Next Rank Gain" numbers are now hyperlinks to the player we believe holds that rank (matched by rating value from the roster DB, never by stale DB rank), with a tooltip showing who it is + how fresh their data is; an orange dot means a DB gap (recon upward), a red dot means DB rank/rating disagree (recon me first). Click → recon → DB refreshes; wrong candidates rotate out on the next page load, so the links self-correct toward the true neighbour. v2.11.2: Banking Mode redesigned — your exposed gold now shows in a native-style "Estimated Funds" box that matches the in-game funds boxes, with a ⚙ that holds the Banking Mode toggle, screen-awake, and all settings (including an optional "show yellow/red times" line); a live-ticking Server Time clock on every page; and the Upgrades "Upgrade Ready" row now uses realistic funds (drops full-armory-sell) and shows any shortfall as a slay estimate. v2.10.1: Fix — the slider Armory Preferences now also resync when you press KoC's "Clear Percentage Prefills" button (sliders drop to 0 instead of keeping their old values). v2.10.0: New slider-based Armory Preferences — drag to allocate with auto-balancing, theme-matched styling, and one-tap presets (Cheapest first, Optimizer, All spy, All defense) plus saved presets — replacing the in-game percentage form; rank Optimizer also fixed (weapon efficiency now synced). v2.9.0: "Time to upgrade" + "EXP still needed to be deposited" now show on ALL EXP-cost safe.php upgrades (Increase Soldiers, Economic Development, SAFE Upgrade) — not just Technological Development. v2.8.2: Fix — "EXP still needed to be deposited" now shows cost − Experience Bank (what must still be banked) instead of also subtracting on-hand EXP, so it no longer reads 0 when you hold the EXP but haven't deposited it. v2.8.1: Fix — sidebar abbreviates large gold/safe values (e.g. "2,560M"); getSidebarValue now parses K/M/B/T suffixes so SAFE Forecasts and gold-upgrade rows use real balances (previously read as ~0). SAFE Forecasts also uses the full-precision "Gold in Safe" value. v2.8.0: SAFE Forecasts on safe.php — time for your Safe to reach 1B/2B/5B/9B/10B(MAX) based on current Safe + deposit/min. v2.7.0: Gold upgrade timer — upgrades.php now shows "Upgrade Ready" (liquidation + safe-growth time) and "Gold Needed on top of Safe" under each skill upgrade (uses gold/vault/safe + full armory sell value from Armory + safe deposit rate from Safe). v2.6.0: Tech upgrade timer — safe.php now shows "Time to upgrade" + "EXP still needed to be deposited" under Technological Development (uses EXP on-hand + Experience Bank + your EXP/turn rate, auto-captured from the Upgrades page). v2.5.1: Banking Mode last-bank fix — now watches the per-weapon buy form (anotherbuyform), not just the hidden one-click form, and stamps banks reliably for high-income accounts. v2.5.0: 🏦 Banking Mode on the Armory page — toggleable inline widget that projects your exposed (stealable) gold every second, colour-codes the risk (SAFE/CAUTION/DANGER) from your attack-log steal history, shows time-to-yellow/red, and keeps the screen awake. Display-only: no automated requests, observes (never presses) the buy/repair forms. v2.4.0: Banking trend graph (📈 in the sidebar tracks your banked % over time) + manual override for Avg Gold/Atk (✏️ in the sidebar, survives attack-log recalibration). v2.3.4: Recons panel now shares counts alliance-wide via API (previously localStorage-only — each user only saw themselves). v2.3.0: Added "Stats If You Attacked Instead" table on safe.php to compare tech upgrades vs attacking. v2.2.9: Added optimizer auto-fill for armory (uses roster API to calculate optimal stat allocation). v2.2.8: Minor fixes. v2.1.0: Integrated slaying competition tracker (attack missions & gold stolen tracking, team competitions, leaderboards). v2.0.0: Optimized API architecture, previous versions deprecated.
+// @version      2.25.1
+// @description  Sweet Revenge alliance tool: tracks stats, syncs to API, adds dashboards, XP→Turn calculator, mini Top Stats panel. v2.25.1: Fix — raids were stored with no gold and no target. The battle-report reader only knew how an attack's report words its first line ("You stole … gold while attacking …'s camp"); a raid's says "while raiding", so every raid went into the alliance's attack records as 0 gold stolen from "Unknown". Raids now record the gold, the target and the hostages, and a lost battle takes the target's name from the report ("…'s forces overpowered your army!"). Also: your own attacks and raids now count in Mission history straight from the battle report — the one you land on after an attack or raid, or one of yours you open later from the Attack Log — with whether it was an attack or a raid (from the game's own "Raid Again!" / "Attack Again!" button, or the report's wording) and whether you won; the report you land on is also stamped with the time. Also fixed: opening the battle report of another player's attack on you recorded it in the alliance's attack records as your own attack on them. Battle reports of other players attacking you are now not recorded at all — the Attack Log still lists those attacks. As before, only the page you open is read and it is left exactly as the game drew it. v2.25.0: Mission history — the pages that list missions are now read when you open them and shared with the alliance roster: a target's Intelligence file (your recon and sab missions on them, Success or Aborted), the Poison Log and Theft Log (both directions, with what was stolen), your Intelligence page (recon and sab missions run against you, and how many of their spies were caught) and the Attack Log (attacks and raids both ways, with gold stolen and losses). Any sab report you open adds its details too — what it destroyed, spies and sentries executed, gold and XP. This feeds the War Room's new success rates — per member and per mission type, never per target — which are visible to everyone with roster access, as the settings panel now says. The script sends each page's own wording and the server interprets it, so a result nobody has seen yet (a successful poison, say) is kept rather than lost and is sorted out once it turns up. Only the page you open is read: it never turns a page, opens a report or fetches anything, and those pages look exactly as before. Also: the Sab Tracker's Intelligence-file backfill now shares that same read. v2.24.0: Attack page range warnings — under each mission's "can … up to …" line the attack page now says whether the target is actually in reach: their sentry, antidote, vigilance or defensive action as last recorded by the alliance, against the limit the game prints for you, with how old that reading is. ⛔ Out of range means the mission will fail — the game lets an out-of-range theft fire anyway, which is how four thefts on one target all failed. The Theft box also gets a theft-cap line: how much of the target's daily theft cap is left, or THEFT MAXED. New Target check log: every attack page you open records that you checked that target — whether it was maxed, how much of its sab and theft caps is used, and your own attempt and success counters on it — so the War Room can show who saw a target maxed and how long ago; those counters are visible to everyone with roster access and will feed members' success rates. The War List collector now also shares who is on the list, when and why they were added, and your own "My 24hr" counters — and on the War List and Farm List the script now makes no changes at all (no toasts, no styles, no overlays), as the game's rules require. The settings panel now says exactly what the Sab Tracker sends. v2.23.2: Fix — the Sab Tracker vanished on the page the game shows after refusing a sab on a maxed target ("This player has been maxxed…"): that page has no player id in its address, so the tracker, the TIV reading and the sab-cap sharing all quietly gave up — at the one moment the script knew for certain the target was maxed. They now read the target from the page itself. Also fixes the Intelligence-file backfill for the Sab Tracker, which looked for the mission type in the wrong column and so never matched a row; it now finds the column by its header. v2.23.1: Inactive Accounts sync now works while you are logged out — including while you are on vacation and cannot log in — using the login saved from your last visit. On that page, logged out, it is the only thing the script does; every other feature still needs you logged in. Also: a network blip or server restart while renewing your session no longer logs you out of the script. v2.23.0: Inactive Accounts sync — opening the in-game Inactive Accounts page now shares the list with the alliance roster: who went into Vacation Mode and exactly when, and who has been deleted. Anyone who has dropped off the list since the last visit is marked back from vacation. This powers the new Vacation Watch tab on the dashboard, with live countdowns to when each player can return. The script only reads the page you open; the more often members check it, the sooner returns show up. v2.22.0: The War List's "Last Sab" column is now collected too — who last hit each target, for how much, and how long ago — giving the war dashboard a "Last hit" column that shows which targets the alliance is actually working and which nobody has touched, plus a running log of destroyed value for the war. v2.21.2: Fix — TIV readings from the attack page and your Armory were being sent with a timestamp field nothing reads, so they arrived unstamped and skipped the server's "only overwrite if newer" guard, letting an older reading quietly replace a fresher one. v2.21.1: War List collector reads the AAT and Sentry cells from their own DOM nodes instead of the cell's flattened text — those cells hold two numbers separated only by a line break, so any flattening ran "488" and "488,000,000 damage per sab" together into 488 billion. Works on both the Alliance and Single Target lists. v2.21.0: War List collector — opening the War List now records, for every player on it at once, their sentry (stamped with the age the game itself shows, so it never overwrites fresher recon), the weapon the game recommends sabbing them with, and the AAT: how many of that weapon they actually hold plus the gold one full sab would destroy. The war dashboard gets an AAT column and a "Min AAT" filter, so targets who simply do not own enough weapons to be worth organising around can be filtered out in one click. v2.20.1: Fix — race now updates when a player switches race. Race was only ever read from a full recon report, so a race change sat wrong in the roster until somebody spent a recon on that player, even though every visit to their stats page showed the new race in plain sight; the stats-page collector now reads the Information table too (race and rank), and it no longer gives up on players who have no shared recon data. v2.20.0: Sab cap sharing — opening any attack page now records that target's "Total lost from sabbs in the last 24hours" and "Maximum Daily Sabotage loss" to the alliance roster, so the War Room can show how much of every player's daily cap is already gone and how much gold is still worth sabbing, with a share button that copies a Discord-ready line. Also fixes the sab-cap reader: KoC prints the cap with decimals when it isn't a whole number, which the old pattern could not match, so the in-game "sab damage left before maxed" line silently never appeared on those targets. v2.19.1: Fix — a target sabbed flat reads "Total Invested Value: ()" with empty brackets, which the TIV collector could not parse, so the roster kept that player's pre-sab value forever and never stopped asking for a recon that could not land; empty brackets now record as a real 0 (on your own Armory too), while a box the script genuinely cannot read is left alone instead of writing a false zero. v2.19.0: Stat Reshuffler — Goal mode: pick a stat and type a target rating (commas fine, or shorthand like 4.78T) and the calculator shows the gap from your PROJECTED rating — so your sells, race change and re-buys are already counted — plus how many weapons and how much gold on top of the plan would close it, netting off any unspent pool. Warns when your units couldn't hold that many more weapons. The goal is remembered between visits and updates live as you tweak the scenario. v2.18.3: Stat Reshuffler — the launcher moved: it now sits as a full-width banner directly above the "Armory Preferences" header, styled by cloning that header's own theme (background, border, font) so it looks native in any skin; falls back to the old Total Invested Value spot if the header isn't found. v2.18.2: Stat Reshuffler — stale-multiplier warning: a learned weapon multiplier quietly goes wrong after skill/tech upgrades (it only refreshes when you buy), which left phantom rating behind on sell-all scenarios; the reshuffler now compares each learned multiplier against what your live rating implies and flags "⚠ stale multiplier — buy 1 to recalibrate" per stat plus a summary warning, with the multiplier's age shown. v2.18.1: Stat Reshuffler — new "Ignore carrier caps" toggle for when you're happy to train soldiers/covert units as needed: projections then count every weapon as held (including ones currently sitting unheld) and the ⚠ unheld warnings disappear; the choice is remembered. v2.18.0: Stat Reshuffler — a 🔀 button under the Armory's Total Invested Value box opens a full what-if rework calculator: choose weapons (or whole categories) to sell, optionally switch race, and pour the proceeds — plus your on-hand + vault gold if you tick it — into any mix of the eight stats. It projects the gold you'd recover (sales pay 50% and land in your Vault), how many of each weapon you could buy, whether your units can actually carry them (unheld weapons add nothing), your projected new ratings including the race-bonus swing, and your new TIV. Pure calculator — it never sells, buys or presses anything. v2.17.1: Fix — clicking the sidebar Sweet Revenge logo now opens the feature-settings popup (same as the ⚙ Data Centre link) instead of navigating away. Internal cleanup: removed the unused armory sell-value cache (nothing has used it since the v2.11.2 "Upgrade Ready" rework). v2.17.0: Feature Settings — a new "⚙ Data Centre" link in the sidebar opens a settings panel where EVERY feature can be switched on/off individually (or all at once with the master switch), each with a plain-English description of what it does and a badge showing whether it only changes your display or also records data to the alliance roster; toggles apply on the next page load and everything stays ON by default, so nothing changes until you say so. Under the hood the script's ~40 page hooks were rebuilt onto a single feature registry that drives both the dispatcher and the panel, ~600 lines of dead legacy code were removed, and small fixes landed (DST helper deduplicated, script load message now always visible in console, toast animation style no longer re-injected per notification). Also: the sidebar Sweet Revenge logo is now a link to the Data Centre (with a hover glow), and the Top Stats panel's Debug button is gone — debug mode lives in the console via KoCDebug.toggle(). v2.16.0: Sab Tracker learns the exclusivity rule — per target you either regular-sab OR revenge-sab in a 24h window, so the panels now show 🔒 "Regular sabs locked — you revenge-sabbed this target" with an unlock countdown that keeps working after the Revenge section vanishes (target un-maxed — exactly when KoC hides the info), and 🔒 "Revenge locked — you've sabbed this target this window" when the Revenge form is up but unusable; the native "First sab (last 24hrs)" row is age-formatted like the rest and its exact server stamp now anchors the tracker, making the "Can sab again in …" countdown precise instead of an estimate. v2.15.0: Sabotage Tracker on attack.php — "You last sabbed / poisoned / stole" and the revenge timestamps now show colour-coded ages like the stats pages (hover for the raw server time); the Sabotage and Revenge Sabotage sections get a live status line: attempts left in the rolling 24h window with a ticking "Can sab again in …" countdown when you're out of slots (10 sabs / 4 revenge per target per 24h, tracked automatically whenever you fire a sab and backfilled with exact server times when you open the target's Intelligence file), plus a "sab damage left before maxed" line (Maximum Daily Sabotage loss − lost in last 24h) that flips to TARGET MAXED when the cap is hit. Display-only: it records only missions you fire by hand and never presses anything. v2.14.0: Tech Level Projector — the "Stats After Upgrading Tech" table on safe.php gets a "Project to" dropdown: pick ANY future tech level (up to Obi Bon Kenobi) and the table shows your projected stats at that level, with the total ▲% vs now and the cumulative EXP needed across all the upgrades in between. v2.13.1: Rank-neighbour links now blend into the native table — no dot markers or underline, the numbers just quietly became links (hover tooltip still shows who it is, data age, and gap/stale warnings). v2.13.0: Rank-neighbour recon links — the "Rating For Previous/Next Rank Gain" numbers are now hyperlinks to the player we believe holds that rank (matched by rating value from the roster DB, never by stale DB rank), with a tooltip showing who it is + how fresh their data is; an orange dot means a DB gap (recon upward), a red dot means DB rank/rating disagree (recon me first). Click → recon → DB refreshes; wrong candidates rotate out on the next page load, so the links self-correct toward the true neighbour. v2.11.2: Banking Mode redesigned — your exposed gold now shows in a native-style "Estimated Funds" box that matches the in-game funds boxes, with a ⚙ that holds the Banking Mode toggle, screen-awake, and all settings (including an optional "show yellow/red times" line); a live-ticking Server Time clock on every page; and the Upgrades "Upgrade Ready" row now uses realistic funds (drops full-armory-sell) and shows any shortfall as a slay estimate. v2.10.1: Fix — the slider Armory Preferences now also resync when you press KoC's "Clear Percentage Prefills" button (sliders drop to 0 instead of keeping their old values). v2.10.0: New slider-based Armory Preferences — drag to allocate with auto-balancing, theme-matched styling, and one-tap presets (Cheapest first, Optimizer, All spy, All defense) plus saved presets — replacing the in-game percentage form; rank Optimizer also fixed (weapon efficiency now synced). v2.9.0: "Time to upgrade" + "EXP still needed to be deposited" now show on ALL EXP-cost safe.php upgrades (Increase Soldiers, Economic Development, SAFE Upgrade) — not just Technological Development. v2.8.2: Fix — "EXP still needed to be deposited" now shows cost − Experience Bank (what must still be banked) instead of also subtracting on-hand EXP, so it no longer reads 0 when you hold the EXP but haven't deposited it. v2.8.1: Fix — sidebar abbreviates large gold/safe values (e.g. "2,560M"); getSidebarValue now parses K/M/B/T suffixes so SAFE Forecasts and gold-upgrade rows use real balances (previously read as ~0). SAFE Forecasts also uses the full-precision "Gold in Safe" value. v2.8.0: SAFE Forecasts on safe.php — time for your Safe to reach 1B/2B/5B/9B/10B(MAX) based on current Safe + deposit/min. v2.7.0: Gold upgrade timer — upgrades.php now shows "Upgrade Ready" (liquidation + safe-growth time) and "Gold Needed on top of Safe" under each skill upgrade (uses gold/vault/safe + full armory sell value from Armory + safe deposit rate from Safe). v2.6.0: Tech upgrade timer — safe.php now shows "Time to upgrade" + "EXP still needed to be deposited" under Technological Development (uses EXP on-hand + Experience Bank + your EXP/turn rate, auto-captured from the Upgrades page). v2.5.1: Banking Mode last-bank fix — now watches the per-weapon buy form (anotherbuyform), not just the hidden one-click form, and stamps banks reliably for high-income accounts. v2.5.0: 🏦 Banking Mode on the Armory page — toggleable inline widget that projects your exposed (stealable) gold every second, colour-codes the risk (SAFE/CAUTION/DANGER) from your attack-log steal history, shows time-to-yellow/red, and keeps the screen awake. Display-only: no automated requests, observes (never presses) the buy/repair forms. v2.4.0: Banking trend graph (📈 in the sidebar tracks your banked % over time) + manual override for Avg Gold/Atk (✏️ in the sidebar, survives attack-log recalibration). v2.3.4: Recons panel now shares counts alliance-wide via API (previously localStorage-only — each user only saw themselves). v2.3.0: Added "Stats If You Attacked Instead" table on safe.php to compare tech upgrades vs attacking. v2.2.9: Added optimizer auto-fill for armory (uses roster API to calculate optimal stat allocation). v2.2.8: Minor fixes. v2.1.0: Integrated slaying competition tracker (attack missions & gold stolen tracking, team competitions, leaderboards). v2.0.0: Optimized API architecture, previous versions deprecated.
 // @author       Blackheart
 // @match        https://www.kingsofchaos.com/*
 // @exclude      https://*.kingsofchaos.com/confirm.login.php*
@@ -59,7 +59,7 @@
   // ==================== VERSION CHECK ====================
   // Check if this script version is allowed to run
   const SCRIPT_NAME = 'koc-data-centre';
-  const SCRIPT_VERSION = '2.25.0'; // Must match @version above
+  const SCRIPT_VERSION = '2.25.1'; // Must match @version above
   const VERSION_CHECK_API = 'https://koc-roster-api-production.up.railway.app';
 
   async function checkScriptVersion() {
@@ -2531,84 +2531,242 @@
 
   // ==================== ATTACK LOG COLLECTOR ====================
 
-  async function collectAttackLog() {
+  /**
+   * The defender on a battle report (detail.php?attack_id=): the first player
+   * link on the page that is not the member's own. The report links them in
+   * its "You stole … camp" line and in the battle text ("<name>'s forces
+   * counter-attack"). Shared by collectAttackLog and the mission history, so
+   * both file the battle against the same player. null when there is none.
+   */
+  function battleReportTargetId(myId) {
+    for (const link of document.querySelectorAll('a[href*="stats.php?id="]')) {
+      try {
+        const id = new URL(link.href, location.origin).searchParams.get('id');
+        if (id && /^\d+$/.test(id) && id !== myId) return id;
+      } catch (error) {
+        // Skip invalid links
+      }
+    }
+    return null;
+  }
+
+  /**
+   * The first line of a WON battle report, matched as [line, gold, the
+   * defender's name], or null. An attack and a raid word it differently:
+   * "You stole N gold while attacking <name>'s camp and made off with H
+   * hostages (…)" / "… while raiding <name>'s camp …" (seen live 18 Sep
+   * 2026). Takes the report's own lines (battleReportLines), and only a line
+   * that STARTS with those words counts: the defender's own message sits
+   * above the report ("b00000n said …") and can name any camp it likes.
+   *
+   * A message broken over lines could still start one with those very
+   * words, so the line must also agree with the battle text below it, which
+   * no player writes into: a battle that ends "<name>'s forces overpowered
+   * your army!" was lost and stole nothing; the name must be the one in
+   * "<name>'s forces counter-attack"; and when the spoils line "You stole N
+   * gold from <name>'s" is there, the line with that same N is the one. Any
+   * of those missing (a wording the game changed) is simply not checked.
+   */
+  function battleReportStoleLine(lines) {
+    const list = (lines || []).filter((l) => typeof l === 'string');
+    const first = (re) => list.map((l) => l.match(re)).find(Boolean) || null;
+    if (first(/^\s*\S+?'s forces overpowered your army\b/i)) return null;
+    const named = first(/^\s*(\S+?)'s forces counter-attack\b/i);
+    const spoils = first(/^\s*You stole ([\d,]+) gold from\b/i);
+    const found = list.map((l) => l.match(/^\s*You stole ([\d,]+) gold while (?:attacking|raiding) (.+?)'s camp/i))
+      .filter((m) => m && (!named || m[2].trim().toLowerCase() === named[1].toLowerCase()));
+    return (spoils && found.find((m) => m[1] === spoils[1])) || found[0] || null;
+  }
+
+  /**
+   * Whether a battle report's lines hold the WHOLE battle yet. Its own
+   * closing lines come last: a loss's "<name>'s forces overpowered your
+   * army!", or a win's spoils line "You stole N gold from <name>'s" with the
+   * first line's N. A read that has them has everything above them too. A
+   * win's first line (and so its outcome) is drawn BEFORE the battle, so
+   * having the outcome is not enough. A win worded any other way is never
+   * taken as whole. Shared by collectAttackLog and the mission history, so
+   * both wait for the same thing — the server keeps the first copy of a
+   * report's text it gets, so a half-drawn one would stick.
+   */
+  function battleReportWhole(lines) {
+    const list = (lines || []).filter((l) => typeof l === 'string');
+    if (list.some((l) => /^\s*\S+?'s forces overpowered your army\b/i.test(l))) return true;
+    const stole = battleReportStoleLine(list);
+    const spoils = list.map((l) => l.match(/^\s*You stole ([\d,]+) gold from\b/i)).find(Boolean);
+    return !!stole && !!spoils && spoils[1] === stole[1];
+  }
+
+  /**
+   * The defender's name from a battle report's own lines, or null. A win
+   * names them in its first line (battleReportStoleLine). A lost battle has
+   * no such line, but its battle text has a line that starts "<name>'s
+   * forces counter-attack …" and, at the end, "<name>'s forces overpowered
+   * your army!". Held to the start of a line, with no space in the name, so
+   * a defender's message ("b00000n said Trevor's forces overpowered your
+   * army lol") can never be the one read. A string is taken as its lines.
+   */
+  function battleReportTargetName(lines) {
+    const list = Array.isArray(lines) ? lines : String(lines || '').split('\n');
+    const stole = battleReportStoleLine(list);
+    if (stole && stole[2].trim()) return stole[2].trim();
+    for (const l of list) {
+      const m = typeof l === 'string' ? l.match(/^\s*(\S+?)'s forces (?:counter-attack|overpowered your army)\b/i) : null;
+      if (m) return m[1];
+    }
+    return null;
+  }
+
+  /**
+   * Whether a battle report (detail.php?attack_id=) is the member's OWN
+   * attack or raid, told from the attacker's side. Both sides of a battle
+   * get a report, and both open with "Your soldiers march onto the
+   * battlefield" — that line says nothing about whose attack it was. What
+   * does (the defender's side seen live 18 Sep 2026: DarkDestiny's attack on
+   * Trevor, attack_id 1002196):
+   *   attacker's side only — a "… Again!" button (battleReportAgainButton);
+   *     "N of your soldiers are trained attack specialists"; "<name>'s
+   *     forces counter-attack and inflict …"; "You stole N gold while
+   *     attacking / raiding <name>'s camp …"
+   *   defender's side only — "N of your soldiers are trained defense
+   *     specialists"; "<name>'s forces attack and inflict …"; on a lost
+   *     defence, a first line "<name> took ya N gold while attacking you and
+   *     ran off with …"
+   * Ours = at least one attacker mark and no defender mark. A report with
+   * neither (a wording the game has changed, a page not fully drawn yet) is
+   * not ours to record. Every mark is held to the start of a line of the
+   * report's own lines (battleReportLines), so a message a player wrote
+   * above the report cannot pass for one. The "took ya" line is among those
+   * lines only when the battle itself has that player attacking the member
+   * (battleReportLines), so on a page it never vetoes alone: a message line
+   * starting "<word> took ya" over the member's own lost raid is not one of
+   * the report's lines, and the raid is still recorded. Shared by
+   * collectAttackLog and the mission history: an enemy's hit on the member,
+   * filed as the member's own attack, stays wrong for good (the server keeps
+   * the first attacker it is told) — until v2.25.1 collectAttackLog did
+   * exactly that.
+   */
+  function battleReportIsOwnAttack(lines) {
+    const list = (lines || []).filter((l) => typeof l === 'string').map((l) => l.trim());
+    const has = (re) => list.some((l) => re.test(l));
+    // "you" as the one attacked, not the start of a name ("… attacking you-2's camp")
+    const defender = has(/^[\d,]+ of your soldiers are trained defense specialists\b/i) ||
+      has(/^\S+?'s forces attack and inflict\b/i) ||
+      has(/^\S+ took ya\b/i) ||
+      has(/^(?:\S+ ){1,3}[\d,]+ gold while (?:attacking|raiding) you\b(?!\S*'s camp)/i);
+    if (defender) return false;
+    return !!battleReportAgainButton() ||
+      has(/^[\d,]+ of your soldiers are trained attack specialists\b/i) ||
+      has(/^\S+?'s forces counter-attack and inflict\b/i) ||
+      !!battleReportStoleLine(list);
+  }
+
+  /**
+   * detail.php?attack_id= — the member's own attack or raid, as one
+   * attack_logs row (POST battlefield/attack-log). Read twice per page view:
+   * at once, and ATTACK_LOG_DELAY_MS later in case the report was not all
+   * on the page yet. Resolves true when this read sent the WHOLE report and
+   * the server took it ({ ok: true }); false otherwise.
+   *
+   * after: the first read's promise, on the delayed read. When it resolves
+   * true there is nothing to add and nothing is sent — until v2.25.1 every
+   * report view posted the same row twice. A first read that found only part
+   * of the report, or whose post failed, leaves the delayed read to send as
+   * before (the server fills a repeat's missing fields and takes the late
+   * gold).
+   */
+  async function collectAttackLog({ after = null } = {}) {
     debugLog("📊 Attack log collector triggered");
+
+    if (after && await Promise.resolve(after).catch(() => false)) {
+      debugLog("📊 Attack log: the first read sent the whole report — not sent again");
+      return true;
+    }
 
     // Extract attack ID from URL
     const urlParams = new URLSearchParams(location.search);
     const attackId = urlParams.get('attack_id');
     if (!attackId) {
       debugLog("⚠️ No attack_id found in URL");
-      return;
+      return false;
     }
 
-    const bodyText = document.body.textContent || '';
+    // Everything is read from the report's own lines (battleReportLines, the
+    // same reader the mission history uses), never from the whole page: the
+    // defender's message above the report ("b00000n said …") is on the page
+    // too, and used to be able to supply the target's name.
+    const lines = battleReportLines();
+    if (!lines.length) {
+      debugLog("⚠️ No battle report on this page (yet)");
+      return false;
+    }
+    // Both sides of a battle get a report. Until v2.25.1 one of another
+    // player's attacks on the member was filed here as the MEMBER's attack
+    // on them (target the real attacker, 'Unknown', 0 gold).
+    if (!battleReportIsOwnAttack(lines)) {
+      debugLog("📊 Attack log: not a report of your own attack or raid (another player's attack on you, or not drawn yet) — not sent");
+      return false;
+    }
+    const reportText = lines.join('\n');
     const myId = SafeStorage.get("KoC_MyId", null);
 
-    // Extract gold stolen
-    const goldMatch = bodyText.match(/you\s+stole\s+([\d,\.]+)\s*gold\s+while\s+attacking/i);
-    const goldStolen = goldMatch ? parseInt(goldMatch[1].replace(/,/g, ''), 10) : 0;
+    // Gold, target and hostages are on a win's first line: "You stole N gold
+    // while attacking <name>'s camp and made off with H hostages (Attack: …)".
+    // A raid reads "while RAIDING" — until v2.25.1 only "while attacking"
+    // matched, so every raid was stored with 0 gold stolen and target
+    // 'Unknown'. A lost battle has no such line: 0 stolen is then the truth,
+    // and the name comes from its battle text (battleReportTargetName).
+    const stole = battleReportStoleLine(lines);
+    const stoleLine = stole ? stole.input : '';
+    const goldStolen = stole ? parseInt(stole[1].replace(/,/g, ''), 10) : 0;
+    const targetName = battleReportTargetName(lines) || 'Unknown';
 
-    // Extract target name
-    const targetMatch = bodyText.match(/attacking\s+([^']+)'s\s+camp/i);
-    const targetName = targetMatch ? targetMatch[1].trim() : 'Unknown';
-
-    // Extract hostages
-    const hostagesMatch = bodyText.match(/made\s+off\s+with\s+([\d,]+)\s+hostages/i);
+    const hostagesMatch = stoleLine.match(/made\s+off\s+with\s+([\d,]+)\s+hostages/i);
     const hostages = hostagesMatch ? parseInt(hostagesMatch[1].replace(/,/g, ''), 10) : 0;
 
-    // Extract casualties
-    const casualtiesMatch = bodyText.match(/\(Attack:\s*(\d+),\s*Defense:\s*(\d+),\s*Untrained:\s*(\d+),\s*Spies:\s*(\d+),\s*Sentries:\s*(\d+)\)/i);
+    // The hostages by unit type, same line. Thousands separators allowed: a
+    // big hit takes more than 999 of one kind, and "1,203" used to void the
+    // whole split.
+    const casualtiesMatch = stoleLine.match(/\(Attack:\s*([\d,]+),\s*Defense:\s*([\d,]+),\s*Untrained:\s*([\d,]+),\s*Spies:\s*([\d,]+),\s*Sentries:\s*([\d,]+)\)/i);
+    const count = (s) => parseInt(String(s).replace(/,/g, ''), 10) || 0;
     const casualties = casualtiesMatch ? {
-      attack: parseInt(casualtiesMatch[1]) || 0,
-      defense: parseInt(casualtiesMatch[2]) || 0,
-      untrained: parseInt(casualtiesMatch[3]) || 0,
-      spies: parseInt(casualtiesMatch[4]) || 0,
-      sentries: parseInt(casualtiesMatch[5]) || 0
+      attack: count(casualtiesMatch[1]),
+      defense: count(casualtiesMatch[2]),
+      untrained: count(casualtiesMatch[3]),
+      spies: count(casualtiesMatch[4]),
+      sentries: count(casualtiesMatch[5])
     } : null;
 
     // Extract your army stats
-    const yourTrainedMatch = bodyText.match(/([\d,]+)\s+of your soldiers are trained attack specialists/i);
-    const yourUntrainedMatch = bodyText.match(/([\d,]+)\s+of your army consists of untrained soldiers/i);
+    const yourTrainedMatch = reportText.match(/([\d,]+)\s+of your soldiers are trained attack specialists/i);
+    const yourUntrainedMatch = reportText.match(/([\d,]+)\s+of your army consists of untrained soldiers/i);
     const yourArmy = {
       trained: yourTrainedMatch ? parseInt(yourTrainedMatch[1].replace(/,/g, ''), 10) : null,
       untrained: yourUntrainedMatch ? parseInt(yourUntrainedMatch[1].replace(/,/g, ''), 10) : null
     };
 
     // Extract enemy army stats
-    const enemyTrainedMatch = bodyText.match(/enemy has\s+([\d,]+)\s+trained soldiers with weapons/i);
-    const enemyUntrainedMatch = bodyText.match(/enemy's\s+([\d,]+)\s+untrained soldiers/i);
+    const enemyTrainedMatch = reportText.match(/enemy has\s+([\d,]+)\s+trained soldiers with weapons/i);
+    const enemyUntrainedMatch = reportText.match(/enemy's\s+([\d,]+)\s+untrained soldiers/i);
     const enemyArmy = {
       trained: enemyTrainedMatch ? parseInt(enemyTrainedMatch[1].replace(/,/g, ''), 10) : null,
       untrained: enemyUntrainedMatch ? parseInt(enemyUntrainedMatch[1].replace(/,/g, ''), 10) : null
     };
 
     // Extract damage dealt
-    const damageMatch = bodyText.match(/inflict\s+([\d,]+)\s+damage/i);
+    const damageMatch = reportText.match(/inflict\s+([\d,]+)\s+damage/i);
     const damageDealt = damageMatch ? parseInt(damageMatch[1].replace(/,/g, ''), 10) : 0;
 
     // Extract enemy casualties
-    const enemyCasualtiesMatch = bodyText.match(/enemy sustains\s+([\d,]+)\s+casualties/i);
+    const enemyCasualtiesMatch = reportText.match(/enemy sustains\s+([\d,]+)\s+casualties/i);
     const enemyCasualties = enemyCasualtiesMatch ? parseInt(enemyCasualtiesMatch[1].replace(/,/g, ''), 10) : 0;
 
     // Find target ID
-    let targetId = null;
-    const allStatsLinks = document.querySelectorAll('a[href*="stats.php?id="]');
-    for (const link of allStatsLinks) {
-      try {
-        const id = new URL(link.href, location.origin).searchParams.get('id');
-        if (id && /^\d+$/.test(id) && id !== myId) {
-          targetId = id;
-          break;
-        }
-      } catch (error) {
-        // Skip invalid links
-      }
-    }
+    const targetId = battleReportTargetId(myId);
 
     if (!targetId) {
       debugLog("⚠️ Could not find target ID");
-      return;
+      return false;
     }
 
     // Build attack log payload
@@ -2628,8 +2786,14 @@
 
     debugLog("📊 Attack log collected:", attackLog);
 
+    // Only a read of the whole report (battleReportWhole) stops the delayed
+    // read; a win worded any other way is never taken as whole, so the
+    // delayed read posts it again, as it always did.
+    const whole = battleReportWhole(lines);
+
     // Send to API
-    await auth.apiCall("battlefield/attack-log", attackLog);
+    const res = await auth.apiCall("battlefield/attack-log", attackLog);
+    return whole && !!(res && res.ok);
   }
 
   // ==================== MILITARY STATS PARSER ====================
@@ -9450,7 +9614,7 @@
 
   // ==================== MISSION HISTORY (mission-log) ====================
   //
-  // Five game pages list missions with their results, and a sixth describes
+  // Five game pages list missions with their results, and two more describe
   // one mission in full:
   //   intelfile.php  — YOUR recon and sab missions on one target (Success /
   //                    Aborted, each linked to its report)
@@ -9462,6 +9626,9 @@
   //   attacklog.php  — attacks against you and by you, with gold and losses
   //   inteldetail.php — any sab report you open (the one you just ran, or an
   //                    old one reached from the intel file)
+  //   detail.php     — the battle report of an attack or raid YOU made (the
+  //                    one you land on, or an old one opened from the Attack
+  //                    Log); reports of other players hitting you are skipped
   // Together they are every member's mission record: what each of us tried,
   // what worked, and who has been working on us. The War Room turns it into
   // success rates per member and per mission type.
@@ -10061,27 +10228,21 @@
   }
 
   /**
-   * The text lines of a sab report (inteldetail.php) — the report and
-   * nothing else. On the live page the "Covert Mission Report" table holds
-   * only its title and closes at once; the report sentences sit loose in the
-   * page's own content cell, after the Attack / Raid / Recon button tables,
-   * split by <p>, and are followed by the "Return to Top" table and the
-   * footer. That content cell also holds the era notice, the footer links
-   * and the copyright lines, so it cannot simply be read whole.
+   * The whole page as it reads on screen, in order, one entry per line (<br>
+   * and block edges end a line; a link inside a sentence stays part of it),
+   * with null wherever a table starts or ends. The report pages below find
+   * their report in this by its wording and end it at a table edge.
    *
-   * So the page is read in order, one entry per line as it shows on screen
-   * (<br> and block edges end a line; a link inside a sentence stays part of
-   * it), with a marker wherever a table starts or ends. The report is the
-   * line with "attempt to sabotage" (the dispatch line) and every line after
-   * it up to the first table edge — the "Return to Top" table on the live
-   * page, or the end of the table cell when a report sits inside one.
-   * Nothing before the dispatch line is part of it. The walk starts at the
-   * document root, not document.body: the live page opens an <a name="top">
-   * before its <body> tag, which some parsers answer with a second, empty
-   * body element.
+   * Report pages cannot simply be read by one element: on the live pages the
+   * report's title table holds only its title and closes at once, and the
+   * report sentences sit loose in the page's own content cell (sab reports)
+   * or in a table of their own after the button tables (battle reports) —
+   * next to the era notice, the footer links and the copyright lines. The
+   * walk starts at the document root, not document.body: the live pages open
+   * an <a name="top"> before their <body> tag, which some parsers answer
+   * with a second, empty body element.
    */
-  function sabReportLines() {
-    const EDGE = {};
+  function missionPageLines() {
     const out = [];
     let cur = '';
     const endLine = () => { const l = cur.replace(/\s+/g, ' ').trim(); if (l) out.push(l); cur = ''; };
@@ -10095,19 +10256,35 @@
       const table = tag === 'TABLE';
       const block = table || BLOCK.test(tag);
       if (block) endLine();
-      if (table) out.push(EDGE);
+      if (table) out.push(null);
       for (const child of node.childNodes) walk(child);
       if (block) endLine();
-      if (table) out.push(EDGE);
+      if (table) out.push(null);
     };
     walk(document.documentElement);
     endLine();
+    return out;
+  }
 
-    const start = out.findIndex((l) => l !== EDGE && /attempt to sabotage/i.test(l));
+  /**
+   * The text lines of a sab report (inteldetail.php) — the report and
+   * nothing else. On the live page the "Covert Mission Report" table holds
+   * only its title and closes at once; the report sentences sit loose in the
+   * page's own content cell, after the Attack / Raid / Recon button tables,
+   * split by <p>, and are followed by the "Return to Top" table and the
+   * footer. So the report is the line with "attempt to sabotage" (the
+   * dispatch line) and every line after it up to the first table edge — the
+   * "Return to Top" table on the live page, or the end of the table cell
+   * when a report sits inside one. Nothing before the dispatch line is part
+   * of it.
+   */
+  function sabReportLines() {
+    const out = missionPageLines();
+    const start = out.findIndex((l) => l !== null && /attempt to sabotage/i.test(l));
     if (start < 0) return [];
     const lines = [];
     for (const l of out.slice(start)) {
-      if (l === EDGE) break;
+      if (l === null) break;
       lines.push(l);
     }
     return lines.slice(0, 60).map((l) => l.slice(0, 500));
@@ -10146,9 +10323,213 @@
     };
   }
 
-  /** Which mission page this is, from the address; null on every other page. */
+  /**
+   * The text lines of a battle report (detail.php) — [] when the page holds
+   * none. The live page (saved Dec 2025, seen again 18 Sep 2026): a first
+   * table holds, on a win, "You stole N gold while raiding <name>'s camp and
+   * made off with H hostages (…)." over a "Battle Report" title (a lost
+   * battle shows no such line; the defender's own message may sit there
+   * instead); then the Attack / Raid / Recon and Sabotage / Poison / Steal
+   * button tables; then the battle itself in one table cell, from "Your
+   * soldiers march onto the battlefield" to the outcome ("You trounced the
+   * enemy!" … / "<name>'s forces overpowered your army!"); then an empty
+   * table and the footer.
+   *
+   * "Your soldiers march onto the battlefield" is how the battle is FOUND,
+   * nothing more: the report of someone attacking the member opens with the
+   * same words ("<name> took ya N gold while attacking you …" above the
+   * title instead). Whose attack it was is battleReportIsOwnAttack's call,
+   * made on these lines. The battle is the LAST line that IS that sentence
+   * (it starts the line): a defender's message sits in the title's table,
+   * above the buttons and the battle, and may quote the sentence — even as a
+   * line of its own. Found by the first mention, a message like that became
+   * "the battle": the member's own report then showed no marks and nothing
+   * was recorded, or the message went to the server as report lines.
+   *
+   * The lines are the report's own, and nothing a player wrote: its first
+   * line, the title, then the battle up to the first table edge after it
+   * (the end of the battle's own cell, or the next table when the text sits
+   * loose in the page). The first line is looked for in the title's own
+   * table (everywhere above the battle if there is no title): the "You
+   * stole N gold while … <name>'s camp" line that agrees with the battle
+   * (battleReportStoleLine), else a "<name> took ya …" line whose <name>
+   * the battle names as the one who attacked ("<name>'s forces attack and
+   * inflict …") — each only at the very start of a line — else there is
+   * none. A defender's message in that table is left out, even one that
+   * starts with the game's words: a message line "nuke took ya 5 gold …"
+   * over the member's own lost raid is not the report's first line, because
+   * that battle has nuke counter-attacking, not attacking.
+   * At most 80 lines.
+   */
+  function battleReportLines() {
+    const out = missionPageLines();
+    let march = -1;
+    for (let i = out.length - 1; i >= 0 && march < 0; i--) {
+      if (out[i] !== null && /^your soldiers march onto the battlefield\b/i.test(out[i])) march = i;
+    }
+    if (march < 0) return [];
+    const battle = [];
+    for (const l of out.slice(march)) {
+      if (l === null) break;
+      battle.push(l);
+    }
+    let title = march - 1;
+    while (title >= 0 && !(out[title] !== null && /^battle\s+report$/i.test(out[title]))) title--;
+    let top = title;
+    while (top > 0 && out[top - 1] !== null) top--;
+    const above = (title >= 0 ? out.slice(top, title) : out.slice(0, march)).filter((l) => l !== null);
+    const stole = battleReportStoleLine([
+      ...above.filter((l) => /^You stole [\d,]+ gold while (?:attacking|raiding) .+?'s camp/i.test(l)), ...battle]);
+    const hitBy = battle.map((l) => l.match(/^(\S+?)'s forces attack and inflict\b/i)).find(Boolean);
+    const tookYa = (l) => {
+      const m = l.match(/^(\S+) took ya\b/i);
+      return !!m && !!hitBy && m[1].toLowerCase() === hitBy[1].toLowerCase();
+    };
+    const first = stole ? stole.input : above.find(tookYa);
+    const lines = [...(first ? [first] : []), ...(title >= 0 ? [out[title]] : []), ...battle];
+    return lines.slice(0, 80).map((l) => l.slice(0, 500));
+  }
+
+  /**
+   * The label of the button the game renamed for the mission just fought —
+   * "Raid Again!" / "Attack Again!" in the battle report's button row (seen
+   * live 18 Sep 2026) — or null. As printed (the value attribute), not as a
+   * click may have relabelled it since.
+   */
+  function battleReportAgainButton() {
+    for (const el of document.querySelectorAll('input[type="submit"], input[type="button"], button')) {
+      const label = String((el.tagName === 'BUTTON' ? el.textContent : el.getAttribute('value')) || '').replace(/\s+/g, ' ').trim();
+      if (/again!?$/i.test(label)) return label;
+    }
+    return null;
+  }
+
+  /**
+   * Whether this battle report is the battle just fought — the page the game
+   * put the member on when they launched it — so the page's Server Time is
+   * the battle's time. Both ways in are a fresh page load (Navigation Timing
+   * type 'navigate'):
+   *   - from attack.php: its Attack / Raid buttons post to attack.php, which
+   *     answers with this report (document.referrer = attack.php);
+   *   - from the previous battle report: its "Raid Again!" / "Attack Again!"
+   *     (or plain Attack! / Raid!) buttons post to attack.php too, so a chain
+   *     of hits lands each new report with the LAST report as its referrer —
+   *     detail.php with a different attack_id.
+   * A reload or a Back / Forward visit keeps the old referrer but is no new
+   * battle (the Server Time is then the revisit's); the same attack_id is
+   * the same battle; a report opened from the Attack Log is an old one. All
+   * false — as is a browser that does not say how the page was reached.
+   *
+   * One exception for the same attack_id, not yet seen live: the game's
+   * report addresses carry "suspense" (the Attack Log links &suspense=0). If
+   * landing goes through a suspense view of the battle first and then on to
+   * the plain report of that same battle, the referrer is the same report
+   * with a non-zero suspense and this page's differs — still the landing,
+   * seconds after the battle. (Taken on trust: the Attack Log's links say
+   * suspense=0, so a suspense view is assumed to be the landing's own.)
+   * Every report reached logs how (debug mode), so one live landing shows
+   * which way the game really goes.
+   */
+  function battleReportJustFought(reportId) {
+    let type = null;
+    try {
+      const nav = performance.getEntriesByType('navigation')[0];
+      type = nav && typeof nav.type === 'string' ? nav.type : null;
+    } catch (e) {
+      type = null;
+    }
+    const ref = String(document.referrer || '');
+    debugLog('📜 Mission log: battle report reached', { page: `${location.pathname || ''}${location.search || ''}`, referrer: ref, navigation: type });
+    if (type !== 'navigate') return false;
+    if (/\/attack\.php(?:[?#]|$)/i.test(ref)) return true;
+    const prev = ref.match(/\/detail\.php\?(?:[^#]*&)?attack_id=(\d+)/i);
+    if (!prev) return false;
+    if (prev[1] !== String(reportId)) return true;
+    const suspense = (q) => (String(q || '').match(/[?&]suspense=([^&#]*)/i) || [])[1];
+    const was = suspense(ref);
+    return was !== undefined && was !== '' && was !== '0' && was !== suspense(location.search);
+  }
+
+  /**
+   * detail.php?attack_id=A — the battle report of an attack or raid the
+   * member made (battleReportIsOwnAttack decides; a report of another
+   * player's attack on the member, or anything else, sends nothing).
+   *
+   * Only a WON raid says "raid" in its text ("… while raiding <name>'s
+   * camp"); a lost raid and a lost attack read the same. The page's button
+   * row does say: the game relabels the button for the mission just fought
+   * "Raid Again!" / "Attack Again!" — but not always (a Dec 2025 save shows
+   * plain "Attack!" / "Raid!"). So each field is what the page states, or
+   * null — never a guess:
+   *   missionText — the "… Again!" button's label; else the "while raiding"
+   *                 / "while attacking" phrase of the "You stole" line; else
+   *                 null (the Attack Log row with the same attack id names
+   *                 the mission; the server keeps whichever it gets).
+   *   resultText  — the "You stole N gold while … <name>'s camp …" line (a
+   *                 win), else the "<name>'s forces overpowered your army!"
+   *                 sentence (a loss), else null — each only at the start of
+   *                 a line, so a defender's message cannot supply it. As
+   *                 printed; the server interprets.
+   *   at          — the report has no timestamp of its own. Landed on
+   *                 straight after launching the battle, from attack.php or
+   *                 from the previous report's "… Again!" button
+   *                 (battleReportJustFought), this page IS the battle just
+   *                 fought, and the page's Server Time is its time. Opened
+   *                 any other way —
+   *                 later, from the Attack Log, or by a reload — that clock
+   *                 would date it by the re-read, so null: the Attack Log row
+   *                 with the same attack id has the time.
+   *   targetId    — the player collectAttackLog files the battle against.
+   * A report whose battle text links the member's OWN stats page shows the
+   * member as the defender, whatever its wording, and is skipped too: the
+   * server keeps the first attacker it is told, so one misread report would
+   * file an enemy's hit on us as our own attack for good.
+   */
+  function parseBattleReportPage() {
+    const reportId = (location.search.match(/[?&]attack_id=(\d+)/) || [])[1] || null;
+    if (!reportId) return null;
+    const lines = battleReportLines();
+    if (!lines.length) return null;
+    if (!battleReportIsOwnAttack(lines)) {
+      debugLog('📜 Mission log: not a report of your own attack or raid (another player\'s attack on you, or not drawn yet) — not recorded');
+      return null;
+    }
+
+    const myId = SafeStorage.get('KoC_MyId', null);
+    const marchCells = [...document.querySelectorAll('td')]
+      .filter((c) => /your soldiers march onto the battlefield/i.test(c.textContent || ''));
+    const battleCell = marchCells[marchCells.length - 1];   // the innermost: a nested cell comes after the cells around it
+    const namesMe = !!(myId && battleCell) && [...battleCell.querySelectorAll('a[href*="stats.php?id="]')]
+      .some((a) => ((a.getAttribute('href') || '').match(/[?&]id=(\d+)/) || [])[1] === String(myId));
+    if (namesMe) {
+      debugLog('📜 Mission log: this battle report has you as the defender — not recorded as your attack');
+      return null;
+    }
+
+    const stole = battleReportStoleLine(lines);
+    const phrase = stole ? (stole[0].match(/\bwhile\s+(?:raiding|attacking)\b/i) || [])[0] || null : null;
+    const lost = lines.map((l) => l.match(/^\s*\S+?'s forces overpowered your army\b!?/i)).find(Boolean);
+    return {
+      source: 'report',
+      family: 'battle',
+      reportId,
+      targetId: battleReportTargetId(myId),
+      targetName: battleReportTargetName(lines),
+      missionText: battleReportAgainButton() || phrase,
+      resultText: stole ? stole.input.trim() : (lost ? lost[0].trim() : null),
+      at: battleReportJustFought(reportId) ? getKoCServerTimeUTC() : null,
+      lines
+    };
+  }
+
+  /**
+   * Which mission page this is, from the address; null on every other page.
+   * 'battle' is a battle report (detail.php — only with an attack_id, the
+   * same guard collectAttackLog uses); 'report' is the sab report page.
+   */
   function missionLogSource() {
     const page = (location.pathname.split('/').pop() || '').toLowerCase();
+    if (page === 'detail.php') return /[?&]attack_id=\d/.test(location.search) ? 'battle' : null;
     return ({
       'intelfile.php': 'intelfile',
       'poisonlog.php': 'poisonlog',
@@ -10184,16 +10565,34 @@
       return rows.length ? { source, rows: cap(rows) } : null;
     }
     if (source === 'report') return parseSabReportPage();
+    if (source === 'battle') return parseBattleReportPage();
     return null;
   }
+
+  // Set once this page view's COMPLETE request has gone out. A battle report
+  // is read twice (at once, and again ATTACK_LOG_DELAY_MS later, like
+  // collectAttackLog, in case its text was not there yet). Only a read of
+  // the WHOLE battle (battleReportWhole — the same test collectAttackLog
+  // uses; a won report's outcome is its first line, drawn before the
+  // battle, so the outcome alone is not enough) sets it: an earlier read
+  // must not stop the later one from sending the whole report. Every other
+  // page is read once, complete as it stands.
+  let missionLogSent = false;
 
   /**
    * One request per page view, fire-and-forget: nothing on the page waits on
    * it or changes because of it, and a failure is only ever a debug line.
    * The server dedupes (by report id where the page links one), so a reload
    * or the same mission seen from both sides never counts twice.
+   *
+   * readAgain: another read of this page follows (the battle report's first
+   * read). A battle report not yet drawn to its closing lines is then held
+   * back for that read rather than sent half-drawn — the server keeps the
+   * first copy's text of a report and would not take the whole one after
+   * it. The last read sends what it finds.
    */
-  function sendMissionLog() {
+  function sendMissionLog({ readAgain = false } = {}) {
+    if (missionLogSent) return null;
     let body = null;
     try {
       const source = missionLogSource();
@@ -10203,6 +10602,12 @@
       return null;
     }
     if (!body) { debugLog('📜 Mission log: nothing to record on this page'); return null; }
+    const complete = body.family !== 'battle' || (!!body.resultText && battleReportWhole(body.lines));
+    if (!complete && readAgain) {
+      debugLog('📜 Mission log: battle report not all drawn yet — left for the next read');
+      return null;
+    }
+    if (complete) missionLogSent = true;
     return Promise.resolve()
       .then(() => auth.apiCall('api/war-room/missions', body))
       .then((res) => debugLog(`📜 Mission log (${body.source}): ${body.rows ? body.rows.length + ' rows' : 'report ' + body.reportId} sent`, res))
@@ -10837,7 +11242,7 @@
     {
       id: 'attack-collectors', group: 'Attack & Intel', kind: 'sync',
       name: 'Attack data capture',
-      desc: 'Records TIV sightings from attack pages and your battle reports — gold stolen, hostages, casualties on both sides, and the trained/untrained soldier counts the report shows for you and the target — into the alliance database. This powers everyone\'s target intel.'
+      desc: 'Records TIV sightings from attack pages and your battle reports (attacks and raids) — gold stolen, hostages, casualties on both sides, and the trained/untrained soldier counts the report shows for you and the target — into the alliance database. This powers everyone\'s target intel. Battle reports of other players attacking you are not recorded.'
     },
     {
       id: 'attack-warnings', group: 'Attack & Intel', kind: 'display',
@@ -10854,7 +11259,7 @@
     {
       id: 'mission-log', group: 'Attack & Intel', kind: 'sync',
       name: 'Mission history',
-      desc: 'When you open your Intelligence page, a target\'s Intelligence file, the Poison Log, the Theft Log or the Attack Log, records the missions listed on that page to the alliance roster: your own sab, recon, poison, theft, attack and raid missions with their results (success, aborted, failed, defended — and what was stolen or destroyed), and the missions other players ran against you: who, when, what kind, how many spies, and what they took. Stored with them: the unit losses from the Poison Log; the casualties on both sides, the damage both ways and the hostages from the Attack Log; and the attacker\'s alliance and how many of their spies were caught from the Intelligence page. Any sab report you open is recorded too — not only one you just ran — with the report\'s full text: weapons destroyed, spies and sentries executed, and the gold and XP gained. The War Room turns this into success rates per member and per mission type.',
+      desc: 'When you open your Intelligence page, a target\'s Intelligence file, the Poison Log, the Theft Log or the Attack Log, records the missions listed on that page to the alliance roster: your own sab, recon, poison, theft, attack and raid missions with their results (success, aborted, failed, defended — and what was stolen or destroyed), and the missions other players ran against you: who, when, what kind, how many spies, and what they took. Stored with them: the unit losses from the Poison Log; the casualties on both sides, the damage both ways and the hostages from the Attack Log; and the attacker\'s alliance and how many of their spies were caught from the Intelligence page. Any sab report you open is recorded too — not only one you just ran — with the report\'s full text: weapons destroyed, spies and sentries executed, and the gold and XP gained. So are the battle reports of your own attacks and raids — the report you land on after an attack or raid (stamped with that moment), or one of yours you open later from the Attack Log: who you hit, whether it was an attack or a raid, the gold you stole or the defeat, and the report\'s full text. Battle reports of other players attacking you are not recorded; those attacks come from the Attack Log. The War Room turns this into success rates per member and per mission type.',
       note: 'Your success rates, and every mission behind them, are visible to everyone with roster access — as are the missions run against you. Rates are per member and per mission type, never per target. Only the page you open is read: the script never turns a page, opens a report or fetches anything, and these pages are left exactly as the game drew them.'
     },
     {
@@ -11299,15 +11704,26 @@
     // Intel file (per-target mission log) backfills the Sab Tracker with exact server times
     { f: 'sab-tracker', label: 'collectFromIntelFilePage', when: () => onPage("intelfile.php"), run: () => collectFromIntelFilePage() },
     // Mission history: the intel file, Intelligence, Poison / Theft / Attack
-    // Log and sab-report pages, each read as the member opened it and sent as
-    // ONE request. After every other step on those pages (the Sab Tracker's
-    // intel-file read, Banking Mode's attack-log read, the recon collector on
-    // inteldetail) and not awaited: nothing waits on it.
-    { f: 'mission-log', label: 'sendMissionLog', when: () => missionLogSource() !== null, run: () => { sendMissionLog(); } },
-    // detail.php also substring-matches inteldetail.php — the attack_id guard is what keeps this attack-only
+    // Log, sab-report and battle-report pages, each read as the member opened
+    // it and sent as ONE request. After every other step on those pages (the
+    // Sab Tracker's intel-file read, Banking Mode's attack-log read, the recon
+    // collector on inteldetail) and not awaited: nothing waits on it. A battle
+    // report is read on the same two passes as collectAttackLog below; the
+    // second read sends only if the first did not send the whole report —
+    // it found nothing, or found the report before its outcome line
+    // (sendMissionLog's readAgain).
+    { f: 'mission-log', label: 'sendMissionLog', when: () => missionLogSource() !== null, run: () => {
+        const battle = missionLogSource() === 'battle';
+        sendMissionLog({ readAgain: battle });
+        if (battle) setTimeout(() => { sendMissionLog(); }, ATTACK_LOG_DELAY_MS);
+      } },
+    // detail.php also substring-matches inteldetail.php — the attack_id guard is what keeps this attack-only.
+    // The delayed read is handed the first read's promise: once that one sent
+    // the whole report and the server took it, the delayed read sends nothing
+    // (collectAttackLog's after).
     { f: 'attack-collectors', label: 'collectAttackLog', when: () => onPage("detail.php") && /attack_id=/.test(location.search), run: async () => {
-        collectAttackLog();
-        setTimeout(async () => await safeExecute('collectAttackLog (delayed)', () => collectAttackLog()), ATTACK_LOG_DELAY_MS);
+        const first = collectAttackLog();
+        setTimeout(async () => await safeExecute('collectAttackLog (delayed)', () => collectAttackLog({ after: first })), ATTACK_LOG_DELAY_MS);
       } },
     // Banking Mode first on armory: it only reads the DOM/localStorage, so inject the
     // inline widget promptly rather than making it wait behind the roster-API calls below.
