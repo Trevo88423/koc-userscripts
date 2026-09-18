@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name         KoC Data Centre
 // @namespace    trevo88423
-// @version      2.24.0
-// @description  Sweet Revenge alliance tool: tracks stats, syncs to API, adds dashboards, XP→Turn calculator, mini Top Stats panel. v2.24.0: Attack page range warnings — under each mission's "can … up to …" line the attack page now says whether the target is actually in reach: their sentry, antidote, vigilance or defensive action as last recorded by the alliance, against the limit the game prints for you, with how old that reading is. ⛔ Out of range means the mission will fail — the game lets an out-of-range theft fire anyway, which is how four thefts on one target all failed. The Theft box also gets a theft-cap line: how much of the target's daily theft cap is left, or THEFT MAXED. New Target check log: every attack page you open records that you checked that target — whether it was maxed, how much of its sab and theft caps is used, and your own attempt and success counters on it — so the War Room can show who saw a target maxed and how long ago; those counters are visible to everyone with roster access and will feed members' success rates. The War List collector now also shares who is on the list, when and why they were added, and your own "My 24hr" counters — and on the War List and Farm List the script now makes no changes at all (no toasts, no styles, no overlays), as the game's rules require. The settings panel now says exactly what the Sab Tracker sends. v2.23.2: Fix — the Sab Tracker vanished on the page the game shows after refusing a sab on a maxed target ("This player has been maxxed…"): that page has no player id in its address, so the tracker, the TIV reading and the sab-cap sharing all quietly gave up — at the one moment the script knew for certain the target was maxed. They now read the target from the page itself. Also fixes the Intelligence-file backfill for the Sab Tracker, which looked for the mission type in the wrong column and so never matched a row; it now finds the column by its header. v2.23.1: Inactive Accounts sync now works while you are logged out — including while you are on vacation and cannot log in — using the login saved from your last visit. On that page, logged out, it is the only thing the script does; every other feature still needs you logged in. Also: a network blip or server restart while renewing your session no longer logs you out of the script. v2.23.0: Inactive Accounts sync — opening the in-game Inactive Accounts page now shares the list with the alliance roster: who went into Vacation Mode and exactly when, and who has been deleted. Anyone who has dropped off the list since the last visit is marked back from vacation. This powers the new Vacation Watch tab on the dashboard, with live countdowns to when each player can return. The script only reads the page you open; the more often members check it, the sooner returns show up. v2.22.0: The War List's "Last Sab" column is now collected too — who last hit each target, for how much, and how long ago — giving the war dashboard a "Last hit" column that shows which targets the alliance is actually working and which nobody has touched, plus a running log of destroyed value for the war. v2.21.2: Fix — TIV readings from the attack page and your Armory were being sent with a timestamp field nothing reads, so they arrived unstamped and skipped the server's "only overwrite if newer" guard, letting an older reading quietly replace a fresher one. v2.21.1: War List collector reads the AAT and Sentry cells from their own DOM nodes instead of the cell's flattened text — those cells hold two numbers separated only by a line break, so any flattening ran "488" and "488,000,000 damage per sab" together into 488 billion. Works on both the Alliance and Single Target lists. v2.21.0: War List collector — opening the War List now records, for every player on it at once, their sentry (stamped with the age the game itself shows, so it never overwrites fresher recon), the weapon the game recommends sabbing them with, and the AAT: how many of that weapon they actually hold plus the gold one full sab would destroy. The war dashboard gets an AAT column and a "Min AAT" filter, so targets who simply do not own enough weapons to be worth organising around can be filtered out in one click. v2.20.1: Fix — race now updates when a player switches race. Race was only ever read from a full recon report, so a race change sat wrong in the roster until somebody spent a recon on that player, even though every visit to their stats page showed the new race in plain sight; the stats-page collector now reads the Information table too (race and rank), and it no longer gives up on players who have no shared recon data. v2.20.0: Sab cap sharing — opening any attack page now records that target's "Total lost from sabbs in the last 24hours" and "Maximum Daily Sabotage loss" to the alliance roster, so the War Room can show how much of every player's daily cap is already gone and how much gold is still worth sabbing, with a share button that copies a Discord-ready line. Also fixes the sab-cap reader: KoC prints the cap with decimals when it isn't a whole number, which the old pattern could not match, so the in-game "sab damage left before maxed" line silently never appeared on those targets. v2.19.1: Fix — a target sabbed flat reads "Total Invested Value: ()" with empty brackets, which the TIV collector could not parse, so the roster kept that player's pre-sab value forever and never stopped asking for a recon that could not land; empty brackets now record as a real 0 (on your own Armory too), while a box the script genuinely cannot read is left alone instead of writing a false zero. v2.19.0: Stat Reshuffler — Goal mode: pick a stat and type a target rating (commas fine, or shorthand like 4.78T) and the calculator shows the gap from your PROJECTED rating — so your sells, race change and re-buys are already counted — plus how many weapons and how much gold on top of the plan would close it, netting off any unspent pool. Warns when your units couldn't hold that many more weapons. The goal is remembered between visits and updates live as you tweak the scenario. v2.18.3: Stat Reshuffler — the launcher moved: it now sits as a full-width banner directly above the "Armory Preferences" header, styled by cloning that header's own theme (background, border, font) so it looks native in any skin; falls back to the old Total Invested Value spot if the header isn't found. v2.18.2: Stat Reshuffler — stale-multiplier warning: a learned weapon multiplier quietly goes wrong after skill/tech upgrades (it only refreshes when you buy), which left phantom rating behind on sell-all scenarios; the reshuffler now compares each learned multiplier against what your live rating implies and flags "⚠ stale multiplier — buy 1 to recalibrate" per stat plus a summary warning, with the multiplier's age shown. v2.18.1: Stat Reshuffler — new "Ignore carrier caps" toggle for when you're happy to train soldiers/covert units as needed: projections then count every weapon as held (including ones currently sitting unheld) and the ⚠ unheld warnings disappear; the choice is remembered. v2.18.0: Stat Reshuffler — a 🔀 button under the Armory's Total Invested Value box opens a full what-if rework calculator: choose weapons (or whole categories) to sell, optionally switch race, and pour the proceeds — plus your on-hand + vault gold if you tick it — into any mix of the eight stats. It projects the gold you'd recover (sales pay 50% and land in your Vault), how many of each weapon you could buy, whether your units can actually carry them (unheld weapons add nothing), your projected new ratings including the race-bonus swing, and your new TIV. Pure calculator — it never sells, buys or presses anything. v2.17.1: Fix — clicking the sidebar Sweet Revenge logo now opens the feature-settings popup (same as the ⚙ Data Centre link) instead of navigating away. Internal cleanup: removed the unused armory sell-value cache (nothing has used it since the v2.11.2 "Upgrade Ready" rework). v2.17.0: Feature Settings — a new "⚙ Data Centre" link in the sidebar opens a settings panel where EVERY feature can be switched on/off individually (or all at once with the master switch), each with a plain-English description of what it does and a badge showing whether it only changes your display or also records data to the alliance roster; toggles apply on the next page load and everything stays ON by default, so nothing changes until you say so. Under the hood the script's ~40 page hooks were rebuilt onto a single feature registry that drives both the dispatcher and the panel, ~600 lines of dead legacy code were removed, and small fixes landed (DST helper deduplicated, script load message now always visible in console, toast animation style no longer re-injected per notification). Also: the sidebar Sweet Revenge logo is now a link to the Data Centre (with a hover glow), and the Top Stats panel's Debug button is gone — debug mode lives in the console via KoCDebug.toggle(). v2.16.0: Sab Tracker learns the exclusivity rule — per target you either regular-sab OR revenge-sab in a 24h window, so the panels now show 🔒 "Regular sabs locked — you revenge-sabbed this target" with an unlock countdown that keeps working after the Revenge section vanishes (target un-maxed — exactly when KoC hides the info), and 🔒 "Revenge locked — you've sabbed this target this window" when the Revenge form is up but unusable; the native "First sab (last 24hrs)" row is age-formatted like the rest and its exact server stamp now anchors the tracker, making the "Can sab again in …" countdown precise instead of an estimate. v2.15.0: Sabotage Tracker on attack.php — "You last sabbed / poisoned / stole" and the revenge timestamps now show colour-coded ages like the stats pages (hover for the raw server time); the Sabotage and Revenge Sabotage sections get a live status line: attempts left in the rolling 24h window with a ticking "Can sab again in …" countdown when you're out of slots (10 sabs / 4 revenge per target per 24h, tracked automatically whenever you fire a sab and backfilled with exact server times when you open the target's Intelligence file), plus a "sab damage left before maxed" line (Maximum Daily Sabotage loss − lost in last 24h) that flips to TARGET MAXED when the cap is hit. Display-only: it records only missions you fire by hand and never presses anything. v2.14.0: Tech Level Projector — the "Stats After Upgrading Tech" table on safe.php gets a "Project to" dropdown: pick ANY future tech level (up to Obi Bon Kenobi) and the table shows your projected stats at that level, with the total ▲% vs now and the cumulative EXP needed across all the upgrades in between. v2.13.1: Rank-neighbour links now blend into the native table — no dot markers or underline, the numbers just quietly became links (hover tooltip still shows who it is, data age, and gap/stale warnings). v2.13.0: Rank-neighbour recon links — the "Rating For Previous/Next Rank Gain" numbers are now hyperlinks to the player we believe holds that rank (matched by rating value from the roster DB, never by stale DB rank), with a tooltip showing who it is + how fresh their data is; an orange dot means a DB gap (recon upward), a red dot means DB rank/rating disagree (recon me first). Click → recon → DB refreshes; wrong candidates rotate out on the next page load, so the links self-correct toward the true neighbour. v2.11.2: Banking Mode redesigned — your exposed gold now shows in a native-style "Estimated Funds" box that matches the in-game funds boxes, with a ⚙ that holds the Banking Mode toggle, screen-awake, and all settings (including an optional "show yellow/red times" line); a live-ticking Server Time clock on every page; and the Upgrades "Upgrade Ready" row now uses realistic funds (drops full-armory-sell) and shows any shortfall as a slay estimate. v2.10.1: Fix — the slider Armory Preferences now also resync when you press KoC's "Clear Percentage Prefills" button (sliders drop to 0 instead of keeping their old values). v2.10.0: New slider-based Armory Preferences — drag to allocate with auto-balancing, theme-matched styling, and one-tap presets (Cheapest first, Optimizer, All spy, All defense) plus saved presets — replacing the in-game percentage form; rank Optimizer also fixed (weapon efficiency now synced). v2.9.0: "Time to upgrade" + "EXP still needed to be deposited" now show on ALL EXP-cost safe.php upgrades (Increase Soldiers, Economic Development, SAFE Upgrade) — not just Technological Development. v2.8.2: Fix — "EXP still needed to be deposited" now shows cost − Experience Bank (what must still be banked) instead of also subtracting on-hand EXP, so it no longer reads 0 when you hold the EXP but haven't deposited it. v2.8.1: Fix — sidebar abbreviates large gold/safe values (e.g. "2,560M"); getSidebarValue now parses K/M/B/T suffixes so SAFE Forecasts and gold-upgrade rows use real balances (previously read as ~0). SAFE Forecasts also uses the full-precision "Gold in Safe" value. v2.8.0: SAFE Forecasts on safe.php — time for your Safe to reach 1B/2B/5B/9B/10B(MAX) based on current Safe + deposit/min. v2.7.0: Gold upgrade timer — upgrades.php now shows "Upgrade Ready" (liquidation + safe-growth time) and "Gold Needed on top of Safe" under each skill upgrade (uses gold/vault/safe + full armory sell value from Armory + safe deposit rate from Safe). v2.6.0: Tech upgrade timer — safe.php now shows "Time to upgrade" + "EXP still needed to be deposited" under Technological Development (uses EXP on-hand + Experience Bank + your EXP/turn rate, auto-captured from the Upgrades page). v2.5.1: Banking Mode last-bank fix — now watches the per-weapon buy form (anotherbuyform), not just the hidden one-click form, and stamps banks reliably for high-income accounts. v2.5.0: 🏦 Banking Mode on the Armory page — toggleable inline widget that projects your exposed (stealable) gold every second, colour-codes the risk (SAFE/CAUTION/DANGER) from your attack-log steal history, shows time-to-yellow/red, and keeps the screen awake. Display-only: no automated requests, observes (never presses) the buy/repair forms. v2.4.0: Banking trend graph (📈 in the sidebar tracks your banked % over time) + manual override for Avg Gold/Atk (✏️ in the sidebar, survives attack-log recalibration). v2.3.4: Recons panel now shares counts alliance-wide via API (previously localStorage-only — each user only saw themselves). v2.3.0: Added "Stats If You Attacked Instead" table on safe.php to compare tech upgrades vs attacking. v2.2.9: Added optimizer auto-fill for armory (uses roster API to calculate optimal stat allocation). v2.2.8: Minor fixes. v2.1.0: Integrated slaying competition tracker (attack missions & gold stolen tracking, team competitions, leaderboards). v2.0.0: Optimized API architecture, previous versions deprecated.
+// @version      2.25.0
+// @description  Sweet Revenge alliance tool: tracks stats, syncs to API, adds dashboards, XP→Turn calculator, mini Top Stats panel. v2.25.0: Mission history — the pages that list missions are now read when you open them and shared with the alliance roster: a target's Intelligence file (your recon and sab missions on them, Success or Aborted), the Poison Log and Theft Log (both directions, with what was stolen), your Intelligence page (recon and sab missions run against you, and how many of their spies were caught) and the Attack Log (attacks and raids both ways, with gold stolen and losses). Any sab report you open adds its details too — what it destroyed, spies and sentries executed, gold and XP. This feeds the War Room's new success rates — per member and per mission type, never per target — which are visible to everyone with roster access, as the settings panel now says. The script sends each page's own wording and the server interprets it, so a result nobody has seen yet (a successful poison, say) is kept rather than lost and is sorted out once it turns up. Only the page you open is read: it never turns a page, opens a report or fetches anything, and those pages look exactly as before. Also: the Sab Tracker's Intelligence-file backfill now shares that same read. v2.24.0: Attack page range warnings — under each mission's "can … up to …" line the attack page now says whether the target is actually in reach: their sentry, antidote, vigilance or defensive action as last recorded by the alliance, against the limit the game prints for you, with how old that reading is. ⛔ Out of range means the mission will fail — the game lets an out-of-range theft fire anyway, which is how four thefts on one target all failed. The Theft box also gets a theft-cap line: how much of the target's daily theft cap is left, or THEFT MAXED. New Target check log: every attack page you open records that you checked that target — whether it was maxed, how much of its sab and theft caps is used, and your own attempt and success counters on it — so the War Room can show who saw a target maxed and how long ago; those counters are visible to everyone with roster access and will feed members' success rates. The War List collector now also shares who is on the list, when and why they were added, and your own "My 24hr" counters — and on the War List and Farm List the script now makes no changes at all (no toasts, no styles, no overlays), as the game's rules require. The settings panel now says exactly what the Sab Tracker sends. v2.23.2: Fix — the Sab Tracker vanished on the page the game shows after refusing a sab on a maxed target ("This player has been maxxed…"): that page has no player id in its address, so the tracker, the TIV reading and the sab-cap sharing all quietly gave up — at the one moment the script knew for certain the target was maxed. They now read the target from the page itself. Also fixes the Intelligence-file backfill for the Sab Tracker, which looked for the mission type in the wrong column and so never matched a row; it now finds the column by its header. v2.23.1: Inactive Accounts sync now works while you are logged out — including while you are on vacation and cannot log in — using the login saved from your last visit. On that page, logged out, it is the only thing the script does; every other feature still needs you logged in. Also: a network blip or server restart while renewing your session no longer logs you out of the script. v2.23.0: Inactive Accounts sync — opening the in-game Inactive Accounts page now shares the list with the alliance roster: who went into Vacation Mode and exactly when, and who has been deleted. Anyone who has dropped off the list since the last visit is marked back from vacation. This powers the new Vacation Watch tab on the dashboard, with live countdowns to when each player can return. The script only reads the page you open; the more often members check it, the sooner returns show up. v2.22.0: The War List's "Last Sab" column is now collected too — who last hit each target, for how much, and how long ago — giving the war dashboard a "Last hit" column that shows which targets the alliance is actually working and which nobody has touched, plus a running log of destroyed value for the war. v2.21.2: Fix — TIV readings from the attack page and your Armory were being sent with a timestamp field nothing reads, so they arrived unstamped and skipped the server's "only overwrite if newer" guard, letting an older reading quietly replace a fresher one. v2.21.1: War List collector reads the AAT and Sentry cells from their own DOM nodes instead of the cell's flattened text — those cells hold two numbers separated only by a line break, so any flattening ran "488" and "488,000,000 damage per sab" together into 488 billion. Works on both the Alliance and Single Target lists. v2.21.0: War List collector — opening the War List now records, for every player on it at once, their sentry (stamped with the age the game itself shows, so it never overwrites fresher recon), the weapon the game recommends sabbing them with, and the AAT: how many of that weapon they actually hold plus the gold one full sab would destroy. The war dashboard gets an AAT column and a "Min AAT" filter, so targets who simply do not own enough weapons to be worth organising around can be filtered out in one click. v2.20.1: Fix — race now updates when a player switches race. Race was only ever read from a full recon report, so a race change sat wrong in the roster until somebody spent a recon on that player, even though every visit to their stats page showed the new race in plain sight; the stats-page collector now reads the Information table too (race and rank), and it no longer gives up on players who have no shared recon data. v2.20.0: Sab cap sharing — opening any attack page now records that target's "Total lost from sabbs in the last 24hours" and "Maximum Daily Sabotage loss" to the alliance roster, so the War Room can show how much of every player's daily cap is already gone and how much gold is still worth sabbing, with a share button that copies a Discord-ready line. Also fixes the sab-cap reader: KoC prints the cap with decimals when it isn't a whole number, which the old pattern could not match, so the in-game "sab damage left before maxed" line silently never appeared on those targets. v2.19.1: Fix — a target sabbed flat reads "Total Invested Value: ()" with empty brackets, which the TIV collector could not parse, so the roster kept that player's pre-sab value forever and never stopped asking for a recon that could not land; empty brackets now record as a real 0 (on your own Armory too), while a box the script genuinely cannot read is left alone instead of writing a false zero. v2.19.0: Stat Reshuffler — Goal mode: pick a stat and type a target rating (commas fine, or shorthand like 4.78T) and the calculator shows the gap from your PROJECTED rating — so your sells, race change and re-buys are already counted — plus how many weapons and how much gold on top of the plan would close it, netting off any unspent pool. Warns when your units couldn't hold that many more weapons. The goal is remembered between visits and updates live as you tweak the scenario. v2.18.3: Stat Reshuffler — the launcher moved: it now sits as a full-width banner directly above the "Armory Preferences" header, styled by cloning that header's own theme (background, border, font) so it looks native in any skin; falls back to the old Total Invested Value spot if the header isn't found. v2.18.2: Stat Reshuffler — stale-multiplier warning: a learned weapon multiplier quietly goes wrong after skill/tech upgrades (it only refreshes when you buy), which left phantom rating behind on sell-all scenarios; the reshuffler now compares each learned multiplier against what your live rating implies and flags "⚠ stale multiplier — buy 1 to recalibrate" per stat plus a summary warning, with the multiplier's age shown. v2.18.1: Stat Reshuffler — new "Ignore carrier caps" toggle for when you're happy to train soldiers/covert units as needed: projections then count every weapon as held (including ones currently sitting unheld) and the ⚠ unheld warnings disappear; the choice is remembered. v2.18.0: Stat Reshuffler — a 🔀 button under the Armory's Total Invested Value box opens a full what-if rework calculator: choose weapons (or whole categories) to sell, optionally switch race, and pour the proceeds — plus your on-hand + vault gold if you tick it — into any mix of the eight stats. It projects the gold you'd recover (sales pay 50% and land in your Vault), how many of each weapon you could buy, whether your units can actually carry them (unheld weapons add nothing), your projected new ratings including the race-bonus swing, and your new TIV. Pure calculator — it never sells, buys or presses anything. v2.17.1: Fix — clicking the sidebar Sweet Revenge logo now opens the feature-settings popup (same as the ⚙ Data Centre link) instead of navigating away. Internal cleanup: removed the unused armory sell-value cache (nothing has used it since the v2.11.2 "Upgrade Ready" rework). v2.17.0: Feature Settings — a new "⚙ Data Centre" link in the sidebar opens a settings panel where EVERY feature can be switched on/off individually (or all at once with the master switch), each with a plain-English description of what it does and a badge showing whether it only changes your display or also records data to the alliance roster; toggles apply on the next page load and everything stays ON by default, so nothing changes until you say so. Under the hood the script's ~40 page hooks were rebuilt onto a single feature registry that drives both the dispatcher and the panel, ~600 lines of dead legacy code were removed, and small fixes landed (DST helper deduplicated, script load message now always visible in console, toast animation style no longer re-injected per notification). Also: the sidebar Sweet Revenge logo is now a link to the Data Centre (with a hover glow), and the Top Stats panel's Debug button is gone — debug mode lives in the console via KoCDebug.toggle(). v2.16.0: Sab Tracker learns the exclusivity rule — per target you either regular-sab OR revenge-sab in a 24h window, so the panels now show 🔒 "Regular sabs locked — you revenge-sabbed this target" with an unlock countdown that keeps working after the Revenge section vanishes (target un-maxed — exactly when KoC hides the info), and 🔒 "Revenge locked — you've sabbed this target this window" when the Revenge form is up but unusable; the native "First sab (last 24hrs)" row is age-formatted like the rest and its exact server stamp now anchors the tracker, making the "Can sab again in …" countdown precise instead of an estimate. v2.15.0: Sabotage Tracker on attack.php — "You last sabbed / poisoned / stole" and the revenge timestamps now show colour-coded ages like the stats pages (hover for the raw server time); the Sabotage and Revenge Sabotage sections get a live status line: attempts left in the rolling 24h window with a ticking "Can sab again in …" countdown when you're out of slots (10 sabs / 4 revenge per target per 24h, tracked automatically whenever you fire a sab and backfilled with exact server times when you open the target's Intelligence file), plus a "sab damage left before maxed" line (Maximum Daily Sabotage loss − lost in last 24h) that flips to TARGET MAXED when the cap is hit. Display-only: it records only missions you fire by hand and never presses anything. v2.14.0: Tech Level Projector — the "Stats After Upgrading Tech" table on safe.php gets a "Project to" dropdown: pick ANY future tech level (up to Obi Bon Kenobi) and the table shows your projected stats at that level, with the total ▲% vs now and the cumulative EXP needed across all the upgrades in between. v2.13.1: Rank-neighbour links now blend into the native table — no dot markers or underline, the numbers just quietly became links (hover tooltip still shows who it is, data age, and gap/stale warnings). v2.13.0: Rank-neighbour recon links — the "Rating For Previous/Next Rank Gain" numbers are now hyperlinks to the player we believe holds that rank (matched by rating value from the roster DB, never by stale DB rank), with a tooltip showing who it is + how fresh their data is; an orange dot means a DB gap (recon upward), a red dot means DB rank/rating disagree (recon me first). Click → recon → DB refreshes; wrong candidates rotate out on the next page load, so the links self-correct toward the true neighbour. v2.11.2: Banking Mode redesigned — your exposed gold now shows in a native-style "Estimated Funds" box that matches the in-game funds boxes, with a ⚙ that holds the Banking Mode toggle, screen-awake, and all settings (including an optional "show yellow/red times" line); a live-ticking Server Time clock on every page; and the Upgrades "Upgrade Ready" row now uses realistic funds (drops full-armory-sell) and shows any shortfall as a slay estimate. v2.10.1: Fix — the slider Armory Preferences now also resync when you press KoC's "Clear Percentage Prefills" button (sliders drop to 0 instead of keeping their old values). v2.10.0: New slider-based Armory Preferences — drag to allocate with auto-balancing, theme-matched styling, and one-tap presets (Cheapest first, Optimizer, All spy, All defense) plus saved presets — replacing the in-game percentage form; rank Optimizer also fixed (weapon efficiency now synced). v2.9.0: "Time to upgrade" + "EXP still needed to be deposited" now show on ALL EXP-cost safe.php upgrades (Increase Soldiers, Economic Development, SAFE Upgrade) — not just Technological Development. v2.8.2: Fix — "EXP still needed to be deposited" now shows cost − Experience Bank (what must still be banked) instead of also subtracting on-hand EXP, so it no longer reads 0 when you hold the EXP but haven't deposited it. v2.8.1: Fix — sidebar abbreviates large gold/safe values (e.g. "2,560M"); getSidebarValue now parses K/M/B/T suffixes so SAFE Forecasts and gold-upgrade rows use real balances (previously read as ~0). SAFE Forecasts also uses the full-precision "Gold in Safe" value. v2.8.0: SAFE Forecasts on safe.php — time for your Safe to reach 1B/2B/5B/9B/10B(MAX) based on current Safe + deposit/min. v2.7.0: Gold upgrade timer — upgrades.php now shows "Upgrade Ready" (liquidation + safe-growth time) and "Gold Needed on top of Safe" under each skill upgrade (uses gold/vault/safe + full armory sell value from Armory + safe deposit rate from Safe). v2.6.0: Tech upgrade timer — safe.php now shows "Time to upgrade" + "EXP still needed to be deposited" under Technological Development (uses EXP on-hand + Experience Bank + your EXP/turn rate, auto-captured from the Upgrades page). v2.5.1: Banking Mode last-bank fix — now watches the per-weapon buy form (anotherbuyform), not just the hidden one-click form, and stamps banks reliably for high-income accounts. v2.5.0: 🏦 Banking Mode on the Armory page — toggleable inline widget that projects your exposed (stealable) gold every second, colour-codes the risk (SAFE/CAUTION/DANGER) from your attack-log steal history, shows time-to-yellow/red, and keeps the screen awake. Display-only: no automated requests, observes (never presses) the buy/repair forms. v2.4.0: Banking trend graph (📈 in the sidebar tracks your banked % over time) + manual override for Avg Gold/Atk (✏️ in the sidebar, survives attack-log recalibration). v2.3.4: Recons panel now shares counts alliance-wide via API (previously localStorage-only — each user only saw themselves). v2.3.0: Added "Stats If You Attacked Instead" table on safe.php to compare tech upgrades vs attacking. v2.2.9: Added optimizer auto-fill for armory (uses roster API to calculate optimal stat allocation). v2.2.8: Minor fixes. v2.1.0: Integrated slaying competition tracker (attack missions & gold stolen tracking, team competitions, leaderboards). v2.0.0: Optimized API architecture, previous versions deprecated.
 // @author       Blackheart
 // @match        https://www.kingsofchaos.com/*
 // @exclude      https://*.kingsofchaos.com/confirm.login.php*
@@ -59,7 +59,7 @@
   // ==================== VERSION CHECK ====================
   // Check if this script version is allowed to run
   const SCRIPT_NAME = 'koc-data-centre';
-  const SCRIPT_VERSION = '2.24.0'; // Must match @version above
+  const SCRIPT_VERSION = '2.25.0'; // Must match @version above
   const VERSION_CHECK_API = 'https://koc-roster-api-production.up.railway.app';
 
   async function checkScriptVersion() {
@@ -9406,34 +9406,27 @@
   /**
    * intelfile.php?asset_id=… lists every mission you've run on that target with
    * exact server timestamps — use it to backfill/correct the tracked window.
+   * The page is read by parseIntelFilePage (below), the same read the Mission
+   * history log sends to the roster, so the two can never disagree about a row.
    */
   function collectFromIntelFilePage() {
-    const idMatch = location.search.match(/[?&]asset_id=(\d+)/);
-    if (!idMatch) return;
-    const targetId = idMatch[1];
+    const page = parseIntelFilePage();
+    if (!page || !page.targetId) return;
+    const targetId = page.targetId;
     const now = Date.now();
     const found = { sab: [], rev: [] };
 
-    // Find Mission Type by its header, not by position. The Time column is two
-    // cells ("6" | "hours ago"), which puts Mission Type third — reading the
-    // second cell meant no row ever matched and this backfill never ran.
-    let typeCol = -1;
-    for (const row of document.querySelectorAll('tr')) {
-      const cells = row.cells;
-      if (!cells) continue;
-      if (typeCol < 0) {
-        typeCol = [...cells].findIndex(c => (c.textContent || '').replace(/\s+/g, ' ').trim().toLowerCase() === 'mission type');
-        continue;
-      }
-      if (cells.length < 5 || cells.length <= typeCol) continue;
-      const type = (cells[typeCol].textContent || '').trim().toLowerCase();
+    // Mission Type is found by its header, not by position. The Time column is
+    // two cells ("6" | "hours ago"), which puts Mission Type third — reading
+    // the second cell meant no row ever matched and this backfill never ran.
+    for (const row of page.rows) {
+      const type = (row.missionText || '').trim().toLowerCase();
       let kind = null;
       if (type === 'sabotage') kind = 'sab';
       else if (type.includes('revenge')) kind = 'rev'; // "Revenge_sabotage"
       else continue;
-      const tsm = (cells[cells.length - 1].textContent || '').match(/(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})/);
-      if (!tsm) continue;
-      const t = Date.parse(convertKoCServerTimeToUTC(tsm[1]));
+      if (!/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/.test(row.at || '')) continue;
+      const t = Date.parse(convertKoCServerTimeToUTC(row.at));
       if (isNaN(t) || now - t >= SAB_WINDOW_MS) continue;
       found[kind].push({ t }); // aborted attempts still count toward the 10/4 caps
     }
@@ -9453,6 +9446,767 @@
     debugLog(`🕵️ Sab Tracker: intel-file backfill for ${targetId}`, {
       sab: found.sab.length, rev: found.rev.length
     });
+  }
+
+  // ==================== MISSION HISTORY (mission-log) ====================
+  //
+  // Five game pages list missions with their results, and a sixth describes
+  // one mission in full:
+  //   intelfile.php  — YOUR recon and sab missions on one target (Success /
+  //                    Aborted, each linked to its report)
+  //   poisonlog.php  — poison missions against you and by you
+  //   theftlog.php   — theft missions against you and by you, with the weapon
+  //                    and how many were taken
+  //   intel.php      — recon and sab missions other players ran AGAINST you
+  //                    ("Intercepted Intelligence Operations"; no result shown)
+  //   attacklog.php  — attacks against you and by you, with gold and losses
+  //   inteldetail.php — any sab report you open (the one you just ran, or an
+  //                    old one reached from the intel file)
+  // Together they are every member's mission record: what each of us tried,
+  // what worked, and who has been working on us. The War Room turns it into
+  // success rates per member and per mission type.
+  //
+  // Only the page the member opened is read. Nothing here turns a page, opens
+  // a report, follows a link or fetches anything — the rules forbid scripts
+  // that gather information on their own or load pages in bulk — and the
+  // pages are left exactly as the game drew them. One request per page view.
+  //
+  // What goes to the server is the page's own TEXT, cell by cell: the mission
+  // type, the result and the attack-log action exactly as printed. Several of
+  // those wordings have never been seen yet (a successful poison, a successful
+  // theft report, a raid in the attack log, how the intel file labels a
+  // revenge sab), so the script does not guess at them: the server maps text
+  // to missions and results in one place, keeps the raw text, and a wording
+  // learned later is fixed there — rows already stored get reclassified from
+  // what they said. Numbers go as printed too ("1,125"); the server parses them.
+  //
+  // Tables are found by their TITLE and columns by their HEADER name, never by
+  // position: the Time column is two cells on some pages ("6" | "hours ago")
+  // under a header that is one cell with a colspan, so a fixed index — or even
+  // a header's own index — puts every value one place off. Columns here are
+  // matched on where each cell STARTS, counting colspans, which lines the
+  // header up with the data on every one of these pages. The attack log is
+  // the one exception allowed a fallback: its row layout was validated live
+  // (11 cells). A header row there is trusted only once its first row shows
+  // it lines up — the player link under Enemy, the battle link under Result;
+  // a header that does not is dropped for the validated layout, and rows
+  // that fit neither are not sent (shifted values would be stored as fact).
+  //
+  // Which side a log is on ("Attacks Against You" / "Attacks By You") comes
+  // from its title, and a log whose title cannot be read is SKIPPED — never
+  // handed the neighbouring log's side. On the poison and theft logs nothing
+  // else on a row could catch that mistake, and every mission in the table
+  // would be stored the wrong way round.
+
+  /** A row's own TD/TH cells — never the cells of a table nested inside one. */
+  function missionRowCells(tr) {
+    return tr ? [...tr.children].filter((c) => c.tagName === 'TD' || c.tagName === 'TH') : [];
+  }
+
+  /** A table's own rows, in order; rows of a table nested in a cell belong to that table. */
+  function missionOwnRows(table) {
+    return table ? [...table.querySelectorAll('tr')].filter((tr) => tr.closest('table') === table) : [];
+  }
+
+  /**
+   * An element's text as it reads on screen, one entry per line: a <br> or
+   * the edge of a block (paragraph, div, row) ends a line. textContent alone
+   * runs "0<br>0" into "00" and a report's sentences into one another.
+   */
+  function missionTextLines(el) {
+    const lines = [];
+    let cur = '';
+    const BLOCK = /^(P|DIV|TR|TABLE|TBODY|THEAD|UL|OL|LI|CENTER|BLOCKQUOTE|H[1-6])$/;
+    const walk = (node) => {
+      if (node.nodeType === 3) { cur += node.textContent || ''; return; }
+      if (node.nodeType !== 1) return;
+      const tag = node.tagName;
+      if (tag === 'SCRIPT' || tag === 'STYLE') return;
+      if (tag === 'BR') { lines.push(cur); cur = ''; return; }
+      const block = BLOCK.test(tag);
+      if (block) { lines.push(cur); cur = ''; }
+      for (const child of node.childNodes) walk(child);
+      if (block) { lines.push(cur); cur = ''; }
+      else if (tag === 'TD' || tag === 'TH') cur += ' ';
+    };
+    if (el) walk(el);
+    lines.push(cur);
+    return lines.map((l) => l.replace(/\s+/g, ' ').trim()).filter(Boolean);
+  }
+
+  /** A cell's text on one line ("0<br>0" -> "0 0"); an empty or missing cell is null, never "". */
+  function missionCellText(el) {
+    const t = missionTextLines(el).join(' ').trim();
+    return t || null;
+  }
+
+  /** Header names compare as lower-case letters and digits: "TimeStamp", "Time Stamp", "Number of<br>Spies". */
+  function missionHeadKey(text) {
+    return String(text || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+  }
+
+  /**
+   * Each own cell of a row with the column it starts at, counting colspans.
+   * The theft log's header is "Time" spanning two columns over data rows
+   * that split it ("43" | "minutes ago"), so the header's third cell (Result)
+   * sits over the data's fourth.
+   */
+  function missionColumns(tr) {
+    let col = 0;
+    return missionRowCells(tr).map((cell) => {
+      const span = Math.max(1, parseInt(cell.getAttribute('colspan') || '1', 10) || 1);
+      const out = { cell, start: col };
+      col += span;
+      return out;
+    });
+  }
+
+  /** A header row's columns by name: { key: { start, text } }. Blank headers are left out. */
+  function missionHeaderMap(tr) {
+    const map = {};
+    for (const { cell, start } of missionColumns(tr)) {
+      const text = missionCellText(cell);
+      const key = missionHeadKey(text);
+      if (key && !(key in map)) map[key] = { start, text };
+    }
+    return map;
+  }
+
+  /** The cell of a data row that starts at a header's column; null when the header or the cell is missing. */
+  function missionCellAt(tr, head) {
+    if (!head) return null;
+    const hit = missionColumns(tr).find((c) => c.start === head.start);
+    return hit ? hit.cell : null;
+  }
+
+  /**
+   * True when a row's own cells include every one of these header names.
+   * Without names: true for ANY row of column names — three or more <th>
+   * cells, or a cell reading Enemy, Mission Type or TimeStamp (the intel
+   * file writes its headers as <td><b>). A row with a player link or a table
+   * inside is never one. The section readers use this to tell where one
+   * log's rows end and another's begin.
+   */
+  function missionIsHeaderRow(tr, keys) {
+    const cells = missionRowCells(tr);
+    const have = new Set(cells.map((c) => missionHeadKey(missionCellText(c))));
+    if (keys) return keys.every((k) => have.has(k));
+    if (!cells.length || tr.querySelector('a[href*="stats.php?id="]') || cells.some((c) => c.querySelector('table'))) return false;
+    return (cells.length >= 3 && cells.every((c) => c.tagName === 'TH')) ||
+      ['enemy', 'missiontype', 'timestamp'].some((k) => have.has(k));
+  }
+
+  /** Every header row on the page with all of these header names, in page order. */
+  function missionHeaderRows(keys) {
+    return [...document.querySelectorAll('tr')].filter((tr) => missionIsHeaderRow(tr, keys));
+  }
+
+  /**
+   * "Attacks Against You" -> 'against', "Attacks By You" -> 'by', anything
+   * else null. Only a cell with no table inside it can be a title, so a layout
+   * cell that merely CONTAINS a titled table is never read as one.
+   */
+  function missionTitleSide(cell) {
+    if (!cell || cell.querySelector('table')) return null;
+    const m = (missionCellText(cell) || '').match(/^attacks\s+(against|by)\s+you\b/i);
+    return m ? m[1].toLowerCase() : null;
+  }
+
+  /**
+   * Which log a row belongs to — 'against', 'by', or null when that cannot
+   * be read for certain. The row is a log's header row (poison and theft
+   * logs) or one of its data rows (the attack log decides row by row, since
+   * two logs can share one table). The game puts the title in three
+   * different places: the poison log in the data table's own first row, the
+   * theft log in a <th> of the table AROUND the data table, and the attack
+   * log in a separate little table just above it. So: look upward from the
+   * row — through its own table, then each enclosing table — for the
+   * nearest title; failing that, the last title before the row in page order.
+   *
+   * A log must never inherit ANOTHER log's side, so anything showing that a
+   * different section starts between the row and a title ends the search
+   * with null instead of being walked past:
+   *   - a heading this script cannot read ("Thefts Made By You", a title
+   *     reworded) or a section's edge ("21 attacks total | page 1 of 3") —
+   *     <th> cells or one lone cell with text, no player link, no table;
+   *   - another log's column names or its player rows (a data row may pass
+   *     its OWN log's rows and header on the way up, nothing more);
+   *   - titles side by side ("Attacks Against You" | "Attacks By You" over
+   *     two columns): only the title that starts in exactly the same column
+   *     as the cell holding the row counts — none there, no side.
+   * The page-order walk forgets its title at the same signs, and at a
+   * column-name row unless that row sits directly above the section (the
+   * attack log may keep its column names in its title's table). Callers
+   * skip whatever comes back null.
+   *
+   * One exception: climbing from a HEADER row, a pager row ("21 attacks
+   * total | page 1 of 3") is walked past — the game may print it between a
+   * log's title and its column names, and the captures do not say which
+   * end it sits at. That is safe from a header row because any other log
+   * met on the way up shows itself by its own column names first.
+   */
+  function missionLogSide(el) {
+    if (!el) return null;
+    const elIsHead = missionIsHeaderRow(el);
+    const hasLinks = (tr) => !!tr.querySelector('a[href*="stats.php?id="], a[href*="attack_id="], a[href*="report_id="]');
+    const pager = (tr) => /\bpage\s+\d+\s+of\s+\d+\b/i.test(missionCellText(tr) || '');
+    const heading = (tr) => {
+      const cells = missionRowCells(tr);
+      if (!cells.length || hasLinks(tr) || cells.some((c) => c.querySelector('table')) || missionIsHeaderRow(tr)) return false;
+      if (cells.length > 1 && !cells.every((c) => c.tagName === 'TH')) return false;
+      if (elIsHead && pager(tr)) return false;
+      return cells.some((c) => missionCellText(c) !== null);
+    };
+    const holdsLog = (tr) => !!tr.querySelector('a[href*="stats.php?id="]') ||
+      [tr, ...tr.querySelectorAll('tr')].some((r) => missionIsHeaderRow(r));
+    // A title row: a lone title cell names the side of everything under it;
+    // titles side by side only name the column they start in.
+    const titleOf = (row, anchor, node) => {
+      const cells = missionRowCells(row);
+      if (cells.length === 1) return missionTitleSide(cells[0]);
+      const mine = missionColumns(anchor).find((c) => c.cell === node || c.cell.contains(node));
+      const over = mine ? missionColumns(row).find((c) => c.start === mine.start) : null;
+      return over ? missionTitleSide(over.cell) : null;
+    };
+
+    // 1. The row's own table. A data row may climb past rows of its own log
+    //    and then its own header row; a header row may climb past nothing.
+    const table0 = el.closest('table');
+    const rows0 = missionOwnRows(table0);
+    let top = el;                         // the highest row of el's own section
+    let passedHead = elIsHead;
+    for (let i = rows0.indexOf(el) - 1; i >= 0; i--) {
+      const row = rows0[i];
+      if (missionRowCells(row).some((c) => missionTitleSide(c))) return titleOf(row, el, el);
+      if (heading(row)) return null;
+      if (missionIsHeaderRow(row)) { if (passedHead) return null; passedHead = true; top = row; continue; }
+      if (hasLinks(row) || row.querySelector('table')) { if (passedHead) return null; top = row; continue; }
+    }
+
+    // 2. Each enclosing table, from the row that holds the inner table.
+    let node = table0;
+    let table = node && node.parentElement ? node.parentElement.closest('table') : null;
+    while (table) {
+      const rows = missionOwnRows(table);
+      const anchor = node.closest('tr');
+      for (let i = rows.indexOf(anchor) - 1; i >= 0; i--) {
+        const row = rows[i];
+        if (missionRowCells(row).some((c) => missionTitleSide(c))) return titleOf(row, anchor, node);
+        if (heading(row) || holdsLog(row)) return null;
+      }
+      node = table;
+      table = table.parentElement ? table.parentElement.closest('table') : null;
+    }
+
+    // 3. Page order: the last title before the section.
+    const ownHead = missionIsHeaderRow(top);
+    let last = null;
+    let pendingHead = false;              // a column-name row just passed: ours only if the section follows at once
+    for (const tr of document.querySelectorAll('tr')) {
+      if (tr === top) break;
+      if (tr.contains(el)) continue;      // layout rows around the section
+      const cells = missionRowCells(tr);
+      if (cells.some((c) => missionTitleSide(c))) {
+        last = cells.length === 1 ? missionTitleSide(cells[0]) : null;
+        pendingHead = false;
+      } else if (missionIsHeaderRow(tr)) {
+        if (ownHead || pendingHead) last = null;
+        pendingHead = true;
+      } else if (heading(tr) || tr.querySelector('a[href*="stats.php?id="]')) {
+        last = null;
+        pendingHead = false;
+      } else if (pendingHead && missionCellText(tr) !== null) {
+        last = null;
+        pendingHead = false;
+      }
+    }
+    return last;
+  }
+
+  /**
+   * The data rows under a header row: its table's own rows after it, up to
+   * the next section — a row of <th> cells (any title or header row), a row
+   * holding an "Attacks Against/By You" title, or another row of column
+   * names — so two logs sharing one table are never run together. Layout
+   * rows — the "21 attacks total | page 1 of 3" footer, spacers — come
+   * through too; each reader drops rows that carry neither a link id nor a
+   * timestamp.
+   */
+  function missionDataRows(headerRow, keys) {
+    const rows = missionOwnRows(headerRow.closest('table'));
+    const out = [];
+    for (const tr of rows.slice(rows.indexOf(headerRow) + 1)) {
+      const cells = missionRowCells(tr);
+      if (cells.length && cells.every((c) => c.tagName === 'TH')) break;
+      if (cells.some((c) => missionTitleSide(c))) break;
+      if (missionIsHeaderRow(tr, keys) || missionIsHeaderRow(tr)) break;
+      out.push(tr);
+    }
+    return out;
+  }
+
+  /**
+   * The numeric id in a link inside an element — stats.php?id=, report_id=,
+   * attack_id= — optionally only from links to one page. null when absent.
+   */
+  function missionLinkId(el, param, pageRe) {
+    if (!el) return null;
+    const re = new RegExp('[?&]' + param + '=(\\d+)');
+    for (const a of el.querySelectorAll('a[href]')) {
+      const href = a.getAttribute('href') || '';
+      if (pageRe && !pageRe.test(href)) continue;
+      const m = href.match(re);
+      if (m) return m[1];
+    }
+    return null;
+  }
+
+  /**
+   * A row's KoC timestamp as printed ("2026-09-17 21:00:17", server time; the
+   * server converts it). From the TimeStamp column; if that cell holds no
+   * stamp, the one cell whose whole text is a stamp; otherwise the TimeStamp
+   * cell's text as it is, which the server counts as invalid — that is how a
+   * changed format shows up rather than rows silently vanishing.
+   */
+  function missionStamp(tr, head) {
+    const text = missionCellText(missionCellAt(tr, head));
+    const m = text && text.match(/\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}/);
+    if (m) return m[0];
+    for (const c of missionRowCells(tr)) {
+      const t = missionCellText(c);
+      if (t && /^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/.test(t)) return t;
+    }
+    return text;
+  }
+
+  /** True for a printed KoC timestamp. */
+  function missionIsStamp(s) {
+    return /^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/.test(s || '');
+  }
+
+  /** "Att Sold DA Sold" -> "attSoldDaSold": a poison-log column name as a key. */
+  function missionCamelKey(text) {
+    const words = String(text || '').split(/[^A-Za-z0-9]+/).filter(Boolean);
+    return words.map((w, i) => i === 0 ? w.toLowerCase() : w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join('');
+  }
+
+  /**
+   * intelfile.php?asset_id=T — "Intelligence on <name>": your recon and sab
+   * missions on one target, newest first. Rows sit under the header row that
+   * has "Mission Type"; the Result cell links the report (report_id=). The
+   * Sab Tracker backfill reads the same rows (collectFromIntelFilePage).
+   */
+  function parseIntelFilePage() {
+    const targetId = (location.search.match(/[?&]asset_id=(\d+)/) || [])[1] || null;
+    const keys = ['missiontype', 'result'];
+    const headerRow = missionHeaderRows(keys)[0];
+    if (!headerRow) return null;
+    const head = missionHeaderMap(headerRow);
+
+    let targetName = null;
+    for (const cell of document.querySelectorAll('th, td')) {
+      if (cell.querySelector('table')) continue;
+      const m = (missionCellText(cell) || '').match(/^Intelligence on\s+(.+)$/i);
+      if (m) { targetName = m[1].trim(); break; }
+    }
+
+    const rows = [];
+    for (const tr of missionDataRows(headerRow, keys)) {
+      const resultCell = missionCellAt(tr, head.result);
+      const row = {
+        missionText: missionCellText(missionCellAt(tr, head.missiontype)),
+        spies: missionCellText(missionCellAt(tr, head.numberofspies)),
+        resultText: missionCellText(resultCell),
+        reportId: missionLinkId(resultCell, 'report_id'),
+        at: missionStamp(tr, head.timestamp)
+      };
+      if (!row.reportId && !missionIsStamp(row.at)) continue;   // footer / spacer
+      rows.push(row);
+    }
+    return { targetId, targetName, rows };
+  }
+
+  /**
+   * poisonlog.php and theftlog.php: an "Attacks Against You" and an "Attacks
+   * By You" table, each with a header row holding "Enemy" and "Result". Per
+   * row: the enemy (stats.php?id= link; the cell's text as shown, "(not
+   * active)" and all — the server strips it), the result and its report id,
+   * the timestamp; the theft log adds the weapon and how many, the poison log
+   * its unit-loss pairs ("0 0") keyed by their column names. A table whose
+   * title cannot be found is skipped: without it, who hit whom is unknown.
+   */
+  function parseMissionLogPage(source) {
+    const keys = ['enemy', 'result'];
+    const fixed = new Set(['time', 'enemy', 'result', 'timestamp', 'weaponstolen', 'count']);
+    const rows = [];
+    for (const headerRow of missionHeaderRows(keys)) {
+      const side = missionLogSide(headerRow);
+      if (!side) { debugLog(`📜 Mission log: a ${source} table has no "Attacks Against/By You" title — skipped`); continue; }
+      const head = missionHeaderMap(headerRow);
+      for (const tr of missionDataRows(headerRow, keys)) {
+        const enemyCell = missionCellAt(tr, head.enemy);
+        const resultCell = missionCellAt(tr, head.result);
+        const row = {
+          side,
+          enemyId: missionLinkId(enemyCell, 'id', /stats\.php/),
+          enemyName: missionCellText(enemyCell),
+          resultText: missionCellText(resultCell),
+          reportId: missionLinkId(resultCell, 'report_id'),
+          at: missionStamp(tr, head.timestamp)
+        };
+        if (!row.enemyId && !row.reportId && !missionIsStamp(row.at)) continue;   // footer / spacer
+        if (source === 'theftlog') {
+          row.weapon = missionCellText(missionCellAt(tr, head.weaponstolen));
+          row.count = missionCellText(missionCellAt(tr, head.count));
+        } else {
+          row.units = {};
+          for (const [key, h] of Object.entries(head)) {
+            if (!fixed.has(key)) row.units[missionCamelKey(h.text)] = missionCellText(missionCellAt(tr, h));
+          }
+        }
+        rows.push(row);
+      }
+    }
+    return rows;
+  }
+
+  /**
+   * intel.php — only the "Intercepted Intelligence Operations" section:
+   * recon and sab missions run AGAINST you (Time | Enemy | Alliance | Mission
+   * Type | Number of Spies | Spies Caught | TimeStamp). The section is found
+   * by its TITLE: the header row is the first one after that title, before
+   * any other heading, and its rows end at the next section. The "Outgoing
+   * Intelligence Files" list (your own files on other players) is never
+   * sent, whether it is its own table, as captured, or shares this one. No
+   * title, nothing sent. The page does not say whether a mission succeeded;
+   * it does say how many of their spies were caught.
+   */
+  function parseInterceptedOpsPage() {
+    const keys = ['enemy', 'missiontype', 'spiescaught'];
+    const outgoing = (tr) => missionRowCells(tr).some((c) => /^outgoing intelligence files\b/i.test(missionCellText(c) || ''));
+    const all = [...document.querySelectorAll('tr')];
+    const titleRow = all.find((tr) => missionRowCells(tr).some((c) =>
+      !c.querySelector('table') && /^intercepted intelligence operations\b/i.test(missionCellText(c) || '')));
+    if (!titleRow) { debugLog('📜 Mission log: no "Intercepted Intelligence Operations" title on intel.php — nothing read'); return []; }
+    let headerRow = null;
+    for (const tr of all.slice(all.indexOf(titleRow) + 1)) {
+      if (missionIsHeaderRow(tr, keys)) { headerRow = tr; break; }
+      const cells = missionRowCells(tr);
+      if (outgoing(tr) || (cells.length && cells.every((c) => c.tagName === 'TH'))) break;   // another section first
+    }
+    if (!headerRow) return [];
+    const head = missionHeaderMap(headerRow);
+    const rows = [];
+    for (const tr of missionDataRows(headerRow, keys)) {
+      if (outgoing(tr)) break;
+      const enemyCell = missionCellAt(tr, head.enemy);
+      const row = {
+        enemyId: missionLinkId(enemyCell, 'id', /stats\.php/),
+        enemyName: missionCellText(enemyCell),
+        alliance: missionCellText(missionCellAt(tr, head.alliance)),
+        missionText: missionCellText(missionCellAt(tr, head.missiontype)),
+        spies: missionCellText(missionCellAt(tr, head.numberofspies)),
+        caught: missionCellText(missionCellAt(tr, head.spiescaught)),
+        at: missionStamp(tr, head.timestamp)
+      };
+      if (!row.enemyId && !missionIsStamp(row.at)) continue;   // "142 operations total | page 1 of 15"
+      rows.push(row);
+    }
+    return rows;
+  }
+
+  /**
+   * attacklog.php — the "Attacks Against You" and "Attacks By You" row tables
+   * (not the 24-hour summary tables above them). Validated live: each row is
+   * 11 cells — time number, time unit, action ("you attacked" / "attacked
+   * by"), enemy (stats.php?id=), result (detail.php?attack_id=, "N Gold
+   * stolen" / "Attack defended"), enemy losses, your losses, hostages, damage
+   * by the enemy, damage by you, timestamp.
+   *
+   * Columns: a table is read in sections, each starting at a row of column
+   * names (rows above the first have none). A section's header is trusted
+   * only if its FIRST row — the first with both a player link and a battle
+   * link — has the player link under Enemy and the battle link under
+   * Result. If it does not (KoC is not consistent: "Time" is one cell over
+   * three on some pages), the validated 11-cell layout is used instead when
+   * that row fits it ([3] player link, [4] battle link); a section that
+   * fits neither is skipped with a debug line rather than sent with every
+   * value shifted. Under a trusted header, the position map still fills in
+   * columns the header does not name, but only when the header agrees with
+   * it on Enemy and Result.
+   *
+   * Side: decided per row, from the title over that row's own run — two
+   * logs can share one table. A readable title decides. The wording ("you
+   * attacked" / "attacked by", both seen live; a raid is expected to read
+   * the same way) is used only when there is no title; when it disagrees
+   * with the title the row goes with the title's side and a debug line.
+   * Wording nobody has seen never drops a row: with no title either, the
+   * row is sent without a side and the server reads the wording it keeps.
+   *
+   * Banking Mode's reader (bankCollectAttackLog) and the summary enhancer
+   * (enhanceAttackLog) read the same page on their own, untouched by this.
+   */
+  function parseAttackLogRows() {
+    const POS = { action: 2, enemy: 3, result: 4, enemyLosses: 5, yourLosses: 6, hostages: 7, dmgByEnemy: 8, dmgByYou: 9, timestamp: 10 };
+    const statsLink = (el) => !!(el && el.querySelector('a[href*="stats.php?id="]'));
+    const battleLink = (el) => !!(el && el.querySelector('a[href*="attack_id="]'));
+    const wordingSide = (t) => !t ? null
+      : /\bby you\b/i.test(t) || /^you\b/i.test(t) ? 'by' : /\bby\b/i.test(t) ? 'against' : null;
+    const tables = [];
+    for (const tr of document.querySelectorAll('tr')) {
+      const cells = missionRowCells(tr);
+      if (cells.length < 8 || !cells.some((c) => battleLink(c))) continue;
+      const t = tr.closest('table');
+      if (t && !tables.includes(t)) tables.push(t);
+    }
+
+    const rows = [];
+    for (const table of tables) {
+      const sections = [{ headerRow: null, body: [] }];
+      for (const tr of missionOwnRows(table)) {
+        if (missionIsHeaderRow(tr)) sections.push({ headerRow: tr, body: [] });
+        else sections[sections.length - 1].body.push(tr);
+      }
+
+      for (const { headerRow, body } of sections) {
+        const probe = body.find((tr) => statsLink(tr) && battleLink(tr));
+        if (!probe) continue;
+        let head = null;
+        if (headerRow) {
+          const map = missionHeaderMap(headerRow);
+          const pick = (re) => { const k = Object.keys(map).find((key) => re.test(key)); return k ? map[k] : null; };
+          head = {
+            action: pick(/^(action|type|attacktype)$/),
+            enemy: map.enemy || null,
+            result: map.result || null,
+            enemyLosses: pick(/^enemy.*(loss|casualt|killed)/),
+            yourLosses: pick(/^(your|you).*(loss|casualt|killed)/),
+            hostages: pick(/hostage/),
+            dmgByEnemy: pick(/(damage|dmg).*enemy|^enemy.*(damage|dmg)/),
+            dmgByYou: pick(/(damage|dmg).*you|^(your|you).*(damage|dmg)/),
+            timestamp: map.timestamp || null
+          };
+          if (!statsLink(missionCellAt(probe, head.enemy)) || !battleLink(missionCellAt(probe, head.result))) head = null;
+        }
+        const probeCells = missionRowCells(probe);
+        const fitsPositions = probeCells.length === 11 && statsLink(probeCells[POS.enemy]) && battleLink(probeCells[POS.result]);
+        if (!head && !fitsPositions) {
+          debugLog('📜 Mission log: attack-log columns do not line up with the rows — section skipped',
+            { header: headerRow ? missionCellText(headerRow) : null, cells: probeCells.length });
+          continue;
+        }
+        if (headerRow && !head) {
+          debugLog('📜 Mission log: attack-log header does not match its rows — read by the validated 11-cell layout',
+            { header: missionCellText(headerRow) });
+        }
+
+        for (const tr of body) {
+          const cells = missionRowCells(tr);
+          const positional = cells.length === 11 &&
+            (!head || (head.enemy.start === POS.enemy && head.result.start === POS.result));
+          const col = (f) => (head && head[f]) || (positional ? { start: POS[f] } : null);
+          const text = (f) => missionCellText(missionCellAt(tr, col(f)));
+          const enemyCell = missionCellAt(tr, col('enemy'));
+          const resultCell = missionCellAt(tr, col('result'));
+          const actionText = text('action');
+          const row = {
+            side: null,
+            enemyId: missionLinkId(enemyCell, 'id', /stats\.php/),
+            enemyName: missionCellText(enemyCell),
+            actionText,
+            resultText: missionCellText(resultCell),
+            attackId: missionLinkId(resultCell, 'attack_id') || missionLinkId(tr, 'attack_id'),
+            enemyLosses: text('enemyLosses'),
+            yourLosses: text('yourLosses'),
+            hostages: text('hostages'),
+            dmgByEnemy: text('dmgByEnemy'),
+            dmgByYou: text('dmgByYou'),
+            at: missionStamp(tr, col('timestamp'))
+          };
+          if (!row.attackId && !row.enemyId && !missionIsStamp(row.at)) continue;   // footer / spacer
+          if (!head && !positional) {
+            debugLog('📜 Mission log: attack-log row is not in the 11-cell layout — skipped', { cells: cells.length });
+            continue;
+          }
+          const titled = missionLogSide(tr);
+          const worded = wordingSide(actionText);
+          if (titled && worded && worded !== titled) {
+            debugLog('📜 Mission log: attack-log wording disagrees with its title — sent with the title\'s side', { title: titled, actionText });
+          }
+          row.side = titled || worded;
+          if (!row.side) debugLog('📜 Mission log: attack-log row with no title and unknown wording — sent for the server to read', { actionText });
+          rows.push(row);
+        }
+      }
+    }
+    return rows;
+  }
+
+  /**
+   * The id of whoever this member most recently fired a sab or revenge sab
+   * at, if that was within windowMs — from the Sab Tracker's own log
+   * (KoC_SabLog), which hookSabFormCapture writes the moment the button is
+   * pressed. A report page lands a second or two later, so a short window
+   * ties the report to the mission; anything older is not trusted. Pure.
+   */
+  function recentSabTargetId(log, nowMs, windowMs) {
+    let best = null;
+    for (const [id, rec] of Object.entries(log && typeof log === 'object' ? log : {})) {
+      for (const e of [...((rec && rec.sab) || []), ...((rec && rec.rev) || [])]) {
+        if (!e || typeof e.t !== 'number' || nowMs - e.t > windowMs || e.t - nowMs > 5000) continue;
+        if (!best || e.t > best.t) best = { id, t: e.t };
+      }
+    }
+    return best ? best.id : null;
+  }
+
+  /**
+   * The text lines of a sab report (inteldetail.php) — the report and
+   * nothing else. On the live page the "Covert Mission Report" table holds
+   * only its title and closes at once; the report sentences sit loose in the
+   * page's own content cell, after the Attack / Raid / Recon button tables,
+   * split by <p>, and are followed by the "Return to Top" table and the
+   * footer. That content cell also holds the era notice, the footer links
+   * and the copyright lines, so it cannot simply be read whole.
+   *
+   * So the page is read in order, one entry per line as it shows on screen
+   * (<br> and block edges end a line; a link inside a sentence stays part of
+   * it), with a marker wherever a table starts or ends. The report is the
+   * line with "attempt to sabotage" (the dispatch line) and every line after
+   * it up to the first table edge — the "Return to Top" table on the live
+   * page, or the end of the table cell when a report sits inside one.
+   * Nothing before the dispatch line is part of it. The walk starts at the
+   * document root, not document.body: the live page opens an <a name="top">
+   * before its <body> tag, which some parsers answer with a second, empty
+   * body element.
+   */
+  function sabReportLines() {
+    const EDGE = {};
+    const out = [];
+    let cur = '';
+    const endLine = () => { const l = cur.replace(/\s+/g, ' ').trim(); if (l) out.push(l); cur = ''; };
+    const BLOCK = /^(P|DIV|TR|TD|TH|TBODY|THEAD|UL|OL|LI|CENTER|BLOCKQUOTE|FORM|H[1-6])$/;
+    const walk = (node) => {
+      if (node.nodeType === 3) { cur += node.textContent || ''; return; }
+      if (node.nodeType !== 1) return;
+      const tag = node.tagName;
+      if (tag === 'SCRIPT' || tag === 'STYLE') return;
+      if (tag === 'BR') { endLine(); return; }
+      const table = tag === 'TABLE';
+      const block = table || BLOCK.test(tag);
+      if (block) endLine();
+      if (table) out.push(EDGE);
+      for (const child of node.childNodes) walk(child);
+      if (block) endLine();
+      if (table) out.push(EDGE);
+    };
+    walk(document.documentElement);
+    endLine();
+
+    const start = out.findIndex((l) => l !== EDGE && /attempt to sabotage/i.test(l));
+    if (start < 0) return [];
+    const lines = [];
+    for (const l of out.slice(start)) {
+      if (l === EDGE) break;
+      lines.push(l);
+    }
+    return lines.slice(0, 60).map((l) => l.slice(0, 500));
+  }
+
+  /**
+   * inteldetail.php?report_id=R when it is a SAB report ("… to attempt to
+   * sabotage 1125 Nunchakus."). Recon reports share the page and are left to
+   * collectFromIntelDetailPage. The lines go to the server as printed; it
+   * reads weapons destroyed, spies and sentries executed, gold and XP from
+   * them, and only "You were successful in destroying" counts as a success.
+   * The target: the page's own "Sabotage Again!" form names them
+   * (defender_id) when it is there; otherwise the sab this member fired in
+   * the last 2 minutes; otherwise unknown — the report id still ties the row
+   * to the same mission in the intel file.
+   */
+  function parseSabReportPage() {
+    const reportId = (location.search.match(/[?&]report_id=(\d+)/) || [])[1] || null;
+    if (!reportId) return null;
+    const lines = sabReportLines();
+    const dispatch = lines.find((l) => /attempt to sabotage/i.test(l));
+    if (!dispatch) return null;
+    const inside = lines.map((l) => l.match(/While inside (.+?)'s armory/i)).find(Boolean);
+    const form = document.querySelector('input[name="defender_id"]');
+    const targetId = form && /^\d+$/.test(form.value || '')
+      ? form.value
+      : recentSabTargetId(getSabLog(), Date.now(), 2 * 60 * 1000);
+    return {
+      source: 'report',
+      family: 'intel',
+      reportId,
+      targetId,
+      targetName: inside ? inside[1].trim() : null,
+      missionText: dispatch,
+      lines
+    };
+  }
+
+  /** Which mission page this is, from the address; null on every other page. */
+  function missionLogSource() {
+    const page = (location.pathname.split('/').pop() || '').toLowerCase();
+    return ({
+      'intelfile.php': 'intelfile',
+      'poisonlog.php': 'poisonlog',
+      'theftlog.php': 'theftlog',
+      'intel.php': 'intel',
+      'attacklog.php': 'attacklog',
+      'inteldetail.php': 'report'
+    })[page] || null;
+  }
+
+  /**
+   * The request body for POST api/war-room/missions (utils/missions.js reads
+   * it), or null when the page holds nothing to record. At most 200 rows —
+   * the server's cap; a page shows 10 per table.
+   */
+  function buildMissionPayload(source) {
+    const cap = (rows) => rows.slice(0, 200);
+    if (source === 'intelfile') {
+      const page = parseIntelFilePage();
+      return page && page.rows.length
+        ? { source, targetId: page.targetId, targetName: page.targetName, rows: cap(page.rows) } : null;
+    }
+    if (source === 'poisonlog' || source === 'theftlog') {
+      const rows = parseMissionLogPage(source);
+      return rows.length ? { source, rows: cap(rows) } : null;
+    }
+    if (source === 'intel') {
+      const rows = parseInterceptedOpsPage();
+      return rows.length ? { source, rows: cap(rows) } : null;
+    }
+    if (source === 'attacklog') {
+      const rows = parseAttackLogRows();
+      return rows.length ? { source, rows: cap(rows) } : null;
+    }
+    if (source === 'report') return parseSabReportPage();
+    return null;
+  }
+
+  /**
+   * One request per page view, fire-and-forget: nothing on the page waits on
+   * it or changes because of it, and a failure is only ever a debug line.
+   * The server dedupes (by report id where the page links one), so a reload
+   * or the same mission seen from both sides never counts twice.
+   */
+  function sendMissionLog() {
+    let body = null;
+    try {
+      const source = missionLogSource();
+      body = source ? buildMissionPayload(source) : null;
+    } catch (e) {
+      debugLog('📜 Mission log: page not read', e);
+      return null;
+    }
+    if (!body) { debugLog('📜 Mission log: nothing to record on this page'); return null; }
+    return Promise.resolve()
+      .then(() => auth.apiCall('api/war-room/missions', body))
+      .then((res) => debugLog(`📜 Mission log (${body.source}): ${body.rows ? body.rows.length + ' rows' : 'report ' + body.reportId} sent`, res))
+      .catch(() => { /* never break the page */ });
   }
 
   // ==================== ATTACK PAGE: MISSION BOXES ====================
@@ -10098,6 +10852,12 @@
       note: 'All of that — including your own attempt and success counters for each target you open — is visible to everyone with roster access, and used for members\' success rates. It is recorded only when you open an attack page yourself; the script never fires a mission.'
     },
     {
+      id: 'mission-log', group: 'Attack & Intel', kind: 'sync',
+      name: 'Mission history',
+      desc: 'When you open your Intelligence page, a target\'s Intelligence file, the Poison Log, the Theft Log or the Attack Log, records the missions listed on that page to the alliance roster: your own sab, recon, poison, theft, attack and raid missions with their results (success, aborted, failed, defended — and what was stolen or destroyed), and the missions other players ran against you: who, when, what kind, how many spies, and what they took. Stored with them: the unit losses from the Poison Log; the casualties on both sides, the damage both ways and the hostages from the Attack Log; and the attacker\'s alliance and how many of their spies were caught from the Intelligence page. Any sab report you open is recorded too — not only one you just ran — with the report\'s full text: weapons destroyed, spies and sentries executed, and the gold and XP gained. The War Room turns this into success rates per member and per mission type.',
+      note: 'Your success rates, and every mission behind them, are visible to everyone with roster access — as are the missions run against you. Rates are per member and per mission type, never per target. Only the page you open is read: the script never turns a page, opens a report or fetches anything, and these pages are left exactly as the game drew them.'
+    },
+    {
       id: 'attack-log-enhancer', group: 'Attack & Intel', kind: 'display',
       name: 'Attack log enhancer',
       desc: 'Adds your average gold per attack to the attack log\'s 24-hour summary headers, and quietly notes how much gold attackers stole from you. Both numbers are saved only on your device.',
@@ -10538,6 +11298,12 @@
     { f: 'attack-warnings', label: 'initAttackWarnings', when: () => onPage("attack.php"), run: () => initAttackWarnings() },
     // Intel file (per-target mission log) backfills the Sab Tracker with exact server times
     { f: 'sab-tracker', label: 'collectFromIntelFilePage', when: () => onPage("intelfile.php"), run: () => collectFromIntelFilePage() },
+    // Mission history: the intel file, Intelligence, Poison / Theft / Attack
+    // Log and sab-report pages, each read as the member opened it and sent as
+    // ONE request. After every other step on those pages (the Sab Tracker's
+    // intel-file read, Banking Mode's attack-log read, the recon collector on
+    // inteldetail) and not awaited: nothing waits on it.
+    { f: 'mission-log', label: 'sendMissionLog', when: () => missionLogSource() !== null, run: () => { sendMissionLog(); } },
     // detail.php also substring-matches inteldetail.php — the attack_id guard is what keeps this attack-only
     { f: 'attack-collectors', label: 'collectAttackLog', when: () => onPage("detail.php") && /attack_id=/.test(location.search), run: async () => {
         collectAttackLog();
