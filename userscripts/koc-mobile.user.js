@@ -1,10 +1,12 @@
 // ==UserScript==
 // @name         KoC Mobile Skin
 // @namespace    trevo88423
-// @version      1.9.1
+// @version      1.9.2
 // @description  Makes kingsofchaos.com usable one-handed on a phone: hamburger nav drawer, sticky stats bar (tap to expand), full-width content. v1 = sidebar only. No-op on desktop.
 // @author       Trevor
 // @match        *://*.kingsofchaos.com/*
+// @exclude      *://*.kingsofchaos.com/warlist.php*
+// @exclude      *://*.kingsofchaos.com/farmlist.php*
 // @icon         https://www.kingsofchaos.com/kingsofchaos_favicon.svg
 // @updateURL    https://raw.githubusercontent.com/Trevo88423/koc-userscripts/main/userscripts/koc-mobile.user.js
 // @downloadURL  https://raw.githubusercontent.com/Trevo88423/koc-userscripts/main/userscripts/koc-mobile.user.js
@@ -105,6 +107,10 @@
  *   understands that button VALUES don't appear in textContent (stats.php's
  *   action row) and that hidden inputs aren't content.
  *
+ * v1.9.2 (game rule): @excluded from warlist.php and farmlist.php — "Alliance
+ *   scripts cannot make any changes to warlist.php and farmlist.php at all",
+ *   and a skin is nothing but changes. Those two pages render desktop-wide.
+ *
  * Page anatomy this is written against (view-source of training.php, Era 23):
  *   <table height=164 background=".../small_repeater.gif">   ← decorative banner
  *   <table width=100% cellpadding=5><tr>
@@ -126,6 +132,12 @@
 
 (function () {
   'use strict';
+
+  // The game's script rules: "Alliance scripts cannot make any changes to
+  // warlist.php and farmlist.php at all." The @exclude lines keep the skin off
+  // those pages; this is the belt to their braces, for managers that ignore
+  // excludes or an address the patterns don't cover.
+  if (/\/(warlist|farmlist)\.php/i.test(location.pathname)) return;
 
   // ---------------------------------------------------------------- gate --
   var MOBILE_MAX = 768;
