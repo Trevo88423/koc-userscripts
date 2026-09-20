@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name         KoC Data Centre
 // @namespace    trevo88423
-// @version      2.25.2
-// @description  Sweet Revenge alliance tool: tracks stats, syncs to API, adds dashboards, XP→Turn calculator, mini Top Stats panel. v2.25.2: Fix — the battle report you land on after attacking or raiding now counts in Mission history's 24h and 7-day figures straight away, whichever page you attacked from: the attack page, a recon report, a theft report or an "… Again!" button. Until now only the attack page and the "… Again!" buttons were recognised, so a battle launched from a recon report was stored without its time. Also: a battle report you open later (from the Attack Log, say) no longer takes the stolen gold off the target's current gold estimate: that gold was stolen back when the battle happened, not now. v2.25.1: Fix — raids were stored with no gold and no target. The battle-report reader only knew how an attack's report words its first line ("You stole … gold while attacking …'s camp"); a raid's says "while raiding", so every raid went into the alliance's attack records as 0 gold stolen from "Unknown". Raids now record the gold, the target and the hostages, and a lost battle takes the target's name from the report ("…'s forces overpowered your army!"). Also: your own attacks and raids now count in Mission history straight from the battle report — the one you land on after an attack or raid, or one of yours you open later from the Attack Log — with whether it was an attack or a raid (from the game's own "Raid Again!" / "Attack Again!" button, or the report's wording) and whether you won; the report you land on is also stamped with the time. Also fixed: opening the battle report of another player's attack on you recorded it in the alliance's attack records as your own attack on them. Battle reports of other players attacking you are now not recorded at all — the Attack Log still lists those attacks. As before, only the page you open is read and it is left exactly as the game drew it. v2.25.0: Mission history — the pages that list missions are now read when you open them and shared with the alliance roster: a target's Intelligence file (your recon and sab missions on them, Success or Aborted), the Poison Log and Theft Log (both directions, with what was stolen), your Intelligence page (recon and sab missions run against you, and how many of their spies were caught) and the Attack Log (attacks and raids both ways, with gold stolen and losses). Any sab report you open adds its details too — what it destroyed, spies and sentries executed, gold and XP. This feeds the War Room's new success rates — per member and per mission type, never per target — which are visible to everyone with roster access, as the settings panel now says. The script sends each page's own wording and the server interprets it, so a result nobody has seen yet (a successful poison, say) is kept rather than lost and is sorted out once it turns up. Only the page you open is read: it never turns a page, opens a report or fetches anything, and those pages look exactly as before. Also: the Sab Tracker's Intelligence-file backfill now shares that same read. v2.24.0: Attack page range warnings — under each mission's "can … up to …" line the attack page now says whether the target is actually in reach: their sentry, antidote, vigilance or defensive action as last recorded by the alliance, against the limit the game prints for you, with how old that reading is. ⛔ Out of range means the mission will fail — the game lets an out-of-range theft fire anyway, which is how four thefts on one target all failed. The Theft box also gets a theft-cap line: how much of the target's daily theft cap is left, or THEFT MAXED. New Target check log: every attack page you open records that you checked that target — whether it was maxed, how much of its sab and theft caps is used, and your own attempt and success counters on it — so the War Room can show who saw a target maxed and how long ago; those counters are visible to everyone with roster access and will feed members' success rates. The War List collector now also shares who is on the list, when and why they were added, and your own "My 24hr" counters — and on the War List and Farm List the script now makes no changes at all (no toasts, no styles, no overlays), as the game's rules require. The settings panel now says exactly what the Sab Tracker sends. v2.23.2: Fix — the Sab Tracker vanished on the page the game shows after refusing a sab on a maxed target ("This player has been maxxed…"): that page has no player id in its address, so the tracker, the TIV reading and the sab-cap sharing all quietly gave up — at the one moment the script knew for certain the target was maxed. They now read the target from the page itself. Also fixes the Intelligence-file backfill for the Sab Tracker, which looked for the mission type in the wrong column and so never matched a row; it now finds the column by its header. v2.23.1: Inactive Accounts sync now works while you are logged out — including while you are on vacation and cannot log in — using the login saved from your last visit. On that page, logged out, it is the only thing the script does; every other feature still needs you logged in. Also: a network blip or server restart while renewing your session no longer logs you out of the script. v2.23.0: Inactive Accounts sync — opening the in-game Inactive Accounts page now shares the list with the alliance roster: who went into Vacation Mode and exactly when, and who has been deleted. Anyone who has dropped off the list since the last visit is marked back from vacation. This powers the new Vacation Watch tab on the dashboard, with live countdowns to when each player can return. The script only reads the page you open; the more often members check it, the sooner returns show up. v2.22.0: The War List's "Last Sab" column is now collected too — who last hit each target, for how much, and how long ago — giving the war dashboard a "Last hit" column that shows which targets the alliance is actually working and which nobody has touched, plus a running log of destroyed value for the war. v2.21.2: Fix — TIV readings from the attack page and your Armory were being sent with a timestamp field nothing reads, so they arrived unstamped and skipped the server's "only overwrite if newer" guard, letting an older reading quietly replace a fresher one. v2.21.1: War List collector reads the AAT and Sentry cells from their own DOM nodes instead of the cell's flattened text — those cells hold two numbers separated only by a line break, so any flattening ran "488" and "488,000,000 damage per sab" together into 488 billion. Works on both the Alliance and Single Target lists. v2.21.0: War List collector — opening the War List now records, for every player on it at once, their sentry (stamped with the age the game itself shows, so it never overwrites fresher recon), the weapon the game recommends sabbing them with, and the AAT: how many of that weapon they actually hold plus the gold one full sab would destroy. The war dashboard gets an AAT column and a "Min AAT" filter, so targets who simply do not own enough weapons to be worth organising around can be filtered out in one click. v2.20.1: Fix — race now updates when a player switches race. Race was only ever read from a full recon report, so a race change sat wrong in the roster until somebody spent a recon on that player, even though every visit to their stats page showed the new race in plain sight; the stats-page collector now reads the Information table too (race and rank), and it no longer gives up on players who have no shared recon data. v2.20.0: Sab cap sharing — opening any attack page now records that target's "Total lost from sabbs in the last 24hours" and "Maximum Daily Sabotage loss" to the alliance roster, so the War Room can show how much of every player's daily cap is already gone and how much gold is still worth sabbing, with a share button that copies a Discord-ready line. Also fixes the sab-cap reader: KoC prints the cap with decimals when it isn't a whole number, which the old pattern could not match, so the in-game "sab damage left before maxed" line silently never appeared on those targets. v2.19.1: Fix — a target sabbed flat reads "Total Invested Value: ()" with empty brackets, which the TIV collector could not parse, so the roster kept that player's pre-sab value forever and never stopped asking for a recon that could not land; empty brackets now record as a real 0 (on your own Armory too), while a box the script genuinely cannot read is left alone instead of writing a false zero. v2.19.0: Stat Reshuffler — Goal mode: pick a stat and type a target rating (commas fine, or shorthand like 4.78T) and the calculator shows the gap from your PROJECTED rating — so your sells, race change and re-buys are already counted — plus how many weapons and how much gold on top of the plan would close it, netting off any unspent pool. Warns when your units couldn't hold that many more weapons. The goal is remembered between visits and updates live as you tweak the scenario. v2.18.3: Stat Reshuffler — the launcher moved: it now sits as a full-width banner directly above the "Armory Preferences" header, styled by cloning that header's own theme (background, border, font) so it looks native in any skin; falls back to the old Total Invested Value spot if the header isn't found. v2.18.2: Stat Reshuffler — stale-multiplier warning: a learned weapon multiplier quietly goes wrong after skill/tech upgrades (it only refreshes when you buy), which left phantom rating behind on sell-all scenarios; the reshuffler now compares each learned multiplier against what your live rating implies and flags "⚠ stale multiplier — buy 1 to recalibrate" per stat plus a summary warning, with the multiplier's age shown. v2.18.1: Stat Reshuffler — new "Ignore carrier caps" toggle for when you're happy to train soldiers/covert units as needed: projections then count every weapon as held (including ones currently sitting unheld) and the ⚠ unheld warnings disappear; the choice is remembered. v2.18.0: Stat Reshuffler — a 🔀 button under the Armory's Total Invested Value box opens a full what-if rework calculator: choose weapons (or whole categories) to sell, optionally switch race, and pour the proceeds — plus your on-hand + vault gold if you tick it — into any mix of the eight stats. It projects the gold you'd recover (sales pay 50% and land in your Vault), how many of each weapon you could buy, whether your units can actually carry them (unheld weapons add nothing), your projected new ratings including the race-bonus swing, and your new TIV. Pure calculator — it never sells, buys or presses anything. v2.17.1: Fix — clicking the sidebar Sweet Revenge logo now opens the feature-settings popup (same as the ⚙ Data Centre link) instead of navigating away. Internal cleanup: removed the unused armory sell-value cache (nothing has used it since the v2.11.2 "Upgrade Ready" rework). v2.17.0: Feature Settings — a new "⚙ Data Centre" link in the sidebar opens a settings panel where EVERY feature can be switched on/off individually (or all at once with the master switch), each with a plain-English description of what it does and a badge showing whether it only changes your display or also records data to the alliance roster; toggles apply on the next page load and everything stays ON by default, so nothing changes until you say so. Under the hood the script's ~40 page hooks were rebuilt onto a single feature registry that drives both the dispatcher and the panel, ~600 lines of dead legacy code were removed, and small fixes landed (DST helper deduplicated, script load message now always visible in console, toast animation style no longer re-injected per notification). Also: the sidebar Sweet Revenge logo is now a link to the Data Centre (with a hover glow), and the Top Stats panel's Debug button is gone — debug mode lives in the console via KoCDebug.toggle(). v2.16.0: Sab Tracker learns the exclusivity rule — per target you either regular-sab OR revenge-sab in a 24h window, so the panels now show 🔒 "Regular sabs locked — you revenge-sabbed this target" with an unlock countdown that keeps working after the Revenge section vanishes (target un-maxed — exactly when KoC hides the info), and 🔒 "Revenge locked — you've sabbed this target this window" when the Revenge form is up but unusable; the native "First sab (last 24hrs)" row is age-formatted like the rest and its exact server stamp now anchors the tracker, making the "Can sab again in …" countdown precise instead of an estimate. v2.15.0: Sabotage Tracker on attack.php — "You last sabbed / poisoned / stole" and the revenge timestamps now show colour-coded ages like the stats pages (hover for the raw server time); the Sabotage and Revenge Sabotage sections get a live status line: attempts left in the rolling 24h window with a ticking "Can sab again in …" countdown when you're out of slots (10 sabs / 4 revenge per target per 24h, tracked automatically whenever you fire a sab and backfilled with exact server times when you open the target's Intelligence file), plus a "sab damage left before maxed" line (Maximum Daily Sabotage loss − lost in last 24h) that flips to TARGET MAXED when the cap is hit. Display-only: it records only missions you fire by hand and never presses anything. v2.14.0: Tech Level Projector — the "Stats After Upgrading Tech" table on safe.php gets a "Project to" dropdown: pick ANY future tech level (up to Obi Bon Kenobi) and the table shows your projected stats at that level, with the total ▲% vs now and the cumulative EXP needed across all the upgrades in between. v2.13.1: Rank-neighbour links now blend into the native table — no dot markers or underline, the numbers just quietly became links (hover tooltip still shows who it is, data age, and gap/stale warnings). v2.13.0: Rank-neighbour recon links — the "Rating For Previous/Next Rank Gain" numbers are now hyperlinks to the player we believe holds that rank (matched by rating value from the roster DB, never by stale DB rank), with a tooltip showing who it is + how fresh their data is; an orange dot means a DB gap (recon upward), a red dot means DB rank/rating disagree (recon me first). Click → recon → DB refreshes; wrong candidates rotate out on the next page load, so the links self-correct toward the true neighbour. v2.11.2: Banking Mode redesigned — your exposed gold now shows in a native-style "Estimated Funds" box that matches the in-game funds boxes, with a ⚙ that holds the Banking Mode toggle, screen-awake, and all settings (including an optional "show yellow/red times" line); a live-ticking Server Time clock on every page; and the Upgrades "Upgrade Ready" row now uses realistic funds (drops full-armory-sell) and shows any shortfall as a slay estimate. v2.10.1: Fix — the slider Armory Preferences now also resync when you press KoC's "Clear Percentage Prefills" button (sliders drop to 0 instead of keeping their old values). v2.10.0: New slider-based Armory Preferences — drag to allocate with auto-balancing, theme-matched styling, and one-tap presets (Cheapest first, Optimizer, All spy, All defense) plus saved presets — replacing the in-game percentage form; rank Optimizer also fixed (weapon efficiency now synced). v2.9.0: "Time to upgrade" + "EXP still needed to be deposited" now show on ALL EXP-cost safe.php upgrades (Increase Soldiers, Economic Development, SAFE Upgrade) — not just Technological Development. v2.8.2: Fix — "EXP still needed to be deposited" now shows cost − Experience Bank (what must still be banked) instead of also subtracting on-hand EXP, so it no longer reads 0 when you hold the EXP but haven't deposited it. v2.8.1: Fix — sidebar abbreviates large gold/safe values (e.g. "2,560M"); getSidebarValue now parses K/M/B/T suffixes so SAFE Forecasts and gold-upgrade rows use real balances (previously read as ~0). SAFE Forecasts also uses the full-precision "Gold in Safe" value. v2.8.0: SAFE Forecasts on safe.php — time for your Safe to reach 1B/2B/5B/9B/10B(MAX) based on current Safe + deposit/min. v2.7.0: Gold upgrade timer — upgrades.php now shows "Upgrade Ready" (liquidation + safe-growth time) and "Gold Needed on top of Safe" under each skill upgrade (uses gold/vault/safe + full armory sell value from Armory + safe deposit rate from Safe). v2.6.0: Tech upgrade timer — safe.php now shows "Time to upgrade" + "EXP still needed to be deposited" under Technological Development (uses EXP on-hand + Experience Bank + your EXP/turn rate, auto-captured from the Upgrades page). v2.5.1: Banking Mode last-bank fix — now watches the per-weapon buy form (anotherbuyform), not just the hidden one-click form, and stamps banks reliably for high-income accounts. v2.5.0: 🏦 Banking Mode on the Armory page — toggleable inline widget that projects your exposed (stealable) gold every second, colour-codes the risk (SAFE/CAUTION/DANGER) from your attack-log steal history, shows time-to-yellow/red, and keeps the screen awake. Display-only: no automated requests, observes (never presses) the buy/repair forms. v2.4.0: Banking trend graph (📈 in the sidebar tracks your banked % over time) + manual override for Avg Gold/Atk (✏️ in the sidebar, survives attack-log recalibration). v2.3.4: Recons panel now shares counts alliance-wide via API (previously localStorage-only — each user only saw themselves). v2.3.0: Added "Stats If You Attacked Instead" table on safe.php to compare tech upgrades vs attacking. v2.2.9: Added optimizer auto-fill for armory (uses roster API to calculate optimal stat allocation). v2.2.8: Minor fixes. v2.1.0: Integrated slaying competition tracker (attack missions & gold stolen tracking, team competitions, leaderboards). v2.0.0: Optimized API architecture, previous versions deprecated.
+// @version      2.25.3
+// @description  Sweet Revenge alliance tool: tracks stats, syncs to API, adds dashboards, XP→Turn calculator, mini Top Stats panel. v2.25.3: The roster's War List tab now counts down when your own sab and theft attempts on each target come back — the game's rolling 24 hours, attempt by attempt, from what the game itself showed you. To make those times exact: the attack page now also records the times the game prints for your own first and last successful sab, steal and poison on that target, and the game's "You have used the maximum … attempts" line; and the sab or theft report you land on right after the mission is stamped with the Server Time that page shows. A page brought back with the Back button is not recorded again. Theft reports are now recorded too: what you stole, or that the theft failed. A theft report showing somebody stealing from you is not recorded. Fix — the Sab Tracker counted a press the game refused (one more after your tenth sab, or a sab on a maxed target) as an attempt, and to make room for it dropped your oldest attempt time, even an exact one. A refused press is no longer counted, and the report you land on after a sab now gives the tracker that sab's exact time. The attack page's "First sab" time is a first SUCCESSFUL sab and the page never says whose, so no countdown is built on it any more — anywhere. An attempt the tracker never saw now counts from the moment you opened the page and reads "≤" (at the latest): less exact, but it can only ever run late, never let you fire early. Because earlier versions filed that "First sab" time as one of your own attempts, and nothing stored in your browser can tell those rows from real ones, updating clears the sab times already tracked, once: for up to 24 hours after the update a target you sabbed before it reads "≤ about 24h from now" — too late rather than too early — until the game's own times come back from the reports you land on and the target's Intelligence file. v2.25.2: Fix — the battle report you land on after attacking or raiding now counts in Mission history's 24h and 7-day figures straight away, whichever page you attacked from: the attack page, a recon report, a theft report or an "… Again!" button. Until now only the attack page and the "… Again!" buttons were recognised, so a battle launched from a recon report was stored without its time. Also: a battle report you open later (from the Attack Log, say) no longer takes the stolen gold off the target's current gold estimate: that gold was stolen back when the battle happened, not now. v2.25.1: Fix — raids were stored with no gold and no target. The battle-report reader only knew how an attack's report words its first line ("You stole … gold while attacking …'s camp"); a raid's says "while raiding", so every raid went into the alliance's attack records as 0 gold stolen from "Unknown". Raids now record the gold, the target and the hostages, and a lost battle takes the target's name from the report ("…'s forces overpowered your army!"). Also: your own attacks and raids now count in Mission history straight from the battle report — the one you land on after an attack or raid, or one of yours you open later from the Attack Log — with whether it was an attack or a raid (from the game's own "Raid Again!" / "Attack Again!" button, or the report's wording) and whether you won; the report you land on is also stamped with the time. Also fixed: opening the battle report of another player's attack on you recorded it in the alliance's attack records as your own attack on them. Battle reports of other players attacking you are now not recorded at all — the Attack Log still lists those attacks. As before, only the page you open is read and it is left exactly as the game drew it. v2.25.0: Mission history — the pages that list missions are now read when you open them and shared with the alliance roster: a target's Intelligence file (your recon and sab missions on them, Success or Aborted), the Poison Log and Theft Log (both directions, with what was stolen), your Intelligence page (recon and sab missions run against you, and how many of their spies were caught) and the Attack Log (attacks and raids both ways, with gold stolen and losses). Any sab report you open adds its details too — what it destroyed, spies and sentries executed, gold and XP. This feeds the War Room's new success rates — per member and per mission type, never per target — which are visible to everyone with roster access, as the settings panel now says. The script sends each page's own wording and the server interprets it, so a result nobody has seen yet (a successful poison, say) is kept rather than lost and is sorted out once it turns up. Only the page you open is read: it never turns a page, opens a report or fetches anything, and those pages look exactly as before. Also: the Sab Tracker's Intelligence-file backfill now shares that same read. v2.24.0: Attack page range warnings — under each mission's "can … up to …" line the attack page now says whether the target is actually in reach: their sentry, antidote, vigilance or defensive action as last recorded by the alliance, against the limit the game prints for you, with how old that reading is. ⛔ Out of range means the mission will fail — the game lets an out-of-range theft fire anyway, which is how four thefts on one target all failed. The Theft box also gets a theft-cap line: how much of the target's daily theft cap is left, or THEFT MAXED. New Target check log: every attack page you open records that you checked that target — whether it was maxed, how much of its sab and theft caps is used, and your own attempt and success counters on it — so the War Room can show who saw a target maxed and how long ago; those counters are visible to everyone with roster access and will feed members' success rates. The War List collector now also shares who is on the list, when and why they were added, and your own "My 24hr" counters — and on the War List and Farm List the script now makes no changes at all (no toasts, no styles, no overlays), as the game's rules require. The settings panel now says exactly what the Sab Tracker sends. v2.23.2: Fix — the Sab Tracker vanished on the page the game shows after refusing a sab on a maxed target ("This player has been maxxed…"): that page has no player id in its address, so the tracker, the TIV reading and the sab-cap sharing all quietly gave up — at the one moment the script knew for certain the target was maxed. They now read the target from the page itself. Also fixes the Intelligence-file backfill for the Sab Tracker, which looked for the mission type in the wrong column and so never matched a row; it now finds the column by its header. v2.23.1: Inactive Accounts sync now works while you are logged out — including while you are on vacation and cannot log in — using the login saved from your last visit. On that page, logged out, it is the only thing the script does; every other feature still needs you logged in. Also: a network blip or server restart while renewing your session no longer logs you out of the script. v2.23.0: Inactive Accounts sync — opening the in-game Inactive Accounts page now shares the list with the alliance roster: who went into Vacation Mode and exactly when, and who has been deleted. Anyone who has dropped off the list since the last visit is marked back from vacation. This powers the new Vacation Watch tab on the dashboard, with live countdowns to when each player can return. The script only reads the page you open; the more often members check it, the sooner returns show up. v2.22.0: The War List's "Last Sab" column is now collected too — who last hit each target, for how much, and how long ago — giving the war dashboard a "Last hit" column that shows which targets the alliance is actually working and which nobody has touched, plus a running log of destroyed value for the war. v2.21.2: Fix — TIV readings from the attack page and your Armory were being sent with a timestamp field nothing reads, so they arrived unstamped and skipped the server's "only overwrite if newer" guard, letting an older reading quietly replace a fresher one. v2.21.1: War List collector reads the AAT and Sentry cells from their own DOM nodes instead of the cell's flattened text — those cells hold two numbers separated only by a line break, so any flattening ran "488" and "488,000,000 damage per sab" together into 488 billion. Works on both the Alliance and Single Target lists. v2.21.0: War List collector — opening the War List now records, for every player on it at once, their sentry (stamped with the age the game itself shows, so it never overwrites fresher recon), the weapon the game recommends sabbing them with, and the AAT: how many of that weapon they actually hold plus the gold one full sab would destroy. The war dashboard gets an AAT column and a "Min AAT" filter, so targets who simply do not own enough weapons to be worth organising around can be filtered out in one click. v2.20.1: Fix — race now updates when a player switches race. Race was only ever read from a full recon report, so a race change sat wrong in the roster until somebody spent a recon on that player, even though every visit to their stats page showed the new race in plain sight; the stats-page collector now reads the Information table too (race and rank), and it no longer gives up on players who have no shared recon data. v2.20.0: Sab cap sharing — opening any attack page now records that target's "Total lost from sabbs in the last 24hours" and "Maximum Daily Sabotage loss" to the alliance roster, so the War Room can show how much of every player's daily cap is already gone and how much gold is still worth sabbing, with a share button that copies a Discord-ready line. Also fixes the sab-cap reader: KoC prints the cap with decimals when it isn't a whole number, which the old pattern could not match, so the in-game "sab damage left before maxed" line silently never appeared on those targets. v2.19.1: Fix — a target sabbed flat reads "Total Invested Value: ()" with empty brackets, which the TIV collector could not parse, so the roster kept that player's pre-sab value forever and never stopped asking for a recon that could not land; empty brackets now record as a real 0 (on your own Armory too), while a box the script genuinely cannot read is left alone instead of writing a false zero. v2.19.0: Stat Reshuffler — Goal mode: pick a stat and type a target rating (commas fine, or shorthand like 4.78T) and the calculator shows the gap from your PROJECTED rating — so your sells, race change and re-buys are already counted — plus how many weapons and how much gold on top of the plan would close it, netting off any unspent pool. Warns when your units couldn't hold that many more weapons. The goal is remembered between visits and updates live as you tweak the scenario. v2.18.3: Stat Reshuffler — the launcher moved: it now sits as a full-width banner directly above the "Armory Preferences" header, styled by cloning that header's own theme (background, border, font) so it looks native in any skin; falls back to the old Total Invested Value spot if the header isn't found. v2.18.2: Stat Reshuffler — stale-multiplier warning: a learned weapon multiplier quietly goes wrong after skill/tech upgrades (it only refreshes when you buy), which left phantom rating behind on sell-all scenarios; the reshuffler now compares each learned multiplier against what your live rating implies and flags "⚠ stale multiplier — buy 1 to recalibrate" per stat plus a summary warning, with the multiplier's age shown. v2.18.1: Stat Reshuffler — new "Ignore carrier caps" toggle for when you're happy to train soldiers/covert units as needed: projections then count every weapon as held (including ones currently sitting unheld) and the ⚠ unheld warnings disappear; the choice is remembered. v2.18.0: Stat Reshuffler — a 🔀 button under the Armory's Total Invested Value box opens a full what-if rework calculator: choose weapons (or whole categories) to sell, optionally switch race, and pour the proceeds — plus your on-hand + vault gold if you tick it — into any mix of the eight stats. It projects the gold you'd recover (sales pay 50% and land in your Vault), how many of each weapon you could buy, whether your units can actually carry them (unheld weapons add nothing), your projected new ratings including the race-bonus swing, and your new TIV. Pure calculator — it never sells, buys or presses anything. v2.17.1: Fix — clicking the sidebar Sweet Revenge logo now opens the feature-settings popup (same as the ⚙ Data Centre link) instead of navigating away. Internal cleanup: removed the unused armory sell-value cache (nothing has used it since the v2.11.2 "Upgrade Ready" rework). v2.17.0: Feature Settings — a new "⚙ Data Centre" link in the sidebar opens a settings panel where EVERY feature can be switched on/off individually (or all at once with the master switch), each with a plain-English description of what it does and a badge showing whether it only changes your display or also records data to the alliance roster; toggles apply on the next page load and everything stays ON by default, so nothing changes until you say so. Under the hood the script's ~40 page hooks were rebuilt onto a single feature registry that drives both the dispatcher and the panel, ~600 lines of dead legacy code were removed, and small fixes landed (DST helper deduplicated, script load message now always visible in console, toast animation style no longer re-injected per notification). Also: the sidebar Sweet Revenge logo is now a link to the Data Centre (with a hover glow), and the Top Stats panel's Debug button is gone — debug mode lives in the console via KoCDebug.toggle(). v2.16.0: Sab Tracker learns the exclusivity rule — per target you either regular-sab OR revenge-sab in a 24h window, so the panels now show 🔒 "Regular sabs locked — you revenge-sabbed this target" with an unlock countdown that keeps working after the Revenge section vanishes (target un-maxed — exactly when KoC hides the info), and 🔒 "Revenge locked — you've sabbed this target this window" when the Revenge form is up but unusable; the native "First sab (last 24hrs)" row is age-formatted like the rest (it anchored the "Can sab again in …" countdown from this version until v2.25.3, which stopped using it). v2.15.0: Sabotage Tracker on attack.php — "You last sabbed / poisoned / stole" and the revenge timestamps now show colour-coded ages like the stats pages (hover for the raw server time); the Sabotage and Revenge Sabotage sections get a live status line: attempts left in the rolling 24h window with a ticking "Can sab again in …" countdown when you're out of slots (10 sabs / 4 revenge per target per 24h, tracked automatically whenever you fire a sab and backfilled with exact server times when you open the target's Intelligence file), plus a "sab damage left before maxed" line (Maximum Daily Sabotage loss − lost in last 24h) that flips to TARGET MAXED when the cap is hit. Display-only: it records only missions you fire by hand and never presses anything. v2.14.0: Tech Level Projector — the "Stats After Upgrading Tech" table on safe.php gets a "Project to" dropdown: pick ANY future tech level (up to Obi Bon Kenobi) and the table shows your projected stats at that level, with the total ▲% vs now and the cumulative EXP needed across all the upgrades in between. v2.13.1: Rank-neighbour links now blend into the native table — no dot markers or underline, the numbers just quietly became links (hover tooltip still shows who it is, data age, and gap/stale warnings). v2.13.0: Rank-neighbour recon links — the "Rating For Previous/Next Rank Gain" numbers are now hyperlinks to the player we believe holds that rank (matched by rating value from the roster DB, never by stale DB rank), with a tooltip showing who it is + how fresh their data is; an orange dot means a DB gap (recon upward), a red dot means DB rank/rating disagree (recon me first). Click → recon → DB refreshes; wrong candidates rotate out on the next page load, so the links self-correct toward the true neighbour. v2.11.2: Banking Mode redesigned — your exposed gold now shows in a native-style "Estimated Funds" box that matches the in-game funds boxes, with a ⚙ that holds the Banking Mode toggle, screen-awake, and all settings (including an optional "show yellow/red times" line); a live-ticking Server Time clock on every page; and the Upgrades "Upgrade Ready" row now uses realistic funds (drops full-armory-sell) and shows any shortfall as a slay estimate. v2.10.1: Fix — the slider Armory Preferences now also resync when you press KoC's "Clear Percentage Prefills" button (sliders drop to 0 instead of keeping their old values). v2.10.0: New slider-based Armory Preferences — drag to allocate with auto-balancing, theme-matched styling, and one-tap presets (Cheapest first, Optimizer, All spy, All defense) plus saved presets — replacing the in-game percentage form; rank Optimizer also fixed (weapon efficiency now synced). v2.9.0: "Time to upgrade" + "EXP still needed to be deposited" now show on ALL EXP-cost safe.php upgrades (Increase Soldiers, Economic Development, SAFE Upgrade) — not just Technological Development. v2.8.2: Fix — "EXP still needed to be deposited" now shows cost − Experience Bank (what must still be banked) instead of also subtracting on-hand EXP, so it no longer reads 0 when you hold the EXP but haven't deposited it. v2.8.1: Fix — sidebar abbreviates large gold/safe values (e.g. "2,560M"); getSidebarValue now parses K/M/B/T suffixes so SAFE Forecasts and gold-upgrade rows use real balances (previously read as ~0). SAFE Forecasts also uses the full-precision "Gold in Safe" value. v2.8.0: SAFE Forecasts on safe.php — time for your Safe to reach 1B/2B/5B/9B/10B(MAX) based on current Safe + deposit/min. v2.7.0: Gold upgrade timer — upgrades.php now shows "Upgrade Ready" (liquidation + safe-growth time) and "Gold Needed on top of Safe" under each skill upgrade (uses gold/vault/safe + full armory sell value from Armory + safe deposit rate from Safe). v2.6.0: Tech upgrade timer — safe.php now shows "Time to upgrade" + "EXP still needed to be deposited" under Technological Development (uses EXP on-hand + Experience Bank + your EXP/turn rate, auto-captured from the Upgrades page). v2.5.1: Banking Mode last-bank fix — now watches the per-weapon buy form (anotherbuyform), not just the hidden one-click form, and stamps banks reliably for high-income accounts. v2.5.0: 🏦 Banking Mode on the Armory page — toggleable inline widget that projects your exposed (stealable) gold every second, colour-codes the risk (SAFE/CAUTION/DANGER) from your attack-log steal history, shows time-to-yellow/red, and keeps the screen awake. Display-only: no automated requests, observes (never presses) the buy/repair forms. v2.4.0: Banking trend graph (📈 in the sidebar tracks your banked % over time) + manual override for Avg Gold/Atk (✏️ in the sidebar, survives attack-log recalibration). v2.3.4: Recons panel now shares counts alliance-wide via API (previously localStorage-only — each user only saw themselves). v2.3.0: Added "Stats If You Attacked Instead" table on safe.php to compare tech upgrades vs attacking. v2.2.9: Added optimizer auto-fill for armory (uses roster API to calculate optimal stat allocation). v2.2.8: Minor fixes. v2.1.0: Integrated slaying competition tracker (attack missions & gold stolen tracking, team competitions, leaderboards). v2.0.0: Optimized API architecture, previous versions deprecated.
 // @author       Blackheart
 // @match        https://www.kingsofchaos.com/*
 // @exclude      https://*.kingsofchaos.com/confirm.login.php*
@@ -59,7 +59,7 @@
   // ==================== VERSION CHECK ====================
   // Check if this script version is allowed to run
   const SCRIPT_NAME = 'koc-data-centre';
-  const SCRIPT_VERSION = '2.25.2'; // Must match @version above
+  const SCRIPT_VERSION = '2.25.3'; // Must match @version above
   const VERSION_CHECK_API = 'https://koc-roster-api-production.up.railway.app';
 
   async function checkScriptVersion() {
@@ -288,25 +288,94 @@
     }
   }
 
+  /**
+   * The element holding the page's Server Time: a leaf with ONLY a datetime
+   * in it. Seen live (19 Sep 2026, every page): td.menu_cell > p "Server
+   * Time" > table > tbody > tr > th > b "2026-09-19 08:27:16" — the label is
+   * in the <p>, six levels up, and the stamp's own table holds nothing else.
+   * So, in order:
+   *   1. a leaf in the sidebar (td.menu_cell) whose nearest <p> or <td> says
+   *      "Server Time" — the clock itself, whatever else the page prints;
+   *   2. else the leaf nearest a "Server Time" label, up to 8 levels up (or
+   *      in its own table) — the nearest only: a lone stamp in a mission box
+   *      is also 8 levels under the whole page's layout row, so a tie is no
+   *      answer;
+   *   3. else the page's only datetime leaf.
+   * null when none of those settles it (never a guess). Read-only.
+   */
+  function findServerTimeLeaf() {
+    const leaves = [...document.querySelectorAll('b,td,th,span,div,font')].filter(e =>
+      e.children.length === 0 && /^\s*\d{4}-\d{2}-\d{2}[ T]\d{2}:\d{2}:\d{2}\s*$/.test(e.textContent || ''));
+    if (!leaves.length) return null;
+    const said = (el) => !!el && /Server Time/i.test(el.textContent || '');
+    const sidebar = leaves.filter(e => e.closest('td.menu_cell') && said(e.closest('p,td')));
+    if (sidebar.length === 1) return sidebar[0];
+    const depth = (e) => {
+      let c = e.parentNode;
+      for (let d = 1; d <= 8 && c; d++, c = c.parentNode) { if (said(c)) return d; }
+      return said(e.closest('table')) ? 9 : Infinity;
+    };
+    const ranked = (sidebar.length ? sidebar : leaves).map(e => ({ e, d: depth(e) }))
+      .filter(x => x.d < Infinity).sort((a, b) => a.d - b.d);
+    if (ranked.length && (ranked.length === 1 || ranked[0].d < ranked[1].d)) return ranked[0].e;
+    return leaves.length === 1 ? leaves[0] : null;
+  }
+
+  /**
+   * The Server Time this page was drawn with, as the game printed it
+   * ('YYYY-MM-DD HH:MM:SS', KoC time), or null. Strict: no fallback, never
+   * the member's own clock. Only right as the page is read (PAGE_KOC_TIME):
+   * once the clock below starts ticking, the leaf holds the ticking time.
+   */
+  function readPageServerTime() {
+    const leaf = findServerTimeLeaf();
+    const m = leaf && (leaf.textContent || '').match(/^\s*(\d{4}-\d{2}-\d{2})[ T](\d{2}:\d{2}:\d{2})\s*$/);
+    return m ? `${m[1]} ${m[2]}` : null;
+  }
+
+  // The page's own Server Time as the game rendered it, read ONCE by the
+  // first statement of runFeatures — before any step, the ticking clock
+  // included. A sab or theft report the member lands on is stamped with it,
+  // and every attack-page check and War List read carries it (pageInfo).
+  let PAGE_KOC_TIME = null;
+
+  /** This page view's navigation entry: { type, redirects }, each null when the browser does not say. */
+  function pageNavEntry() {
+    try {
+      const nav = performance.getEntriesByType('navigation')[0];
+      return {
+        type: nav && typeof nav.type === 'string' ? nav.type : null,
+        redirects: nav && Number.isFinite(nav.redirectCount) ? nav.redirectCount : null
+      };
+    } catch (e) {
+      return { type: null, redirects: null };
+    }
+  }
+
+  /** 'navigate' | 'reload' | 'back_forward' | 'prerender', or null. */
+  function pageNavType() {
+    return pageNavEntry().type;
+  }
+
+  /**
+   * How this page was reached and when it was drawn: { nav, at } for the
+   * roster, which skips a page restored with Back / Forward or drawn more
+   * than 10 minutes before it arrived — those counters are old, not a new look.
+   */
+  function pageInfo() {
+    return { nav: pageNavType(), at: PAGE_KOC_TIME };
+  }
+
   // Live-ticking Server Time clock. DISPLAY-ONLY: anchors to the value KoC rendered and
   // advances it locally each second (re-synced on every page load, so it can't drift).
   // Compliant — no network, no game actions; it only rewrites the clock's own text node.
   let __serverClockId = null;
   function startServerClock() {
     if (__serverClockId) return;
-    // Find the leaf element holding ONLY a datetime. Prefer the one whose ancestors/table carry
-    // the "Server Time" label (pages with other timestamps); else the page's sole datetime.
-    const leaves = [...document.querySelectorAll('b,td,th,span,div,font')].filter(e =>
-      e.children.length === 0 && /^\s*\d{4}-\d{2}-\d{2}[ T]\d{2}:\d{2}:\d{2}\s*$/.test(e.textContent || ''));
-    if (!leaves.length) return;
-    const labeled = leaves.filter(e => {
-      let c = e;
-      for (let i = 0; i < 5 && c; i++) { if (/Server Time/i.test(c.textContent || '')) return true; c = c.parentNode; }
-      const tb = e.closest('table');
-      return tb && /Server Time/i.test(tb.textContent || '');
-    });
-    const leaf = labeled[0] || (leaves.length === 1 ? leaves[0] : null);
-    if (!leaf) return; // ambiguous (multiple unlabelled timestamps) — skip rather than tick the wrong one
+    // The leaf holding ONLY a datetime — the sidebar clock (findServerTimeLeaf);
+    // null when ambiguous: skip rather than tick the wrong one.
+    const leaf = findServerTimeLeaf();
+    if (!leaf) return;
     const m = (leaf.textContent || '').match(/(\d{4})-(\d{2})-(\d{2})[ T](\d{2}):(\d{2}):(\d{2})/);
     if (!m) return;
     const baseMs = new Date(+m[1], +m[2] - 1, +m[3], +m[4], +m[5], +m[6]).getTime();
@@ -2342,6 +2411,10 @@
   }
 
   async function collectFromWarList() {
+    // A War List brought back with Back / Forward is the page as it was then:
+    // its "My 24hr" cells are old, and sending them would stamp them as seen
+    // now. Nothing is sent from it (the roster refuses one anyway).
+    if (pageNavType() === 'back_forward') { debugLog('⚔️ War list: page restored with Back/Forward — not sent'); return; }
     const rows = parseWarListPage();
     if (!rows.length) { debugLog('⚔️ War list: no parseable rows'); return; }
 
@@ -2350,12 +2423,14 @@
     // row's id, when and why it was added, and this member's own "My 24hr"
     // cells. The server keeps the list itself (first/last seen) and each
     // member's latest counters per target. Reading only — the game allows no
-    // changes on this page, and nothing here makes any.
+    // changes on this page, and nothing here makes any. `page` says how the
+    // page was reached and the Server Time it was drawn with (pageInfo).
     const view = new URLSearchParams(location.search).get('view') || 'Alliance';
     try {
       const res = await auth.apiCall('api/war-room/warlist', {
         view,
-        rows: rows.map((r) => ({ id: r.id, addedAt: r.addedAt, reason: r.reason, my24h: r.my24h }))
+        rows: rows.map((r) => ({ id: r.id, addedAt: r.addedAt, reason: r.reason, my24h: r.my24h })),
+        page: pageInfo()
       });
       debugLog(`⚔️ War list membership (${view}): ${rows.length} rows sent`, res);
     } catch (e) { /* the war room may not be configured; never break the page */ }
@@ -9147,6 +9222,8 @@
   // It never submits, clicks, or fetches anything.
 
   const SAB_LOG_KEY = "KoC_SabLog";
+  const SAB_RESET_KEY = "KoC_SabLogReset";   // which one-time reset this browser has had
+  const SAB_RESET = 1;                       // v2.25.3 — see migrateSabLogOnce
   const SAB_WINDOW_MS = 24 * 60 * 60 * 1000;
   const SAB_DEFAULT_CAP = 10;      // regular sab attempts per target per 24h
   const REV_DEFAULT_CAP = 4;       // revenge sab attempts per target per 24h
@@ -9169,14 +9246,153 @@
     return SafeStorage.set(SAB_LOG_KEY, log);
   }
 
-  function recordSabAttempt(targetId, kind, tMs) {
+  /**
+   * ONE-TIME, on this browser's first v2.25.3 run: reset every entry the log
+   * already holds to this moment and mark it a guess.
+   *
+   * v2.25.2 and earlier wrote the attack page's "First sab (last 24hrs)" stamp
+   * into this log as an ordinary attempt — and wrote it in the same bare { t }
+   * shape as a press, so nothing stored tells the two apart. That stamp is a
+   * first SUCCESS of whoever the page means, which can be an alliance mate's
+   * sab up to 24h before anything the member did; a countdown built on it
+   * shows a slot back that much too early. v2.25.3 stopped writing them, but
+   * every member's browser still holds the ones v2.25.2 wrote, for up to 25h
+   * after the update (saveSabLog's grace). Nothing here tries to pick the
+   * stamp rows out of the log: telling them apart is exactly the guess that
+   * went wrong three times, so the whole log is reset instead.
+   *
+   * Moving an entry forward can only push a countdown later, never sooner — a
+   * countdown may be late, never early — and `est` puts these rows first in
+   * reconcileSabLog's guesses-first trim, so the page's own counters replace
+   * them with exact times as report landings and Intelligence files come in.
+   *
+   * The cost, stated in the settings panel and the @description: for up to 24h
+   * after updating, a target sabbed before the update reads "≤ about 24h from
+   * now". Runs once per browser (the marker is stored whether or not there was
+   * anything to move) and writes no log for a member who never tracked a sab.
+   */
+  function migrateSabLogOnce() {
+    if (SafeStorage.get(SAB_RESET_KEY, 0) >= SAB_RESET) return 0;
+    const log = getSabLog();
+    const now = Date.now();
+    let moved = 0;
+    for (const rec of Object.values(log)) {
+      if (!rec || typeof rec !== 'object') continue;
+      for (const kind of ['sab', 'rev']) {
+        const arr = rec[kind];
+        if (!Array.isArray(arr)) continue;
+        for (const e of arr) {
+          if (!e || typeof e.t !== 'number' || isNaN(e.t)) continue;
+          if (e.t < now) e.t = now;          // forward only: never earlier than it was
+          e.est = 1;
+          e.src = 'est';
+          moved++;
+        }
+        arr.sort((a, b) => a.t - b.t);
+      }
+    }
+    // Only call this browser done once the reset is actually stored. If the
+    // write fails (quota, blocked storage), the old times are still in the
+    // log, and marking it done would leave them there for good — the very
+    // countdowns this reset exists to move off. Try again next page instead.
+    if (moved && !saveSabLog(log)) return 0;
+    SafeStorage.set(SAB_RESET_KEY, SAB_RESET);
+    if (moved) debugLog(`🕵️ Sab Tracker: ${moved} attempt(s) tracked before v2.25.3 reset to now — their countdowns read "≤" for up to 24h`);
+    return moved;
+  }
+
+  // Each tracked attempt is { t, src, est? }. src says where its time came from:
+  //   'click' — the member's own clock at the press (pending: the game may refuse it)
+  //   'land'  — the report the member landed on after it: that page's Server Time
+  //   'file'  — the target's Intelligence file (the game's own time)
+  //   'first' — the attack page's "First sab (last 24hrs)" stamp. No longer written:
+  //             the stamp places nothing (see reconcileSabLog), and the rows
+  //             v2.25.2 left behind are reset by migrateSabLogOnce.
+  //   'est'   — a pad for an attempt the game counted and the tracker never saw (est)
+  // An entry with no src counts as 'click' (nothing writes one now:
+  // migrateSabLogOnce resets the pre-v2.25.3 rows that had none).
+  function recordSabAttempt(targetId, kind, tMs, src = 'click') {
     const log = getSabLog();
     const rec = log[targetId] || (log[targetId] = { sab: [], rev: [] });
     const arr = kind === 'rev' ? (rec.rev = rec.rev || []) : (rec.sab = rec.sab || []);
-    arr.push({ t: tMs });
+    arr.push({ t: tMs, src });
     arr.sort((a, b) => a.t - b.t);
     rec.seen = tMs;
     saveSabLog(log);
+  }
+
+  /**
+   * The report the member just landed on (inteldetail.php) is the sab just
+   * fired, and the page's Server Time is its time. Confirm the press that
+   * launched it: this target's newest 'click' entry, sab or revenge, within 5
+   * minutes of the landing, takes the landing's time and becomes exact
+   * ('land'; its kind stays). No such press (fired where the tracker could not
+   * see it): the landing is added as a sab.
+   */
+  function confirmSabLanding(targetId, landMs) {
+    const log = getSabLog();
+    const rec = log[targetId] || (log[targetId] = { sab: [], rev: [] });
+    rec.sab = (rec.sab || []).filter(Boolean);
+    rec.rev = (rec.rev || []).filter(Boolean);
+    let press = null;
+    for (const e of [...rec.sab, ...rec.rev]) {
+      if (!e || (e.src || 'click') !== 'click' || typeof e.t !== 'number') continue;
+      if (Math.abs(e.t - landMs) > 5 * 60 * 1000) continue;
+      if (!press || e.t > press.t) press = e;
+    }
+    if (press) {
+      press.t = landMs;
+      press.src = 'land';
+      delete press.est;
+    } else {
+      rec.sab.push({ t: landMs, src: 'land' });
+    }
+    rec.sab.sort((a, b) => a.t - b.t);
+    rec.rev.sort((a, b) => a.t - b.t);
+    rec.seen = landMs;
+    saveSabLog(log);
+    debugLog(`🕵️ Sab Tracker: landing on ${targetId} ${press ? 'confirmed the press' : 'added (no press seen)'}`);
+  }
+
+  /**
+   * On a sab report (inteldetail.php) the member just landed on — the page the
+   * game redirects to after "Sabotage Now" or "… Again!" (covertReportJustLanded)
+   * — confirm that sab at the page's own Server Time. A report opened later,
+   * reloaded or restored, or a page whose Server Time cannot be read, changes
+   * nothing.
+   */
+  function confirmSabLandingStep() {
+    const report = parseSabReportPage();
+    if (!report || !report.targetId || report.landed !== true || !report.at) return;
+    const landMs = Date.parse(convertKoCServerTimeToUTC(report.at));
+    if (isNaN(landMs)) return;
+    confirmSabLanding(String(report.targetId), landMs);
+  }
+
+  /**
+   * The game refused the press just made (the attack page it answered with
+   * says "You have used the maximum sabotage attempts …" or "This player has
+   * been maxxed …"): that press was no attempt. Remove this target's newest
+   * 'click' entry of `kind` made between 5 s after and 2 min before now; true
+   * when one was removed.
+   */
+  function dropRefusedPress(targetId, kind, nowMs) {
+    const log = getSabLog();
+    const rec = log[targetId];
+    const arr = rec && (kind === 'rev' ? rec.rev : rec.sab);
+    if (!Array.isArray(arr)) return false;
+    let at = -1;
+    arr.forEach((e, i) => {
+      if (!e || (e.src || 'click') !== 'click' || typeof e.t !== 'number') return;
+      const age = nowMs - e.t;
+      if (age < -5000 || age > 2 * 60 * 1000) return;
+      if (at < 0 || e.t >= arr[at].t) at = i;
+    });
+    if (at < 0) return false;
+    arr.splice(at, 1);
+    saveSabLog(log);
+    debugLog(`🕵️ Sab Tracker: the game refused the last ${kind === 'rev' ? 'revenge ' : ''}sab press on ${targetId} — not counted`);
+    return true;
   }
 
   /** Age text + colour, matching the Shared Recon Info table tiers */
@@ -9304,7 +9520,11 @@
       maxLoss: bodyNum(/Maximum Daily Sabotage loss:\s*\(([\d,]+(?:\.\d+)?)\)/i),
       lost24: bodyNum(/Total lost from sabbs in the last 24\s*hours:\s*([\d,]+(?:\.\d+)?)/i),
       lastSabMs: stampMs(/You last sabbed:[^]{0,80}?(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})/i),
-      // native row that appears once you've sabbed in the current window — exact oldest-sab time
+      // native row that appears once there has been a sab in the current window: a
+      // first SUCCESSFUL sab in it (seen live 19 Sep 2026: a failed sab changed neither
+      // stamp). Shown with its age like the other stamps and shared with the roster,
+      // but it shapes no countdown — whose first success it is, is unconfirmed
+      // (see reconcileSabLog).
       firstSabMs: stampMs(/First sab[^]{0,60}?(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})/i),
       lastRevMs: stampMs(/last successful Reven\w*ge Sab on this player[^]{0,60}?(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})/i),
       revSection: /Revenge Sabotage Mission/i.test(body)
@@ -9320,30 +9540,71 @@
 
   /**
    * Make the tracked log agree with the counters KoC itself renders (they are
-   * authoritative): drop the oldest tracked entries if KoC says fewer are in the
-   * window, and pad with estimated entries (stamped from "You last sabbed", the
-   * newest possible time) if KoC counted attempts we never saw — those show a
-   * "≤" upper-bound countdown until real times arrive from the Intelligence file.
+   * authoritative). When the tracker holds MORE attempts than the game counts,
+   * entries go in this order, and only as far as the excess:
+   *   1. estimated entries, oldest first — a pad is the tracker's own guess,
+   *      and the guess is what the game can have aged out while a real
+   *      attempt of ours is still counted;
+   *   2. a phantom press: one made in the last 2 minutes that the game never
+   *      counted (it refused it — an 11th sab, a maxed target), the newest
+   *      such 'click' each time;
+   *   3. the oldest entries, which the game says have aged out.
+   * Guesses before presses, presses before exact times: an exact time
+   * ('land', 'file') is dropped only as the last resort. Dropping the
+   * earliest entry can only push a countdown later, never sooner.
+   * When the game counts attempts the tracker never saw, every shortfall is
+   * padded at the page's own moment — never at a stamp the page prints. Those
+   * pads show a "≤" (at the latest) countdown until exact times arrive from a
+   * report landing or the Intelligence file, so a target whose attempts the
+   * tracker never saw reads ~24h from this page. That is the cost, and it is
+   * always on the late side.
    */
   function reconcileSabLog(info) {
     const log = getSabLog();
     const rec = log[info.targetId] || (log[info.targetId] = { sab: [], rev: [] });
     const now = Date.now();
-    const fit = (arr, pageCount, lastMs, firstMs) => {
-      const okFirst = firstMs && now - firstMs < SAB_WINDOW_MS;
+    // firstMs is the page's "First sab (last 24hrs)" stamp. It is read, stored
+    // and shown — and it places nothing here. It is the first SUCCESS of
+    // whoever the page means, and nothing on the page says whether that is the
+    // member or any member of the alliance; a stamp that is somebody else's
+    // earlier sab is earlier than anything the member did, so an entry created
+    // or capped at it shows a slot back up to 24h early. Three rounds of
+    // guarding it (only with successes, only when nothing contradicts it, only
+    // when it was older than everything tracked) each left a path where the
+    // entry the guard never looked at was the one that moved. The roster's own
+    // timer dropped the same bound for the same reason (utils/attempt-timers.js,
+    // "the page's own stamps place nothing"). The parameter stays so this
+    // refusal is named where the stamp arrives.
+    const fit = (arr, pageCount, lastMs, firstMs) => {   // firstMs: taken, never used (above)
       const inWin = (arr || []).filter(e => e && now - e.t < SAB_WINDOW_MS).sort((a, b) => a.t - b.t);
       if (pageCount != null) {
-        while (inWin.length > pageCount) inWin.shift();
-        if (inWin.length < pageCount && okFirst && (!inWin.length || firstMs < inWin[0].t)) {
-          inWin.unshift({ t: firstMs }); // KoC's own "First sab (last 24hrs)" stamp — exact
+        // Guesses first: the oldest estimated entry, one at a time. A pad stamped
+        // on an earlier page can age out of OUR window while the attempt it stands
+        // for is still counted — and then it would be kept in place of a real sab,
+        // freeing a slot ~24h early.
+        while (inWin.length > pageCount) {
+          const est = inWin.findIndex((e) => !!e.est);
+          if (est < 0) break;
+          inWin.splice(est, 1);
         }
-        const estT = (lastMs && now - lastMs < SAB_WINDOW_MS) ? lastMs : now;
-        while (inWin.length < pageCount) inWin.push({ t: estT, est: 1 });
+        // Then phantom presses: the newest 'click' under 2 minutes old, one at a time.
+        while (inWin.length > pageCount) {
+          let phantom = -1;
+          inWin.forEach((e, i) => { if ((e.src || 'click') === 'click' && now - e.t <= 2 * 60 * 1000) phantom = i; });
+          if (phantom < 0) break;
+          inWin.splice(phantom, 1);
+        }
+        while (inWin.length > pageCount) inWin.shift(); // aged out, per the game
+        // A pad stands for an attempt the tracker never saw. The one time known to
+        // be at or after it is the page's own moment: the game counted the attempt
+        // before it drew these counters. "You last sabbed" is the last SUCCESSFUL
+        // sab, so an attempt a pad stands for can be LATER than it (a failed one
+        // after the last success — the live page shows 10 attempts, 5 successes),
+        // and padding there would free the slot early; it is used only when the
+        // page's clock runs ahead of the member's.
+        const estT = Math.max(now, (lastMs && now - lastMs < SAB_WINDOW_MS) ? lastMs : 0);
+        while (inWin.length < pageCount) inWin.push({ t: estT, est: 1, src: 'est' });
         inWin.sort((a, b) => a.t - b.t);
-        if (okFirst && inWin.length && inWin[0].est) {
-          inWin[0] = { t: firstMs }; // upgrade an estimated oldest to the exact stamp
-          inWin.sort((a, b) => a.t - b.t);
-        }
       }
       return inWin;
     };
@@ -9492,8 +9753,32 @@
   function initSabTracker() {
     const info = parseSabPageInfo();
     if (!info) return;
+    // Before anything is read from the log: the one-time reset of entries
+    // written before v2.25.3 (migrateSabLogOnce). It runs on a restored page
+    // too — that page draws its countdowns from the log just the same — and
+    // does nothing at all on a browser that has already had it. On the one
+    // page load that is both the reset and a refusal, the refused press is
+    // now a guess, so dropRefusedPress leaves it and reconcileSabLog drops it
+    // as the excess instead: the same answer, by the guesses-first rule.
+    migrateSabLogOnce();
+    // A page brought back with Back / Forward shows the counters as they were
+    // then: draw from the log as it stands, and neither drop a press nor
+    // reconcile against those old numbers.
+    const restored = pageNavType() === 'back_forward';
+    if (!restored) {
+      // The game answered the last press with a refusal — "You have used the
+      // maximum sabotage attempts against this player in 24 hours." or "This
+      // player has been maxxed …" — so that press was not an attempt.
+      const boxes = attackMissionBoxes();
+      const maxWord = attackPageMaxAttempts(boxes);
+      if ((maxWord && /^sab/.test(maxWord)) || attackPageRefusedMaxed(boxes)) {
+        dropRefusedPress(info.targetId, 'sab', Date.now());
+      }
+    }
     relativizeMissionTimestamps();
-    const rec = reconcileSabLog(info);
+    const rec = restored
+      ? (getSabLog()[info.targetId] || { sab: [], rev: [] })
+      : reconcileSabLog(info);
     const renders = injectSabPanels(info, rec);
     if (renders.length) startSabTicker(renders);
     debugLog('🕵️ Sab Tracker initialised', {
@@ -9504,7 +9789,13 @@
     // and together they answer the only question that matters when picking a
     // target: how much of this player's daily cap is still takeable. The War
     // Room shows it per player with the reading's age, since the window rolls.
-    if (info.maxLoss != null && info.lost24 != null) {
+    // A page brought back with Back / Forward holds the numbers as they were
+    // then, stamped with the clock as it is NOW — an old reading sent as
+    // fresh, which would overwrite a newer one. The target check is skipped
+    // there for the same reason, so this is too.
+    if (restored) {
+      debugLog('🎯 Sab cap status not sent — page restored with Back/Forward');
+    } else if (info.maxLoss != null && info.lost24 != null) {
       const now = getKoCServerTimeUTC();
       Promise.resolve(auth.apiCall('players', {
         id: info.targetId,
@@ -9558,7 +9849,7 @@
       if (!targetId) return;
 
       form.__tdcSabMark = Date.now();
-      recordSabAttempt(String(targetId), isRev ? 'rev' : 'sab', Date.now());
+      recordSabAttempt(String(targetId), isRev ? 'rev' : 'sab', Date.now(), 'click');
       debugLog(`🕵️ Sab Tracker: recorded ${isRev ? 'revenge ' : ''}sab attempt on ${targetId}`);
     };
 
@@ -9601,7 +9892,7 @@
       if (!/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/.test(row.at || '')) continue;
       const t = Date.parse(convertKoCServerTimeToUTC(row.at));
       if (isNaN(t) || now - t >= SAB_WINDOW_MS) continue;
-      found[kind].push({ t }); // aborted attempts still count toward the 10/4 caps
+      found[kind].push({ t, src: 'file' }); // aborted attempts still count toward the 10/4 caps
     }
     if (!found.sab.length && !found.rev.length) return;
 
@@ -9635,6 +9926,9 @@
   //   attacklog.php  — attacks against you and by you, with gold and losses
   //   inteldetail.php — any sab report you open (the one you just ran, or an
   //                    old one reached from the intel file)
+  //   theft_report.php — the report of a theft YOU made: what you stole, or
+  //                    that it failed (a report of somebody stealing from you
+  //                    is skipped)
   //   detail.php     — the battle report of an attack or raid YOU made (the
   //                    one you land on, or an old one opened from the Attack
   //                    Log); reports of other players hitting you are skipped
@@ -10224,12 +10518,16 @@
    * (KoC_SabLog), which hookSabFormCapture writes the moment the button is
    * pressed. A report page lands a second or two later, so a short window
    * ties the report to the mission; anything older is not trusted. Pure.
+   *
+   * A guess (est) is not a press: reconcileSabLog's pads and the one-time
+   * reset of pre-v2.25.3 rows (migrateSabLogOnce) both stand at the moment
+   * the page was opened, which would otherwise read as "just fired at".
    */
   function recentSabTargetId(log, nowMs, windowMs) {
     let best = null;
     for (const [id, rec] of Object.entries(log && typeof log === 'object' ? log : {})) {
       for (const e of [...((rec && rec.sab) || []), ...((rec && rec.rev) || [])]) {
-        if (!e || typeof e.t !== 'number' || nowMs - e.t > windowMs || e.t - nowMs > 5000) continue;
+        if (!e || e.est || typeof e.t !== 'number' || nowMs - e.t > windowMs || e.t - nowMs > 5000) continue;
         if (!best || e.t > best.t) best = { id, t: e.t };
       }
     }
@@ -10309,6 +10607,14 @@
    * (defender_id) when it is there; otherwise the sab this member fired in
    * the last 2 minutes; otherwise unknown — the report id still ties the row
    * to the same mission in the intel file.
+   * The name: "While inside <name>'s armory" (a success) or "Your spies are
+   * spotted inside <name>'s armory" (a failure, seen live 19 Sep 2026).
+   * The time: a sab report prints none. The report the member LANDED on,
+   * straight after "Sabotage Now" or "… Again!" (covertReportJustLanded), is
+   * the sab just fired, so the Server Time that page rendered (PAGE_KOC_TIME,
+   * as printed; the server converts it) is its time: `at` and `landed: true`.
+   * A report opened later, reloaded or restored, or one whose page time could
+   * not be read, carries neither — its intel-file row brings the time.
    */
   function parseSabReportPage() {
     const reportId = (location.search.match(/[?&]report_id=(\d+)/) || [])[1] || null;
@@ -10316,11 +10622,12 @@
     const lines = sabReportLines();
     const dispatch = lines.find((l) => /attempt to sabotage/i.test(l));
     if (!dispatch) return null;
-    const inside = lines.map((l) => l.match(/While inside (.+?)'s armory/i)).find(Boolean);
+    const inside = lines.map((l) => l.match(/\binside (.+?)(?:'s|’s|'|’) armory/i)).find(Boolean);
     const form = document.querySelector('input[name="defender_id"]');
     const targetId = form && /^\d+$/.test(form.value || '')
       ? form.value
       : recentSabTargetId(getSabLog(), Date.now(), 2 * 60 * 1000);
+    const landed = covertReportJustLanded(reportId, 'inteldetail.php') === true && !!PAGE_KOC_TIME;
     return {
       source: 'report',
       family: 'intel',
@@ -10328,7 +10635,8 @@
       targetId,
       targetName: inside ? inside[1].trim() : null,
       missionText: dispatch,
-      lines
+      lines,
+      ...(landed ? { at: PAGE_KOC_TIME, landed: true } : {})
     };
   }
 
@@ -10494,6 +10802,44 @@
   }
 
   /**
+   * Whether this sab report (page 'inteldetail.php') or theft report
+   * ('theft_report.php') is the mission just run — the page the game put the
+   * member on after "Sabotage Now", "Steal" or an "… Again!" button — so the
+   * Server Time it rendered is that mission's time. true, false, or null when
+   * the browser cannot say. Seen live 19 Sep 2026: both land like battle
+   * reports, a fresh load ('navigate') through ONE redirect from attack.php.
+   *   - a reload, Back / Forward or a prerender: false (the Server Time is the
+   *     revisit's);
+   *   - 'navigate' through a redirect: true;
+   *   - 'navigate' with no redirect: from the Intelligence file, the Theft Log
+   *     or any other link, false; from attack.php or ANOTHER report on the
+   *     same page (an "… Again!" chain), null — a landing whose redirect the
+   *     browser did not count must never read as old;
+   *   - 'navigate' but the browser does not count redirects: from attack.php
+   *     or another report, true; otherwise null;
+   *   - no navigation entry (or no type): null.
+   * battleReportJustFought is the battle report's own rule and stays apart.
+   */
+  function covertReportJustLanded(reportId, page) {
+    const entry = pageNavEntry();
+    const kind = entry.type;
+    const count = entry.redirects;
+    const ref = String(document.referrer || '');
+    debugLog('📜 Mission log: report reached', { page, referrer: ref, navigation: kind, redirectCount: count });
+    const file = String(page || '').replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const prev = ref.match(new RegExp('/' + file + '\\?(?:[^#]*&)?report_id=(\\d+)', 'i'));
+    const otherReport = !!prev && prev[1] !== String(reportId);
+    const fromAttack = /\/attack\.php(?:[?#]|$)/i.test(ref);
+    if (kind !== null && kind !== 'navigate') return false;
+    if (kind === 'navigate' && count !== null) {
+      if (count >= 1) return true;
+      return (fromAttack || otherReport) ? null : false;
+    }
+    if (kind === 'navigate') return (fromAttack || otherReport) ? true : null;
+    return null;
+  }
+
+  /**
    * detail.php?attack_id=A — the battle report of an attack or raid the
    * member made (battleReportIsOwnAttack decides; a report of another
    * player's attack on the member, or anything else, sends nothing).
@@ -10567,9 +10913,142 @@
   }
 
   /**
+   * Whose theft a theft report (theft_report.php) shows: the member's own,
+   * or the view the game gives the player who was stolen FROM. Both sides
+   * get the same page — seen live 20 Sep 2026, the member's own failed
+   * theft (report 73851) and the defender's view of Plasticbekertje's theft
+   * on the member (opened from the Theft Log's "Attacks Against You") share
+   * the title "Kings of Chaos :: Battle Report", the header "Theft Battle
+   * Report" and the same buttons, "Steal Again!" among them; and on the
+   * defender's view every form carries the ATTACKER's id as defender_id, so
+   * the victim can steal back. So neither the buttons nor the ids can tell
+   * the views apart. Only the wording can — the same lesson battle reports
+   * taught (battleReportIsOwnAttack).
+   *
+   * Ours = a line STARTS with one of the member's own two sentences ("You
+   * successfully stole N <weapon> from <name>'s camp." / "You failed to
+   * steal any <weapon> from <name>'s camp.") and NO line carries a
+   * defender's mark. The marks are the stopped wording seen live ("You
+   * stopped <name>'s plan and saved your armory."), "your armory" and a
+   * theft "from your camp" — a lost defence is still unseen, so the
+   * wordings it would most likely use are refused too.
+   *
+   * The own sentence is held to the start of a line, so a message quoting
+   * the game cannot pass for the report; and a defender's mark anywhere on
+   * the page vetoes it, so a message CRAFTED to read like the member's own
+   * theft cannot turn the victim's view into an attack of theirs. A theft
+   * misfiled that way would stay wrong for good (the roster keeps the first
+   * attacker it is told); a theft skipped is not lost — the Theft Log
+   * carries the row.
+   */
+  function theftReportIsOwnTheft(lines) {
+    const list = (lines || []).filter((l) => typeof l === 'string').map((l) => l.trim());
+    const has = (re) => list.some((l) => re.test(l));
+    const defender = has(/^You stopped\b[^]{0,120}?(?:'s|’s|'|’) plan\b/i) ||
+      has(/\byour armou?ry\b/i) ||
+      has(/\bfrom your camp\b/i) ||
+      has(/^(?!You\b)\S+ (?:successfully )?stole\b/i);
+    if (defender) return false;
+    return has(/^You (?:successfully stole [\d,]+ |failed to steal any )/i);
+  }
+
+  /**
+   * theft_report.php?report_id=R — the report of a theft the MEMBER made
+   * (page title "Battle Report", header "Theft Battle Report"). Seen live
+   * 19 Sep 2026: "You successfully stole 183 Chariot from TheGodFather-LaCN's
+   * camp." (the name links the target's stats page); a failure reads "You
+   * failed to steal any Chariot from Lord_Hunaman's camp.". Every button form
+   * on it ("Steal Again!", Attack!, Raid!, Poison! …) carries the target as
+   * defender_id.
+   *
+   * Whose theft it is is theftReportIsOwnTheft's call, from the wording
+   * alone; a report that is not certainly the member's own sends nothing.
+   * The report itself is the first line that STARTS with one of those two
+   * sentences, up to the next table edge (at most 20 lines) — never a
+   * message that quotes one. And it is recorded only when the camp is
+   * somebody else's. Nothing is sent when the camp is the member's own (the
+   * view of somebody stealing from the member), when the page's ids include
+   * the member's own, or when the page names two different players — whose
+   * theft it was cannot then be told, and the roster keeps the first
+   * attacker it is told.
+   *   targetName  — the camp's owner, as printed
+   *   targetId    — the owner's stats link and every form's defender_id, all
+   *                 agreeing; null when the page has neither
+   *   missionText — the "Steal Again!" button's label as printed, else null
+   *   resultText  — the sentence, as printed; the server reads it
+   *   at, landed  — as on the sab report: the report LANDED on straight after
+   *                 "Steal" or "Steal Again!" (covertReportJustLanded) carries
+   *                 the Server Time that page rendered; any other does not,
+   *                 and its Theft Log row brings the time
+   * Reads only; the page is left exactly as the game drew it.
+   */
+  function parseTheftReportPage() {
+    const reportId = (location.search.match(/[?&]report_id=(\d+)/) || [])[1] || null;
+    if (!reportId) return null;
+    const all = missionPageLines();
+    if (!theftReportIsOwnTheft(all)) {
+      debugLog('📜 Mission log: not a report of your own theft (the view of somebody stealing from you, or not drawn yet) — not recorded');
+      return null;
+    }
+    const start = all.findIndex((l) => l !== null && /^You (?:successfully stole [\d,]+ |failed to steal any )/i.test(l));
+    if (start < 0) return null;
+    const lines = [];
+    for (const l of all.slice(start)) {
+      if (l === null || lines.length >= 20) break;
+      lines.push(l.slice(0, 500));
+    }
+    const sentence = lines[0];
+    const said = sentence.match(/^You (?:successfully stole [\d,]+ .+?|failed to steal any .+?) from (.+?)(?:'s|’s|'|’) camp\b/i);
+    if (!said) return null;
+    const owner = said[1].trim();
+    const myId = SafeStorage.get('KoC_MyId', null);
+    const myName = SafeStorage.get('KoC_MyName', null);
+    if (myName && owner.toLowerCase() === String(myName).trim().toLowerCase()) {
+      debugLog('📜 Mission log: a theft report of your own camp (somebody stealing from you) — not recorded');
+      return null;
+    }
+    // The owner's stats link (its text may carry the "'s") and every form's defender_id.
+    const bare = (t) => String(t || '').replace(/\s+/g, ' ').trim().replace(/(?:'s|’s|'|’)$/i, '');
+    const ids = new Set();
+    for (const a of document.querySelectorAll('a[href*="stats.php?id="]')) {
+      const id = ((a.getAttribute('href') || '').match(/[?&]id=(\d+)/) || [])[1];
+      if (id && bare(a.textContent).toLowerCase() === owner.toLowerCase()) ids.add(id);
+    }
+    for (const input of document.querySelectorAll('form input[name="defender_id"]')) {
+      if (/^\d+$/.test(input.value || '')) ids.add(input.value);
+    }
+    if (myId && ids.has(String(myId))) {
+      debugLog('📜 Mission log: this theft report points at your own id — not recorded');
+      return null;
+    }
+    if (ids.size > 1) {
+      debugLog('📜 Mission log: this theft report names two different players — not recorded', [...ids]);
+      return null;
+    }
+    let missionText = null;
+    for (const el of document.querySelectorAll('input[type="submit"], input[type="button"], button')) {
+      const label = String((el.tagName === 'BUTTON' ? el.textContent : el.getAttribute('value')) || '').replace(/\s+/g, ' ').trim();
+      if (/^steal again!?$/i.test(label)) { missionText = label; break; }
+    }
+    const landed = covertReportJustLanded(reportId, 'theft_report.php') === true && !!PAGE_KOC_TIME;
+    return {
+      source: 'report',
+      family: 'theft',
+      reportId,
+      targetId: ids.size === 1 ? [...ids][0] : null,
+      targetName: owner,
+      missionText,
+      resultText: sentence,
+      lines,
+      ...(landed ? { at: PAGE_KOC_TIME, landed: true } : {})
+    };
+  }
+
+  /**
    * Which mission page this is, from the address; null on every other page.
    * 'battle' is a battle report (detail.php — only with an attack_id, the
-   * same guard collectAttackLog uses); 'report' is the sab report page.
+   * same guard collectAttackLog uses); 'report' is the sab report page;
+   * 'theftreport' is the theft report page.
    */
   function missionLogSource() {
     const page = (location.pathname.split('/').pop() || '').toLowerCase();
@@ -10580,7 +11059,8 @@
       'theftlog.php': 'theftlog',
       'intel.php': 'intel',
       'attacklog.php': 'attacklog',
-      'inteldetail.php': 'report'
+      'inteldetail.php': 'report',
+      'theft_report.php': 'theftreport'
     })[page] || null;
   }
 
@@ -10609,6 +11089,7 @@
       return rows.length ? { source, rows: cap(rows) } : null;
     }
     if (source === 'report') return parseSabReportPage();
+    if (source === 'theftreport') return parseTheftReportPage();
     if (source === 'battle') return parseBattleReportPage();
     return null;
   }
@@ -10750,8 +11231,17 @@
    * boxes, so an element holding a box is judged by its own text nodes only.
    */
   function attackPageRefusedMaxed(boxes) {
-    const re = /has been maxx?ed/i;
-    if (!re.test(document.body.textContent || '')) return false;   // the usual page, cheaply
+    return !!attackPageTopMatch(boxes, /has been maxx?ed/i);
+  }
+
+  /**
+   * The first match of `re` in the text OUTSIDE the mission boxes — where the
+   * game puts its red refusal lines — or null. Rows and panels this script
+   * drew are skipped; an element holding a box is judged by its own text
+   * nodes only (the line may be a bare text node beside the boxes).
+   */
+  function attackPageTopMatch(boxes, re) {
+    if (!re.test(document.body.textContent || '')) return null;   // the usual page, cheaply
     const list = Object.values(boxes || {});
     for (const el of [document.body, ...document.body.querySelectorAll('*')]) {
       if (list.some((b) => b.contains(el))) continue;
@@ -10760,9 +11250,46 @@
       const text = holdsBox
         ? [...el.childNodes].filter((n) => n.nodeType === 3).map((n) => n.textContent || '').join(' ')
         : (el.textContent || '');
-      if (re.test(text)) return true;
+      const m = text.match(re);
+      if (m) return m;
     }
-    return false;
+    return null;
+  }
+
+  /**
+   * The red line the game shows when the member presses once more after
+   * using every attempt of a mission on this target: "You have used the
+   * maximum sabotage attempts against this player in 24 hours." (seen live
+   * 19 Sep 2026; a theft or poison line is expected to read the same way).
+   * The mission's word as printed, lower-cased ('sabotage'), or null. It is
+   * proof that the MEMBER's attempts on this target are all in use — not
+   * that the target is maxed.
+   */
+  function attackPageMaxAttempts(boxes) {
+    const m = attackPageTopMatch(boxes, /You have used the maximum (\w+) attempts against this player/i);
+    return m ? m[1].toLowerCase() : null;
+  }
+
+  /**
+   * The KoC time ('YYYY-MM-DD HH:MM:SS', as printed) on the first of a box's
+   * own rows (missionBoxRows) whose text matches labelRe — "You last sabbed:
+   * 2513 Nunchaku on 2026-09-19 02:25:43" — or, once the Sab Tracker has
+   * turned that stamp into an age ("… 2m ago"), the one it keeps in the
+   * age's tooltip. null when the box has no such row or the row no stamp
+   * ("Never"). Only ever the rows of the box asked about: a stamp is never
+   * taken from anywhere else on the page.
+   */
+  function missionBoxStamp(rows, labelRe) {
+    const stamp = /\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}/;
+    const row = (rows || []).find((r) => labelRe.test(r.text));
+    if (!row) return null;
+    const inText = row.text.match(stamp);
+    if (inText) return inText[0];
+    for (const el of row.tr.querySelectorAll('[title]')) {
+      const m = (el.getAttribute('title') || '').match(stamp);
+      if (m) return m[0];
+    }
+    return null;
   }
 
   /**
@@ -10778,6 +11305,11 @@
    *   poison.limit   the antidote your poison rating can reach
    *   theft.limit    the vigilance your theft rating can reach
    *   attack.retreatDa  the DA above which your forces retreat
+   *   sab / theft / poison .firstAt, .lastAt  the KoC times printed for your
+   *                  first (in the last 24h) and last SUCCESSFUL mission of
+   *                  that kind on the target, as printed; null when none
+   *   refusedMaxAttempts  the mission word of the game's "You have used the
+   *                  maximum … attempts" line ('sabotage'), or null
    */
   function parseAttackPage() {
     const targetId = attackPageTargetId();
@@ -10830,6 +11362,19 @@
     const revTries = frac('revenge', /Revenge Sabotage Attempts:?\s*(\d[\d,]*)\s*\/\s*(\d[\d,]*)/i);
     const revWins = frac('revenge', /Successful Revenge Sabbs:?\s*(\d[\d,]*)\s*\/\s*(\d[\d,]*)/i);
 
+    // The times the game prints about the member's own SUCCESSFUL missions on
+    // this target (seen live 19 Sep 2026: a failed sab changed neither sab
+    // stamp), each read only in its own box: "First sab (last 24hrs)" and "You
+    // last sabbed" in the Sabotage box, "You last stole" in the Theft box, "You
+    // last poisoned" in the Poison box, and a first-row time for theft or
+    // poison should the game ever print one (it does not today).
+    const firstRe = /^First\s+\w+\s*\(last 24\s*hrs?\)/i;
+    const stamps = {
+      sab: { firstAt: missionBoxStamp(rowsOf.sab, /^First\s+sab\b[^:]*\(last 24\s*hrs?\)/i), lastAt: missionBoxStamp(rowsOf.sab, /^You last sabbed\b/i) },
+      theft: { firstAt: missionBoxStamp(rowsOf.theft, firstRe), lastAt: missionBoxStamp(rowsOf.theft, /^You last stole\b/i) },
+      poison: { firstAt: missionBoxStamp(rowsOf.poison, firstRe), lastAt: missionBoxStamp(rowsOf.poison, /^You last poisoned\b/i) }
+    };
+
     // The Attack box's first row under its title is the target's name on its
     // own ("Hooplah"). A stats.php link to this id is the fallback — never
     // just any stats link, which injected leaderboards can supply.
@@ -10846,6 +11391,7 @@
       targetId,
       targetName,
       refusedMaxed: attackPageRefusedMaxed(boxes),
+      refusedMaxAttempts: attackPageMaxAttempts(boxes),
       recon: {
         attempts: reconTries.used, cap: reconTries.cap,
         rating: num('recon', reconReach, 1), limit: num('recon', reconReach, 2)
@@ -10858,14 +11404,16 @@
       },
       poison: {
         attempts: poisonTries.used, cap: poisonTries.cap, successes: poisonWins.used,
-        rating: num('poison', poisonReach, 1), limit: num('poison', poisonReach, 2)
+        rating: num('poison', poisonReach, 1), limit: num('poison', poisonReach, 2),
+        firstAt: stamps.poison.firstAt, lastAt: stamps.poison.lastAt
       },
       theft: {
         attempts: theftTries.used, cap: theftTries.cap, successes: theftWins.used,
         tiv: bracket('theft', /Total Invested Value:?\s*\(([\d,.]*)\)/i),
         maxDaily: bracket('theft', /Maximum Daily Theft loss:?\s*\(([\d,.]*)\)/i),
         lost24h: num('theft', /Total lost from theft in the last 24\s*hours:?\s*(\d[\d,]*(?:\.\d+)?)/i),
-        rating: num('theft', theftReach, 1), limit: num('theft', theftReach, 2)
+        rating: num('theft', theftReach, 1), limit: num('theft', theftReach, 2),
+        firstAt: stamps.theft.firstAt, lastAt: stamps.theft.lastAt
       },
       sab: {
         attempts: sabTries.used, cap: sabTries.cap, successes: sabWins.used,
@@ -10873,7 +11421,8 @@
         maxDaily: bracket('sab', /Maximum Daily Sabotage loss:?\s*\(([\d,.]*)\)/i),
         lost24h: num('sab', /Total lost from sabbs in the last 24\s*hours:?\s*(\d[\d,]*(?:\.\d+)?)/i),
         revLost24h: num('sab', /Total lost from revenge sabbs in the last 24\s*hours:?\s*(\d[\d,]*(?:\.\d+)?)/i),
-        rating: num('sab', sabReach, 1), limit: num('sab', sabReach, 2)
+        rating: num('sab', sabReach, 1), limit: num('sab', sabReach, 2),
+        firstAt: stamps.sab.firstAt, lastAt: stamps.sab.lastAt
       },
       revenge: {
         present: !!boxes.revenge,
@@ -11091,14 +11640,27 @@
   // that WAS maxed at some point and one somebody just confirmed — and, later,
   // into members' success rates. Automatic only: there is no mark button, and
   // opening the page is the only thing that records anything.
+  // v2.25.3: a check also carries the times the page prints for the member's
+  // own first and last SUCCESSFUL sab, theft and poison on the target, the
+  // game's "You have used the maximum … attempts" line, and the page's own
+  // navigation and Server Time — the War List tab counts down from them when
+  // the member's own attempts come back. A page restored with Back / Forward
+  // is not sent: its counters are old.
 
   const TARGET_CHECK_SENT_KEY = 'KoC_TargetCheckSent';
 
   /**
-   * The check as the server takes it (see utils/target-checks.js). Pure.
+   * The check as the server takes it (see utils/target-checks.js). Pure but
+   * for `page`, which says how this page view was reached and the Server
+   * Time it was drawn with (pageInfo).
    * sab.maxed: the game says so (revenge box up, or the "has been maxxed"
    * refusal), or the losses have reached the cap; null — not false — when the
    * page showed none of that, so an unreadable box never reads as "open".
+   * refusedMaxAttempts: the word of the game's "You have used the maximum …
+   * attempts" line, raw ('sabotage'); the server normalises it.
+   * firstAt / lastAt: the KoC times the page printed for the member's own
+   * first and last SUCCESSFUL sab, theft and poison, as printed; the server
+   * converts them.
    */
   function buildTargetCheckPayload(page) {
     const both = (a, b) => a != null && b != null;
@@ -11110,9 +11672,11 @@
     return {
       targetId: page.targetId,
       refusedMaxed: page.refusedMaxed,
+      refusedMaxAttempts: page.refusedMaxAttempts,
       sab: {
         attempts: page.sab.attempts, cap: page.sab.cap, successes: page.sab.successes,
-        lost24h: page.sab.lost24h, maxDaily: page.sab.maxDaily, maxed: sabMaxed
+        lost24h: page.sab.lost24h, maxDaily: page.sab.maxDaily, maxed: sabMaxed,
+        firstAt: page.sab.firstAt, lastAt: page.sab.lastAt
       },
       revenge: {
         available: page.revenge.present,
@@ -11120,9 +11684,13 @@
       },
       theft: {
         attempts: page.theft.attempts, cap: page.theft.cap, successes: page.theft.successes,
-        lost24h: page.theft.lost24h, maxDaily: page.theft.maxDaily, maxed: theftMaxed
+        lost24h: page.theft.lost24h, maxDaily: page.theft.maxDaily, maxed: theftMaxed,
+        firstAt: page.theft.firstAt, lastAt: page.theft.lastAt
       },
-      poison: { attempts: page.poison.attempts, cap: page.poison.cap, successes: page.poison.successes },
+      poison: {
+        attempts: page.poison.attempts, cap: page.poison.cap, successes: page.poison.successes,
+        firstAt: page.poison.firstAt, lastAt: page.poison.lastAt
+      },
       attack: { attempts: page.attack.attempts, cap: page.attack.cap },
       raid: { attempts: page.attack.raidAttempts, cap: page.attack.raidCap },
       recon: { attempts: page.recon.attempts, cap: page.recon.cap },
@@ -11136,17 +11704,21 @@
         poison: page.poison.rating,
         theft: page.theft.rating,
         attack: page.attack.rating
-      }
+      },
+      page: pageInfo()
     };
   }
 
   /**
    * What a check says about the target and the member's own counters — the
    * whole payload except the printed limits, which drift by a few points as
-   * ratings tick and would make every reload look new.
+   * ratings tick, and the page's own time and navigation, which change on
+   * every load: either would make every reload look new. The printed stamps
+   * ARE part of it, so a reload showing the same stamps is still a repeat,
+   * and the refusal page (its own line) is always new.
    */
   function targetCheckKey(payload) {
-    const { limits, ...rest } = payload;
+    const { limits, page, ...rest } = payload;
     return JSON.stringify(rest);
   }
 
@@ -11163,6 +11735,9 @@
   }
 
   function sendTargetCheck() {
+    // A page brought back with Back / Forward shows the counters as they were
+    // then — not a new look (the roster refuses one anyway).
+    if (pageNavType() === 'back_forward') { debugLog('🎯 Target check skipped — page restored with Back/Forward'); return; }
     const page = parseAttackPage();
     if (!page) return;
     const payload = buildTargetCheckPayload(page);
@@ -11222,7 +11797,7 @@
     {
       id: 'sab-tracker', group: 'Everywhere', kind: 'both',
       name: 'Sabotage Tracker',
-      desc: 'On attack pages: sab and revenge-sab attempts left on the target in the rolling 24h window, a countdown until your next slot opens, damage left before the target is maxed, and colour-coded ages on "You last sabbed" timestamps. Quietly records sab missions you fire by hand and reads the target\'s Intelligence file for exact times.',
+      desc: 'On attack pages: sab and revenge-sab attempts left on the target in the rolling 24h window, a countdown until your next slot opens, damage left before the target is maxed, and colour-coded ages on "You last sabbed" timestamps. Quietly records sab missions you fire by hand, takes each one\'s exact time from the sab report you land on, and reads the target\'s Intelligence file for exact times. A press the game refuses (\'maximum sabotage attempts\', or a maxed target) is not counted as an attempt. An attempt it never saw counts from the moment you opened the page, so that countdown reads "≤" (at the latest) — late rather than early; the page\'s "First sab" time is a first successful sab and the page never says whose, so nothing is timed from it. Updating to v2.25.3 clears the times this tracker had already stored, once: earlier versions filed that "First sab" time as one of your own attempts and nothing kept in your browser can tell those rows from real ones. So for up to 24 hours after the update, a target you sabbed before it reads "≤ about 24h from now" — too late rather than too early — until the game\'s own times come back from the reports you land on and the target\'s Intelligence file.',
       note: 'Your log of sab attempts stays in your own browser. What IS sent to the alliance roster is the target\'s two cap numbers from the attack page — "Total lost from sabbs in the last 24hours" and "Maximum Daily Sabotage loss" — so the War Room can show how much of each target\'s daily cap is left.'
     },
 
@@ -11297,13 +11872,13 @@
     {
       id: 'target-checks', group: 'Attack & Intel', kind: 'sync',
       name: 'Target check log',
-      desc: 'Every time you open an attack page, records that you checked that target: your name, the target and the time, whether the game showed them maxed, how much of their daily sab and theft caps is used, your own attempt counters for that target (sab, revenge sab, theft, poison, attack, raid, recon) and success counters where the game shows them (sab, revenge sab, theft, poison), and your own Spy, Poison, Theft and Attack ratings with the range limits the game prints for you. The War Room uses it to show which targets were just seen maxed, and by whom, so nobody spends turns on them.',
+      desc: 'Every time you open an attack page, records that you checked that target: your name, the target and the time, whether the game showed them maxed, how much of their daily sab and theft caps is used, your own attempt counters for that target (sab, revenge sab, theft, poison, attack, raid, recon) and success counters where the game shows them (sab, revenge sab, theft, poison), and your own Spy, Poison, Theft and Attack ratings with the range limits the game prints for you, and the times the game prints for your own first and last successful sab, steal and poison on that target, the game\'s \'maximum attempts\' line, and when the page was drawn (a page brought back with Back is not sent again). The War Room uses it to show which targets were just seen maxed, and by whom, so nobody spends turns on them; the roster\'s War List tab uses it to count down when your own attempts come back.',
       note: 'All of that — including your own attempt and success counters for each target you open — is visible to everyone with roster access, and used for members\' success rates. It is recorded only when you open an attack page yourself; the script never fires a mission.'
     },
     {
       id: 'mission-log', group: 'Attack & Intel', kind: 'sync',
       name: 'Mission history',
-      desc: 'When you open your Intelligence page, a target\'s Intelligence file, the Poison Log, the Theft Log or the Attack Log, records the missions listed on that page to the alliance roster: your own sab, recon, poison, theft, attack and raid missions with their results (success, aborted, failed, defended — and what was stolen or destroyed), and the missions other players ran against you: who, when, what kind, how many spies, and what they took. Stored with them: the unit losses from the Poison Log; the casualties on both sides, the damage both ways and the hostages from the Attack Log; and the attacker\'s alliance and how many of their spies were caught from the Intelligence page. Any sab report you open is recorded too — not only one you just ran — with the report\'s full text: weapons destroyed, spies and sentries executed, and the gold and XP gained. So are the battle reports of your own attacks and raids — the report you land on after an attack or raid (stamped with that moment), or one of yours you open later from the Attack Log: who you hit, whether it was an attack or a raid, the gold you stole or the defeat, and the report\'s full text. Battle reports of other players attacking you are not recorded; those attacks come from the Attack Log. The War Room turns this into success rates per member and per mission type.',
+      desc: 'When you open your Intelligence page, a target\'s Intelligence file, the Poison Log, the Theft Log or the Attack Log, records the missions listed on that page to the alliance roster: your own sab, recon, poison, theft, attack and raid missions with their results (success, aborted, failed, defended — and what was stolen or destroyed), and the missions other players ran against you: who, when, what kind, how many spies, and what they took. Stored with them: the unit losses from the Poison Log; the casualties on both sides, the damage both ways and the hostages from the Attack Log; and the attacker\'s alliance and how many of their spies were caught from the Intelligence page. Any sab report you open is recorded too — not only one you just ran — with the report\'s full text: weapons destroyed, spies and sentries executed, and the gold and XP gained. So are the battle reports of your own attacks and raids — the report you land on after an attack or raid (stamped with that moment), or one of yours you open later from the Attack Log: who you hit, whether it was an attack or a raid, the gold you stole or the defeat, and the report\'s full text. Battle reports of other players attacking you are not recorded; those attacks come from the Attack Log. The sab or theft report you land on right after the mission is stamped with the Server Time that page shows. Theft reports are recorded too: what you stole, or that it failed. A theft report showing somebody stealing from you is not recorded. The War Room turns this into success rates per member and per mission type.',
       note: 'Your success rates, and every mission behind them, are visible to everyone with roster access — as are the missions run against you. Rates are per member and per mission type, never per target. Only the page you open is read: the script never turns a page, opens a report or fetches anything, and these pages are left exactly as the game drew them.'
     },
     {
@@ -11315,7 +11890,7 @@
     {
       id: 'recon-sharing', group: 'Attack & Intel', kind: 'both',
       name: 'Recon sharing',
-      desc: 'When you recon someone or view their stats page, quietly shares what you saw (plus your recon-attempts count from the Rewards page) with the alliance database. Opening the War List shares that whole page in one go — everyone\'s sentry, the recommended sab weapon and how many of it they hold, who is on the War List and when (and why) they were added, and your own "My 24hr" sab / poison / theft counters for each player on it. Also fills "???" rows on your recon reports with the alliance\'s last known values.',
+      desc: 'When you recon someone or view their stats page, quietly shares what you saw (plus your recon-attempts count from the Rewards page) with the alliance database. Opening the War List shares that whole page in one go — everyone\'s sentry, the recommended sab weapon and how many of it they hold, who is on the War List and when (and why) they were added, and your own "My 24hr" sab / poison / theft counters for each player on it, with when the page was drawn (a War List brought back with Back is not sent again). Also fills "???" rows on your recon reports with the alliance\'s last known values.',
       note: 'The "???" backfill on recon reports belongs to this feature, not Recon display extras — turning this off turns that off too. Your War List "My 24hr" counters are stored under your name, are visible to everyone with roster access, and are used for members\' success rates; switching off Target check log does not stop them — switch off this feature for that. On the War List (and Farm List) the script only reads: the game allows scripts no changes there at all, so nothing on those pages is altered, added or styled.'
     },
     {
@@ -11699,6 +12274,20 @@
     { f: 'server-clock', label: 'startServerClock', when: () => true, run: () => startServerClock() },
     // Covert mission reports carry "Sabotage Again!" buttons, so capture everywhere
     { f: 'sab-tracker', label: 'hookSabFormCapture', when: () => true, run: () => hookSabFormCapture() },
+    // Every attack-page view is logged as a check, the address-less page the
+    // game shows after refusing a sab on a maxed target included. First on
+    // attack.php and fire-and-forget: the check says what the page showed
+    // when it was drawn, so it must not wait behind the TIV round trip — a
+    // mission fired meanwhile would reach the roster before the look that
+    // came before it.
+    { f: 'target-checks', label: 'sendTargetCheck', when: () => onPage("attack.php"), run: () => sendTargetCheck() },
+    // Sab and theft reports post FIRST, before any sidebar step: a report
+    // reaches the roster ~2.5 s after the mission, and a member re-firing
+    // with "… Again!" 1–2 s after landing would otherwise leave before it
+    // went. Not awaited; missionLogSent makes the late step below a no-op.
+    { f: 'mission-log', label: 'sendMissionLog (report pages, first)', when: () => ['report', 'theftreport'].includes(missionLogSource()), run: () => { sendMissionLog(); } },
+    // The sab report just landed on gives the Sab Tracker that sab's exact time.
+    { f: 'sab-tracker', label: 'confirmSabLanding', when: () => onPage('inteldetail.php'), run: () => confirmSabLandingStep() },
     { f: 'slaying-comp', label: 'loadActiveCompetitions', when: () => onPage("base.php") || onPage("rewards.php"), run: async () => {
         const hasComps = await loadActiveCompetitions();
         if (hasComps) {
@@ -11740,23 +12329,22 @@
     { f: 'battlefield-collector', label: 'battlefieldObserver', when: () => onPage("battlefield.php"), run: () => startBattlefieldObserver() },
     { f: 'attack-collectors', label: 'collectTIVFromAttackPage', when: () => onPage("attack.php"), run: () => collectTIVFromAttackPage() },
     { f: 'sab-tracker', label: 'initSabTracker', when: () => onPage("attack.php"), run: () => initSabTracker() },
-    // Every attack-page view is logged as a check, the address-less page the
-    // game shows after refusing a sab on a maxed target included (fire-and-forget)
-    { f: 'target-checks', label: 'sendTargetCheck', when: () => onPage("attack.php"), run: () => sendTargetCheck() },
+    // (sendTargetCheck runs first on attack.php — see the top of this list.)
     // Last on attack.php: the range rows wait on the roster for the target's ratings
     { f: 'attack-warnings', label: 'initAttackWarnings', when: () => onPage("attack.php"), run: () => initAttackWarnings() },
     // Intel file (per-target mission log) backfills the Sab Tracker with exact server times
     { f: 'sab-tracker', label: 'collectFromIntelFilePage', when: () => onPage("intelfile.php"), run: () => collectFromIntelFilePage() },
     // Mission history: the intel file, Intelligence, Poison / Theft / Attack
-    // Log, sab-report and battle-report pages, each read as the member opened
-    // it and sent as ONE request. After every other step on those pages (the
-    // Sab Tracker's intel-file read, Banking Mode's attack-log read, the recon
-    // collector on inteldetail) and not awaited: nothing waits on it. A battle
+    // Log and battle-report pages, each read as the member opened it and sent
+    // as ONE request. After every other step on those pages (the Sab
+    // Tracker's intel-file read, Banking Mode's attack-log read) and not
+    // awaited: nothing waits on it. A battle
     // report is read on the same two passes as collectAttackLog below; the
     // second read sends only if the first did not send the whole report —
     // it found nothing, or found the report before its outcome line
-    // (sendMissionLog's readAgain).
-    { f: 'mission-log', label: 'sendMissionLog', when: () => missionLogSource() !== null, run: () => {
+    // (sendMissionLog's readAgain). Sab and theft reports are not read here:
+    // they post first (the step near the top of this list).
+    { f: 'mission-log', label: 'sendMissionLog', when: () => missionLogSource() !== null && !['report', 'theftreport'].includes(missionLogSource()), run: () => {
         const battle = missionLogSource() === 'battle';
         sendMissionLog({ readAgain: battle });
         if (battle) setTimeout(() => { sendMissionLog(); }, ATTACK_LOG_DELAY_MS);
@@ -11794,6 +12382,7 @@
   ];
 
   async function runFeatures() {
+    PAGE_KOC_TIME = readPageServerTime();   // before any step: the clock starts ticking in one
     // Logged out (only allowed on Inactive Accounts, see the security check):
     // run the steps marked loggedOut and nothing else — no settings link, no
     // clock, nothing that reads a sidebar or an identity from the page.
