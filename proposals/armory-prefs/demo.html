@@ -2,71 +2,139 @@
 <html>
 <head>
 	<title>Armory Preferences Demo</title>
-	<!-- Mock of the Armory Preferences form, for trying armory-prefs.js locally.
-	     The real form's markup may differ; the script only relies on the
-	     prefs[...] input names and the "Clear Percentage Prefills" button. -->
-	<style type="text/css">
-		body { background: #000; color: #fff; font-family: verdana, arial; font-size: 10pt; }
-		table.table_lines { border: 1px solid #555; border-collapse: collapse; }
-		table.table_lines th, table.table_lines td { border: 1px solid #333; padding: 3px 6px; }
-		th.subh { background: #222; }
-	</style>
+	<!-- The Armory Preferences form copied from the live armory.php (Era 23),
+	     for trying armory-prefs.js locally. Uses the live site's stylesheets. -->
+	<link href="https://www.kingsofchaos.com/images/css/common.css" rel="stylesheet" type="text/css" />
+	<link href="https://www.kingsofchaos.com/images/css/Elves.css" rel="stylesheet" type="text/css" />
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
 </head>
-<body>
-	<form method="post" action="armory.php">
-		<table class="table_lines" width="100%" cellspacing="0" cellpadding="6">
-			<tr><th colspan="3">Armory Preferences</th></tr>
-			<tr><th class="subh">Type</th><th class="subh">Percentage</th><th class="subh">Weapon</th></tr>
-			<tr>
-				<td>Attack</td>
-				<td><input type="text" name="prefs[attack]" value="40" size="3"></td>
-				<td><select name="prefs[attweapon]"><option>Best available</option></select></td>
-			</tr>
-			<tr>
-				<td>Defense</td>
-				<td><input type="text" name="prefs[defend]" value="20" size="3"></td>
-				<td><select name="prefs[defweapon]"><option>Best available</option></select></td>
-			</tr>
-			<tr>
-				<td>Spy</td>
-				<td><input type="text" name="prefs[spy]" value="10" size="3"></td>
-				<td><select name="prefs[spyweapon]"><option>Best available</option></select></td>
-			</tr>
-			<tr>
-				<td>Sentry</td>
-				<td><input type="text" name="prefs[sentry]" value="10" size="3"></td>
-				<td><select name="prefs[sentryweapon]"><option>Best available</option></select></td>
-			</tr>
-			<tr>
-				<td>Poison</td>
-				<td><input type="text" name="prefs[poison]" value="5" size="3"></td>
-				<td><select name="prefs[poisonweapon]"><option>Best available</option></select></td>
-			</tr>
-			<tr>
-				<td>Antidote</td>
-				<td><input type="text" name="prefs[medicine]" value="5" size="3"></td>
-				<td><select name="prefs[medicineweapon]"><option>Best available</option></select></td>
-			</tr>
-			<tr>
-				<td>Theft</td>
-				<td><input type="text" name="prefs[theft]" value="5" size="3"></td>
-				<td><select name="prefs[theftweapon]"><option>Best available</option></select></td>
-			</tr>
-			<tr>
-				<td>Vigilance</td>
-				<td><input type="text" name="prefs[vigilance]" value="5" size="3"></td>
-				<td><select name="prefs[vigilanceweapon]"><option>Best available</option></select></td>
-			</tr>
-			<tr>
-				<td colspan="3" align="center">
-					<input type="submit" value="Update Preferences">
-					<input type="button" value="Clear Percentage Prefills"
-						onclick="$('input[name^=&quot;prefs[&quot;][type=text]').val(0)">
-				</td>
-			</tr>
-		</table>
-	</form>
-	<script src="armory-prefs.js"></script>
+<body bgcolor="#000000" text="#FFFFFF">
+<form method="post" action="armory.php" name="prefillform">
+<table class="table_lines" border="0" cellspacing="0" cellpadding="6" width="100%">
+	<tr>
+		<th colspan="4">Armory Preferences</th>
+	</tr>
+	<tr>
+		<th class="subh" align="left">Type</th>
+		<th class="subh" align="center">Percentage</th>
+		<th class="subh" align="right">Weapon/Tool</th>
+	</tr>
+	<tr>
+		<td><b>Attack Weapons</b></td>
+		<td align="right"><input type="number" name="prefs[attack]" min="0" max="100" value="0" step="any" size="3"> % </td>
+		<td align="right">Purchasing
+			<select name="prefs[attweapon]">
+				<option value="69">Sarumans Ball</option>
+				<option value="23">Heavy Steed</option>
+				<option selected value="72">Chariot</option>
+				<option value="70">Blackpowder Missile</option>
+			</select>
+		</td>
+	</tr>
+	<tr>
+		<td><b>Defense Weapons</b></td>
+		<td align="right"><input type="number" name="prefs[defend]" min="0" max="100" value="25" step="any" size="3"> % </td>
+		<td align="right">Purchasing
+			<select name="prefs[defweapon]">
+				<option value="38">Spider</option>
+				<option value="46">Mithril</option>
+				<option selected value="83">Ebony Platemail</option>
+				<option value="71">Invisibility Shield</option>
+			</select>
+		</td>
+	</tr>
+	<tr>
+		<td><b>Spy Tools</b></td>
+		<td align="right"><input type="number" name="prefs[spy]" min="0" max="100" value="12" step="any" size="3"> % </td>
+		<td align="right">Purchasing
+			<select name="prefs[spyweapon]">
+				<option value="65">Cloak</option>
+				<option value="67">Grappling Hook</option>
+				<option value="73">Skeleton Key</option>
+				<option selected value="75">Nunchaku</option>
+			</select>
+		</td>
+	</tr>
+	<tr>
+		<td><b>Sentry Tools</b></td>
+		<td align="right"><input type="number" name="prefs[sentry]" min="0" max="100" value="12" step="any" size="3"> % </td>
+		<td align="right">Purchasing
+			<select name="prefs[sentryweapon]">
+				<option value="64">Horn</option>
+				<option value="66">Tripwire</option>
+				<option value="68">Guard Dog</option>
+				<option selected value="74">Lookout Tower</option>
+			</select>
+		</td>
+	</tr>
+	<tr>
+		<td><b>Poison Tools</b></td>
+		<td align="right"><input type="number" name="prefs[poison]" min="0" max="100" value="16" step="any" size="3"> % </td>
+		<td align="right">Purchasing
+			<select name="prefs[poisonweapon]">
+				<option value="84">Toxic Needle Dagger</option>
+				<option value="85">Venomfang Staff</option>
+				<option value="86">Blightbane Bow</option>
+				<option selected value="87">Plaguebringer Scythe</option>
+			</select>
+		</td>
+	</tr>
+	<tr>
+		<td><b>Antidote Tools</b></td>
+		<td align="right"><input type="number" name="prefs[medicine]" min="0" max="100" value="7" step="any" size="3"> % </td>
+		<td align="right">Purchasing
+			<select name="prefs[medicineweapon]">
+				<option value="88">Viperfang Dirk</option>
+				<option value="89">Basiliskbane Halberd</option>
+				<option value="90">Wyrmclaw Longsword</option>
+				<option selected value="91">Serpentbane Arbalest</option>
+			</select>
+		</td>
+	</tr>
+	<tr>
+		<td><b>Theft Tools</b></td>
+		<td align="right"><input type="number" name="prefs[theft]" min="0" max="100" value="12" step="any" size="3"> % </td>
+		<td align="right">Purchasing
+			<select name="prefs[theftweapon]">
+				<option value="92">Greasy Gloves</option>
+				<option value="93">Rusty Lockpick</option>
+				<option value="94">Shadow Cloak</option>
+				<option selected value="95">Ethereal Grasp</option>
+			</select>
+		</td>
+	</tr>
+	<tr>
+		<td><b>Vigilance Tools</b></td>
+		<td align="right"><input type="number" name="prefs[vigilance]" min="0" max="100" value="14" step="any" size="3"> % </td>
+		<td align="right">Purchasing
+			<select name="prefs[vigilanceweapon]">
+				<option value="96">Wooden Whistle</option>
+				<option value="97">Steel Shackles</option>
+				<option value="98">Silver Scepter</option>
+				<option selected value="99">Adamantine Bastion</option>
+			</select>
+		</td>
+	</tr>
+	<tr>
+		<td colspan = "3" align="center"><input type="submit" class="buy_weap" value="Update Preferences">
+<script>
+    function ClearPrefillPerc() {
+
+        var inputs = document.forms["prefillform"].getElementsByTagName("input");
+
+        for (i = 0; i < inputs.length; i++) {
+            if(document.forms["prefillform"].getElementsByTagName("input")[i].type == "number"){
+                document.forms["prefillform"].getElementsByTagName("input")[i].value = 0;
+            }
+        }
+    }
+</script>
+		<input name="tur_ing" type="hidden" value="" />
+		<input type="button" class="buy_weap" value="Clear Percentage Prefills" onclick="ClearPrefillPerc();" />
+		</td>
+	</tr>
+</table>
+</form>
+<script src="armory-prefs.js"></script>
 </body>
 </html>

@@ -6,9 +6,9 @@
     // =====================================================
     //
     // Adds a slider beside every percentage box in the Armory
-    // Preferences form. The boxes stay where they are and can
-    // still be typed in; the slider and the box always show the
-    // same value. Nothing here submits anything: the existing
+    // Preferences form (prefillform). The boxes stay where they are
+    // and can still be typed in, decimals included; the slider and
+    // the box always show the same value. Nothing here submits anything: the existing
     // "Update Preferences" button saves the same prefs[...]
     // fields as before. With JavaScript off the form is unchanged.
 
@@ -23,13 +23,27 @@
         { label: 'All Sentry',  alloc: { sentry: 100 } }
     ];
 
-    function toPct(value) {
-        var n = parseInt(String(value).replace(/[^0-9]/g, ''), 10);
+    // The boxes take decimals (step="any"), so the balancing works in
+    // hundredths of a percent to keep the total at exactly 100.
+    function toUnits(value) {
+        var n = parseFloat(value);
 
         if (isNaN(n)) {
             return 0;
         }
-        return Math.max(0, Math.min(100, n));
+        return Math.max(0, Math.min(10000, Math.round(n * 100)));
+    }
+
+    function toPct(units) {
+        return units / 100;
+    }
+
+    function getUnits(row) {
+        return toUnits(row.box.val());
+    }
+
+    function setUnits(row, units) {
+        row.box.val(toPct(units));
     }
 
     function ArmoryPrefs(form) {
@@ -64,34 +78,34 @@
 
         row.slider = $('<input type="range" min="0" max="100" step="1">')
             .addClass('prefs-slider')
-            .val(toPct(box.val()));
+            .val(toPct(getUnits(row)));
 
         row.lock = $('<input type="checkbox">')
             .addClass('prefs-lock')
             .attr('title', 'Lock this percentage');
 
-        box.after(
+        // The cell already reads "[box] %", so the slider goes after that.
+        box.parent().append(
             $('<span class="prefs-controls"></span>')
-                .append(' % ', row.slider, ' ',
+                .append(' ', row.slider, ' ',
                         $('<label class="prefs-lock-label"></label>')
                             .append(row.lock, ' Lock'))
         );
 
         // Dragging: the box follows the slider, and the others make room.
         row.slider.on('input', function () {
-            self.setValue(row, toPct(row.slider.val()));
+            self.setValue(row, toUnits(row.slider.val()));
         });
 
         // Typing: follow along while typing, balance once the value is
-        // finished (Enter, Tab or clicking away), so typing "50" does
-        // not first balance against "5".
+        // finished (Tab or clicking away; the page blocks Enter), so
+        // typing "50" does not first balance against "5".
         box.on('input', function () {
-            row.slider.val(toPct(box.val()));
             self.refresh();
         });
 
         box.on('change', function () {
-            self.setValue(row, toPct(box.val()));
+            self.setValue(row, getUnits(row));
         });
 
         row.lock.on('change', function () {
@@ -143,17 +157,16 @@
         var total = 0;
 
         $.each(this.rows, function (i, row) {
-            total += toPct(row.box.val());
+            total += getUnits(row);
         });
         return total;
     };
 
-    ArmoryPrefs.prototype.setValue = function (row, value) {
-        row.box.val(value);
-        row.slider.val(value);
+    ArmoryPrefs.prototype.setValue = function (row, units) {
+        setUnits(row, units);
 
-        if (this.autoBalance && this.sum() > 100) {
-            this.takeFromOthers(row, this.sum() - 100);
+        if (this.autoBalance && this.sum() > 10000) {
+            this.takeFromOthers(row, this.sum() - 10000);
         }
         this.refresh();
     };
@@ -166,40 +179,50 @@
         var available = 0;
 
         $.each(this.rows, function (i, row) {
-            var pct = toPct(row.box.val());
+            var units = getUnits(row);
 
-            if (row !== changed && !row.locked && pct > 0) {
+            if (row !== changed && !row.locked && units > 0) {
                 pool.push(row);
-                available += pct;
+                available += units;
             }
         });
 
         if (over >= available) {
             $.each(pool, function (i, row) {
-                row.box.val(0);
+                setUnits(row, 0);
             });
-            changed.box.val(toPct(changed.box.val()) - (over - available));
+            setUnits(changed, getUnits(changed) - (over - available));
             return;
         }
 
         pool.sort(function (a, b) {
-            return toPct(b.box.val()) - toPct(a.box.val());
+            return getUnits(b) - getUnits(a);
+        });
+
+        // Keep whole percentages whole: only cut in hundredths when a
+        // decimal is already involved.
+        var step = 100;
+
+        $.each(pool.concat(changed), function (i, row) {
+            if (getUnits(row) % 100 !== 0) {
+                step = 1;
+            }
         });
 
         var taken = 0;
         var cuts = $.map(pool, function (row) {
-            var cut = Math.floor(over * toPct(row.box.val()) / available);
+            var cut = Math.floor(over * getUnits(row) / available / step) * step;
             taken += cut;
             return cut;
         });
 
         for (var k = 0; taken < over; k++) {
-            cuts[k % pool.length]++;
-            taken++;
+            cuts[k % pool.length] += step;
+            taken += step;
         }
 
         $.each(pool, function (i, row) {
-            row.box.val(toPct(row.box.val()) - cuts[i]);
+            setUnits(row, getUnits(row) - cuts[i]);
         });
     };
 
@@ -208,31 +231,28 @@
         var even = Math.floor(100 / rows.length);
         var extra = 100 - even * rows.length;
 
-        $.each(rows, function (i, row) {
-            var value = alloc ? (alloc[row.type] || 0)
-                              : even + (i < extra ? 1 : 0);
+        this.applyLocks(false);
 
-            row.locked = false;
-            row.lock.prop('checked', false);
-            row.slider.prop('disabled', false);
-            row.box.prop('readonly', false).val(value);
+        $.each(rows, function (i, row) {
+            row.box.val(alloc ? (alloc[row.type] || 0)
+                              : even + (i < extra ? 1 : 0));
         });
         this.refresh();
     };
 
     ArmoryPrefs.prototype.refresh = function () {
         var total = this.sum();
-        var color = total === 100 ? '#33cc33'
-                  : (total < 100 ? '#ffcc00' : '#ff3333');
+        var color = total === 10000 ? '#33cc33'
+                  : (total < 10000 ? '#ffcc00' : '#ff3333');
 
         $.each(this.rows, function (i, row) {
-            row.slider.val(toPct(row.box.val()));
+            row.slider.val(toPct(getUnits(row)));
         });
 
         this.total
-            .text(total + '%' + (total === 100 ? ''
-                  : (total < 100 ? ' (' + (100 - total) + '% unassigned)'
-                                 : ' (' + (total - 100) + '% over)')))
+            .text(toPct(total) + '%' + (total === 10000 ? ''
+                  : (total < 10000 ? ' (' + toPct(10000 - total) + '% unassigned)'
+                                   : ' (' + toPct(total - 10000) + '% over)')))
             .css('color', color);
     };
 
@@ -264,7 +284,7 @@
     };
 
     $(function () {
-        var form = $('input[name="prefs[attack]"]').closest('form');
+        var form = $('form[name="prefillform"]');
 
         if (form.length) {
             new ArmoryPrefs(form).init();

@@ -7,15 +7,19 @@ way as `action-monitor.js`.
 ## What it does
 
 - Adds a 0–100% slider beside every percentage box. **The boxes stay and can
-  still be typed in**; the box and its slider always show the same value.
+  still be typed in**, decimals included (they are `step="any"`); the box and
+  its slider always show the same value.
 - Live total under the table: green at 100%, yellow when some is unassigned,
   red when it is over.
 - Auto-balance (on by default, can be unticked): raising one type lowers the
-  others in proportion. When you type, it balances once you finish (Enter, Tab
-  or click away), so typing "50" does not first balance against "5".
+  others in proportion, keeping whole numbers whole unless a decimal is
+  already involved. When you type, it balances once you leave the box (Tab or
+  click away; the page already blocks Enter), so typing "50" does not first
+  balance against "5".
 - A Lock tick box per type, so auto-balance never touches it.
 - Preset buttons: Even Split, All Attack, All Defense, All Spy, All Sentry.
-- Picks up the existing "Clear Percentage Prefills" button.
+- Works with the existing "Clear Percentage Prefills" button
+  (`ClearPrefillPerc()`).
 
 ## What it does not change
 
@@ -26,16 +30,16 @@ way as `action-monitor.js`.
 
 ## Installing
 
-Add one line at the end of armory.php, after the form:
+Add one line to armory.php after the `prefillform` form:
 
 ```html
 <script src="armory-prefs.js?v=1.0"></script>
 ```
 
-It finds the form by its `prefs[attack]` field, so it does not depend on the
-table layout around it.
+It finds the form by `name="prefillform"` and each box by its `prefs[...]`
+name, and adds one row above the Update Preferences row.
 
 ## Trying it
 
-Open `demo.html` here in a browser. It is a mock of the form; the real markup
-may differ.
+Open `demo.html` here in a browser. It is the Armory Preferences form copied
+from the live armory.php (Era 23), styled with the live site's stylesheets.
