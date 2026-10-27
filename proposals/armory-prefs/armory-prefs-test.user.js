@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         KoC Armory Preference Sliders (test)
 // @namespace    trevo88423
-// @version      1.0
+// @version      1.1
 // @author       Blackheart
 // @description  Tries the armory-prefs.js proposal on the live Armory page, exactly as the site would load it. Turn off "Armory preference sliders" in the Data Centre settings while testing, or the two slider UIs clash.
 // @match        https://www.kingsofchaos.com/armory.php*

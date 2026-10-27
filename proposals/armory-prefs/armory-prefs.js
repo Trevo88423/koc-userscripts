@@ -80,7 +80,8 @@
 
         // The slider gets a full-width line of its own under the type's
         // row, so the Percentage cell is left as it is.
-        row.slider.css('width', '85%');
+        row.slider.css({ width: '85%', verticalAlign: 'middle' });
+        row.lock.css('vertical-align', 'middle');
 
         row.tr = $('<tr class="prefs-slider-row"></tr>').append(
             $('<td align="center"></td>')
