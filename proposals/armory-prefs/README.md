@@ -6,7 +6,8 @@ way as `action-monitor.js`.
 
 ## What it does
 
-- Adds a 0–100% slider beside every percentage box. **The boxes stay and can
+- Adds a 0–100% slider on its own full-width line under every type, so the
+  existing row is not squeezed. **The boxes stay and can
   still be typed in**, decimals included (they are `step="any"`); the box and
   its slider always show the same value.
 - Live total under the table: green at 100%, yellow when some is unassigned,
@@ -17,7 +18,6 @@ way as `action-monitor.js`.
   click away; the page already blocks Enter), so typing "50" does not first
   balance against "5".
 - A Lock tick box per type, so auto-balance never touches it.
-- Preset buttons: Even Split, All Attack, All Defense, All Spy, All Sentry.
 - Works with the existing "Clear Percentage Prefills" button
   (`ClearPrefillPerc()`).
 
@@ -37,7 +37,8 @@ Add one line to armory.php after the `prefillform` form:
 ```
 
 It finds the form by `name="prefillform"` and each box by its `prefs[...]`
-name, and adds one row above the Update Preferences row.
+name. It adds a slider line under each type and one total line above the
+Update Preferences row.
 
 ## Trying it
 

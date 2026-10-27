@@ -5,23 +5,16 @@
     // ARMORY PREFERENCE SLIDERS v1.0
     // =====================================================
     //
-    // Adds a slider beside every percentage box in the Armory
+    // Adds a slider under every percentage box in the Armory
     // Preferences form (prefillform). The boxes stay where they are
     // and can still be typed in, decimals included; the slider and
-    // the box always show the same value. Nothing here submits anything: the existing
-    // "Update Preferences" button saves the same prefs[...]
-    // fields as before. With JavaScript off the form is unchanged.
+    // the box always show the same value. Nothing here submits
+    // anything: the existing "Update Preferences" button saves the
+    // same prefs[...] fields as before. With JavaScript off the form
+    // is unchanged.
 
     var TYPES = ['attack', 'defend', 'spy', 'sentry',
                  'poison', 'medicine', 'theft', 'vigilance'];
-
-    var PRESETS = [
-        { label: 'Even Split',  alloc: null },
-        { label: 'All Attack',  alloc: { attack: 100 } },
-        { label: 'All Defense', alloc: { defend: 100 } },
-        { label: 'All Spy',     alloc: { spy: 100 } },
-        { label: 'All Sentry',  alloc: { sentry: 100 } }
-    ];
 
     // The boxes take decimals (step="any"), so the balancing works in
     // hundredths of a percent to keep the total at exactly 100.
@@ -75,6 +68,7 @@
     ArmoryPrefs.prototype.buildRow = function (type, box) {
         var self = this;
         var row = { type: type, box: box, locked: false };
+        var typeRow = box.closest('tr');
 
         row.slider = $('<input type="range" min="0" max="100" step="1">')
             .addClass('prefs-slider')
@@ -84,13 +78,23 @@
             .addClass('prefs-lock')
             .attr('title', 'Lock this percentage');
 
-        // The cell already reads "[box] %", so the slider goes after that.
-        box.parent().append(
-            $('<span class="prefs-controls"></span>')
-                .append(' ', row.slider, ' ',
+        // The slider gets a full-width line of its own under the type's
+        // row, so the Percentage cell is left as it is.
+        row.slider.css('width', '85%');
+
+        row.tr = $('<tr class="prefs-slider-row"></tr>').append(
+            $('<td align="center"></td>')
+                .attr('colspan', typeRow.children('td, th').length || 1)
+                .append(row.slider, ' ',
                         $('<label class="prefs-lock-label"></label>')
                             .append(row.lock, ' Lock'))
         );
+        typeRow.after(row.tr);
+
+        // Join the two lines visually: no divider between a type and its
+        // slider.
+        typeRow.children('td').css('border-bottom', 'none');
+        row.tr.children('td').css('padding-top', '0');
 
         // Dragging: the box follows the slider, and the others make room.
         row.slider.on('input', function () {
@@ -119,9 +123,8 @@
 
     ArmoryPrefs.prototype.buildTotalRow = function () {
         var self = this;
-        var lastRow = self.rows[self.rows.length - 1].box.closest('tr');
-        var cells = lastRow.children('td, th').length || 1;
-        var presets = $('<span class="prefs-presets"></span>');
+        var lastRow = self.rows[self.rows.length - 1].tr;
+        var cells = lastRow.children('td').attr('colspan');
 
         self.total = $('<b class="prefs-total"></b>');
 
@@ -130,16 +133,6 @@
                 self.autoBalance = $(this).prop('checked');
             });
 
-        $.each(PRESETS, function (i, preset) {
-            $('<input type="button" class="buy_weap">')
-                .val(preset.label)
-                .on('click', function () {
-                    self.applyPreset(preset.alloc);
-                })
-                .appendTo(presets);
-            presets.append(' ');
-        });
-
         lastRow.after(
             $('<tr class="prefs-total-row"></tr>').append(
                 $('<td align="center"></td>')
@@ -147,8 +140,7 @@
                     .append('Total: ', self.total, '<br>',
                             $('<label></label>').append(
                                 self.balance,
-                                ' Auto-balance (raising one lowers the others)'),
-                            '<br>', presets)
+                                ' Auto-balance (raising one lowers the others)'))
             )
         );
     };
@@ -224,20 +216,6 @@
         $.each(pool, function (i, row) {
             setUnits(row, getUnits(row) - cuts[i]);
         });
-    };
-
-    ArmoryPrefs.prototype.applyPreset = function (alloc) {
-        var rows = this.rows;
-        var even = Math.floor(100 / rows.length);
-        var extra = 100 - even * rows.length;
-
-        this.applyLocks(false);
-
-        $.each(rows, function (i, row) {
-            row.box.val(alloc ? (alloc[row.type] || 0)
-                              : even + (i < extra ? 1 : 0));
-        });
-        this.refresh();
     };
 
     ArmoryPrefs.prototype.refresh = function () {
