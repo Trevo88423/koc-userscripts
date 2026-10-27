@@ -117,7 +117,7 @@
             });
 
         $.each(PRESETS, function (i, preset) {
-            $('<input type="button">')
+            $('<input type="button" class="buy_weap">')
                 .val(preset.label)
                 .on('click', function () {
                     self.applyPreset(preset.alloc);
