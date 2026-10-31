@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name         KoC Data Centre
 // @namespace    trevo88423
-// @version      2.25.3
-// @description  Sweet Revenge alliance tool: tracks stats, syncs to API, adds dashboards, XP→Turn calculator, mini Top Stats panel. v2.25.3: The roster's War List tab now counts down when your own sab and theft attempts on each target come back — the game's rolling 24 hours, attempt by attempt, from what the game itself showed you. To make those times exact: the attack page now also records the times the game prints for your own first and last successful sab, steal and poison on that target, and the game's "You have used the maximum … attempts" line; and the sab or theft report you land on right after the mission is stamped with the Server Time that page shows. A page brought back with the Back button is not recorded again. Theft reports are now recorded too: what you stole, or that the theft failed. A theft report showing somebody stealing from you is not recorded. Fix — the Sab Tracker counted a press the game refused (one more after your tenth sab, or a sab on a maxed target) as an attempt, and to make room for it dropped your oldest attempt time, even an exact one. A refused press is no longer counted, and the report you land on after a sab now gives the tracker that sab's exact time. The attack page's "First sab" time is a first SUCCESSFUL sab and the page never says whose, so no countdown is built on it any more — anywhere. An attempt the tracker never saw now counts from the moment you opened the page and reads "≤" (at the latest): less exact, but it can only ever run late, never let you fire early. Because earlier versions filed that "First sab" time as one of your own attempts, and nothing stored in your browser can tell those rows from real ones, updating clears the sab times already tracked, once: for up to 24 hours after the update a target you sabbed before it reads "≤ about 24h from now" — too late rather than too early — until the game's own times come back from the reports you land on and the target's Intelligence file. v2.25.2: Fix — the battle report you land on after attacking or raiding now counts in Mission history's 24h and 7-day figures straight away, whichever page you attacked from: the attack page, a recon report, a theft report or an "… Again!" button. Until now only the attack page and the "… Again!" buttons were recognised, so a battle launched from a recon report was stored without its time. Also: a battle report you open later (from the Attack Log, say) no longer takes the stolen gold off the target's current gold estimate: that gold was stolen back when the battle happened, not now. v2.25.1: Fix — raids were stored with no gold and no target. The battle-report reader only knew how an attack's report words its first line ("You stole … gold while attacking …'s camp"); a raid's says "while raiding", so every raid went into the alliance's attack records as 0 gold stolen from "Unknown". Raids now record the gold, the target and the hostages, and a lost battle takes the target's name from the report ("…'s forces overpowered your army!"). Also: your own attacks and raids now count in Mission history straight from the battle report — the one you land on after an attack or raid, or one of yours you open later from the Attack Log — with whether it was an attack or a raid (from the game's own "Raid Again!" / "Attack Again!" button, or the report's wording) and whether you won; the report you land on is also stamped with the time. Also fixed: opening the battle report of another player's attack on you recorded it in the alliance's attack records as your own attack on them. Battle reports of other players attacking you are now not recorded at all — the Attack Log still lists those attacks. As before, only the page you open is read and it is left exactly as the game drew it. v2.25.0: Mission history — the pages that list missions are now read when you open them and shared with the alliance roster: a target's Intelligence file (your recon and sab missions on them, Success or Aborted), the Poison Log and Theft Log (both directions, with what was stolen), your Intelligence page (recon and sab missions run against you, and how many of their spies were caught) and the Attack Log (attacks and raids both ways, with gold stolen and losses). Any sab report you open adds its details too — what it destroyed, spies and sentries executed, gold and XP. This feeds the War Room's new success rates — per member and per mission type, never per target — which are visible to everyone with roster access, as the settings panel now says. The script sends each page's own wording and the server interprets it, so a result nobody has seen yet (a successful poison, say) is kept rather than lost and is sorted out once it turns up. Only the page you open is read: it never turns a page, opens a report or fetches anything, and those pages look exactly as before. Also: the Sab Tracker's Intelligence-file backfill now shares that same read. v2.24.0: Attack page range warnings — under each mission's "can … up to …" line the attack page now says whether the target is actually in reach: their sentry, antidote, vigilance or defensive action as last recorded by the alliance, against the limit the game prints for you, with how old that reading is. ⛔ Out of range means the mission will fail — the game lets an out-of-range theft fire anyway, which is how four thefts on one target all failed. The Theft box also gets a theft-cap line: how much of the target's daily theft cap is left, or THEFT MAXED. New Target check log: every attack page you open records that you checked that target — whether it was maxed, how much of its sab and theft caps is used, and your own attempt and success counters on it — so the War Room can show who saw a target maxed and how long ago; those counters are visible to everyone with roster access and will feed members' success rates. The War List collector now also shares who is on the list, when and why they were added, and your own "My 24hr" counters — and on the War List and Farm List the script now makes no changes at all (no toasts, no styles, no overlays), as the game's rules require. The settings panel now says exactly what the Sab Tracker sends. v2.23.2: Fix — the Sab Tracker vanished on the page the game shows after refusing a sab on a maxed target ("This player has been maxxed…"): that page has no player id in its address, so the tracker, the TIV reading and the sab-cap sharing all quietly gave up — at the one moment the script knew for certain the target was maxed. They now read the target from the page itself. Also fixes the Intelligence-file backfill for the Sab Tracker, which looked for the mission type in the wrong column and so never matched a row; it now finds the column by its header. v2.23.1: Inactive Accounts sync now works while you are logged out — including while you are on vacation and cannot log in — using the login saved from your last visit. On that page, logged out, it is the only thing the script does; every other feature still needs you logged in. Also: a network blip or server restart while renewing your session no longer logs you out of the script. v2.23.0: Inactive Accounts sync — opening the in-game Inactive Accounts page now shares the list with the alliance roster: who went into Vacation Mode and exactly when, and who has been deleted. Anyone who has dropped off the list since the last visit is marked back from vacation. This powers the new Vacation Watch tab on the dashboard, with live countdowns to when each player can return. The script only reads the page you open; the more often members check it, the sooner returns show up. v2.22.0: The War List's "Last Sab" column is now collected too — who last hit each target, for how much, and how long ago — giving the war dashboard a "Last hit" column that shows which targets the alliance is actually working and which nobody has touched, plus a running log of destroyed value for the war. v2.21.2: Fix — TIV readings from the attack page and your Armory were being sent with a timestamp field nothing reads, so they arrived unstamped and skipped the server's "only overwrite if newer" guard, letting an older reading quietly replace a fresher one. v2.21.1: War List collector reads the AAT and Sentry cells from their own DOM nodes instead of the cell's flattened text — those cells hold two numbers separated only by a line break, so any flattening ran "488" and "488,000,000 damage per sab" together into 488 billion. Works on both the Alliance and Single Target lists. v2.21.0: War List collector — opening the War List now records, for every player on it at once, their sentry (stamped with the age the game itself shows, so it never overwrites fresher recon), the weapon the game recommends sabbing them with, and the AAT: how many of that weapon they actually hold plus the gold one full sab would destroy. The war dashboard gets an AAT column and a "Min AAT" filter, so targets who simply do not own enough weapons to be worth organising around can be filtered out in one click. v2.20.1: Fix — race now updates when a player switches race. Race was only ever read from a full recon report, so a race change sat wrong in the roster until somebody spent a recon on that player, even though every visit to their stats page showed the new race in plain sight; the stats-page collector now reads the Information table too (race and rank), and it no longer gives up on players who have no shared recon data. v2.20.0: Sab cap sharing — opening any attack page now records that target's "Total lost from sabbs in the last 24hours" and "Maximum Daily Sabotage loss" to the alliance roster, so the War Room can show how much of every player's daily cap is already gone and how much gold is still worth sabbing, with a share button that copies a Discord-ready line. Also fixes the sab-cap reader: KoC prints the cap with decimals when it isn't a whole number, which the old pattern could not match, so the in-game "sab damage left before maxed" line silently never appeared on those targets. v2.19.1: Fix — a target sabbed flat reads "Total Invested Value: ()" with empty brackets, which the TIV collector could not parse, so the roster kept that player's pre-sab value forever and never stopped asking for a recon that could not land; empty brackets now record as a real 0 (on your own Armory too), while a box the script genuinely cannot read is left alone instead of writing a false zero. v2.19.0: Stat Reshuffler — Goal mode: pick a stat and type a target rating (commas fine, or shorthand like 4.78T) and the calculator shows the gap from your PROJECTED rating — so your sells, race change and re-buys are already counted — plus how many weapons and how much gold on top of the plan would close it, netting off any unspent pool. Warns when your units couldn't hold that many more weapons. The goal is remembered between visits and updates live as you tweak the scenario. v2.18.3: Stat Reshuffler — the launcher moved: it now sits as a full-width banner directly above the "Armory Preferences" header, styled by cloning that header's own theme (background, border, font) so it looks native in any skin; falls back to the old Total Invested Value spot if the header isn't found. v2.18.2: Stat Reshuffler — stale-multiplier warning: a learned weapon multiplier quietly goes wrong after skill/tech upgrades (it only refreshes when you buy), which left phantom rating behind on sell-all scenarios; the reshuffler now compares each learned multiplier against what your live rating implies and flags "⚠ stale multiplier — buy 1 to recalibrate" per stat plus a summary warning, with the multiplier's age shown. v2.18.1: Stat Reshuffler — new "Ignore carrier caps" toggle for when you're happy to train soldiers/covert units as needed: projections then count every weapon as held (including ones currently sitting unheld) and the ⚠ unheld warnings disappear; the choice is remembered. v2.18.0: Stat Reshuffler — a 🔀 button under the Armory's Total Invested Value box opens a full what-if rework calculator: choose weapons (or whole categories) to sell, optionally switch race, and pour the proceeds — plus your on-hand + vault gold if you tick it — into any mix of the eight stats. It projects the gold you'd recover (sales pay 50% and land in your Vault), how many of each weapon you could buy, whether your units can actually carry them (unheld weapons add nothing), your projected new ratings including the race-bonus swing, and your new TIV. Pure calculator — it never sells, buys or presses anything. v2.17.1: Fix — clicking the sidebar Sweet Revenge logo now opens the feature-settings popup (same as the ⚙ Data Centre link) instead of navigating away. Internal cleanup: removed the unused armory sell-value cache (nothing has used it since the v2.11.2 "Upgrade Ready" rework). v2.17.0: Feature Settings — a new "⚙ Data Centre" link in the sidebar opens a settings panel where EVERY feature can be switched on/off individually (or all at once with the master switch), each with a plain-English description of what it does and a badge showing whether it only changes your display or also records data to the alliance roster; toggles apply on the next page load and everything stays ON by default, so nothing changes until you say so. Under the hood the script's ~40 page hooks were rebuilt onto a single feature registry that drives both the dispatcher and the panel, ~600 lines of dead legacy code were removed, and small fixes landed (DST helper deduplicated, script load message now always visible in console, toast animation style no longer re-injected per notification). Also: the sidebar Sweet Revenge logo is now a link to the Data Centre (with a hover glow), and the Top Stats panel's Debug button is gone — debug mode lives in the console via KoCDebug.toggle(). v2.16.0: Sab Tracker learns the exclusivity rule — per target you either regular-sab OR revenge-sab in a 24h window, so the panels now show 🔒 "Regular sabs locked — you revenge-sabbed this target" with an unlock countdown that keeps working after the Revenge section vanishes (target un-maxed — exactly when KoC hides the info), and 🔒 "Revenge locked — you've sabbed this target this window" when the Revenge form is up but unusable; the native "First sab (last 24hrs)" row is age-formatted like the rest (it anchored the "Can sab again in …" countdown from this version until v2.25.3, which stopped using it). v2.15.0: Sabotage Tracker on attack.php — "You last sabbed / poisoned / stole" and the revenge timestamps now show colour-coded ages like the stats pages (hover for the raw server time); the Sabotage and Revenge Sabotage sections get a live status line: attempts left in the rolling 24h window with a ticking "Can sab again in …" countdown when you're out of slots (10 sabs / 4 revenge per target per 24h, tracked automatically whenever you fire a sab and backfilled with exact server times when you open the target's Intelligence file), plus a "sab damage left before maxed" line (Maximum Daily Sabotage loss − lost in last 24h) that flips to TARGET MAXED when the cap is hit. Display-only: it records only missions you fire by hand and never presses anything. v2.14.0: Tech Level Projector — the "Stats After Upgrading Tech" table on safe.php gets a "Project to" dropdown: pick ANY future tech level (up to Obi Bon Kenobi) and the table shows your projected stats at that level, with the total ▲% vs now and the cumulative EXP needed across all the upgrades in between. v2.13.1: Rank-neighbour links now blend into the native table — no dot markers or underline, the numbers just quietly became links (hover tooltip still shows who it is, data age, and gap/stale warnings). v2.13.0: Rank-neighbour recon links — the "Rating For Previous/Next Rank Gain" numbers are now hyperlinks to the player we believe holds that rank (matched by rating value from the roster DB, never by stale DB rank), with a tooltip showing who it is + how fresh their data is; an orange dot means a DB gap (recon upward), a red dot means DB rank/rating disagree (recon me first). Click → recon → DB refreshes; wrong candidates rotate out on the next page load, so the links self-correct toward the true neighbour. v2.11.2: Banking Mode redesigned — your exposed gold now shows in a native-style "Estimated Funds" box that matches the in-game funds boxes, with a ⚙ that holds the Banking Mode toggle, screen-awake, and all settings (including an optional "show yellow/red times" line); a live-ticking Server Time clock on every page; and the Upgrades "Upgrade Ready" row now uses realistic funds (drops full-armory-sell) and shows any shortfall as a slay estimate. v2.10.1: Fix — the slider Armory Preferences now also resync when you press KoC's "Clear Percentage Prefills" button (sliders drop to 0 instead of keeping their old values). v2.10.0: New slider-based Armory Preferences — drag to allocate with auto-balancing, theme-matched styling, and one-tap presets (Cheapest first, Optimizer, All spy, All defense) plus saved presets — replacing the in-game percentage form; rank Optimizer also fixed (weapon efficiency now synced). v2.9.0: "Time to upgrade" + "EXP still needed to be deposited" now show on ALL EXP-cost safe.php upgrades (Increase Soldiers, Economic Development, SAFE Upgrade) — not just Technological Development. v2.8.2: Fix — "EXP still needed to be deposited" now shows cost − Experience Bank (what must still be banked) instead of also subtracting on-hand EXP, so it no longer reads 0 when you hold the EXP but haven't deposited it. v2.8.1: Fix — sidebar abbreviates large gold/safe values (e.g. "2,560M"); getSidebarValue now parses K/M/B/T suffixes so SAFE Forecasts and gold-upgrade rows use real balances (previously read as ~0). SAFE Forecasts also uses the full-precision "Gold in Safe" value. v2.8.0: SAFE Forecasts on safe.php — time for your Safe to reach 1B/2B/5B/9B/10B(MAX) based on current Safe + deposit/min. v2.7.0: Gold upgrade timer — upgrades.php now shows "Upgrade Ready" (liquidation + safe-growth time) and "Gold Needed on top of Safe" under each skill upgrade (uses gold/vault/safe + full armory sell value from Armory + safe deposit rate from Safe). v2.6.0: Tech upgrade timer — safe.php now shows "Time to upgrade" + "EXP still needed to be deposited" under Technological Development (uses EXP on-hand + Experience Bank + your EXP/turn rate, auto-captured from the Upgrades page). v2.5.1: Banking Mode last-bank fix — now watches the per-weapon buy form (anotherbuyform), not just the hidden one-click form, and stamps banks reliably for high-income accounts. v2.5.0: 🏦 Banking Mode on the Armory page — toggleable inline widget that projects your exposed (stealable) gold every second, colour-codes the risk (SAFE/CAUTION/DANGER) from your attack-log steal history, shows time-to-yellow/red, and keeps the screen awake. Display-only: no automated requests, observes (never presses) the buy/repair forms. v2.4.0: Banking trend graph (📈 in the sidebar tracks your banked % over time) + manual override for Avg Gold/Atk (✏️ in the sidebar, survives attack-log recalibration). v2.3.4: Recons panel now shares counts alliance-wide via API (previously localStorage-only — each user only saw themselves). v2.3.0: Added "Stats If You Attacked Instead" table on safe.php to compare tech upgrades vs attacking. v2.2.9: Added optimizer auto-fill for armory (uses roster API to calculate optimal stat allocation). v2.2.8: Minor fixes. v2.1.0: Integrated slaying competition tracker (attack missions & gold stolen tracking, team competitions, leaderboards). v2.0.0: Optimized API architecture, previous versions deprecated.
+// @version      2.26.1
+// @description  Sweet Revenge alliance tool: tracks stats, syncs to API, adds dashboards, XP→Turn calculator, mini Top Stats panel. v2.26.1: The Gold per Stat Point panel on the Armory now starts closed — one header line with a summary ("8 Live") — and opens with a click; it remembers whether you left it open. Plan as held can be ticked while it is closed. It also has its own switch in the ⚙ Data Centre settings, separate from the rank-up costs. v2.26.0: Gold per stat point stops jumping. The rank-up costs and the Optimizer now take each stat's gold per point from your armory page itself — your rating divided by the weapons the game says are held — read fresh on every visit, instead of learning it from purchase messages. A purchase reads low when it pushes out weapons you already hold (buying Blackpowder Missiles while your soldiers hold Chariots learned Strike at 0.4 of its real value, so Strike looked 2.5 times too expensive) or when part of it goes unheld. A new Gold per Stat Point panel under the Rank Gain table shows each stat's figure and where it came from: Live; Remembered (a stat you keep unheld on purpose keeps its last reading, with its age); Paired (Poison and Antidote, Theft and Vigilance borrow from each other, but only while both skills are at the same upgrade level, read when you open the Upgrades page); or Pinned — type your own gold per point and it stays put until you clear it. Unheld weapons are shown as information, not a warning: how many, and what they would add if held. A Plan as held tick works the rank-up costs and the Optimizer out as if every weapon you own were held — for the end-of-era push; other players' ratings stay as last recorded, and they may be hiding too. A purchase that goes unheld now gets a quiet note instead of an error. The Stat Reshuffler and the Safe page's Attacked Instead table use the same figures, and the Reshuffler now takes the game's own unheld count (untrained soldiers hold weapons too). Also: the roster no longer lets a recon of you overwrite the gold per point your own armory sent. v2.25.3: The roster's War List tab now counts down when your own sab and theft attempts on each target come back — the game's rolling 24 hours, attempt by attempt, from what the game itself showed you. To make those times exact: the attack page now also records the times the game prints for your own first and last successful sab, steal and poison on that target, and the game's "You have used the maximum … attempts" line; and the sab or theft report you land on right after the mission is stamped with the Server Time that page shows. A page brought back with the Back button is not recorded again. Theft reports are now recorded too: what you stole, or that the theft failed. A theft report showing somebody stealing from you is not recorded. Fix — the Sab Tracker counted a press the game refused (one more after your tenth sab, or a sab on a maxed target) as an attempt, and to make room for it dropped your oldest attempt time, even an exact one. A refused press is no longer counted, and the report you land on after a sab now gives the tracker that sab's exact time. The attack page's "First sab" time is a first SUCCESSFUL sab and the page never says whose, so no countdown is built on it any more — anywhere. An attempt the tracker never saw now counts from the moment you opened the page and reads "≤" (at the latest): less exact, but it can only ever run late, never let you fire early. Because earlier versions filed that "First sab" time as one of your own attempts, and nothing stored in your browser can tell those rows from real ones, updating clears the sab times already tracked, once: for up to 24 hours after the update a target you sabbed before it reads "≤ about 24h from now" — too late rather than too early — until the game's own times come back from the reports you land on and the target's Intelligence file. v2.25.2: Fix — the battle report you land on after attacking or raiding now counts in Mission history's 24h and 7-day figures straight away, whichever page you attacked from: the attack page, a recon report, a theft report or an "… Again!" button. Until now only the attack page and the "… Again!" buttons were recognised, so a battle launched from a recon report was stored without its time. Also: a battle report you open later (from the Attack Log, say) no longer takes the stolen gold off the target's current gold estimate: that gold was stolen back when the battle happened, not now. v2.25.1: Fix — raids were stored with no gold and no target. The battle-report reader only knew how an attack's report words its first line ("You stole … gold while attacking …'s camp"); a raid's says "while raiding", so every raid went into the alliance's attack records as 0 gold stolen from "Unknown". Raids now record the gold, the target and the hostages, and a lost battle takes the target's name from the report ("…'s forces overpowered your army!"). Also: your own attacks and raids now count in Mission history straight from the battle report — the one you land on after an attack or raid, or one of yours you open later from the Attack Log — with whether it was an attack or a raid (from the game's own "Raid Again!" / "Attack Again!" button, or the report's wording) and whether you won; the report you land on is also stamped with the time. Also fixed: opening the battle report of another player's attack on you recorded it in the alliance's attack records as your own attack on them. Battle reports of other players attacking you are now not recorded at all — the Attack Log still lists those attacks. As before, only the page you open is read and it is left exactly as the game drew it. v2.25.0: Mission history — the pages that list missions are now read when you open them and shared with the alliance roster: a target's Intelligence file (your recon and sab missions on them, Success or Aborted), the Poison Log and Theft Log (both directions, with what was stolen), your Intelligence page (recon and sab missions run against you, and how many of their spies were caught) and the Attack Log (attacks and raids both ways, with gold stolen and losses). Any sab report you open adds its details too — what it destroyed, spies and sentries executed, gold and XP. This feeds the War Room's new success rates — per member and per mission type, never per target — which are visible to everyone with roster access, as the settings panel now says. The script sends each page's own wording and the server interprets it, so a result nobody has seen yet (a successful poison, say) is kept rather than lost and is sorted out once it turns up. Only the page you open is read: it never turns a page, opens a report or fetches anything, and those pages look exactly as before. Also: the Sab Tracker's Intelligence-file backfill now shares that same read. v2.24.0: Attack page range warnings — under each mission's "can … up to …" line the attack page now says whether the target is actually in reach: their sentry, antidote, vigilance or defensive action as last recorded by the alliance, against the limit the game prints for you, with how old that reading is. ⛔ Out of range means the mission will fail — the game lets an out-of-range theft fire anyway, which is how four thefts on one target all failed. The Theft box also gets a theft-cap line: how much of the target's daily theft cap is left, or THEFT MAXED. New Target check log: every attack page you open records that you checked that target — whether it was maxed, how much of its sab and theft caps is used, and your own attempt and success counters on it — so the War Room can show who saw a target maxed and how long ago; those counters are visible to everyone with roster access and will feed members' success rates. The War List collector now also shares who is on the list, when and why they were added, and your own "My 24hr" counters — and on the War List and Farm List the script now makes no changes at all (no toasts, no styles, no overlays), as the game's rules require. The settings panel now says exactly what the Sab Tracker sends. v2.23.2: Fix — the Sab Tracker vanished on the page the game shows after refusing a sab on a maxed target ("This player has been maxxed…"): that page has no player id in its address, so the tracker, the TIV reading and the sab-cap sharing all quietly gave up — at the one moment the script knew for certain the target was maxed. They now read the target from the page itself. Also fixes the Intelligence-file backfill for the Sab Tracker, which looked for the mission type in the wrong column and so never matched a row; it now finds the column by its header. v2.23.1: Inactive Accounts sync now works while you are logged out — including while you are on vacation and cannot log in — using the login saved from your last visit. On that page, logged out, it is the only thing the script does; every other feature still needs you logged in. Also: a network blip or server restart while renewing your session no longer logs you out of the script. v2.23.0: Inactive Accounts sync — opening the in-game Inactive Accounts page now shares the list with the alliance roster: who went into Vacation Mode and exactly when, and who has been deleted. Anyone who has dropped off the list since the last visit is marked back from vacation. This powers the new Vacation Watch tab on the dashboard, with live countdowns to when each player can return. The script only reads the page you open; the more often members check it, the sooner returns show up. v2.22.0: The War List's "Last Sab" column is now collected too — who last hit each target, for how much, and how long ago — giving the war dashboard a "Last hit" column that shows which targets the alliance is actually working and which nobody has touched, plus a running log of destroyed value for the war. v2.21.2: Fix — TIV readings from the attack page and your Armory were being sent with a timestamp field nothing reads, so they arrived unstamped and skipped the server's "only overwrite if newer" guard, letting an older reading quietly replace a fresher one. v2.21.1: War List collector reads the AAT and Sentry cells from their own DOM nodes instead of the cell's flattened text — those cells hold two numbers separated only by a line break, so any flattening ran "488" and "488,000,000 damage per sab" together into 488 billion. Works on both the Alliance and Single Target lists. v2.21.0: War List collector — opening the War List now records, for every player on it at once, their sentry (stamped with the age the game itself shows, so it never overwrites fresher recon), the weapon the game recommends sabbing them with, and the AAT: how many of that weapon they actually hold plus the gold one full sab would destroy. The war dashboard gets an AAT column and a "Min AAT" filter, so targets who simply do not own enough weapons to be worth organising around can be filtered out in one click. v2.20.1: Fix — race now updates when a player switches race. Race was only ever read from a full recon report, so a race change sat wrong in the roster until somebody spent a recon on that player, even though every visit to their stats page showed the new race in plain sight; the stats-page collector now reads the Information table too (race and rank), and it no longer gives up on players who have no shared recon data. v2.20.0: Sab cap sharing — opening any attack page now records that target's "Total lost from sabbs in the last 24hours" and "Maximum Daily Sabotage loss" to the alliance roster, so the War Room can show how much of every player's daily cap is already gone and how much gold is still worth sabbing, with a share button that copies a Discord-ready line. Also fixes the sab-cap reader: KoC prints the cap with decimals when it isn't a whole number, which the old pattern could not match, so the in-game "sab damage left before maxed" line silently never appeared on those targets. v2.19.1: Fix — a target sabbed flat reads "Total Invested Value: ()" with empty brackets, which the TIV collector could not parse, so the roster kept that player's pre-sab value forever and never stopped asking for a recon that could not land; empty brackets now record as a real 0 (on your own Armory too), while a box the script genuinely cannot read is left alone instead of writing a false zero. v2.19.0: Stat Reshuffler — Goal mode: pick a stat and type a target rating (commas fine, or shorthand like 4.78T) and the calculator shows the gap from your PROJECTED rating — so your sells, race change and re-buys are already counted — plus how many weapons and how much gold on top of the plan would close it, netting off any unspent pool. Warns when your units couldn't hold that many more weapons. The goal is remembered between visits and updates live as you tweak the scenario. v2.18.3: Stat Reshuffler — the launcher moved: it now sits as a full-width banner directly above the "Armory Preferences" header, styled by cloning that header's own theme (background, border, font) so it looks native in any skin; falls back to the old Total Invested Value spot if the header isn't found. v2.18.2: Stat Reshuffler — stale-multiplier warning: a learned weapon multiplier quietly goes wrong after skill/tech upgrades (it only refreshes when you buy), which left phantom rating behind on sell-all scenarios; the reshuffler now compares each learned multiplier against what your live rating implies and flags "⚠ stale multiplier — buy 1 to recalibrate" per stat plus a summary warning, with the multiplier's age shown. v2.18.1: Stat Reshuffler — new "Ignore carrier caps" toggle for when you're happy to train soldiers/covert units as needed: projections then count every weapon as held (including ones currently sitting unheld) and the ⚠ unheld warnings disappear; the choice is remembered. v2.18.0: Stat Reshuffler — a 🔀 button under the Armory's Total Invested Value box opens a full what-if rework calculator: choose weapons (or whole categories) to sell, optionally switch race, and pour the proceeds — plus your on-hand + vault gold if you tick it — into any mix of the eight stats. It projects the gold you'd recover (sales pay 50% and land in your Vault), how many of each weapon you could buy, whether your units can actually carry them (unheld weapons add nothing), your projected new ratings including the race-bonus swing, and your new TIV. Pure calculator — it never sells, buys or presses anything. v2.17.1: Fix — clicking the sidebar Sweet Revenge logo now opens the feature-settings popup (same as the ⚙ Data Centre link) instead of navigating away. Internal cleanup: removed the unused armory sell-value cache (nothing has used it since the v2.11.2 "Upgrade Ready" rework). v2.17.0: Feature Settings — a new "⚙ Data Centre" link in the sidebar opens a settings panel where EVERY feature can be switched on/off individually (or all at once with the master switch), each with a plain-English description of what it does and a badge showing whether it only changes your display or also records data to the alliance roster; toggles apply on the next page load and everything stays ON by default, so nothing changes until you say so. Under the hood the script's ~40 page hooks were rebuilt onto a single feature registry that drives both the dispatcher and the panel, ~600 lines of dead legacy code were removed, and small fixes landed (DST helper deduplicated, script load message now always visible in console, toast animation style no longer re-injected per notification). Also: the sidebar Sweet Revenge logo is now a link to the Data Centre (with a hover glow), and the Top Stats panel's Debug button is gone — debug mode lives in the console via KoCDebug.toggle(). v2.16.0: Sab Tracker learns the exclusivity rule — per target you either regular-sab OR revenge-sab in a 24h window, so the panels now show 🔒 "Regular sabs locked — you revenge-sabbed this target" with an unlock countdown that keeps working after the Revenge section vanishes (target un-maxed — exactly when KoC hides the info), and 🔒 "Revenge locked — you've sabbed this target this window" when the Revenge form is up but unusable; the native "First sab (last 24hrs)" row is age-formatted like the rest (it anchored the "Can sab again in …" countdown from this version until v2.25.3, which stopped using it). v2.15.0: Sabotage Tracker on attack.php — "You last sabbed / poisoned / stole" and the revenge timestamps now show colour-coded ages like the stats pages (hover for the raw server time); the Sabotage and Revenge Sabotage sections get a live status line: attempts left in the rolling 24h window with a ticking "Can sab again in …" countdown when you're out of slots (10 sabs / 4 revenge per target per 24h, tracked automatically whenever you fire a sab and backfilled with exact server times when you open the target's Intelligence file), plus a "sab damage left before maxed" line (Maximum Daily Sabotage loss − lost in last 24h) that flips to TARGET MAXED when the cap is hit. Display-only: it records only missions you fire by hand and never presses anything. v2.14.0: Tech Level Projector — the "Stats After Upgrading Tech" table on safe.php gets a "Project to" dropdown: pick ANY future tech level (up to Obi Bon Kenobi) and the table shows your projected stats at that level, with the total ▲% vs now and the cumulative EXP needed across all the upgrades in between. v2.13.1: Rank-neighbour links now blend into the native table — no dot markers or underline, the numbers just quietly became links (hover tooltip still shows who it is, data age, and gap/stale warnings). v2.13.0: Rank-neighbour recon links — the "Rating For Previous/Next Rank Gain" numbers are now hyperlinks to the player we believe holds that rank (matched by rating value from the roster DB, never by stale DB rank), with a tooltip showing who it is + how fresh their data is; an orange dot means a DB gap (recon upward), a red dot means DB rank/rating disagree (recon me first). Click → recon → DB refreshes; wrong candidates rotate out on the next page load, so the links self-correct toward the true neighbour. v2.11.2: Banking Mode redesigned — your exposed gold now shows in a native-style "Estimated Funds" box that matches the in-game funds boxes, with a ⚙ that holds the Banking Mode toggle, screen-awake, and all settings (including an optional "show yellow/red times" line); a live-ticking Server Time clock on every page; and the Upgrades "Upgrade Ready" row now uses realistic funds (drops full-armory-sell) and shows any shortfall as a slay estimate. v2.10.1: Fix — the slider Armory Preferences now also resync when you press KoC's "Clear Percentage Prefills" button (sliders drop to 0 instead of keeping their old values). v2.10.0: New slider-based Armory Preferences — drag to allocate with auto-balancing, theme-matched styling, and one-tap presets (Cheapest first, Optimizer, All spy, All defense) plus saved presets — replacing the in-game percentage form; rank Optimizer also fixed (weapon efficiency now synced). v2.9.0: "Time to upgrade" + "EXP still needed to be deposited" now show on ALL EXP-cost safe.php upgrades (Increase Soldiers, Economic Development, SAFE Upgrade) — not just Technological Development. v2.8.2: Fix — "EXP still needed to be deposited" now shows cost − Experience Bank (what must still be banked) instead of also subtracting on-hand EXP, so it no longer reads 0 when you hold the EXP but haven't deposited it. v2.8.1: Fix — sidebar abbreviates large gold/safe values (e.g. "2,560M"); getSidebarValue now parses K/M/B/T suffixes so SAFE Forecasts and gold-upgrade rows use real balances (previously read as ~0). SAFE Forecasts also uses the full-precision "Gold in Safe" value. v2.8.0: SAFE Forecasts on safe.php — time for your Safe to reach 1B/2B/5B/9B/10B(MAX) based on current Safe + deposit/min. v2.7.0: Gold upgrade timer — upgrades.php now shows "Upgrade Ready" (liquidation + safe-growth time) and "Gold Needed on top of Safe" under each skill upgrade (uses gold/vault/safe + full armory sell value from Armory + safe deposit rate from Safe). v2.6.0: Tech upgrade timer — safe.php now shows "Time to upgrade" + "EXP still needed to be deposited" under Technological Development (uses EXP on-hand + Experience Bank + your EXP/turn rate, auto-captured from the Upgrades page). v2.5.1: Banking Mode last-bank fix — now watches the per-weapon buy form (anotherbuyform), not just the hidden one-click form, and stamps banks reliably for high-income accounts. v2.5.0: 🏦 Banking Mode on the Armory page — toggleable inline widget that projects your exposed (stealable) gold every second, colour-codes the risk (SAFE/CAUTION/DANGER) from your attack-log steal history, shows time-to-yellow/red, and keeps the screen awake. Display-only: no automated requests, observes (never presses) the buy/repair forms. v2.4.0: Banking trend graph (📈 in the sidebar tracks your banked % over time) + manual override for Avg Gold/Atk (✏️ in the sidebar, survives attack-log recalibration). v2.3.4: Recons panel now shares counts alliance-wide via API (previously localStorage-only — each user only saw themselves). v2.3.0: Added "Stats If You Attacked Instead" table on safe.php to compare tech upgrades vs attacking. v2.2.9: Added optimizer auto-fill for armory (uses roster API to calculate optimal stat allocation). v2.2.8: Minor fixes. v2.1.0: Integrated slaying competition tracker (attack missions & gold stolen tracking, team competitions, leaderboards). v2.0.0: Optimized API architecture, previous versions deprecated.
 // @author       Blackheart
 // @match        https://www.kingsofchaos.com/*
 // @exclude      https://*.kingsofchaos.com/confirm.login.php*
@@ -59,7 +59,7 @@
   // ==================== VERSION CHECK ====================
   // Check if this script version is allowed to run
   const SCRIPT_NAME = 'koc-data-centre';
-  const SCRIPT_VERSION = '2.25.3'; // Must match @version above
+  const SCRIPT_VERSION = '2.26.1'; // Must match @version above
   const VERSION_CHECK_API = 'https://koc-roster-api-production.up.railway.app';
 
   async function checkScriptVersion() {
@@ -3729,17 +3729,35 @@
     lastCalculated: null
   };
 
-  function displayRankUpCosts(stats, efficiency) {
+  const RANKUP_ACTION_CAT = { Strike: 'attack', Defense: 'defense', Spy: 'spy', Sentry: 'sentry', Poison: 'poison', Antidote: 'antidote', Theft: 'theft', Vigilance: 'vigilance' };
+
+  function rankupShort(n) {
+    if (n >= 1e12) return (n / 1e12).toFixed(1) + 'T';
+    if (n >= 1e9) return (n / 1e9).toFixed(1) + 'B';
+    if (n >= 1e6) return (n / 1e6).toFixed(1) + 'M';
+    if (n >= 1e3) return (n / 1e3).toFixed(1) + 'K';
+    return Math.round(n).toLocaleString();
+  }
+
+  // Armory: rank-up costs in the Rank Gain table, then the gold/pt panel under
+  // it — each behind its own feature switch. Re-run whenever a pin or the
+  // Plan-as-held toggle changes.
+  function renderRankUpAndGpp() {
+    const armory = gppReadArmory();
+    const resolved = gppResolve(armory);
+    if (featureEnabled('rank-up-costs')) displayRankUpCosts(armory.stats, gppEfficiencyMap(resolved), resolved);
+    if (featureEnabled('gpp-panel')) renderGppPanel(resolved);
+  }
+
+  function displayRankUpCosts(stats, efficiency, resolved) {
     // Validate inputs
     if (!stats || Object.keys(stats).length === 0) {
       debugLog('⚠️ displayRankUpCosts: No stats provided');
       return;
     }
-
-    if (!efficiency || Object.keys(efficiency).length === 0) {
-      debugLog('⚠️ displayRankUpCosts: No efficiency data provided');
-      return;
-    }
+    efficiency = efficiency || {};
+    resolved = resolved || {};
+    const planHeld = gppPlanAsHeld();
 
     // Store stats and efficiency for auto-fill
     armoryRankCosts.stats = stats;
@@ -3756,6 +3774,7 @@
     }
 
     debugLog('✅ Found rank progression table');
+    rankTable.querySelectorAll('.kdc-rankcost').forEach(el => el.remove()); // re-render
 
     // Map action names to stat keys and efficiency keys
     const actionMap = {
@@ -3775,6 +3794,24 @@
       return parseInt(String(val).replace(/,/g, ''), 10) || 0;
     };
 
+    const addSpan = (cell, text, color, title) => {
+      const span = document.createElement('span');
+      span.className = 'kdc-rankcost';
+      span.style.color = color;
+      span.style.marginLeft = '8px';
+      if (title) { span.style.cursor = 'help'; span.title = title; }
+      span.textContent = text;
+      cell.appendChild(span);
+      return span;
+    };
+
+    // Unheld is often on purpose, so it reads as information, never a warning.
+    const unheldText = (r) => {
+      if (!r || !(r.unheldQty > 0)) return '';
+      const extra = (r.mult > 0 && r.unheldStrength > 0) ? ' · +' + rankupShort(r.mult * r.unheldStrength) + ' if held' : '';
+      return rankupShort(r.unheldQty) + ' unheld' + extra;
+    };
+
     // Process each row
     const rows = rankTable.querySelectorAll('tr');
     let processedCount = 0;
@@ -3792,9 +3829,13 @@
         return;
       }
 
-      const currentStat = parseStatValue(stats[mapping.stat]);
+      const r = resolved[RANKUP_ACTION_CAT[actionText]];
+      const shownStat = parseStatValue(stats[mapping.stat]);
+      const heldStat = r ? gppHeldRating(r) : shownStat;
+      const currentStat = planHeld ? heldStat : shownStat;
       const nextRating = parseInt(nextRatingText.replace(/,/g, ''), 10);
       const efficiencyValue = efficiency[mapping.efficiency];
+      const unheld = unheldText(r);
 
       // Debug missing values
       if (!currentStat) {
@@ -3807,12 +3848,18 @@
       }
       if (!efficiencyValue) {
         debugLog(`⚠️ ${actionText}: Missing efficiency (${mapping.efficiency})`);
-        debugLog(`Available efficiency keys:`, Object.keys(efficiency));
+        addSpan(cells[2], '(no gold/pt — pin one below)', '#8b94a7');
+        if (unheld) addSpan(cells[2], unheld, '#8b94a7');
         return;
       }
 
       const gap = nextRating - currentStat;
-      if (gap <= 0) return; // Already past next rank
+      if (gap <= 0) {
+        // Already past next rank — said only when it is holding that gets you there
+        if (planHeld && heldStat > shownStat) addSpan(cells[2], '(✓ past it if held)', '#8b94a7');
+        if (unheld) addSpan(cells[2], unheld, '#8b94a7');
+        return;
+      }
 
       const goldNeeded = gap * efficiencyValue;
 
@@ -3834,15 +3881,7 @@
         armoryRankCosts.nextRanks[formField] = nextRating;
       }
 
-      // Format gold amount
-      const formatGold = (gold) => {
-        if (gold >= 1e9) return (gold / 1e9).toFixed(1) + 'B';
-        if (gold >= 1e6) return (gold / 1e6).toFixed(1) + 'M';
-        if (gold >= 1e3) return (gold / 1e3).toFixed(1) + 'K';
-        return gold.toFixed(0);
-      };
-
-      const goldFormatted = formatGold(goldNeeded);
+      const goldFormatted = rankupShort(goldNeeded);
 
       // Calculate weapon count for Attack and Defense
       let weaponCountText = '';
@@ -3856,36 +3895,111 @@
         const weapon = bestWeaponMap[actionText];
         if (weapon) {
           const weaponCount = Math.ceil(goldNeeded / weapon.price);
-          const formatCount = (count) => {
-            if (count >= 1e6) return (count / 1e6).toFixed(1) + 'M';
-            if (count >= 1e3) return (count / 1e3).toFixed(1) + 'K';
-            return count.toLocaleString();
-          };
-          weaponCountText = ` (x${formatCount(weaponCount)})`;
+          weaponCountText = ` (x${rankupShort(weaponCount)})`;
         }
       }
 
       // Create tooltip text
-      const tooltipText = `Gold needed for next rank:\n` +
+      const tooltipText = `Gold needed for next rank${planHeld ? ' (planning as if every weapon is held)' : ''}:\n` +
         `Gap: ${gap.toLocaleString()} points\n` +
-        `Efficiency: ${efficiencyValue.toFixed(3)} gold/point\n` +
-        `Cost: ${gap.toLocaleString()} × ${efficiencyValue.toFixed(3)} = ${goldNeeded.toLocaleString()} gold`;
+        `Efficiency: ${efficiencyValue} gold/point — ${r ? gppSourceLabel(r) : 'unknown source'}\n` +
+        `Cost: ${gap.toLocaleString()} × ${efficiencyValue} = ${Math.round(goldNeeded).toLocaleString()} gold`;
 
       // Add cost display to the cell
-      const costSpan = document.createElement('span');
-      costSpan.style.color = '#4CAF50';
+      const costSpan = addSpan(cells[2], `(${goldFormatted})${weaponCountText}`, '#4CAF50', tooltipText);
       costSpan.style.fontWeight = 'bold';
-      costSpan.style.marginLeft = '8px';
-      costSpan.style.cursor = 'help';
-      costSpan.textContent = `(${goldFormatted})${weaponCountText}`;
-      costSpan.title = tooltipText;
-
-      cells[2].appendChild(costSpan);
+      if (unheld) addSpan(cells[2], unheld, '#8b94a7');
       processedCount++;
       debugLog(`✅ ${actionText}: Added cost display (${goldFormatted})`);
     });
 
     debugLog(`✅ displayRankUpCosts: Processed ${processedCount} rank cost displays`);
+  }
+
+  // The gold/pt panel under the Rank Gain table: each stat's figure, where it
+  // came from, what is unheld, and a pin box. Collapsed to its header line
+  // until opened (remembered); Plan as held stays usable from the header.
+  // Display-only — pins, the toggle and open/closed are stored on this device.
+  const GPP_PANEL_OPEN_KEY = 'KoC_GppPanelOpen';
+  const GPP_SOURCE_SHORT = { live: 'Live', remembered: 'Remembered', learned: 'old buy', paired: 'Paired', pinned: 'Pinned' };
+
+  function renderGppPanel(resolved) {
+    const rankTable = findRankGainTable();
+    if (!rankTable) return;
+    document.getElementById('kdc-gpp-panel')?.remove();
+
+    const pins = SafeStorage.get(GPP_PINS_KEY, {});
+    const planHeld = gppPlanAsHeld();
+    const open = SafeStorage.get(GPP_PANEL_OPEN_KEY, false) === true;
+    const headTh = rankTable.querySelector('th');
+    const subTh = rankTable.querySelectorAll('tr')[1]?.querySelector('th');
+    const fmtGpp = g => g > 0 ? String(Number(g.toPrecision(3))) : '—';
+    const muted = 'color:#8b94a7;';
+    const bodyRow = '<tr class="kdc-gpp-body"' + (open ? '' : ' style="display:none;"') + '>';
+
+    // Header summary for the collapsed state: "8 Live", "6 Live · 1 Pinned · 1 none"
+    const counts = {};
+    for (const cat of RESHUF_CATS) {
+      const s = GPP_SOURCE_SHORT[resolved[cat].source] || 'none';
+      counts[s] = (counts[s] || 0) + 1;
+    }
+    const summary = Object.entries(counts).map(([s, n]) => n + ' ' + s).join(' · ');
+
+    const table = document.createElement('table');
+    table.id = 'kdc-gpp-panel';
+    table.className = rankTable.className;
+    table.style.cssText = 'width:100%;margin-top:4px;';
+    let html =
+      '<tr><th colspan="5" class="' + (headTh ? headTh.className : '') + '">' +
+      '<span id="kdc-gpp-toggle" style="cursor:pointer;" title="Show or hide the gold per stat point table">' +
+      '<span id="kdc-gpp-arrow">' + (open ? '▾' : '▸') + '</span> Gold per Stat Point ' +
+      '<span style="font-weight:normal;' + muted + '">(' + summary + ')</span></span>' +
+      '<label style="font-weight:normal;margin-left:10px;cursor:pointer;" title="Rank-up costs and the Optimizer start from your rating with every weapon you own held — for the end-of-era push.">' +
+      '<input type="checkbox" id="kdc-gpp-held"' + (planHeld ? ' checked' : '') + ' style="vertical-align:middle;margin:0 3px 0 0;">Plan as held</label></th></tr>' +
+      bodyRow + ['Action', 'Gold/pt', 'Source', 'Unheld', 'Pin gold/pt'].map(t => '<th class="' + (subTh ? subTh.className : '') + '">' + t + '</th>').join('') + '</tr>';
+    for (const cat of RESHUF_CATS) {
+      const r = resolved[cat];
+      const label = cat === 'attack' ? 'Strike' : RESHUF_LABELS[cat];
+      let unheld = '?';
+      if (r.unheldQty === 0) unheld = '—';
+      else if (r.unheldQty > 0) unheld = rankupShort(r.unheldQty) + ((r.mult > 0 && r.unheldStrength > 0) ? ' <span style="' + muted + '">(+' + rankupShort(r.mult * r.unheldStrength) + ' if held)</span>' : '');
+      const srcColor = r.stale || r.source === 'learned' ? 'color:#e6b450;' : (r.source ? '' : muted);
+      html += bodyRow +
+        '<td>' + label + '</td>' +
+        '<td align="right">' + fmtGpp(r.gpp) + '</td>' +
+        '<td style="' + srcColor + '">' + escapeHtml(gppSourceLabel(r)) +
+          (r.pinned && r.under && r.under.gpp > 0 ? ' <span style="' + muted + '">(' + escapeHtml(r.under.source) + ': ' + fmtGpp(r.under.gpp) + ')</span>' : '') + '</td>' +
+        '<td align="right">' + unheld + '</td>' +
+        '<td><input type="text" class="kdc-gpp-pin" data-cat="' + cat + '" size="7" value="' + (pins[cat] > 0 ? pins[cat] : '') + '"' +
+          ' placeholder="' + (r.gpp > 0 && !r.pinned ? fmtGpp(r.gpp) : '') + '" style="width:70px;"></td>' +
+        '</tr>';
+    }
+    html += bodyRow + '<td colspan="5" style="font-size:10px;' + muted + '">' +
+      'Live = your rating ÷ the weapons the game says are held, read on every visit. A stat you keep unheld keeps its last reading (Remembered). ' +
+      'Poison/Antidote and Theft/Vigilance borrow from each other only at equal skill levels (read on the Upgrades page). ' +
+      'A pin wins until you clear it.' +
+      (planHeld ? ' <b>Plan as held:</b> other players\' ratings are as last recorded — they may be hiding strength too.' : '') +
+      '</td></tr>';
+    table.innerHTML = html;
+    rankTable.parentNode.insertBefore(table, rankTable.nextSibling);
+
+    table.querySelector('#kdc-gpp-toggle').addEventListener('click', () => {
+      const nowOpen = SafeStorage.get(GPP_PANEL_OPEN_KEY, false) !== true;
+      SafeStorage.set(GPP_PANEL_OPEN_KEY, nowOpen);
+      table.querySelectorAll('.kdc-gpp-body').forEach(tr => { tr.style.display = nowOpen ? '' : 'none'; });
+      table.querySelector('#kdc-gpp-arrow').textContent = nowOpen ? '▾' : '▸';
+    });
+    table.querySelector('#kdc-gpp-held').addEventListener('change', e => {
+      SafeStorage.set(GPP_HELD_KEY, e.target.checked);
+      renderRankUpAndGpp();
+    });
+    table.querySelectorAll('.kdc-gpp-pin').forEach(inp => inp.addEventListener('change', () => {
+      const v = parseFloat(String(inp.value).replace(/,/g, ''));
+      const all = SafeStorage.get(GPP_PINS_KEY, {});
+      if (v > 0 && isFinite(v)) all[inp.dataset.cat] = v; else delete all[inp.dataset.cat];
+      SafeStorage.set(GPP_PINS_KEY, all);
+      renderRankUpAndGpp();
+    }));
   }
 
   // ==================== RANK NEIGHBOUR RECON LINKS ====================
@@ -4241,8 +4355,21 @@
       return;
     }
 
-    // 4. Call optimizer API
-    const apiUrl = `${API_URL}/api/roster/optimizer/${playerId}?mode=budget&value=${totalPotentialGold}`;
+    // 4. Call optimizer API — with the gold/pt the armory shows (pins included),
+    // and with Plan as held on, the ratings as they'd read with every weapon held
+    const gppNow = gppResolve(gppReadArmory());
+    const planHeld = gppPlanAsHeld();
+    const gppParam = {};
+    const ratingsParam = {};
+    for (const cat of RESHUF_CATS) {
+      const r = gppNow[cat];
+      if (r.gpp > 0) gppParam[GPP_STAT_KEY[cat]] = Number(r.gpp.toPrecision(4));
+      const held = gppHeldRating(r);
+      if (planHeld && held > 0) ratingsParam[GPP_STAT_KEY[cat]] = held;
+    }
+    const apiUrl = `${API_URL}/api/roster/optimizer/${playerId}?mode=budget&value=${totalPotentialGold}` +
+      `&gpp=${encodeURIComponent(JSON.stringify(gppParam))}` +
+      (planHeld ? `&ratings=${encodeURIComponent(JSON.stringify(ratingsParam))}` : '');
     debugLog(`🌐 Calling optimizer API: ${apiUrl}`);
 
     try {
@@ -4398,6 +4525,7 @@
 
       message += `💰 Gold allocated: ${formatGold(totalGoldSpent)} / ${formatGold(totalPotentialGold)}\n`;
       message += `📊 ${summary.join(', ')}`;
+      if (planHeld) message += `\n🛡️ Planned as held — from your ratings with every weapon held`;
 
       showAutoFillMessage(message, 'success');
 
@@ -4507,6 +4635,11 @@
 
   // ==================== PURCHASE CONFIRMATION SCRAPER ====================
 
+  // Reads the "You Purchased …" lines. A buy that gained nothing went unheld —
+  // often on purpose (rank hiding, keeping soldiers on income, holding
+  // Poison/Antidote for the last day), so it gets a neutral note, not an error.
+  // Purchases no longer teach a multiplier (see GOLD PER STAT POINT): a buy that
+  // displaced held weapons or landed partly unheld reads low.
   function scrapePurchaseConfirmation() {
     const bodyText = document.body.textContent;
 
@@ -4518,132 +4651,26 @@
 
     debugLog(`🛒 Found ${matches.length} purchase(s) on page`);
 
-    // Process each purchase
     const results = [];
     for (const match of matches) {
+      const quantity = parseInt(match[1].replace(/,/g, ''), 10);
+      const weaponName = match[2].trim();
+      const statGained = parseInt(match[3].replace(/,/g, ''), 10);
+      const statType = match[4].toLowerCase();
 
-    const quantity = parseInt(match[1].replace(/,/g, ''), 10);
-    const weaponName = match[2].trim();
-    const statGained = parseInt(match[3].replace(/,/g, ''), 10);
-    const statType = match[4].toLowerCase();
+      debugLog('🛒 Purchase detected:', { quantity, weaponName, statGained, statType });
 
-    debugLog('🛒 Purchase detected:', { quantity, weaponName, statGained, statType });
-
-    // Check for zero stat gain (no soldiers to hold weapons)
-    if (statGained === 0) {
-      showAutoFillMessage(
-        `⚠️ No ${statType} increase from ${weaponName} purchase!\n` +
-        `You have no soldiers trained to hold these weapons.\n` +
-        `→ Visit training page to train more soldiers`,
-        'error'
-      );
-      debugLog(`⚠️ Zero stat gain detected for ${statType} - need to train soldiers`);
-      continue; // Skip multiplier calculation for zero gains
-    }
-
-    // Get weapon data (use weaponData from calculateWeaponEfficiency)
-    const weaponData = {
-      'Sarumans Ball': { price: 100, strength: 1 },
-      'Heavy Steed': { price: 50000, strength: 100 },
-      'Chariot': { price: 450000, strength: 600 },
-      'Blackpowder Missile': { price: 1000000, strength: 1000 },
-      'Spider': { price: 5000, strength: 10 },
-      'Mithril': { price: 50000, strength: 100 },
-      'Ebony Platemail': { price: 450000, strength: 600 },
-      'Invisibility Shield': { price: 1000000, strength: 1000 },
-      'Cloak': { price: 140000, strength: 140 },
-      'Grappling Hook': { price: 250000, strength: 250 },
-      'Skeleton Key': { price: 600000, strength: 600 },
-      'Nunchaku': { price: 1000000, strength: 1000 },
-      'Horn': { price: 140000, strength: 140 },
-      'Tripwire': { price: 250000, strength: 250 },
-      'Guard Dog': { price: 600000, strength: 600 },
-      'Lookout Tower': { price: 1000000, strength: 1000 },
-      'Toxic Needle Dagger': { price: 140000, strength: 140 },
-      'Venomfang Staff': { price: 250000, strength: 250 },
-      'Blightbane Bow': { price: 600000, strength: 600 },
-      'Plaguebringer Scythe': { price: 1000000, strength: 1000 },
-      'Viperfang Dirk': { price: 140000, strength: 140 },
-      'Basiliskbane Halberd': { price: 250000, strength: 250 },
-      'Wyrmclaw Longsword': { price: 600000, strength: 600 },
-      'Serpentbane Arbalest': { price: 1000000, strength: 1000 },
-      'Greasy Gloves': { price: 140000, strength: 140 },
-      'Rusty Lockpick': { price: 250000, strength: 250 },
-      'Shadow Cloak': { price: 600000, strength: 600 },
-      'Ethereal Grasp': { price: 1000000, strength: 1000 },
-      'Wooden Whistle': { price: 140000, strength: 140 },
-      'Steel Shackles': { price: 250000, strength: 250 },
-      'Silver Scepter': { price: 600000, strength: 600 },
-      'Adamantine Bastion': { price: 1000000, strength: 1000 }
-    };
-
-      const weapon = weaponData[weaponName];
-      if (!weapon) {
-        debugLog('⚠️ Unknown weapon:', weaponName);
-        continue;
-      }
-
-      // Calculate multiplier: statGained / (quantity × weaponStrength)
-      const multiplier = statGained / (quantity * weapon.strength);
-
-      // Map stat type to category
-      const statCategoryMap = {
-        'strike': 'attack',
-        'defense': 'defense',
-        'spy': 'spy',
-        'sentry': 'sentry',
-        'poison': 'poison',
-        'antidote': 'antidote',
-        'theft': 'theft',
-        'vigilance': 'vigilance'
-      };
-
-      const category = statCategoryMap[statType];
-      if (!category) {
-        debugLog('⚠️ Unknown stat type:', statType);
-        continue;
-      }
-
-      // Check for multiplier changes
-      const oldMultiplier = getMultiplier(category);
-      const changeType = detectMultiplierChange(category, oldMultiplier, multiplier);
-
-      if (changeType === 'untrained_weapons') {
+      if (statGained === 0) {
         showAutoFillMessage(
-          `⚠️ ${category} multiplier dropped ${((oldMultiplier - multiplier) / oldMultiplier * 100).toFixed(1)}%\n` +
-          `Likely cause: Untrained weapons diluting stats\n` +
-          `Old: ${oldMultiplier.toFixed(3)}× → New: ${multiplier.toFixed(3)}×`,
-          'error'
-        );
-      } else if (changeType === 'race_change') {
-        showAutoFillMessage(
-          `🔄 ${category} multiplier changed ${Math.abs((multiplier - oldMultiplier) / oldMultiplier * 100).toFixed(1)}%\n` +
-          `Possible race change detected\n` +
-          `Old: ${oldMultiplier.toFixed(3)}× → New: ${multiplier.toFixed(3)}×`,
+          `ℹ️ ${quantity.toLocaleString()} ${weaponName} bought unheld — no ${statType} yet.\n` +
+          `They count once units are there to hold them.`,
           'info'
         );
-      } else if (changeType === 'new') {
-        showAutoFillMessage(
-          `✅ Learned ${category} multiplier: ${multiplier.toFixed(3)}×\n` +
-          `From purchase: ${quantity} ${weaponName}`,
-          'success'
-        );
       }
-
-      // Save multiplier
-      saveMultiplier(category, multiplier);
-
-      results.push({
-        category,
-        weaponName,
-        quantity,
-        statGained,
-        multiplier,
-        changeType
-      });
+      results.push({ weaponName, quantity, statGained, statType });
     }
 
-    return results.length > 0 ? results : null;
+    return results;
   }
 
   // ==================== ARMORY SELF COLLECTOR ====================
@@ -4706,7 +4733,7 @@
     // === CALCULATE GOLD-PER-POINT EFFICIENCY ===
     // Sent to the API below — the server rank optimizer needs gold_per_point.
     // (The rank-up display and slider UI are separate registry features now.)
-    const efficiency = calculateWeaponEfficiency(weapons, stats);
+    const efficiency = calculateWeaponEfficiency();
 
     const now = getKoCServerTimeUTC();
 
@@ -4798,231 +4825,17 @@
   }
 
   // ==================== WEAPON MULTIPLIER SYSTEM ====================
-
-  // Blackheart's verified multipliers - hardcoded defaults
-  const DEFAULT_MULTIPLIERS = {
-    attack: 2976,    // 0.252 gold/stat (Chariot)
-    defense: 2978,   // 0.252 gold/stat (Ebony Platemail)
-    spy: 3406,       // 0.294 gold/stat
-    sentry: 4257,    // 0.235 gold/stat (+25% race bonus)
-    poison: 56,      // 17.86 gold/stat
-    antidote: 56,    // 17.86 gold/stat
-    theft: 11.6,     // 86.21 gold/stat
-    vigilance: 11.6  // 86.21 gold/stat
-  };
-
+  // Pre-v2.26.0 purchase-learned multipliers. Nothing writes them any more;
+  // gppResolve reads them once to seed stats the page has never shown held.
   function getStoredMultipliers() {
     return SafeStorage.get('KoC_WeaponMultipliers', {});
   }
 
-  function saveMultiplier(category, multiplier) {
-    const multipliers = getStoredMultipliers();
-    multipliers[category] = {
-      value: multiplier,
-      timestamp: Date.now()
-    };
-    SafeStorage.set('KoC_WeaponMultipliers', multipliers);
-    debugLog(`💾 Saved multiplier for ${category}: ${multiplier.toFixed(3)}×`);
-  }
-
-  function getMultiplier(category) {
-    const multipliers = getStoredMultipliers();
-    return multipliers[category]?.value || null;
-  }
-
-  function detectMultiplierChange(category, oldMultiplier, newMultiplier) {
-    if (!oldMultiplier) return 'new';
-
-    const percentChange = Math.abs((newMultiplier - oldMultiplier) / oldMultiplier * 100);
-
-    if (percentChange < 2) return 'normal';
-    if (percentChange < 20) return 'untrained_weapons';
-    if (percentChange >= 20) return 'race_change';
-
-    return 'unknown';
-  }
-
-  // Expose global helper for manual multiplier management
-  window.KoCMultipliers = {
-    set: (category, multiplier) => {
-      saveMultiplier(category, multiplier);
-      console.log(`✅ Set ${category} multiplier to ${multiplier.toFixed(3)}×`);
-    },
-    get: (category) => {
-      const mult = getMultiplier(category);
-      if (mult) {
-        console.log(`${category}: ${mult.toFixed(3)}×`);
-      } else {
-        console.log(`⚠️ No multiplier set for ${category}`);
-      }
-      return mult;
-    },
-    getAll: () => {
-      const multipliers = getStoredMultipliers();
-      console.table(Object.entries(multipliers).map(([cat, data]) => ({
-        Category: cat,
-        Multiplier: data.value.toFixed(3) + '×',
-        'Set Date': new Date(data.timestamp).toLocaleString()
-      })));
-      return multipliers;
-    },
-    clear: (category) => {
-      const multipliers = getStoredMultipliers();
-      if (category) {
-        delete multipliers[category];
-        console.log(`🗑️ Cleared ${category} multiplier`);
-      } else {
-        SafeStorage.remove('KoC_WeaponMultipliers');
-        console.log(`🗑️ Cleared all multipliers`);
-        return;
-      }
-      SafeStorage.set('KoC_WeaponMultipliers', multipliers);
-    },
-    // Blackheart's verified multipliers - use as starting point
-    setBlackheartDefaults: () => {
-      for (const [category, multiplier] of Object.entries(DEFAULT_MULTIPLIERS)) {
-        saveMultiplier(category, multiplier);
-      }
-      console.log('✅ Set Blackheart\'s verified multipliers for all categories');
-      console.log('⚠️  Note: Your multipliers may differ based on research, officers, and race!');
-      console.table(Object.entries(DEFAULT_MULTIPLIERS).map(([cat, mult]) => ({
-        Category: cat,
-        Multiplier: mult.toFixed(3) + '×'
-      })));
-    }
-  };
-
-  // Only show multiplier commands on armory page
-  if (location.pathname.includes('armory.php')) {
-    console.log('💡 KoC Multipliers Commands:');
-    console.log('   KoCMultipliers.set(category, value)     - Set a multiplier');
-    console.log('   KoCMultipliers.setBlackheartDefaults()  - Use Blackheart\'s values (for reference only)');
-    console.log('   KoCMultipliers.get(category)            - Get a multiplier');
-    console.log('   KoCMultipliers.getAll()                 - View all multipliers');
-    console.log('   KoCMultipliers.clear([category])        - Clear multipliers');
-    console.log('   ⚠️  Multipliers auto-learn from weapon purchases! Buy weapons to populate.');
-  }
-
-  function calculateWeaponEfficiency(weapons, stats) {
-    // New formula using multipliers learned from actual purchases:
-    // goldPerStat = weaponPrice / (weaponStrength × multiplier)
-
-    const weaponData = {
-      // Attack weapons
-      'Sarumans Ball': { price: 100, strength: 1 },
-      'Heavy Steed': { price: 50000, strength: 100 },
-      'Chariot': { price: 450000, strength: 600 },
-      'Blackpowder Missile': { price: 1000000, strength: 1000 },
-
-      // Defense weapons
-      'Spider': { price: 5000, strength: 10 },
-      'Mithril': { price: 50000, strength: 100 },
-      'Ebony Platemail': { price: 450000, strength: 600 },
-      'Invisibility Shield': { price: 1000000, strength: 1000 },
-
-      // Spy Tools
-      'Cloak': { price: 140000, strength: 140 },
-      'Grappling Hook': { price: 250000, strength: 250 },
-      'Skeleton Key': { price: 600000, strength: 600 },
-      'Nunchaku': { price: 1000000, strength: 1000 },
-
-      // Sentry Tools
-      'Horn': { price: 140000, strength: 140 },
-      'Tripwire': { price: 250000, strength: 250 },
-      'Guard Dog': { price: 600000, strength: 600 },
-      'Lookout Tower': { price: 1000000, strength: 1000 },
-
-      // Poison Tools
-      'Toxic Needle Dagger': { price: 140000, strength: 140 },
-      'Venomfang Staff': { price: 250000, strength: 250 },
-      'Blightbane Bow': { price: 600000, strength: 600 },
-      'Plaguebringer Scythe': { price: 1000000, strength: 1000 },
-
-      // Antidote Tools
-      'Viperfang Dirk': { price: 140000, strength: 140 },
-      'Basiliskbane Halberd': { price: 250000, strength: 250 },
-      'Wyrmclaw Longsword': { price: 600000, strength: 600 },
-      'Serpentbane Arbalest': { price: 1000000, strength: 1000 },
-
-      // Theft Tools
-      'Greasy Gloves': { price: 140000, strength: 140 },
-      'Rusty Lockpick': { price: 250000, strength: 250 },
-      'Shadow Cloak': { price: 600000, strength: 600 },
-      'Ethereal Grasp': { price: 1000000, strength: 1000 },
-
-      // Vigilance Tools
-      'Wooden Whistle': { price: 140000, strength: 140 },
-      'Steel Shackles': { price: 250000, strength: 250 },
-      'Silver Scepter': { price: 600000, strength: 600 },
-      'Adamantine Bastion': { price: 1000000, strength: 1000 }
-    };
-
-    const storedMultipliers = getStoredMultipliers();
-    const efficiency = {};
-
-    // Get multiplier for each category
-    const categories = ['attack', 'defense', 'spy', 'sentry', 'poison', 'antidote', 'theft', 'vigilance'];
-
-    for (const category of categories) {
-      const multiplierData = storedMultipliers[category];
-
-      // ONLY use stored multipliers - no fallback to defaults
-      if (!multiplierData || !multiplierData.value) {
-        debugLog(`⚠️ ${category}: No multiplier learned yet - buy weapons to auto-detect!`);
-        continue; // Skip this category if no multiplier
-      }
-
-      const multiplier = multiplierData.value;
-      debugLog(`📊 ${category}: Using learned multiplier ${multiplier.toFixed(3)}×`);
-
-      // Find the most efficient HIGH-TIER weapon for this category
-      // We only consider top 2 tiers (the expensive ones that high-level players buy)
-      const highTierWeapons = {
-        attack: ['Chariot', 'Blackpowder Missile'],
-        defense: ['Ebony Platemail', 'Invisibility Shield'],
-        spy: ['Skeleton Key', 'Nunchaku'],
-        sentry: ['Guard Dog', 'Lookout Tower'],
-        poison: ['Blightbane Bow', 'Plaguebringer Scythe'],
-        antidote: ['Wyrmclaw Longsword', 'Serpentbane Arbalest'],
-        theft: ['Shadow Cloak', 'Ethereal Grasp'],
-        vigilance: ['Silver Scepter', 'Adamantine Bastion']
-      };
-
-      let bestGoldPerStat = Infinity;
-      let bestWeaponName = null;
-
-      // Check only high-tier weapons for this category
-      const weaponsToCheck = highTierWeapons[category];
-      if (!weaponsToCheck) {
-        debugLog(`⚠️ No high-tier weapons defined for ${category}`);
-        continue;
-      }
-
-      for (const weaponName of weaponsToCheck) {
-        const weapon = weaponData[weaponName];
-        if (!weapon) {
-          debugLog(`⚠️ Weapon data not found for ${weaponName}`);
-          continue;
-        }
-
-        // Calculate goldPerStat for this weapon
-        const goldPerStat = weapon.price / (weapon.strength * multiplier);
-
-        if (goldPerStat < bestGoldPerStat) {
-          bestGoldPerStat = goldPerStat;
-          bestWeaponName = weaponName;
-        }
-      }
-
-      if (bestWeaponName) {
-        // Store efficiency with the proper key format
-        const efficiencyKey = `goldPer${category.charAt(0).toUpperCase() + category.slice(1)}Point`;
-        efficiency[efficiencyKey] = Math.round(bestGoldPerStat * 1000) / 1000;
-
-        debugLog(`💰 ${category}: Best weapon = ${bestWeaponName}, Gold per stat = ${bestGoldPerStat.toFixed(3)}, Multiplier = ${multiplier.toFixed(3)}×`);
-      }
-    }
-
+  // Gold-per-point per stat (goldPerAttackPoint, …) for the rank-up display and
+  // the roster API. Since v2.26.0 it comes from gppResolve (live reading from
+  // the page, remembered, paired or pinned) — no longer from purchase messages.
+  function calculateWeaponEfficiency() {
+    const efficiency = gppEfficiencyMap(gppResolve(gppReadArmory()));
     debugLog('💰 Weapon efficiency calculated:', efficiency);
     return efficiency;
   }
@@ -5291,7 +5104,8 @@
     const funds = num(bodyText.match(/Available\s+Funds:\s*([\d,]+)\s*Gold/i)?.[1]);
     const vault = num(bodyText.match(/Vault\s+Gold:\s*([\d,]+)\s*Gold/i)?.[1]);
     const caps = reshufUnitCaps();
-    const mults = getStoredMultipliers();
+    const unheld = gppUnheldCounts();
+    const gpp = gppResolve(gppReadArmory());
 
     const cats = {};
     for (const cat of RESHUF_CATS) {
@@ -5300,16 +5114,22 @@
         sell: reshufPerUnitSell(w)
       }));
       rows.sort((a, b) => b.cur - a.cur); // carriers grab the strongest first
-      const capacity = caps ? caps[cat] : null;
+      let capacity = caps ? caps[cat] : null;
+      // The game's own unheld count beats our carrier count: untrained soldiers
+      // hold SA/DA weapons too (live: 479,671 SA weapons, 462,511 trained attack
+      // soldiers, "Unheld = 0"). With unheld weapons it IS the carrier count.
+      if (unheld[cat] !== null) {
+        const totalQty = rows.reduce((s, r) => s + r.qty, 0);
+        capacity = unheld[cat] > 0 ? totalQty - unheld[cat] : Math.max(capacity || 0, totalQty);
+      }
       const heldNow = reshufHeldStrength(rows.map(r => ({ qty: r.qty, str: r.cur })), capacity);
-      const learned = (mults[cat] && mults[cat].value) ? mults[cat].value : null;
-      // Fallback multiplier: what the page shows right now (rating per held strength).
-      const derived = (!learned && heldNow > 0 && ratings[cat] > 0) ? ratings[cat] / heldNow : null;
+      const g = gpp[cat];
       cats[cat] = {
         rows, capacity, heldNow, rating: ratings[cat],
-        mult: learned !== null ? learned : derived,
-        multSource: learned !== null ? 'learned' : (derived !== null ? 'derived' : null),
-        multTs: (learned !== null && mults[cat].timestamp) ? mults[cat].timestamp : null
+        mult: g.mult > 0 ? g.mult : null,
+        multSource: g.source,
+        multTs: g.ts,
+        stale: g.stale
       };
     }
     return { cats, tiv, funds, vault, capsKnown: caps !== null };
@@ -5322,10 +5142,197 @@
   // (a hair HIGH — it includes the tiny unarmed-unit base, ~0.1% on live
   // data), so a learned value well below it predates upgrades. Fresh mults
   // sit at ~1.0× implied; real stale cases measured 0.23–0.86× (2026-08-30).
+  // Since v2.26.0 the multiplier comes from gppResolve, which re-reads the page
+  // on every visit — so the only stale case left is a Remembered reading taken
+  // before that stat's skill was upgraded.
   function reshufStaleCheck(c) {
-    if (c.multSource !== 'learned' || !(c.heldNow > 0) || !(c.rating > 0)) return null;
-    const implied = c.rating / c.heldNow;
-    return c.mult < implied * 0.9 ? { learned: c.mult, implied } : null;
+    return c.stale ? { from: c.stale.from, to: c.stale.to } : null;
+  }
+
+  // ==================== GOLD PER STAT POINT ====================
+  // One gold-per-point figure per stat, shared by the rank-up costs, the
+  // Optimizer, the Stat Reshuffler and the safe.php projection. Sources, best first:
+  //   pinned     — typed by the player (gold/pt); wins until cleared
+  //   live       — this armory visit: rating ÷ strength of the weapons the game
+  //                says are held (its own "Total … Unheld = N" lines)
+  //   remembered — the last live reading, kept when a stat goes unheld on purpose
+  //                (rank hiding, income, holding Poison/Antidote for the last day)
+  //   paired     — Poison↔Antidote, Theft↔Vigilance: the partner's multiplier,
+  //                only while both skills sit at the same upgrade level
+  // Purchases no longer teach a multiplier: a buy that displaces held weapons
+  // (BPMs over held chariots) or lands unheld reads low — 0.41× on live data
+  // (30 Oct 2026: learned Strike ×1,133 against ×2,776 from the page).
+  const GPP_LIVE_KEY = 'KoC_GppLive';
+  const GPP_PINS_KEY = 'KoC_GppPins';
+  const GPP_HELD_KEY = 'KoC_PlanAsHeld';
+  const SKILL_LEVELS_KEY = 'KoC_MySkillLevels';
+  const GPP_PAIR = { poison: 'antidote', antidote: 'poison', theft: 'vigilance', vigilance: 'theft' };
+  const GPP_UNHELD_LABEL = { attack: 'SA Weapons', defense: 'DA Weapons', spy: 'Spy Tools', sentry: 'Sentry Tools', poison: 'Poison Tools', antidote: 'Antidote Tools', theft: 'Theft Tools', vigilance: 'Vigilance Tools' };
+  const GPP_STAT_KEY = { attack: 'strikeAction', defense: 'defensiveAction', spy: 'spyRating', sentry: 'sentryRating', poison: 'poisonRating', antidote: 'antidoteRating', theft: 'theftRating', vigilance: 'vigilanceRating' };
+  const GPP_EFF_KEY = { attack: 'goldPerAttackPoint', defense: 'goldPerDefensePoint', spy: 'goldPerSpyPoint', sentry: 'goldPerSentryPoint', poison: 'goldPerPoisonPoint', antidote: 'goldPerAntidotePoint', theft: 'goldPerTheftPoint', vigilance: 'goldPerVigilancePoint' };
+  // upgrades.php section headers → stat ("Upgrade Covert Skill", "Siege", …)
+  const SKILL_SECTIONS = [
+    [/Siege/i, 'attack'], [/Fortification/i, 'defense'], [/Covert Skill/i, 'spy'], [/Sentry Skill/i, 'sentry'],
+    [/Poison Skill/i, 'poison'], [/Antidote Skill/i, 'antidote'], [/Theft Skill/i, 'theft'], [/Vigilance Skill/i, 'vigilance']
+  ];
+
+  // Gold per base strength point of the cheapest of the top two tiers — the
+  // weapon a high-level player actually buys (Chariot for attack/defense).
+  function gppBestRatio(cat) {
+    return Math.min(...RESHUF_CATALOG[cat].slice(-2).map(w => w.price / w.strength));
+  }
+
+  // On upgrades.php each skill table prints "Level N" under "Current … Skill".
+  // Recorded so a Paired estimate is only offered at equal levels, and a
+  // Remembered reading taken before an upgrade is called out.
+  function collectSkillLevels() {
+    const levels = {};
+    document.querySelectorAll('table').forEach(t => {
+      if (t.querySelector('table')) return; // innermost tables only
+      const th = t.querySelector('th');
+      if (!th) return;
+      const hit = SKILL_SECTIONS.find(([re]) => re.test(th.textContent));
+      if (!hit) return;
+      const m = t.textContent.match(/Level\s+(\d+)/i); // first one is the current level
+      if (m) levels[hit[1]] = parseInt(m[1], 10);
+    });
+    if (Object.keys(levels).length === 0) { debugLog('[GPP] No skill levels found on upgrades.php'); return; }
+    SafeStorage.set(SKILL_LEVELS_KEY, { levels, ts: Date.now() });
+    debugLog('[GPP] Skill levels recorded:', levels);
+  }
+
+  // The game's own count of unheld weapons per category (null = not printed).
+  function gppUnheldCounts() {
+    const text = document.body.textContent.replace(/\s+/g, ' ');
+    const out = {};
+    for (const cat of RESHUF_CATS) {
+      const m = text.match(new RegExp('Total ' + GPP_UNHELD_LABEL[cat] + ' Unheld\\s*=\\s*([\\d,]+)', 'i'));
+      out[cat] = m ? parseInt(m[1].replace(/,/g, ''), 10) : null;
+    }
+    return out;
+  }
+
+  // Armory reading per stat: rating, held and unheld strength. Held = the
+  // strongest weapons first, as many as the game says are held. Null for a
+  // stat whose unheld line isn't on the page (no live reading from guesses).
+  function gppReadArmory() {
+    const weapons = collectWeaponsFromArmory();
+    const stats = collectMilitaryStats();
+    const unheld = gppUnheldCounts();
+    const num = v => parseInt(String(v == null ? '0' : v).replace(/,/g, ''), 10) || 0;
+    const cats = {};
+    for (const cat of RESHUF_CATS) {
+      const rating = num(stats[GPP_STAT_KEY[cat]]);
+      if (unheld[cat] === null) { cats[cat] = null; continue; }
+      const rows = weapons.filter(w => w.category === cat)
+        .map(w => ({ qty: w.quantity, str: w.minStrength || 0 }))
+        .sort((a, b) => b.str - a.str);
+      const totalQty = rows.reduce((s, r) => s + r.qty, 0);
+      const totalStrength = rows.reduce((s, r) => s + r.qty * r.str, 0);
+      const heldQty = Math.max(0, totalQty - unheld[cat]);
+      const heldStrength = reshufHeldStrength(rows, heldQty);
+      cats[cat] = { rating, totalQty, unheldQty: unheld[cat], heldStrength, unheldStrength: totalStrength - heldStrength };
+    }
+    return { cats, stats };
+  }
+
+  function gppLevels() {
+    const s = SafeStorage.get(SKILL_LEVELS_KEY, null);
+    return (s && s.levels) ? s.levels : {};
+  }
+
+  // Resolve every stat's multiplier and gold/pt. Pass gppReadArmory() on the
+  // armory (records fresh live readings); pass nothing elsewhere.
+  function gppResolve(armory) {
+    const live = SafeStorage.get(GPP_LIVE_KEY, {});
+    const pins = SafeStorage.get(GPP_PINS_KEY, {});
+    const levels = gppLevels();
+    const race = SafeStorage.get('KoC_MyRace', null);
+    let dirty = false;
+
+    if (armory) {
+      for (const cat of RESHUF_CATS) {
+        const a = armory.cats[cat];
+        if (!a || !(a.heldStrength > 0) || !(a.rating > 0)) continue;
+        live[cat] = { mult: a.rating / a.heldStrength, ts: Date.now(), level: levels[cat] ?? null };
+        dirty = true;
+      }
+    }
+    // Seed once from the pre-v2.26 purchase-learned multipliers, for stats the
+    // page has never shown held; any live reading replaces it.
+    const learned = getStoredMultipliers();
+    for (const cat of RESHUF_CATS) {
+      if (!live[cat] && learned[cat] && learned[cat].value > 0) {
+        live[cat] = { mult: learned[cat].value, ts: learned[cat].timestamp || null, level: null, seeded: true };
+        dirty = true;
+      }
+    }
+    if (dirty) SafeStorage.set(GPP_LIVE_KEY, live);
+
+    const staleOf = (cat) => {
+      const e = live[cat];
+      if (!e || e.level == null || levels[cat] == null || e.level === levels[cat]) return null;
+      return { from: e.level, to: levels[cat] };
+    };
+    const out = {};
+    for (const cat of RESHUF_CATS) {
+      const a = armory ? armory.cats[cat] : null;
+      const r = { cat, mult: null, gpp: null, source: null, ts: null, stale: null, pairFrom: null, pinned: false,
+                  rating: a ? a.rating : null, unheldQty: a ? a.unheldQty : null, unheldStrength: a ? a.unheldStrength : null };
+      const fresh = !!(a && a.heldStrength > 0 && a.rating > 0);
+      const e = live[cat];
+      if (e) {
+        r.mult = e.mult; r.ts = e.ts;
+        r.source = fresh ? 'live' : (e.seeded ? 'learned' : 'remembered');
+        if (!fresh) r.stale = staleOf(cat);
+      } else {
+        const p = GPP_PAIR[cat];
+        const pe = p ? live[p] : null;
+        if (pe && levels[cat] != null && levels[cat] === levels[p] && !staleOf(p)) {
+          r.mult = pe.mult * (1 + reshufRaceBonus(race, cat)) / (1 + reshufRaceBonus(race, p));
+          r.source = 'paired'; r.pairFrom = p; r.ts = pe.ts;
+        }
+      }
+      if (r.mult > 0) r.gpp = gppBestRatio(cat) / r.mult;
+      if (pins[cat] > 0) {
+        r.under = { source: r.source, gpp: r.gpp };
+        r.gpp = pins[cat]; r.mult = gppBestRatio(cat) / pins[cat];
+        r.source = 'pinned'; r.pinned = true; r.stale = null;
+      }
+      out[cat] = r;
+    }
+    return out;
+  }
+
+  // The efficiency map the rank-up display and the roster API take.
+  function gppEfficiencyMap(resolved) {
+    const eff = {};
+    for (const cat of RESHUF_CATS) {
+      const r = resolved[cat];
+      if (r && r.gpp > 0) eff[GPP_EFF_KEY[cat]] = Number(r.gpp.toPrecision(4));
+    }
+    return eff;
+  }
+
+  function gppPlanAsHeld() { return SafeStorage.get(GPP_HELD_KEY, false) === true; }
+
+  // Rating as it would read with every owned weapon held.
+  function gppHeldRating(r) {
+    if (!(r.rating > 0) || !(r.unheldStrength > 0) || !(r.mult > 0)) return r.rating;
+    return Math.round(r.rating + r.mult * r.unheldStrength);
+  }
+
+  function gppSourceLabel(r) {
+    const age = r.ts ? Math.max(0, Math.round((Date.now() - r.ts) / 86400000)) : null;
+    const ago = age === null ? '' : (age === 0 ? ' · today' : ' · ' + age + 'd ago');
+    switch (r.source) {
+      case 'pinned': return 'Pinned';
+      case 'live': return 'Live';
+      case 'remembered': return 'Remembered' + ago + (r.stale ? ' · before L' + r.stale.from + '→L' + r.stale.to + ' upgrade — hold 1 to refresh' : '');
+      case 'learned': return 'From an old buy' + ago + ' — hold 1 to refresh';
+      case 'paired': return 'est. from ' + RESHUF_LABELS[r.pairFrom] + ' (both L' + gppLevels()[r.cat] + ')';
+      default: return 'none — pin one';
+    }
   }
 
   // Parse a goal target: plain digits, commas/spaces, or K/M/B/T shorthand
@@ -5601,15 +5608,13 @@
         const notes = [];
         const staleInfo = reshufStaleCheck(c);
         if (staleInfo) {
-          const age = c.multTs ? Math.max(0, Math.round((Date.now() - c.multTs) / 86400000)) : null;
-          notes.push('<span style="color:#e6b450;">⚠ stale multiplier — learned ×' + staleInfo.learned.toFixed(1) +
-            (age !== null ? ' (' + (age === 0 ? 'today' : age + 'd old') + ')' : '') +
-            ' but the page implies ×' + staleInfo.implied.toFixed(1) + '; buy 1 to recalibrate</span>');
+          notes.push('<span style="color:#e6b450;">⚠ multiplier from before the L' + staleInfo.from + '→L' + staleInfo.to +
+            ' upgrade — hold 1 to refresh</span>');
         }
         if (r.bought > 0) notes.push(fmt(r.bought) + ' × ' + h(r.weapon));
-        if (r.unheld > 0) notes.push('<span style="color:#e6b450;">⚠ ' + fmt(r.unheld) + ' unheld (only ' + fmt(c.capacity) + ' ' + h(RESHUF_UNIT_LABEL[cat]) + ')</span>');
-        if (c.multSource === 'derived' && r.changed) notes.push('<span style="color:#8b94a7;">est. multiplier</span>');
-        if (c.mult === null && after === null) notes.push('<span style="color:#e6b450;">no multiplier — buy 1 ' + h(RESHUF_LABELS[cat].toLowerCase()) + ' item once to calibrate</span>');
+        if (r.unheld > 0) notes.push('<span style="color:#8b94a7;">' + fmt(r.unheld) + ' unheld (' + fmt(c.capacity) + ' held)</span>');
+        if ((c.multSource === 'paired' || c.multSource === 'learned') && r.changed) notes.push('<span style="color:#8b94a7;">est. multiplier</span>');
+        if (c.mult === null && after === null) notes.push('<span style="color:#e6b450;">no multiplier — pin a gold/pt for ' + h(RESHUF_LABELS[cat]) + ' under the Rank Gain table</span>');
         return '<tr style="border-top:1px solid #262c37;' + (r.changed ? '' : 'opacity:.55;') + '">' +
           '<td style="padding:4px 10px;">' + h(RESHUF_LABELS[cat]) + '</td>' +
           '<td style="padding:4px 10px;text-align:right;">' + fmt(c.rating) + '</td>' +
@@ -5625,9 +5630,9 @@
         : (sim.allocTotal > 0 && sim.allocTotal < 100 ? '<span style="color:#8b94a7;">' + (100 - sim.allocTotal).toFixed(0) + '% of the pool is unallocated.</span>' : '');
       const warn = [];
       const staleCats = RESHUF_CATS.filter(cat => reshufStaleCheck(snap.cats[cat]));
-      if (staleCats.length) warn.push('⚠ Stale multiplier' + (staleCats.length > 1 ? 's' : '') + ': ' +
+      if (staleCats.length) warn.push('⚠ Multiplier' + (staleCats.length > 1 ? 's' : '') + ' from before a skill upgrade: ' +
         staleCats.map(cat => RESHUF_LABELS[cat]).join(', ') +
-        ' — buy 1 weapon/tool in each and reload before trusting these projections.');
+        ' — hold at least 1 weapon/tool in each and reload before trusting these projections.');
       if (!snap.capsKnown && !plan.ignoreCaps) warn.push('⚠ Personnel table not readable — every weapon is assumed held (no carrier caps applied).');
       if (plan.raceTo && plan.raceTo !== plan.raceFrom && !plan.raceFrom) warn.push('⚠ Set your CURRENT race for the race switch to be calculated.');
 
@@ -7556,9 +7561,10 @@
       return;
     }
 
-    // Get learned multipliers
-    const multipliers = getStoredMultipliers();
-    const hasMultipliers = Object.keys(multipliers).length > 0;
+    // Same per-stat multiplier as the armory's gold/pt panel (live readings are
+    // remembered between visits; pins apply too)
+    const gppNow = gppResolve();
+    const hasMultipliers = RESHUF_CATS.some(cat => gppNow[cat].mult > 0);
 
     if (!hasMultipliers) {
       // Show warning table instead
@@ -7572,12 +7578,12 @@
         </tr>
         <tr>
           <td colspan="2" align="center" style="color: #ff6666; padding: 10px;">
-            Visit <a href="armory.php" style="color: #66ccff;">Armory</a> and buy weapons to calibrate multipliers
+            Visit the <a href="armory.php" style="color: #66ccff;">Armory</a> once to read your gold per stat point
           </td>
         </tr>
       `;
       techStatsTable.parentNode.insertBefore(warningTable, techStatsTable.nextSibling);
-      debugLog('[SafePage] No multipliers learned - showing warning');
+      debugLog('[SafePage] No gold/pt readings yet - showing warning');
       return;
     }
 
@@ -7593,8 +7599,8 @@
       vigilance: 1000000 // Adamantine Bastion
     };
 
-    // Strength of each best weapon above (parallels bestWeaponPrices). The learned
-    // multiplier is stat per (quantity × strength) — see saveMultiplier — so the
+    // Strength of each best weapon above (parallels bestWeaponPrices). The
+    // multiplier is stat per (quantity × strength) — see gppResolve — so the
     // projected gain MUST include the weapon's strength. Omitting it made every
     // gain come out 600× (attack/defense) to 1000× (covert) too small.
     const bestWeaponStrength = {
@@ -7655,9 +7661,8 @@
 
     for (const cat of Object.keys(statLabels)) {
       const goldForStat = totalGold * (distribution[cat] || 0);
-      // Stored (learned) multipliers only — matches calculateWeaponEfficiency's
-      // convention (no fallback to DEFAULT_MULTIPLIERS); an uncalibrated stat stays 0.
-      const multiplier = multipliers[cat]?.value || 0;
+      // gppResolve's multiplier — the one the armory shows; a stat with none stays 0.
+      const multiplier = gppNow[cat].mult || 0;
       const weaponPrice = bestWeaponPrices[cat];
       const weaponStrength = bestWeaponStrength[cat] || 1;
 
@@ -11836,19 +11841,25 @@
       id: 'stat-reshuffler', group: 'Armory', kind: 'display',
       name: 'Stat Reshuffler',
       desc: 'The 🔀 Stat Reshuffler banner above the Armory Preferences section opens a what-if calculator: pick weapons (or whole categories) to sell, optionally switch race, and pour the proceeds — plus gold on hand if you tick it — into other stats. Projects the gold recovered, weapons you could buy, your new ratings and your new TIV after the 50% sell tax. Set a Goal (a target rating for one stat) and it also shows the gold still needed to reach it, updating live as you tweak the plan. Pure calculator: it never sells, buys or presses anything.',
-      note: 'Most accurate for stats where Purchase check alerts has learned a multiplier; otherwise it derives one from your current rating and weapon strength. Warns when a learned multiplier looks stale (it predates skill upgrades — buy 1 weapon there to refresh it). Weapons your units can\'t carry count as adding nothing — unless you tick "Ignore carrier caps" because you\'ll train units as needed.'
+      note: 'Uses the same per-stat multipliers as the Gold per Stat Point panel under the Rank Gain table (read from your rating and held weapons on every visit, or pinned by you). Warns when a stat\'s figure dates from before a skill upgrade. Weapons your units can\'t carry count as adding nothing — unless you tick "Ignore carrier caps" because you\'ll train units as needed.'
     },
     {
       id: 'rank-up-costs', group: 'Armory', kind: 'display',
       name: 'Rank-up cost display',
-      desc: 'Shows how much gold of weapons you would need to buy to claim the next rank in each stat (the "Next Rank Gain" number), using your personal weapon efficiency learned from your own purchases.',
-      note: 'Needs Purchase check alerts to have learned a stat\'s weapon multiplier — buy weapons in that stat once to calibrate it. Its numbers also power the armory sliders\' "Cheapest first" preset.'
+      desc: 'Shows how much gold of weapons you would need to buy to claim the next rank in each stat (the "Next Rank Gain" number), and how many weapons are unheld there and what they would add if held.',
+      note: 'Uses the gold per stat point from the Gold per Stat Point panel (your pins still apply with the panel switched off). Its numbers also power the armory sliders\' "Cheapest first" preset.'
+    },
+    {
+      id: 'gpp-panel', group: 'Armory', kind: 'display',
+      name: 'Gold per Stat Point panel',
+      desc: 'A collapsible table under the Rank Gain table (closed by default — click its header to open): each stat\'s gold per point, where it came from (Live, Remembered, Paired or Pinned), how much is unheld and what it would add if held, and a box to pin your own gold/pt. Its "Plan as held" tick works the rank-up costs and the Optimizer out as if every weapon you own were held — for the end-of-era push.',
+      note: 'Live readings come from your rating and the weapons the game says are held, on every visit — no purchase needed. A stat you keep unheld keeps its last reading. Poison/Antidote and Theft/Vigilance borrow from each other only at equal skill levels, read when you open the Upgrades page. Pins, the tick and open/closed stay on this device.'
     },
     {
       id: 'purchase-alerts', group: 'Armory', kind: 'display',
       name: 'Purchase check alerts',
-      desc: 'After you buy weapons, checks the "You Purchased..." message: warns when a purchase gained you nothing (no trained soldiers to hold the weapons) and quietly learns your real per-stat weapon multipliers, which keeps the Optimizer and rank-up costs accurate.',
-      note: 'Learned multipliers stay on your device. Armory data sync uploads the gold-per-stat efficiency calculated from them — that upload is what the Optimizer preset relies on.'
+      desc: 'After you buy weapons, reads the "You Purchased..." message and notes, without alarm, when a purchase went unheld (no units to hold it yet) — often on purpose.',
+      note: 'Purchases no longer set your gold per stat point: a buy that displaces weapons you already hold reads low. The Gold per Stat Point panel reads it from the page instead.'
     },
     {
       id: 'armory-collector', group: 'Armory', kind: 'sync',
@@ -11926,7 +11937,7 @@
       id: 'attack-alternative', group: 'Safe & Upgrades', kind: 'display',
       name: '"Attacked Instead" comparison',
       desc: 'On the Safe page: what your stats would look like if you traded the tech upgrade\'s EXP for turns and spent the stolen gold on weapons instead, split by your actual spend preferences.',
-      note: 'Needs Armory data sync, the Attack log enhancer, and the weapon multipliers learned by Purchase check alerts before it can show numbers.'
+      note: 'Needs Armory data sync, the Attack log enhancer, and one Armory visit (for your gold per stat point) before it can show numbers.'
     },
     {
       id: 'tech-projector', group: 'Safe & Upgrades', kind: 'display',
@@ -12362,11 +12373,7 @@
     { f: 'banking-mode', label: 'bankOnArmory', when: () => onPage("armory.php"), run: () => bankOnArmory() },
     { f: 'purchase-alerts', label: 'scrapePurchaseConfirmation', when: () => onPage("armory.php"), run: () => scrapePurchaseConfirmation() },
     // DOM-only UI steps run before the roster-API collector so they never wait on the network
-    { f: 'rank-up-costs', label: 'displayRankUpCosts', when: () => onPage("armory.php"), run: () => {
-        const stats = collectMilitaryStats();
-        const weapons = collectWeaponsFromArmory();
-        displayRankUpCosts(stats, calculateWeaponEfficiency(weapons, stats));
-      } },
+    { f: ['rank-up-costs', 'gpp-panel'], label: 'renderRankUpAndGpp', when: () => onPage("armory.php"), run: () => renderRankUpAndGpp() },
     { f: 'armory-sliders', label: 'enhanceArmoryPrefsUI', when: () => onPage("armory.php"), run: () => enhanceArmoryPrefsUI() },
     { f: 'stat-reshuffler', label: 'initStatReshuffler', when: () => onPage("armory.php"), run: () => initStatReshuffler() },
     { f: 'armory-collector', label: 'collectTIVAndStatsFromArmory', when: () => onPage("armory.php"), run: () => collectTIVAndStatsFromArmory() },
@@ -12378,6 +12385,8 @@
     { f: 'attack-alternative', label: 'addAttackAlternativeTable', when: () => onPage("safe.php"), run: () => addAttackAlternativeTable() },
     { f: 'tech-projector', label: 'enhanceTechLevelPicker', when: () => onPage("safe.php"), run: () => enhanceTechLevelPicker() },
     { f: 'upgrade-timers', label: 'collectExpPerTurn', when: () => onPage("upgrades.php"), run: () => collectExpPerTurn() },
+    // Feeds the gold/pt Paired check and the "before an upgrade" flag (armory)
+    { f: ['rank-up-costs', 'gpp-panel'], label: 'collectSkillLevels', when: () => onPage("upgrades.php"), run: () => collectSkillLevels() },
     { f: 'upgrade-timers', label: 'addUpgradeReadyRows', when: () => onPage("upgrades.php"), run: () => addUpgradeReadyRows() }
   ];
 
