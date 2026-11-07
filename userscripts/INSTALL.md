@@ -2,7 +2,7 @@
 
 ## Quick Links
 
-**Script URL:** `https://raw.githubusercontent.com/Trevo88423/koc-userscripts/main/userscripts/KoC-DataCentre.user.js`
+**Script URL:** https://raw.githubusercontent.com/Trevo88423/koc-userscripts/main/userscripts/KoC-DataCentre.user.js
 
 ---
 
@@ -61,7 +61,7 @@
    - Tap "Add to Firefox"
 
 3. **Install the script**
-   - In Firefox, go to: `https://raw.githubusercontent.com/Trevo88423/koc-userscripts/main/userscripts/KoC-DataCentre.user.js`
+   - In Firefox, go to: https://raw.githubusercontent.com/Trevo88423/koc-userscripts/main/userscripts/KoC-DataCentre.user.js
    - Tampermonkey will prompt to install
    - Tap "Install"
 
@@ -79,7 +79,7 @@
    - Tap "Add to Chrome"
 
 3. **Install the script**
-   - Go to: `https://raw.githubusercontent.com/Trevo88423/koc-userscripts/main/userscripts/KoC-DataCentre.user.js`
+   - Go to: https://raw.githubusercontent.com/Trevo88423/koc-userscripts/main/userscripts/KoC-DataCentre.user.js
    - Tampermonkey will prompt to install
    - Tap "Install"
 
@@ -103,7 +103,7 @@
    - Choose a folder in iCloud Drive or On My iPhone (e.g., create a "Userscripts" folder)
 
 4. **Install the script**
-   - Open Safari and go to: `https://raw.githubusercontent.com/Trevo88423/koc-userscripts/main/userscripts/KoC-DataCentre.user.js`
+   - Open Safari and go to: https://raw.githubusercontent.com/Trevo88423/koc-userscripts/main/userscripts/KoC-DataCentre.user.js
    - Tap the Share button > "Save to Files"
    - Save to your Userscripts directory
    - Rename the file to `KoC-DataCentre.user.js` if needed
