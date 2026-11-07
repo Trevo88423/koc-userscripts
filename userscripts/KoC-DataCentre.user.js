@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         KoC Data Centre
 // @namespace    trevo88423
-// @version      2.28.2
+// @version      2.29.0
 // @description  Sweet Revenge alliance tool: tracks stats, syncs to API, adds dashboards, XP→Turn calculator, mini Top Stats panel. v2.28.2: KoC's Server Time is UTC from Era 24 (it was US Eastern), so recon ages, last seen, TIV and stat history times, sab timers and banking times were 5 hours off. They are read correctly now. v2.28.0: Gold goal in the sidebar Turn Trading Calculator — click ✏️ next to 🎯 Goal and set what you're working towards (your next XP upgrade, say) and, if you like, the gold you expect per hit (otherwise your Avg Gold/Atk). Two short lines then show what each hit must bring in to get there with only the turns on hand — no XP trades — and, at your hit size, how many hits it takes and how few XP trades will cover them (or that even trading everything falls short). Hover for the details: XP spent on trades, and how far trading all your XP gets you. Everything you hold — gold on hand, Safe and Vault — counts towards the goal (untick it to leave it out), read from the sidebar on every page, so each hit you land shrinks what is left and what each remaining hit needs. Suggested by Spook-SR. v2.27.1: Own account history now also keeps your Game Logs page — the daily login bonus, the vault tax, your purchases and repairs, Safe withdrawals, hostages, poison losses and weapons lost to sabs and thefts — when it changes, at most every 5 minutes. Only the page you open is read. v2.27.0: Own account history — for planning the next era's opening, the script now keeps a history of your own account on the alliance server: your sidebar balances (Gold, Safe, Vault, Experience, Experience Bank, Turns, Rank, Recent Logs and the era countdown) from any page, at most every 15 minutes; the tables on your own Command Centre, Armory, Upgrades, Safe, Training, Trade, Rewards and Conquest pages when they change, at most every 5 minutes; and every conquest result as it appears on the Conquest page, with your Strike, repair cost, turns, experience and gold before and after, so the cost and payoff of each attempt at each level can be worked out. Only the page you opened is read — nothing is fetched, pressed or shown, and nothing about other players is sent. It has its own switch (Own account history) in the ⚙ Data Centre settings. v2.26.3: Fix — the Recons column on the Command Centre now shows ✅ Done for members who have finished the 1,000 Unsuccessful Recons reward. The game keeps counting past 1,000 once the goal is met (it reads 1,003/1000, say), and the alliance server turned those counts away, so a finished member stayed frozen at their last count below 1,000. The server now accepts them — the next time a finished member opens the Rewards page, on any version of the script, their row shows as done — and the script also reads the reward's ✅ and CLAIMED button. Hover ✅ Done for the count and whether the reward has been claimed. Finished members are listed last. Each count is only as fresh as that member's last Rewards visit the server accepted, so hovering any count now shows how long ago it was updated, and counts more than a day old are dimmed. If the alliance server turns your count away because it does not know the player you are logged in as (for a while after an era reset, say), the browser console now says so — log out and back in from the sidebar. v2.26.2: Game rule fix — Era 24 moved the War List to a new address (warlistv4.php), which the script did not recognise as the War List, so on that page it drew its usual sidebar additions, which the game's rules forbid there. The script now treats every version of the War List as read-only and makes no changes to it. Collecting from the new War List is switched off until the script learns its new layout. v2.26.1: The Gold per Stat Point panel on the Armory now starts closed — one header line with a summary ("8 Live") — and opens with a click; it remembers whether you left it open. Plan as held can be ticked while it is closed. It also has its own switch in the ⚙ Data Centre settings, separate from the rank-up costs. v2.26.0: Gold per stat point stops jumping. The rank-up costs and the Optimizer now take each stat's gold per point from your armory page itself — your rating divided by the weapons the game says are held — read fresh on every visit, instead of learning it from purchase messages. A purchase reads low when it pushes out weapons you already hold (buying Blackpowder Missiles while your soldiers hold Chariots learned Strike at 0.4 of its real value, so Strike looked 2.5 times too expensive) or when part of it goes unheld. A new Gold per Stat Point panel under the Rank Gain table shows each stat's figure and where it came from: Live; Remembered (a stat you keep unheld on purpose keeps its last reading, with its age); Paired (Poison and Antidote, Theft and Vigilance borrow from each other, but only while both skills are at the same upgrade level, read when you open the Upgrades page); or Pinned — type your own gold per point and it stays put until you clear it. Unheld weapons are shown as information, not a warning: how many, and what they would add if held. A Plan as held tick works the rank-up costs and the Optimizer out as if every weapon you own were held — for the end-of-era push; other players' ratings stay as last recorded, and they may be hiding too. A purchase that goes unheld now gets a quiet note instead of an error. The Stat Reshuffler and the Safe page's Attacked Instead table use the same figures, and the Reshuffler now takes the game's own unheld count (untrained soldiers hold weapons too). Also: the roster no longer lets a recon of you overwrite the gold per point your own armory sent. v2.25.3: The roster's War List tab now counts down when your own sab and theft attempts on each target come back — the game's rolling 24 hours, attempt by attempt, from what the game itself showed you. To make those times exact: the attack page now also records the times the game prints for your own first and last successful sab, steal and poison on that target, and the game's "You have used the maximum … attempts" line; and the sab or theft report you land on right after the mission is stamped with the Server Time that page shows. A page brought back with the Back button is not recorded again. Theft reports are now recorded too: what you stole, or that the theft failed. A theft report showing somebody stealing from you is not recorded. Fix — the Sab Tracker counted a press the game refused (one more after your tenth sab, or a sab on a maxed target) as an attempt, and to make room for it dropped your oldest attempt time, even an exact one. A refused press is no longer counted, and the report you land on after a sab now gives the tracker that sab's exact time. The attack page's "First sab" time is a first SUCCESSFUL sab and the page never says whose, so no countdown is built on it any more — anywhere. An attempt the tracker never saw now counts from the moment you opened the page and reads "≤" (at the latest): less exact, but it can only ever run late, never let you fire early. Because earlier versions filed that "First sab" time as one of your own attempts, and nothing stored in your browser can tell those rows from real ones, updating clears the sab times already tracked, once: for up to 24 hours after the update a target you sabbed before it reads "≤ about 24h from now" — too late rather than too early — until the game's own times come back from the reports you land on and the target's Intelligence file. v2.25.2: Fix — the battle report you land on after attacking or raiding now counts in Mission history's 24h and 7-day figures straight away, whichever page you attacked from: the attack page, a recon report, a theft report or an "… Again!" button. Until now only the attack page and the "… Again!" buttons were recognised, so a battle launched from a recon report was stored without its time. Also: a battle report you open later (from the Attack Log, say) no longer takes the stolen gold off the target's current gold estimate: that gold was stolen back when the battle happened, not now. v2.25.1: Fix — raids were stored with no gold and no target. The battle-report reader only knew how an attack's report words its first line ("You stole … gold while attacking …'s camp"); a raid's says "while raiding", so every raid went into the alliance's attack records as 0 gold stolen from "Unknown". Raids now record the gold, the target and the hostages, and a lost battle takes the target's name from the report ("…'s forces overpowered your army!"). Also: your own attacks and raids now count in Mission history straight from the battle report — the one you land on after an attack or raid, or one of yours you open later from the Attack Log — with whether it was an attack or a raid (from the game's own "Raid Again!" / "Attack Again!" button, or the report's wording) and whether you won; the report you land on is also stamped with the time. Also fixed: opening the battle report of another player's attack on you recorded it in the alliance's attack records as your own attack on them. Battle reports of other players attacking you are now not recorded at all — the Attack Log still lists those attacks. As before, only the page you open is read and it is left exactly as the game drew it. v2.25.0: Mission history — the pages that list missions are now read when you open them and shared with the alliance roster: a target's Intelligence file (your recon and sab missions on them, Success or Aborted), the Poison Log and Theft Log (both directions, with what was stolen), your Intelligence page (recon and sab missions run against you, and how many of their spies were caught) and the Attack Log (attacks and raids both ways, with gold stolen and losses). Any sab report you open adds its details too — what it destroyed, spies and sentries executed, gold and XP. This feeds the War Room's new success rates — per member and per mission type, never per target — which are visible to everyone with roster access, as the settings panel now says. The script sends each page's own wording and the server interprets it, so a result nobody has seen yet (a successful poison, say) is kept rather than lost and is sorted out once it turns up. Only the page you open is read: it never turns a page, opens a report or fetches anything, and those pages look exactly as before. Also: the Sab Tracker's Intelligence-file backfill now shares that same read. v2.24.0: Attack page range warnings — under each mission's "can … up to …" line the attack page now says whether the target is actually in reach: their sentry, antidote, vigilance or defensive action as last recorded by the alliance, against the limit the game prints for you, with how old that reading is. ⛔ Out of range means the mission will fail — the game lets an out-of-range theft fire anyway, which is how four thefts on one target all failed. The Theft box also gets a theft-cap line: how much of the target's daily theft cap is left, or THEFT MAXED. New Target check log: every attack page you open records that you checked that target — whether it was maxed, how much of its sab and theft caps is used, and your own attempt and success counters on it — so the War Room can show who saw a target maxed and how long ago; those counters are visible to everyone with roster access and will feed members' success rates. The War List collector now also shares who is on the list, when and why they were added, and your own "My 24hr" counters — and on the War List and Farm List the script now makes no changes at all (no toasts, no styles, no overlays), as the game's rules require. The settings panel now says exactly what the Sab Tracker sends. v2.23.2: Fix — the Sab Tracker vanished on the page the game shows after refusing a sab on a maxed target ("This player has been maxxed…"): that page has no player id in its address, so the tracker, the TIV reading and the sab-cap sharing all quietly gave up — at the one moment the script knew for certain the target was maxed. They now read the target from the page itself. Also fixes the Intelligence-file backfill for the Sab Tracker, which looked for the mission type in the wrong column and so never matched a row; it now finds the column by its header. v2.23.1: Inactive Accounts sync now works while you are logged out — including while you are on vacation and cannot log in — using the login saved from your last visit. On that page, logged out, it is the only thing the script does; every other feature still needs you logged in. Also: a network blip or server restart while renewing your session no longer logs you out of the script. v2.23.0: Inactive Accounts sync — opening the in-game Inactive Accounts page now shares the list with the alliance roster: who went into Vacation Mode and exactly when, and who has been deleted. Anyone who has dropped off the list since the last visit is marked back from vacation. This powers the new Vacation Watch tab on the dashboard, with live countdowns to when each player can return. The script only reads the page you open; the more often members check it, the sooner returns show up. v2.22.0: The War List's "Last Sab" column is now collected too — who last hit each target, for how much, and how long ago — giving the war dashboard a "Last hit" column that shows which targets the alliance is actually working and which nobody has touched, plus a running log of destroyed value for the war. v2.21.2: Fix — TIV readings from the attack page and your Armory were being sent with a timestamp field nothing reads, so they arrived unstamped and skipped the server's "only overwrite if newer" guard, letting an older reading quietly replace a fresher one. v2.21.1: War List collector reads the AAT and Sentry cells from their own DOM nodes instead of the cell's flattened text — those cells hold two numbers separated only by a line break, so any flattening ran "488" and "488,000,000 damage per sab" together into 488 billion. Works on both the Alliance and Single Target lists. v2.21.0: War List collector — opening the War List now records, for every player on it at once, their sentry (stamped with the age the game itself shows, so it never overwrites fresher recon), the weapon the game recommends sabbing them with, and the AAT: how many of that weapon they actually hold plus the gold one full sab would destroy. The war dashboard gets an AAT column and a "Min AAT" filter, so targets who simply do not own enough weapons to be worth organising around can be filtered out in one click. v2.20.1: Fix — race now updates when a player switches race. Race was only ever read from a full recon report, so a race change sat wrong in the roster until somebody spent a recon on that player, even though every visit to their stats page showed the new race in plain sight; the stats-page collector now reads the Information table too (race and rank), and it no longer gives up on players who have no shared recon data. v2.20.0: Sab cap sharing — opening any attack page now records that target's "Total lost from sabbs in the last 24hours" and "Maximum Daily Sabotage loss" to the alliance roster, so the War Room can show how much of every player's daily cap is already gone and how much gold is still worth sabbing, with a share button that copies a Discord-ready line. Also fixes the sab-cap reader: KoC prints the cap with decimals when it isn't a whole number, which the old pattern could not match, so the in-game "sab damage left before maxed" line silently never appeared on those targets. v2.19.1: Fix — a target sabbed flat reads "Total Invested Value: ()" with empty brackets, which the TIV collector could not parse, so the roster kept that player's pre-sab value forever and never stopped asking for a recon that could not land; empty brackets now record as a real 0 (on your own Armory too), while a box the script genuinely cannot read is left alone instead of writing a false zero. v2.19.0: Stat Reshuffler — Goal mode: pick a stat and type a target rating (commas fine, or shorthand like 4.78T) and the calculator shows the gap from your PROJECTED rating — so your sells, race change and re-buys are already counted — plus how many weapons and how much gold on top of the plan would close it, netting off any unspent pool. Warns when your units couldn't hold that many more weapons. The goal is remembered between visits and updates live as you tweak the scenario. v2.18.3: Stat Reshuffler — the launcher moved: it now sits as a full-width banner directly above the "Armory Preferences" header, styled by cloning that header's own theme (background, border, font) so it looks native in any skin; falls back to the old Total Invested Value spot if the header isn't found. v2.18.2: Stat Reshuffler — stale-multiplier warning: a learned weapon multiplier quietly goes wrong after skill/tech upgrades (it only refreshes when you buy), which left phantom rating behind on sell-all scenarios; the reshuffler now compares each learned multiplier against what your live rating implies and flags "⚠ stale multiplier — buy 1 to recalibrate" per stat plus a summary warning, with the multiplier's age shown. v2.18.1: Stat Reshuffler — new "Ignore carrier caps" toggle for when you're happy to train soldiers/covert units as needed: projections then count every weapon as held (including ones currently sitting unheld) and the ⚠ unheld warnings disappear; the choice is remembered. v2.18.0: Stat Reshuffler — a 🔀 button under the Armory's Total Invested Value box opens a full what-if rework calculator: choose weapons (or whole categories) to sell, optionally switch race, and pour the proceeds — plus your on-hand + vault gold if you tick it — into any mix of the eight stats. It projects the gold you'd recover (sales pay 50% and land in your Vault), how many of each weapon you could buy, whether your units can actually carry them (unheld weapons add nothing), your projected new ratings including the race-bonus swing, and your new TIV. Pure calculator — it never sells, buys or presses anything. v2.17.1: Fix — clicking the sidebar Sweet Revenge logo now opens the feature-settings popup (same as the ⚙ Data Centre link) instead of navigating away. Internal cleanup: removed the unused armory sell-value cache (nothing has used it since the v2.11.2 "Upgrade Ready" rework). v2.17.0: Feature Settings — a new "⚙ Data Centre" link in the sidebar opens a settings panel where EVERY feature can be switched on/off individually (or all at once with the master switch), each with a plain-English description of what it does and a badge showing whether it only changes your display or also records data to the alliance roster; toggles apply on the next page load and everything stays ON by default, so nothing changes until you say so. Under the hood the script's ~40 page hooks were rebuilt onto a single feature registry that drives both the dispatcher and the panel, ~600 lines of dead legacy code were removed, and small fixes landed (DST helper deduplicated, script load message now always visible in console, toast animation style no longer re-injected per notification). Also: the sidebar Sweet Revenge logo is now a link to the Data Centre (with a hover glow), and the Top Stats panel's Debug button is gone — debug mode lives in the console via KoCDebug.toggle(). v2.16.0: Sab Tracker learns the exclusivity rule — per target you either regular-sab OR revenge-sab in a 24h window, so the panels now show 🔒 "Regular sabs locked — you revenge-sabbed this target" with an unlock countdown that keeps working after the Revenge section vanishes (target un-maxed — exactly when KoC hides the info), and 🔒 "Revenge locked — you've sabbed this target this window" when the Revenge form is up but unusable; the native "First sab (last 24hrs)" row is age-formatted like the rest (it anchored the "Can sab again in …" countdown from this version until v2.25.3, which stopped using it). v2.15.0: Sabotage Tracker on attack.php — "You last sabbed / poisoned / stole" and the revenge timestamps now show colour-coded ages like the stats pages (hover for the raw server time); the Sabotage and Revenge Sabotage sections get a live status line: attempts left in the rolling 24h window with a ticking "Can sab again in …" countdown when you're out of slots (10 sabs / 4 revenge per target per 24h, tracked automatically whenever you fire a sab and backfilled with exact server times when you open the target's Intelligence file), plus a "sab damage left before maxed" line (Maximum Daily Sabotage loss − lost in last 24h) that flips to TARGET MAXED when the cap is hit. Display-only: it records only missions you fire by hand and never presses anything. v2.14.0: Tech Level Projector — the "Stats After Upgrading Tech" table on safe.php gets a "Project to" dropdown: pick ANY future tech level (up to Obi Bon Kenobi) and the table shows your projected stats at that level, with the total ▲% vs now and the cumulative EXP needed across all the upgrades in between. v2.13.1: Rank-neighbour links now blend into the native table — no dot markers or underline, the numbers just quietly became links (hover tooltip still shows who it is, data age, and gap/stale warnings). v2.13.0: Rank-neighbour recon links — the "Rating For Previous/Next Rank Gain" numbers are now hyperlinks to the player we believe holds that rank (matched by rating value from the roster DB, never by stale DB rank), with a tooltip showing who it is + how fresh their data is; an orange dot means a DB gap (recon upward), a red dot means DB rank/rating disagree (recon me first). Click → recon → DB refreshes; wrong candidates rotate out on the next page load, so the links self-correct toward the true neighbour. v2.11.2: Banking Mode redesigned — your exposed gold now shows in a native-style "Estimated Funds" box that matches the in-game funds boxes, with a ⚙ that holds the Banking Mode toggle, screen-awake, and all settings (including an optional "show yellow/red times" line); a live-ticking Server Time clock on every page; and the Upgrades "Upgrade Ready" row now uses realistic funds (drops full-armory-sell) and shows any shortfall as a slay estimate. v2.10.1: Fix — the slider Armory Preferences now also resync when you press KoC's "Clear Percentage Prefills" button (sliders drop to 0 instead of keeping their old values). v2.10.0: New slider-based Armory Preferences — drag to allocate with auto-balancing, theme-matched styling, and one-tap presets (Cheapest first, Optimizer, All spy, All defense) plus saved presets — replacing the in-game percentage form; rank Optimizer also fixed (weapon efficiency now synced). v2.9.0: "Time to upgrade" + "EXP still needed to be deposited" now show on ALL EXP-cost safe.php upgrades (Increase Soldiers, Economic Development, SAFE Upgrade) — not just Technological Development. v2.8.2: Fix — "EXP still needed to be deposited" now shows cost − Experience Bank (what must still be banked) instead of also subtracting on-hand EXP, so it no longer reads 0 when you hold the EXP but haven't deposited it. v2.8.1: Fix — sidebar abbreviates large gold/safe values (e.g. "2,560M"); getSidebarValue now parses K/M/B/T suffixes so SAFE Forecasts and gold-upgrade rows use real balances (previously read as ~0). SAFE Forecasts also uses the full-precision "Gold in Safe" value. v2.8.0: SAFE Forecasts on safe.php — time for your Safe to reach 1B/2B/5B/9B/10B(MAX) based on current Safe + deposit/min. v2.7.0: Gold upgrade timer — upgrades.php now shows "Upgrade Ready" (liquidation + safe-growth time) and "Gold Needed on top of Safe" under each skill upgrade (uses gold/vault/safe + full armory sell value from Armory + safe deposit rate from Safe). v2.6.0: Tech upgrade timer — safe.php now shows "Time to upgrade" + "EXP still needed to be deposited" under Technological Development (uses EXP on-hand + Experience Bank + your EXP/turn rate, auto-captured from the Upgrades page). v2.5.1: Banking Mode last-bank fix — now watches the per-weapon buy form (anotherbuyform), not just the hidden one-click form, and stamps banks reliably for high-income accounts. v2.5.0: 🏦 Banking Mode on the Armory page — toggleable inline widget that projects your exposed (stealable) gold every second, colour-codes the risk (SAFE/CAUTION/DANGER) from your attack-log steal history, shows time-to-yellow/red, and keeps the screen awake. Display-only: no automated requests, observes (never presses) the buy/repair forms. v2.4.0: Banking trend graph (📈 in the sidebar tracks your banked % over time) + manual override for Avg Gold/Atk (✏️ in the sidebar, survives attack-log recalibration). v2.3.4: Recons panel now shares counts alliance-wide via API (previously localStorage-only — each user only saw themselves). v2.3.0: Added "Stats If You Attacked Instead" table on safe.php to compare tech upgrades vs attacking. v2.2.9: Added optimizer auto-fill for armory (uses roster API to calculate optimal stat allocation). v2.2.8: Minor fixes. v2.1.0: Integrated slaying competition tracker (attack missions & gold stolen tracking, team competitions, leaderboards). v2.0.0: Optimized API architecture, previous versions deprecated.
 // @author       Blackheart
 // @match        https://www.kingsofchaos.com/*
@@ -59,7 +59,7 @@
   // ==================== VERSION CHECK ====================
   // Check if this script version is allowed to run
   const SCRIPT_NAME = 'koc-data-centre';
-  const SCRIPT_VERSION = '2.28.2'; // Must match @version above
+  const SCRIPT_VERSION = '2.29.0'; // Must match @version above
   const VERSION_CHECK_API = 'https://koc-roster-api-production.up.railway.app';
   // What the API said about the public release: { latestVersion, updateUrl,
   // isLatest }, or null when it could not say. The sidebar box and the ⚙ panel
@@ -380,8 +380,60 @@
     return { nav: pageNavType(), at: PAGE_KOC_TIME };
   }
 
+  // ==================== ONE SHARED SIDEBAR TICK ====================
+  // The sidebar has three clocks: the game's own "Era N ends in …" countdown
+  // (age-countdown.js) plus our Server Time clock and Era day line. Ticking on
+  // separate timers they drift apart by a second. So ours follow the GAME's
+  // countdown: each time it rewrites its text, both of ours redraw from the
+  // same number — server time = era end − remaining, elapsed = remaining's
+  // complement. One second, three clocks, always agreeing. Display-only.
+
+  /** The sidebar's era countdown span (has data-end), or null. */
+  function findEraCountdown() {
+    const span = document.querySelector('td.menu_cell span[data-age-countdown]');
+    return span && +span.getAttribute('data-end') ? span : null;
+  }
+
+  /** Seconds left on the countdown as its text reads right now, or null. */
+  function countdownRemaining(span) {
+    const t = (span && span.textContent) || '';
+    if (!/ends in/i.test(t)) return null;
+    const units = { day: 0, hour: 0, minute: 0, second: 0 };
+    let hit = false;
+    t.replace(/(\d+)\s*(day|hour|minute|second)s?\b/gi, (all, num, unit) => { units[unit.toLowerCase()] = +num; hit = true; return all; });
+    if (!hit) return null;
+    const n = (u) => units[u];
+    return n('day') * 86400 + n('hour') * 3600 + n('minute') * 60 + n('second');
+  }
+
+  const __gameTickFns = [];
+  let __gameTickObs = null;
+  /**
+   * Calls fn(remainingSeconds, span) now and on every redraw of the game's
+   * countdown. false when there is no readable countdown (the caller then
+   * keeps its own timer).
+   */
+  function onGameTick(fn) {
+    const span = findEraCountdown();
+    if (!span || countdownRemaining(span) == null) return false;
+    __gameTickFns.push(fn);
+    fn(countdownRemaining(span), span);
+    if (!__gameTickObs) {
+      let last = null;
+      __gameTickObs = new MutationObserver(() => {
+        const r = countdownRemaining(span);
+        if (r == null || r === last) return;
+        last = r;
+        __gameTickFns.forEach(f => { try { f(r, span); } catch (e) { /* one clock never stops the other */ } });
+      });
+      __gameTickObs.observe(span, { characterData: true, childList: true, subtree: true });
+    }
+    return true;
+  }
+
   // Live-ticking Server Time clock. DISPLAY-ONLY: anchors to the value KoC rendered and
-  // advances it locally each second (re-synced on every page load, so it can't drift).
+  // advances it in step with the game's era countdown (onGameTick), or locally each
+  // second on a page without one (re-synced on every page load, so it can't drift).
   // Compliant — no network, no game actions; it only rewrites the clock's own text node.
   let __serverClockId = null;
   function startServerClock() {
@@ -392,15 +444,75 @@
     if (!leaf) return;
     const m = (leaf.textContent || '').match(/(\d{4})-(\d{2})-(\d{2})[ T](\d{2}):(\d{2}):(\d{2})/);
     if (!m) return;
+    const p = n => (n < 10 ? '0' + n : '' + n);
+    // Follow the game's countdown: the printed time minus (end − remaining) is
+    // the clock's zone offset (whole quarter-hours: UTC now, Eastern before Era 24).
+    const span = findEraCountdown();
+    const r0 = countdownRemaining(span);
+    if (span && r0 != null) {
+      const end = +span.getAttribute('data-end');
+      const printed = Date.UTC(+m[1], +m[2] - 1, +m[3], +m[4], +m[5], +m[6]) / 1000;
+      const offset = Math.round((printed - (end - r0)) / 900) * 900;
+      __serverClockId = 'game';
+      onGameTick((r) => {
+        if (!leaf.isConnected) return;
+        const d = new Date((end - r + offset) * 1000);
+        leaf.textContent = `${d.getUTCFullYear()}-${p(d.getUTCMonth() + 1)}-${p(d.getUTCDate())} ${p(d.getUTCHours())}:${p(d.getUTCMinutes())}:${p(d.getUTCSeconds())}`;
+      });
+      debugLog('🕐 Server clock following the era countdown');
+      return;
+    }
     const baseMs = new Date(+m[1], +m[2] - 1, +m[3], +m[4], +m[5], +m[6]).getTime();
     const t0 = Date.now();
-    const p = n => (n < 10 ? '0' + n : '' + n);
     __serverClockId = setInterval(() => {
       if (!leaf.isConnected) { clearInterval(__serverClockId); __serverClockId = null; return; }
       const d = new Date(baseMs + (Date.now() - t0));
       leaf.textContent = `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}:${p(d.getSeconds())}`;
     }, 1000);
     debugLog('🕐 Server clock ticking');
+  }
+
+  // When each era opened, in UTC epoch seconds. The page gives only the era's
+  // END (span[data-age-countdown] data-end), so the start has to be known.
+  // Era 24 opened 3 Nov 2026 11:00 server time (UTC); its timer read 82d 23h 59m
+  // at 11:00:58. Add a line here when a new era opens — an era not listed
+  // simply shows no "day" line.
+  const ERA_STARTS = {
+    24: Date.UTC(2026, 10, 3, 11, 0, 0) / 1000
+  };
+
+  /**
+   * "Era 24 day 5 of 83 — 4 days 11 hours 4 minutes 45 seconds in." under the
+   * sidebar's Game Time countdown. DISPLAY-ONLY: elapsed = (end − start) −
+   * the countdown's own remaining time, redrawn on the countdown's tick
+   * (onGameTick), so the two lines always add up to the era's length. Adds a
+   * line beside the game's span and never touches the span. No network.
+   */
+  let __eraElapsedOn = false;
+  function startEraElapsed() {
+    if (__eraElapsedOn || document.getElementById('dc-era-elapsed')) return;
+    const span = findEraCountdown();
+    if (!span || !span.parentNode) return;
+    const label = span.getAttribute('data-label') || (span.textContent.match(/Era \d+/) || [''])[0];
+    const era = +((label.match(/Era (\d+)/) || [])[1]);
+    const start = ERA_STARTS[era];
+    const end = +span.getAttribute('data-end');
+    if (!start || !(end > start)) return;
+    const line = document.createElement('div');
+    line.id = 'dc-era-elapsed';
+    line.style.cssText = 'margin-top:4px;font-size:9pt;font-weight:bold;color:#9fdcff;text-align:center;';
+    const totalDays = Math.round((end - start) / 86400);
+    const plural = (n, w) => `${n} ${w}${n === 1 ? '' : 's'}`;
+    const ok = onGameTick((r) => {
+      const s = Math.max(0, end - start - r);
+      const d = Math.floor(s / 86400), h = Math.floor(s % 86400 / 3600), m = Math.floor(s % 3600 / 60), sec = s % 60;
+      line.textContent = `${label} day ${d + 1} of ${totalDays} — ` +
+        `${plural(d, 'day')} ${plural(h, 'hour')} ${plural(m, 'minute')} ${plural(sec, 'second')} in.`;
+    });
+    if (!ok) return;
+    span.parentNode.appendChild(line);
+    __eraElapsedOn = true;
+    debugLog('📅 Era elapsed line ticking');
   }
 
   /**
@@ -12313,6 +12425,11 @@
       desc: 'Makes the Server Time shown on every page tick forward each second instead of staying frozen at the moment the page loaded.'
     },
     {
+      id: 'era-elapsed', group: 'Everywhere', kind: 'display',
+      name: 'Era day counter',
+      desc: 'Adds a line under the sidebar Game Time countdown saying which day of the era it is and how long the era has been running (days, hours, minutes, seconds), ticking live.'
+    },
+    {
       id: 'sidebar-calculator', group: 'Everywhere', kind: 'both',
       name: 'Sidebar XP→Turns calculator',
       desc: 'The calculator box under the sidebar: how many attacks your Experience and Attack Turns are worth, projected gold from them, your banked-% pill with trend graph (📈), the ✏️ manual average-gold override, and the SR logo (click it for the feature-settings popup) with the Login/Logout button. Clicking the box title opens a pop-up calculator.',
@@ -12828,6 +12945,7 @@
     // Conquest attempts left queued by a page closed before its upload
     { f: 'own-tracking', label: 'flushConquestQueue', when: hasSidebar, run: () => { flushConquestQueue(); } },
     { f: 'server-clock', label: 'startServerClock', when: () => true, run: () => startServerClock() },
+    { f: 'era-elapsed', label: 'startEraElapsed', when: () => true, run: () => startEraElapsed() },
     // Covert mission reports carry "Sabotage Again!" buttons, so capture everywhere
     { f: 'sab-tracker', label: 'hookSabFormCapture', when: () => true, run: () => hookSabFormCapture() },
     // Every attack-page view is logged as a check, the address-less page the
