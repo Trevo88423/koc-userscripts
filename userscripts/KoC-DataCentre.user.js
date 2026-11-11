@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name         KoC Data Centre
 // @namespace    trevo88423
-// @version      2.29.0
-// @description  Sweet Revenge alliance tool: tracks stats, syncs to API, adds dashboards, XP→Turn calculator, mini Top Stats panel. v2.28.2: KoC's Server Time is UTC from Era 24 (it was US Eastern), so recon ages, last seen, TIV and stat history times, sab timers and banking times were 5 hours off. They are read correctly now. v2.28.0: Gold goal in the sidebar Turn Trading Calculator — click ✏️ next to 🎯 Goal and set what you're working towards (your next XP upgrade, say) and, if you like, the gold you expect per hit (otherwise your Avg Gold/Atk). Two short lines then show what each hit must bring in to get there with only the turns on hand — no XP trades — and, at your hit size, how many hits it takes and how few XP trades will cover them (or that even trading everything falls short). Hover for the details: XP spent on trades, and how far trading all your XP gets you. Everything you hold — gold on hand, Safe and Vault — counts towards the goal (untick it to leave it out), read from the sidebar on every page, so each hit you land shrinks what is left and what each remaining hit needs. Suggested by Spook-SR. v2.27.1: Own account history now also keeps your Game Logs page — the daily login bonus, the vault tax, your purchases and repairs, Safe withdrawals, hostages, poison losses and weapons lost to sabs and thefts — when it changes, at most every 5 minutes. Only the page you open is read. v2.27.0: Own account history — for planning the next era's opening, the script now keeps a history of your own account on the alliance server: your sidebar balances (Gold, Safe, Vault, Experience, Experience Bank, Turns, Rank, Recent Logs and the era countdown) from any page, at most every 15 minutes; the tables on your own Command Centre, Armory, Upgrades, Safe, Training, Trade, Rewards and Conquest pages when they change, at most every 5 minutes; and every conquest result as it appears on the Conquest page, with your Strike, repair cost, turns, experience and gold before and after, so the cost and payoff of each attempt at each level can be worked out. Only the page you opened is read — nothing is fetched, pressed or shown, and nothing about other players is sent. It has its own switch (Own account history) in the ⚙ Data Centre settings. v2.26.3: Fix — the Recons column on the Command Centre now shows ✅ Done for members who have finished the 1,000 Unsuccessful Recons reward. The game keeps counting past 1,000 once the goal is met (it reads 1,003/1000, say), and the alliance server turned those counts away, so a finished member stayed frozen at their last count below 1,000. The server now accepts them — the next time a finished member opens the Rewards page, on any version of the script, their row shows as done — and the script also reads the reward's ✅ and CLAIMED button. Hover ✅ Done for the count and whether the reward has been claimed. Finished members are listed last. Each count is only as fresh as that member's last Rewards visit the server accepted, so hovering any count now shows how long ago it was updated, and counts more than a day old are dimmed. If the alliance server turns your count away because it does not know the player you are logged in as (for a while after an era reset, say), the browser console now says so — log out and back in from the sidebar. v2.26.2: Game rule fix — Era 24 moved the War List to a new address (warlistv4.php), which the script did not recognise as the War List, so on that page it drew its usual sidebar additions, which the game's rules forbid there. The script now treats every version of the War List as read-only and makes no changes to it. Collecting from the new War List is switched off until the script learns its new layout. v2.26.1: The Gold per Stat Point panel on the Armory now starts closed — one header line with a summary ("8 Live") — and opens with a click; it remembers whether you left it open. Plan as held can be ticked while it is closed. It also has its own switch in the ⚙ Data Centre settings, separate from the rank-up costs. v2.26.0: Gold per stat point stops jumping. The rank-up costs and the Optimizer now take each stat's gold per point from your armory page itself — your rating divided by the weapons the game says are held — read fresh on every visit, instead of learning it from purchase messages. A purchase reads low when it pushes out weapons you already hold (buying Blackpowder Missiles while your soldiers hold Chariots learned Strike at 0.4 of its real value, so Strike looked 2.5 times too expensive) or when part of it goes unheld. A new Gold per Stat Point panel under the Rank Gain table shows each stat's figure and where it came from: Live; Remembered (a stat you keep unheld on purpose keeps its last reading, with its age); Paired (Poison and Antidote, Theft and Vigilance borrow from each other, but only while both skills are at the same upgrade level, read when you open the Upgrades page); or Pinned — type your own gold per point and it stays put until you clear it. Unheld weapons are shown as information, not a warning: how many, and what they would add if held. A Plan as held tick works the rank-up costs and the Optimizer out as if every weapon you own were held — for the end-of-era push; other players' ratings stay as last recorded, and they may be hiding too. A purchase that goes unheld now gets a quiet note instead of an error. The Stat Reshuffler and the Safe page's Attacked Instead table use the same figures, and the Reshuffler now takes the game's own unheld count (untrained soldiers hold weapons too). Also: the roster no longer lets a recon of you overwrite the gold per point your own armory sent. v2.25.3: The roster's War List tab now counts down when your own sab and theft attempts on each target come back — the game's rolling 24 hours, attempt by attempt, from what the game itself showed you. To make those times exact: the attack page now also records the times the game prints for your own first and last successful sab, steal and poison on that target, and the game's "You have used the maximum … attempts" line; and the sab or theft report you land on right after the mission is stamped with the Server Time that page shows. A page brought back with the Back button is not recorded again. Theft reports are now recorded too: what you stole, or that the theft failed. A theft report showing somebody stealing from you is not recorded. Fix — the Sab Tracker counted a press the game refused (one more after your tenth sab, or a sab on a maxed target) as an attempt, and to make room for it dropped your oldest attempt time, even an exact one. A refused press is no longer counted, and the report you land on after a sab now gives the tracker that sab's exact time. The attack page's "First sab" time is a first SUCCESSFUL sab and the page never says whose, so no countdown is built on it any more — anywhere. An attempt the tracker never saw now counts from the moment you opened the page and reads "≤" (at the latest): less exact, but it can only ever run late, never let you fire early. Because earlier versions filed that "First sab" time as one of your own attempts, and nothing stored in your browser can tell those rows from real ones, updating clears the sab times already tracked, once: for up to 24 hours after the update a target you sabbed before it reads "≤ about 24h from now" — too late rather than too early — until the game's own times come back from the reports you land on and the target's Intelligence file. v2.25.2: Fix — the battle report you land on after attacking or raiding now counts in Mission history's 24h and 7-day figures straight away, whichever page you attacked from: the attack page, a recon report, a theft report or an "… Again!" button. Until now only the attack page and the "… Again!" buttons were recognised, so a battle launched from a recon report was stored without its time. Also: a battle report you open later (from the Attack Log, say) no longer takes the stolen gold off the target's current gold estimate: that gold was stolen back when the battle happened, not now. v2.25.1: Fix — raids were stored with no gold and no target. The battle-report reader only knew how an attack's report words its first line ("You stole … gold while attacking …'s camp"); a raid's says "while raiding", so every raid went into the alliance's attack records as 0 gold stolen from "Unknown". Raids now record the gold, the target and the hostages, and a lost battle takes the target's name from the report ("…'s forces overpowered your army!"). Also: your own attacks and raids now count in Mission history straight from the battle report — the one you land on after an attack or raid, or one of yours you open later from the Attack Log — with whether it was an attack or a raid (from the game's own "Raid Again!" / "Attack Again!" button, or the report's wording) and whether you won; the report you land on is also stamped with the time. Also fixed: opening the battle report of another player's attack on you recorded it in the alliance's attack records as your own attack on them. Battle reports of other players attacking you are now not recorded at all — the Attack Log still lists those attacks. As before, only the page you open is read and it is left exactly as the game drew it. v2.25.0: Mission history — the pages that list missions are now read when you open them and shared with the alliance roster: a target's Intelligence file (your recon and sab missions on them, Success or Aborted), the Poison Log and Theft Log (both directions, with what was stolen), your Intelligence page (recon and sab missions run against you, and how many of their spies were caught) and the Attack Log (attacks and raids both ways, with gold stolen and losses). Any sab report you open adds its details too — what it destroyed, spies and sentries executed, gold and XP. This feeds the War Room's new success rates — per member and per mission type, never per target — which are visible to everyone with roster access, as the settings panel now says. The script sends each page's own wording and the server interprets it, so a result nobody has seen yet (a successful poison, say) is kept rather than lost and is sorted out once it turns up. Only the page you open is read: it never turns a page, opens a report or fetches anything, and those pages look exactly as before. Also: the Sab Tracker's Intelligence-file backfill now shares that same read. v2.24.0: Attack page range warnings — under each mission's "can … up to …" line the attack page now says whether the target is actually in reach: their sentry, antidote, vigilance or defensive action as last recorded by the alliance, against the limit the game prints for you, with how old that reading is. ⛔ Out of range means the mission will fail — the game lets an out-of-range theft fire anyway, which is how four thefts on one target all failed. The Theft box also gets a theft-cap line: how much of the target's daily theft cap is left, or THEFT MAXED. New Target check log: every attack page you open records that you checked that target — whether it was maxed, how much of its sab and theft caps is used, and your own attempt and success counters on it — so the War Room can show who saw a target maxed and how long ago; those counters are visible to everyone with roster access and will feed members' success rates. The War List collector now also shares who is on the list, when and why they were added, and your own "My 24hr" counters — and on the War List and Farm List the script now makes no changes at all (no toasts, no styles, no overlays), as the game's rules require. The settings panel now says exactly what the Sab Tracker sends. v2.23.2: Fix — the Sab Tracker vanished on the page the game shows after refusing a sab on a maxed target ("This player has been maxxed…"): that page has no player id in its address, so the tracker, the TIV reading and the sab-cap sharing all quietly gave up — at the one moment the script knew for certain the target was maxed. They now read the target from the page itself. Also fixes the Intelligence-file backfill for the Sab Tracker, which looked for the mission type in the wrong column and so never matched a row; it now finds the column by its header. v2.23.1: Inactive Accounts sync now works while you are logged out — including while you are on vacation and cannot log in — using the login saved from your last visit. On that page, logged out, it is the only thing the script does; every other feature still needs you logged in. Also: a network blip or server restart while renewing your session no longer logs you out of the script. v2.23.0: Inactive Accounts sync — opening the in-game Inactive Accounts page now shares the list with the alliance roster: who went into Vacation Mode and exactly when, and who has been deleted. Anyone who has dropped off the list since the last visit is marked back from vacation. This powers the new Vacation Watch tab on the dashboard, with live countdowns to when each player can return. The script only reads the page you open; the more often members check it, the sooner returns show up. v2.22.0: The War List's "Last Sab" column is now collected too — who last hit each target, for how much, and how long ago — giving the war dashboard a "Last hit" column that shows which targets the alliance is actually working and which nobody has touched, plus a running log of destroyed value for the war. v2.21.2: Fix — TIV readings from the attack page and your Armory were being sent with a timestamp field nothing reads, so they arrived unstamped and skipped the server's "only overwrite if newer" guard, letting an older reading quietly replace a fresher one. v2.21.1: War List collector reads the AAT and Sentry cells from their own DOM nodes instead of the cell's flattened text — those cells hold two numbers separated only by a line break, so any flattening ran "488" and "488,000,000 damage per sab" together into 488 billion. Works on both the Alliance and Single Target lists. v2.21.0: War List collector — opening the War List now records, for every player on it at once, their sentry (stamped with the age the game itself shows, so it never overwrites fresher recon), the weapon the game recommends sabbing them with, and the AAT: how many of that weapon they actually hold plus the gold one full sab would destroy. The war dashboard gets an AAT column and a "Min AAT" filter, so targets who simply do not own enough weapons to be worth organising around can be filtered out in one click. v2.20.1: Fix — race now updates when a player switches race. Race was only ever read from a full recon report, so a race change sat wrong in the roster until somebody spent a recon on that player, even though every visit to their stats page showed the new race in plain sight; the stats-page collector now reads the Information table too (race and rank), and it no longer gives up on players who have no shared recon data. v2.20.0: Sab cap sharing — opening any attack page now records that target's "Total lost from sabbs in the last 24hours" and "Maximum Daily Sabotage loss" to the alliance roster, so the War Room can show how much of every player's daily cap is already gone and how much gold is still worth sabbing, with a share button that copies a Discord-ready line. Also fixes the sab-cap reader: KoC prints the cap with decimals when it isn't a whole number, which the old pattern could not match, so the in-game "sab damage left before maxed" line silently never appeared on those targets. v2.19.1: Fix — a target sabbed flat reads "Total Invested Value: ()" with empty brackets, which the TIV collector could not parse, so the roster kept that player's pre-sab value forever and never stopped asking for a recon that could not land; empty brackets now record as a real 0 (on your own Armory too), while a box the script genuinely cannot read is left alone instead of writing a false zero. v2.19.0: Stat Reshuffler — Goal mode: pick a stat and type a target rating (commas fine, or shorthand like 4.78T) and the calculator shows the gap from your PROJECTED rating — so your sells, race change and re-buys are already counted — plus how many weapons and how much gold on top of the plan would close it, netting off any unspent pool. Warns when your units couldn't hold that many more weapons. The goal is remembered between visits and updates live as you tweak the scenario. v2.18.3: Stat Reshuffler — the launcher moved: it now sits as a full-width banner directly above the "Armory Preferences" header, styled by cloning that header's own theme (background, border, font) so it looks native in any skin; falls back to the old Total Invested Value spot if the header isn't found. v2.18.2: Stat Reshuffler — stale-multiplier warning: a learned weapon multiplier quietly goes wrong after skill/tech upgrades (it only refreshes when you buy), which left phantom rating behind on sell-all scenarios; the reshuffler now compares each learned multiplier against what your live rating implies and flags "⚠ stale multiplier — buy 1 to recalibrate" per stat plus a summary warning, with the multiplier's age shown. v2.18.1: Stat Reshuffler — new "Ignore carrier caps" toggle for when you're happy to train soldiers/covert units as needed: projections then count every weapon as held (including ones currently sitting unheld) and the ⚠ unheld warnings disappear; the choice is remembered. v2.18.0: Stat Reshuffler — a 🔀 button under the Armory's Total Invested Value box opens a full what-if rework calculator: choose weapons (or whole categories) to sell, optionally switch race, and pour the proceeds — plus your on-hand + vault gold if you tick it — into any mix of the eight stats. It projects the gold you'd recover (sales pay 50% and land in your Vault), how many of each weapon you could buy, whether your units can actually carry them (unheld weapons add nothing), your projected new ratings including the race-bonus swing, and your new TIV. Pure calculator — it never sells, buys or presses anything. v2.17.1: Fix — clicking the sidebar Sweet Revenge logo now opens the feature-settings popup (same as the ⚙ Data Centre link) instead of navigating away. Internal cleanup: removed the unused armory sell-value cache (nothing has used it since the v2.11.2 "Upgrade Ready" rework). v2.17.0: Feature Settings — a new "⚙ Data Centre" link in the sidebar opens a settings panel where EVERY feature can be switched on/off individually (or all at once with the master switch), each with a plain-English description of what it does and a badge showing whether it only changes your display or also records data to the alliance roster; toggles apply on the next page load and everything stays ON by default, so nothing changes until you say so. Under the hood the script's ~40 page hooks were rebuilt onto a single feature registry that drives both the dispatcher and the panel, ~600 lines of dead legacy code were removed, and small fixes landed (DST helper deduplicated, script load message now always visible in console, toast animation style no longer re-injected per notification). Also: the sidebar Sweet Revenge logo is now a link to the Data Centre (with a hover glow), and the Top Stats panel's Debug button is gone — debug mode lives in the console via KoCDebug.toggle(). v2.16.0: Sab Tracker learns the exclusivity rule — per target you either regular-sab OR revenge-sab in a 24h window, so the panels now show 🔒 "Regular sabs locked — you revenge-sabbed this target" with an unlock countdown that keeps working after the Revenge section vanishes (target un-maxed — exactly when KoC hides the info), and 🔒 "Revenge locked — you've sabbed this target this window" when the Revenge form is up but unusable; the native "First sab (last 24hrs)" row is age-formatted like the rest (it anchored the "Can sab again in …" countdown from this version until v2.25.3, which stopped using it). v2.15.0: Sabotage Tracker on attack.php — "You last sabbed / poisoned / stole" and the revenge timestamps now show colour-coded ages like the stats pages (hover for the raw server time); the Sabotage and Revenge Sabotage sections get a live status line: attempts left in the rolling 24h window with a ticking "Can sab again in …" countdown when you're out of slots (10 sabs / 4 revenge per target per 24h, tracked automatically whenever you fire a sab and backfilled with exact server times when you open the target's Intelligence file), plus a "sab damage left before maxed" line (Maximum Daily Sabotage loss − lost in last 24h) that flips to TARGET MAXED when the cap is hit. Display-only: it records only missions you fire by hand and never presses anything. v2.14.0: Tech Level Projector — the "Stats After Upgrading Tech" table on safe.php gets a "Project to" dropdown: pick ANY future tech level (up to Obi Bon Kenobi) and the table shows your projected stats at that level, with the total ▲% vs now and the cumulative EXP needed across all the upgrades in between. v2.13.1: Rank-neighbour links now blend into the native table — no dot markers or underline, the numbers just quietly became links (hover tooltip still shows who it is, data age, and gap/stale warnings). v2.13.0: Rank-neighbour recon links — the "Rating For Previous/Next Rank Gain" numbers are now hyperlinks to the player we believe holds that rank (matched by rating value from the roster DB, never by stale DB rank), with a tooltip showing who it is + how fresh their data is; an orange dot means a DB gap (recon upward), a red dot means DB rank/rating disagree (recon me first). Click → recon → DB refreshes; wrong candidates rotate out on the next page load, so the links self-correct toward the true neighbour. v2.11.2: Banking Mode redesigned — your exposed gold now shows in a native-style "Estimated Funds" box that matches the in-game funds boxes, with a ⚙ that holds the Banking Mode toggle, screen-awake, and all settings (including an optional "show yellow/red times" line); a live-ticking Server Time clock on every page; and the Upgrades "Upgrade Ready" row now uses realistic funds (drops full-armory-sell) and shows any shortfall as a slay estimate. v2.10.1: Fix — the slider Armory Preferences now also resync when you press KoC's "Clear Percentage Prefills" button (sliders drop to 0 instead of keeping their old values). v2.10.0: New slider-based Armory Preferences — drag to allocate with auto-balancing, theme-matched styling, and one-tap presets (Cheapest first, Optimizer, All spy, All defense) plus saved presets — replacing the in-game percentage form; rank Optimizer also fixed (weapon efficiency now synced). v2.9.0: "Time to upgrade" + "EXP still needed to be deposited" now show on ALL EXP-cost safe.php upgrades (Increase Soldiers, Economic Development, SAFE Upgrade) — not just Technological Development. v2.8.2: Fix — "EXP still needed to be deposited" now shows cost − Experience Bank (what must still be banked) instead of also subtracting on-hand EXP, so it no longer reads 0 when you hold the EXP but haven't deposited it. v2.8.1: Fix — sidebar abbreviates large gold/safe values (e.g. "2,560M"); getSidebarValue now parses K/M/B/T suffixes so SAFE Forecasts and gold-upgrade rows use real balances (previously read as ~0). SAFE Forecasts also uses the full-precision "Gold in Safe" value. v2.8.0: SAFE Forecasts on safe.php — time for your Safe to reach 1B/2B/5B/9B/10B(MAX) based on current Safe + deposit/min. v2.7.0: Gold upgrade timer — upgrades.php now shows "Upgrade Ready" (liquidation + safe-growth time) and "Gold Needed on top of Safe" under each skill upgrade (uses gold/vault/safe + full armory sell value from Armory + safe deposit rate from Safe). v2.6.0: Tech upgrade timer — safe.php now shows "Time to upgrade" + "EXP still needed to be deposited" under Technological Development (uses EXP on-hand + Experience Bank + your EXP/turn rate, auto-captured from the Upgrades page). v2.5.1: Banking Mode last-bank fix — now watches the per-weapon buy form (anotherbuyform), not just the hidden one-click form, and stamps banks reliably for high-income accounts. v2.5.0: 🏦 Banking Mode on the Armory page — toggleable inline widget that projects your exposed (stealable) gold every second, colour-codes the risk (SAFE/CAUTION/DANGER) from your attack-log steal history, shows time-to-yellow/red, and keeps the screen awake. Display-only: no automated requests, observes (never presses) the buy/repair forms. v2.4.0: Banking trend graph (📈 in the sidebar tracks your banked % over time) + manual override for Avg Gold/Atk (✏️ in the sidebar, survives attack-log recalibration). v2.3.4: Recons panel now shares counts alliance-wide via API (previously localStorage-only — each user only saw themselves). v2.3.0: Added "Stats If You Attacked Instead" table on safe.php to compare tech upgrades vs attacking. v2.2.9: Added optimizer auto-fill for armory (uses roster API to calculate optimal stat allocation). v2.2.8: Minor fixes. v2.1.0: Integrated slaying competition tracker (attack missions & gold stolen tracking, team competitions, leaderboards). v2.0.0: Optimized API architecture, previous versions deprecated.
+// @version      2.31.0
+// @description  Sweet Revenge alliance tool: tracks stats, syncs to API, adds dashboards, XP→Turn calculator, mini Top Stats panel. v2.31.0: Once you have finished the 1,000 Unsuccessful Recons goal, your row in the Command Centre's 🔍 Recons column switches to your own Recon Missions count for the era (the Your Actions row on the Rewards page), shown as 🎯 1,278 in goldenrod. It keeps climbing past its goal and updates each time you open Rewards, so the finished rows double as a friendly "most recons this era" table for the alliance; members still working on their 1,000 stay at the top. Hover a number for its age. v2.30.0: Banking Mode learns from your own banks. Until now its Caution and Danger lines came only from the gold attackers stole from you, so early in an era a few hits on small stacks set the line at ~12M while you were safely holding 40M — and it kept telling you to bank. Now every bank you make on the Armory is remembered with the gold you were holding, and a bank with no hit on you since the bank before counts as a safe hold. Each line is the higher of what your safe holds and the hits on you say, using your recent banks (the last 48 hours or last 20 banks, whichever is shorter) and a low percentile, so one lucky big hold doesn't move it. A fresh hit pulls the line down at once: for 24 hours the lines sit just below the smallest amount you were hit for (hits on less than 5M are ignored). A bank only counts once you have opened the Attack Log after it. The ⚙ panel and KoCBanking.lines() say where each line comes from, and you can pin either line yourself. Alerts are quieter: one per real escalation, kept across page reloads, and re-entering a band only alerts again with 25% more gold or after the minimum gap. Everything stays in your browser; nothing new is sent. v2.28.2: KoC's Server Time is UTC from Era 24 (it was US Eastern), so recon ages, last seen, TIV and stat history times, sab timers and banking times were 5 hours off. They are read correctly now. v2.28.0: Gold goal in the sidebar Turn Trading Calculator — click ✏️ next to 🎯 Goal and set what you're working towards (your next XP upgrade, say) and, if you like, the gold you expect per hit (otherwise your Avg Gold/Atk). Two short lines then show what each hit must bring in to get there with only the turns on hand — no XP trades — and, at your hit size, how many hits it takes and how few XP trades will cover them (or that even trading everything falls short). Hover for the details: XP spent on trades, and how far trading all your XP gets you. Everything you hold — gold on hand, Safe and Vault — counts towards the goal (untick it to leave it out), read from the sidebar on every page, so each hit you land shrinks what is left and what each remaining hit needs. Suggested by Spook-SR. v2.27.1: Own account history now also keeps your Game Logs page — the daily login bonus, the vault tax, your purchases and repairs, Safe withdrawals, hostages, poison losses and weapons lost to sabs and thefts — when it changes, at most every 5 minutes. Only the page you open is read. v2.27.0: Own account history — for planning the next era's opening, the script now keeps a history of your own account on the alliance server: your sidebar balances (Gold, Safe, Vault, Experience, Experience Bank, Turns, Rank, Recent Logs and the era countdown) from any page, at most every 15 minutes; the tables on your own Command Centre, Armory, Upgrades, Safe, Training, Trade, Rewards and Conquest pages when they change, at most every 5 minutes; and every conquest result as it appears on the Conquest page, with your Strike, repair cost, turns, experience and gold before and after, so the cost and payoff of each attempt at each level can be worked out. Only the page you opened is read — nothing is fetched, pressed or shown, and nothing about other players is sent. It has its own switch (Own account history) in the ⚙ Data Centre settings. v2.26.3: Fix — the Recons column on the Command Centre now shows ✅ Done for members who have finished the 1,000 Unsuccessful Recons reward. The game keeps counting past 1,000 once the goal is met (it reads 1,003/1000, say), and the alliance server turned those counts away, so a finished member stayed frozen at their last count below 1,000. The server now accepts them — the next time a finished member opens the Rewards page, on any version of the script, their row shows as done — and the script also reads the reward's ✅ and CLAIMED button. Hover ✅ Done for the count and whether the reward has been claimed. Finished members are listed last. Each count is only as fresh as that member's last Rewards visit the server accepted, so hovering any count now shows how long ago it was updated, and counts more than a day old are dimmed. If the alliance server turns your count away because it does not know the player you are logged in as (for a while after an era reset, say), the browser console now says so — log out and back in from the sidebar. v2.26.2: Game rule fix — Era 24 moved the War List to a new address (warlistv4.php), which the script did not recognise as the War List, so on that page it drew its usual sidebar additions, which the game's rules forbid there. The script now treats every version of the War List as read-only and makes no changes to it. Collecting from the new War List is switched off until the script learns its new layout. v2.26.1: The Gold per Stat Point panel on the Armory now starts closed — one header line with a summary ("8 Live") — and opens with a click; it remembers whether you left it open. Plan as held can be ticked while it is closed. It also has its own switch in the ⚙ Data Centre settings, separate from the rank-up costs. v2.26.0: Gold per stat point stops jumping. The rank-up costs and the Optimizer now take each stat's gold per point from your armory page itself — your rating divided by the weapons the game says are held — read fresh on every visit, instead of learning it from purchase messages. A purchase reads low when it pushes out weapons you already hold (buying Blackpowder Missiles while your soldiers hold Chariots learned Strike at 0.4 of its real value, so Strike looked 2.5 times too expensive) or when part of it goes unheld. A new Gold per Stat Point panel under the Rank Gain table shows each stat's figure and where it came from: Live; Remembered (a stat you keep unheld on purpose keeps its last reading, with its age); Paired (Poison and Antidote, Theft and Vigilance borrow from each other, but only while both skills are at the same upgrade level, read when you open the Upgrades page); or Pinned — type your own gold per point and it stays put until you clear it. Unheld weapons are shown as information, not a warning: how many, and what they would add if held. A Plan as held tick works the rank-up costs and the Optimizer out as if every weapon you own were held — for the end-of-era push; other players' ratings stay as last recorded, and they may be hiding too. A purchase that goes unheld now gets a quiet note instead of an error. The Stat Reshuffler and the Safe page's Attacked Instead table use the same figures, and the Reshuffler now takes the game's own unheld count (untrained soldiers hold weapons too). Also: the roster no longer lets a recon of you overwrite the gold per point your own armory sent. v2.25.3: The roster's War List tab now counts down when your own sab and theft attempts on each target come back — the game's rolling 24 hours, attempt by attempt, from what the game itself showed you. To make those times exact: the attack page now also records the times the game prints for your own first and last successful sab, steal and poison on that target, and the game's "You have used the maximum … attempts" line; and the sab or theft report you land on right after the mission is stamped with the Server Time that page shows. A page brought back with the Back button is not recorded again. Theft reports are now recorded too: what you stole, or that the theft failed. A theft report showing somebody stealing from you is not recorded. Fix — the Sab Tracker counted a press the game refused (one more after your tenth sab, or a sab on a maxed target) as an attempt, and to make room for it dropped your oldest attempt time, even an exact one. A refused press is no longer counted, and the report you land on after a sab now gives the tracker that sab's exact time. The attack page's "First sab" time is a first SUCCESSFUL sab and the page never says whose, so no countdown is built on it any more — anywhere. An attempt the tracker never saw now counts from the moment you opened the page and reads "≤" (at the latest): less exact, but it can only ever run late, never let you fire early. Because earlier versions filed that "First sab" time as one of your own attempts, and nothing stored in your browser can tell those rows from real ones, updating clears the sab times already tracked, once: for up to 24 hours after the update a target you sabbed before it reads "≤ about 24h from now" — too late rather than too early — until the game's own times come back from the reports you land on and the target's Intelligence file. v2.25.2: Fix — the battle report you land on after attacking or raiding now counts in Mission history's 24h and 7-day figures straight away, whichever page you attacked from: the attack page, a recon report, a theft report or an "… Again!" button. Until now only the attack page and the "… Again!" buttons were recognised, so a battle launched from a recon report was stored without its time. Also: a battle report you open later (from the Attack Log, say) no longer takes the stolen gold off the target's current gold estimate: that gold was stolen back when the battle happened, not now. v2.25.1: Fix — raids were stored with no gold and no target. The battle-report reader only knew how an attack's report words its first line ("You stole … gold while attacking …'s camp"); a raid's says "while raiding", so every raid went into the alliance's attack records as 0 gold stolen from "Unknown". Raids now record the gold, the target and the hostages, and a lost battle takes the target's name from the report ("…'s forces overpowered your army!"). Also: your own attacks and raids now count in Mission history straight from the battle report — the one you land on after an attack or raid, or one of yours you open later from the Attack Log — with whether it was an attack or a raid (from the game's own "Raid Again!" / "Attack Again!" button, or the report's wording) and whether you won; the report you land on is also stamped with the time. Also fixed: opening the battle report of another player's attack on you recorded it in the alliance's attack records as your own attack on them. Battle reports of other players attacking you are now not recorded at all — the Attack Log still lists those attacks. As before, only the page you open is read and it is left exactly as the game drew it. v2.25.0: Mission history — the pages that list missions are now read when you open them and shared with the alliance roster: a target's Intelligence file (your recon and sab missions on them, Success or Aborted), the Poison Log and Theft Log (both directions, with what was stolen), your Intelligence page (recon and sab missions run against you, and how many of their spies were caught) and the Attack Log (attacks and raids both ways, with gold stolen and losses). Any sab report you open adds its details too — what it destroyed, spies and sentries executed, gold and XP. This feeds the War Room's new success rates — per member and per mission type, never per target — which are visible to everyone with roster access, as the settings panel now says. The script sends each page's own wording and the server interprets it, so a result nobody has seen yet (a successful poison, say) is kept rather than lost and is sorted out once it turns up. Only the page you open is read: it never turns a page, opens a report or fetches anything, and those pages look exactly as before. Also: the Sab Tracker's Intelligence-file backfill now shares that same read. v2.24.0: Attack page range warnings — under each mission's "can … up to …" line the attack page now says whether the target is actually in reach: their sentry, antidote, vigilance or defensive action as last recorded by the alliance, against the limit the game prints for you, with how old that reading is. ⛔ Out of range means the mission will fail — the game lets an out-of-range theft fire anyway, which is how four thefts on one target all failed. The Theft box also gets a theft-cap line: how much of the target's daily theft cap is left, or THEFT MAXED. New Target check log: every attack page you open records that you checked that target — whether it was maxed, how much of its sab and theft caps is used, and your own attempt and success counters on it — so the War Room can show who saw a target maxed and how long ago; those counters are visible to everyone with roster access and will feed members' success rates. The War List collector now also shares who is on the list, when and why they were added, and your own "My 24hr" counters — and on the War List and Farm List the script now makes no changes at all (no toasts, no styles, no overlays), as the game's rules require. The settings panel now says exactly what the Sab Tracker sends. v2.23.2: Fix — the Sab Tracker vanished on the page the game shows after refusing a sab on a maxed target ("This player has been maxxed…"): that page has no player id in its address, so the tracker, the TIV reading and the sab-cap sharing all quietly gave up — at the one moment the script knew for certain the target was maxed. They now read the target from the page itself. Also fixes the Intelligence-file backfill for the Sab Tracker, which looked for the mission type in the wrong column and so never matched a row; it now finds the column by its header. v2.23.1: Inactive Accounts sync now works while you are logged out — including while you are on vacation and cannot log in — using the login saved from your last visit. On that page, logged out, it is the only thing the script does; every other feature still needs you logged in. Also: a network blip or server restart while renewing your session no longer logs you out of the script. v2.23.0: Inactive Accounts sync — opening the in-game Inactive Accounts page now shares the list with the alliance roster: who went into Vacation Mode and exactly when, and who has been deleted. Anyone who has dropped off the list since the last visit is marked back from vacation. This powers the new Vacation Watch tab on the dashboard, with live countdowns to when each player can return. The script only reads the page you open; the more often members check it, the sooner returns show up. v2.22.0: The War List's "Last Sab" column is now collected too — who last hit each target, for how much, and how long ago — giving the war dashboard a "Last hit" column that shows which targets the alliance is actually working and which nobody has touched, plus a running log of destroyed value for the war. v2.21.2: Fix — TIV readings from the attack page and your Armory were being sent with a timestamp field nothing reads, so they arrived unstamped and skipped the server's "only overwrite if newer" guard, letting an older reading quietly replace a fresher one. v2.21.1: War List collector reads the AAT and Sentry cells from their own DOM nodes instead of the cell's flattened text — those cells hold two numbers separated only by a line break, so any flattening ran "488" and "488,000,000 damage per sab" together into 488 billion. Works on both the Alliance and Single Target lists. v2.21.0: War List collector — opening the War List now records, for every player on it at once, their sentry (stamped with the age the game itself shows, so it never overwrites fresher recon), the weapon the game recommends sabbing them with, and the AAT: how many of that weapon they actually hold plus the gold one full sab would destroy. The war dashboard gets an AAT column and a "Min AAT" filter, so targets who simply do not own enough weapons to be worth organising around can be filtered out in one click. v2.20.1: Fix — race now updates when a player switches race. Race was only ever read from a full recon report, so a race change sat wrong in the roster until somebody spent a recon on that player, even though every visit to their stats page showed the new race in plain sight; the stats-page collector now reads the Information table too (race and rank), and it no longer gives up on players who have no shared recon data. v2.20.0: Sab cap sharing — opening any attack page now records that target's "Total lost from sabbs in the last 24hours" and "Maximum Daily Sabotage loss" to the alliance roster, so the War Room can show how much of every player's daily cap is already gone and how much gold is still worth sabbing, with a share button that copies a Discord-ready line. Also fixes the sab-cap reader: KoC prints the cap with decimals when it isn't a whole number, which the old pattern could not match, so the in-game "sab damage left before maxed" line silently never appeared on those targets. v2.19.1: Fix — a target sabbed flat reads "Total Invested Value: ()" with empty brackets, which the TIV collector could not parse, so the roster kept that player's pre-sab value forever and never stopped asking for a recon that could not land; empty brackets now record as a real 0 (on your own Armory too), while a box the script genuinely cannot read is left alone instead of writing a false zero. v2.19.0: Stat Reshuffler — Goal mode: pick a stat and type a target rating (commas fine, or shorthand like 4.78T) and the calculator shows the gap from your PROJECTED rating — so your sells, race change and re-buys are already counted — plus how many weapons and how much gold on top of the plan would close it, netting off any unspent pool. Warns when your units couldn't hold that many more weapons. The goal is remembered between visits and updates live as you tweak the scenario. v2.18.3: Stat Reshuffler — the launcher moved: it now sits as a full-width banner directly above the "Armory Preferences" header, styled by cloning that header's own theme (background, border, font) so it looks native in any skin; falls back to the old Total Invested Value spot if the header isn't found. v2.18.2: Stat Reshuffler — stale-multiplier warning: a learned weapon multiplier quietly goes wrong after skill/tech upgrades (it only refreshes when you buy), which left phantom rating behind on sell-all scenarios; the reshuffler now compares each learned multiplier against what your live rating implies and flags "⚠ stale multiplier — buy 1 to recalibrate" per stat plus a summary warning, with the multiplier's age shown. v2.18.1: Stat Reshuffler — new "Ignore carrier caps" toggle for when you're happy to train soldiers/covert units as needed: projections then count every weapon as held (including ones currently sitting unheld) and the ⚠ unheld warnings disappear; the choice is remembered. v2.18.0: Stat Reshuffler — a 🔀 button under the Armory's Total Invested Value box opens a full what-if rework calculator: choose weapons (or whole categories) to sell, optionally switch race, and pour the proceeds — plus your on-hand + vault gold if you tick it — into any mix of the eight stats. It projects the gold you'd recover (sales pay 50% and land in your Vault), how many of each weapon you could buy, whether your units can actually carry them (unheld weapons add nothing), your projected new ratings including the race-bonus swing, and your new TIV. Pure calculator — it never sells, buys or presses anything. v2.17.1: Fix — clicking the sidebar Sweet Revenge logo now opens the feature-settings popup (same as the ⚙ Data Centre link) instead of navigating away. Internal cleanup: removed the unused armory sell-value cache (nothing has used it since the v2.11.2 "Upgrade Ready" rework). v2.17.0: Feature Settings — a new "⚙ Data Centre" link in the sidebar opens a settings panel where EVERY feature can be switched on/off individually (or all at once with the master switch), each with a plain-English description of what it does and a badge showing whether it only changes your display or also records data to the alliance roster; toggles apply on the next page load and everything stays ON by default, so nothing changes until you say so. Under the hood the script's ~40 page hooks were rebuilt onto a single feature registry that drives both the dispatcher and the panel, ~600 lines of dead legacy code were removed, and small fixes landed (DST helper deduplicated, script load message now always visible in console, toast animation style no longer re-injected per notification). Also: the sidebar Sweet Revenge logo is now a link to the Data Centre (with a hover glow), and the Top Stats panel's Debug button is gone — debug mode lives in the console via KoCDebug.toggle(). v2.16.0: Sab Tracker learns the exclusivity rule — per target you either regular-sab OR revenge-sab in a 24h window, so the panels now show 🔒 "Regular sabs locked — you revenge-sabbed this target" with an unlock countdown that keeps working after the Revenge section vanishes (target un-maxed — exactly when KoC hides the info), and 🔒 "Revenge locked — you've sabbed this target this window" when the Revenge form is up but unusable; the native "First sab (last 24hrs)" row is age-formatted like the rest (it anchored the "Can sab again in …" countdown from this version until v2.25.3, which stopped using it). v2.15.0: Sabotage Tracker on attack.php — "You last sabbed / poisoned / stole" and the revenge timestamps now show colour-coded ages like the stats pages (hover for the raw server time); the Sabotage and Revenge Sabotage sections get a live status line: attempts left in the rolling 24h window with a ticking "Can sab again in …" countdown when you're out of slots (10 sabs / 4 revenge per target per 24h, tracked automatically whenever you fire a sab and backfilled with exact server times when you open the target's Intelligence file), plus a "sab damage left before maxed" line (Maximum Daily Sabotage loss − lost in last 24h) that flips to TARGET MAXED when the cap is hit. Display-only: it records only missions you fire by hand and never presses anything. v2.14.0: Tech Level Projector — the "Stats After Upgrading Tech" table on safe.php gets a "Project to" dropdown: pick ANY future tech level (up to Obi Bon Kenobi) and the table shows your projected stats at that level, with the total ▲% vs now and the cumulative EXP needed across all the upgrades in between. v2.13.1: Rank-neighbour links now blend into the native table — no dot markers or underline, the numbers just quietly became links (hover tooltip still shows who it is, data age, and gap/stale warnings). v2.13.0: Rank-neighbour recon links — the "Rating For Previous/Next Rank Gain" numbers are now hyperlinks to the player we believe holds that rank (matched by rating value from the roster DB, never by stale DB rank), with a tooltip showing who it is + how fresh their data is; an orange dot means a DB gap (recon upward), a red dot means DB rank/rating disagree (recon me first). Click → recon → DB refreshes; wrong candidates rotate out on the next page load, so the links self-correct toward the true neighbour. v2.11.2: Banking Mode redesigned — your exposed gold now shows in a native-style "Estimated Funds" box that matches the in-game funds boxes, with a ⚙ that holds the Banking Mode toggle, screen-awake, and all settings (including an optional "show yellow/red times" line); a live-ticking Server Time clock on every page; and the Upgrades "Upgrade Ready" row now uses realistic funds (drops full-armory-sell) and shows any shortfall as a slay estimate. v2.10.1: Fix — the slider Armory Preferences now also resync when you press KoC's "Clear Percentage Prefills" button (sliders drop to 0 instead of keeping their old values). v2.10.0: New slider-based Armory Preferences — drag to allocate with auto-balancing, theme-matched styling, and one-tap presets (Cheapest first, Optimizer, All spy, All defense) plus saved presets — replacing the in-game percentage form; rank Optimizer also fixed (weapon efficiency now synced). v2.9.0: "Time to upgrade" + "EXP still needed to be deposited" now show on ALL EXP-cost safe.php upgrades (Increase Soldiers, Economic Development, SAFE Upgrade) — not just Technological Development. v2.8.2: Fix — "EXP still needed to be deposited" now shows cost − Experience Bank (what must still be banked) instead of also subtracting on-hand EXP, so it no longer reads 0 when you hold the EXP but haven't deposited it. v2.8.1: Fix — sidebar abbreviates large gold/safe values (e.g. "2,560M"); getSidebarValue now parses K/M/B/T suffixes so SAFE Forecasts and gold-upgrade rows use real balances (previously read as ~0). SAFE Forecasts also uses the full-precision "Gold in Safe" value. v2.8.0: SAFE Forecasts on safe.php — time for your Safe to reach 1B/2B/5B/9B/10B(MAX) based on current Safe + deposit/min. v2.7.0: Gold upgrade timer — upgrades.php now shows "Upgrade Ready" (liquidation + safe-growth time) and "Gold Needed on top of Safe" under each skill upgrade (uses gold/vault/safe + full armory sell value from Armory + safe deposit rate from Safe). v2.6.0: Tech upgrade timer — safe.php now shows "Time to upgrade" + "EXP still needed to be deposited" under Technological Development (uses EXP on-hand + Experience Bank + your EXP/turn rate, auto-captured from the Upgrades page). v2.5.1: Banking Mode last-bank fix — now watches the per-weapon buy form (anotherbuyform), not just the hidden one-click form, and stamps banks reliably for high-income accounts. v2.5.0: 🏦 Banking Mode on the Armory page — toggleable inline widget that projects your exposed (stealable) gold every second, colour-codes the risk (SAFE/CAUTION/DANGER) from your attack-log steal history, shows time-to-yellow/red, and keeps the screen awake. Display-only: no automated requests, observes (never presses) the buy/repair forms. v2.4.0: Banking trend graph (📈 in the sidebar tracks your banked % over time) + manual override for Avg Gold/Atk (✏️ in the sidebar, survives attack-log recalibration). v2.3.4: Recons panel now shares counts alliance-wide via API (previously localStorage-only — each user only saw themselves). v2.3.0: Added "Stats If You Attacked Instead" table on safe.php to compare tech upgrades vs attacking. v2.2.9: Added optimizer auto-fill for armory (uses roster API to calculate optimal stat allocation). v2.2.8: Minor fixes. v2.1.0: Integrated slaying competition tracker (attack missions & gold stolen tracking, team competitions, leaderboards). v2.0.0: Optimized API architecture, previous versions deprecated.
 // @author       Blackheart
 // @match        https://www.kingsofchaos.com/*
 // @exclude      https://*.kingsofchaos.com/confirm.login.php*
@@ -59,7 +59,7 @@
   // ==================== VERSION CHECK ====================
   // Check if this script version is allowed to run
   const SCRIPT_NAME = 'koc-data-centre';
-  const SCRIPT_VERSION = '2.29.0'; // Must match @version above
+  const SCRIPT_VERSION = '2.31.0'; // Must match @version above
   const VERSION_CHECK_API = 'https://koc-roster-api-production.up.railway.app';
   // What the API said about the public release: { latestVersion, updateUrl,
   // isLatest }, or null when it could not say. The sidebar box and the ⚙ panel
@@ -3690,7 +3690,9 @@
   // POST our current/max recon count to the API so alliance members can see it.
   // current may run past max: the game keeps counting once the goal is done.
   // No-ops cleanly if not logged in. Errors are swallowed by the caller.
-  async function publishReconCount(current, max, completed, claimed) {
+  // missions: your own "Recon Missions" count (#41), or null when the page
+  // had no such row — the server then keeps the last one it stored.
+  async function publishReconCount(current, max, completed, claimed, missions) {
     const token = await auth.getToken();
     if (!token) return;
     const resp = await fetch(`${API_URL}/player-recons`, {
@@ -3702,7 +3704,7 @@
         "X-Script-Version": SCRIPT_VERSION,
         "X-KoC-Clock": "utc" // reads the KoC clock as UTC (Era 24+); the server corrects older versions
       },
-      body: JSON.stringify({ current, max, completed, claimed })
+      body: JSON.stringify({ current, max, completed, claimed, missions })
     });
     if (resp.status === 404) {
       // The roster has no player for the id this login carries (an era reset
@@ -3722,11 +3724,13 @@
   // The game keeps counting past the goal and marks it done (live, Era 23):
   //   …<font …>1278/1000</font> &#9989; Completed</td> … class="reward_claimed" value="CLAIMED"
   // LOCKED (reward_notel) = not reached, CLAIM = reached but not claimed.
-  function readReconReward(doc = document) {
+  // `label` picks the row: Unsuccessful Recons (Actions against you) by
+  // default, or /Recon Missions/ (Your Actions, #41) — same markup, same states.
+  function readReconReward(doc = document, label = /Unsuccessful Recons/i) {
     for (const cell of doc.querySelectorAll("td")) {
       // The goal's own cell only, not a layout cell wrapping the whole page
       if (cell.querySelector("td")) continue;
-      if (!/Unsuccessful Recons/i.test(cell.textContent)) continue;
+      if (!label.test(cell.textContent)) continue;
       const count = (cell.querySelector("font") || cell).textContent;
       const m = count.replace(/,/g, "").match(/(\d+)\s*\/\s*(\d+)/);
       if (!m) continue;
@@ -3751,6 +3755,10 @@
     const reward = readReconReward();
     if (!reward) return;
     const { current, max, completed, claimed } = reward;
+    // Your own Recon Missions count (Your Actions row). It keeps climbing past
+    // its goal, so the Recons column shows it once your 1,000 above is done.
+    const missionsRow = readReconReward(document, /Recon Missions/i);
+    const missions = missionsRow ? missionsRow.current : null;
     const myId = SafeStorage.get("KoC_MyId", "self");
     const myName = SafeStorage.get("KoC_MyName", "Me");
 
@@ -3763,13 +3771,14 @@
       max,
       completed,
       claimed,
+      missions,
       lastUpdate: getKoCServerTimeUTC()
     };
     SafeStorage.set(`reconTrack_${myId}`, JSON.stringify(reconData));
     debugLog(completed ? "✅ Recons goal done:" : "📊 Recons to clear captured:", reconData);
 
     // Publish to API for alliance-wide visibility (best-effort, non-blocking)
-    publishReconCount(current, max, completed, claimed).catch(err =>
+    publishReconCount(current, max, completed, claimed, missions).catch(err =>
       debugLog("⚠️ Recon publish failed (ignored):", err)
     );
   }
@@ -4097,11 +4106,30 @@
     // Rewards visit that reached the server, so the tooltip gives its age and
     // a row older than a day is dimmed: a member at 804 still read 402 here
     // while their own uploads were being turned away.
-    function reconCell(count, max, completed, claimed, updatedAt) {
+    //
+    // Once the goal is done the row switches to the member's own Recon
+    // Missions count (#41) — 🎯 1,278 in goldenrod, like the game draws it —
+    // which keeps climbing, so the done rows read as a friendly "most recons
+    // this era" table. A done member with no count yet (older script, or no
+    // Rewards visit since updating) still shows ✅ Done.
+    function reconAge(updatedAt) {
       const t = Date.parse(updatedAt || "");
       const ageH = Number.isFinite(t) ? Math.max(0, (Date.now() - t) / 3600000) : null;
       const age = ageH === null ? "" : ` — updated ${ageH < 1 ? Math.round(ageH * 60) + " min" : ageH < 48 ? Math.round(ageH) + " h" : Math.round(ageH / 24) + " days"} ago`;
-      const stale = ageH !== null && ageH > 24;
+      return { age, stale: ageH !== null && ageH > 24 };
+    }
+    function reconCell(count, max, completed, claimed, updatedAt, missions, missionsUpdatedAt) {
+      const { age, stale } = reconAge(updatedAt);
+      if ((completed || count >= max) && Number.isInteger(missions)) {
+        const m = reconAge(missionsUpdatedAt || updatedAt);
+        return {
+          value: `🎯 ${missions.toLocaleString("en-US")}`,
+          color: "goldenrod",
+          title: `Recon Missions this era${m.age.replace(" — updated", ", as of")} (unsuccessful recons goal done: ${count}/${max}, ${claimed ? "reward claimed" : "reward not claimed yet"})`,
+          stale: m.stale,
+          missions
+        };
+      }
       if (completed || count >= max) {
         return { value: "✅ Done", title: `${count}/${max} unsuccessful recons — ${claimed ? "reward claimed" : "reward not claimed yet"}${age}`, stale };
       }
@@ -4132,7 +4160,7 @@
               id: p.id,
               rank: i + 1, // API already sorts by remaining desc, done last
               name: p.name,
-              ...reconCell(p.count ?? p.current, p.max, p.completed, p.claimed, p.updatedAt),
+              ...reconCell(p.count ?? p.current, p.max, p.completed, p.claimed, p.updatedAt, p.missions, p.missionsUpdatedAt),
               rawValue: p.remaining
             }));
           }
@@ -4152,7 +4180,7 @@
               id: data.id,
               rank: 0,
               name: data.name,
-              ...reconCell(data.current, data.max, data.completed, data.claimed, data.lastUpdate),
+              ...reconCell(data.current, data.max, data.completed, data.claimed, data.lastUpdate, data.missions, data.lastUpdate),
               rawValue: data.reconsRemaining
             });
           } catch (err) {
@@ -4160,7 +4188,9 @@
           }
         }
       }
-      reconPlayers.sort((a, b) => b.rawValue - a.rawValue);
+      // Same order as the server: still swapping first (most to go), then
+      // done members by Recon Missions count, highest first
+      reconPlayers.sort((a, b) => b.rawValue - a.rawValue || (b.missions ?? -1) - (a.missions ?? -1));
       reconPlayers.forEach((p, i) => { p.rank = i + 1; });
       return reconPlayers;
     }
@@ -4204,7 +4234,7 @@
                 <td style="white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:90px; padding:2px 4px; line-height:1.2;">
                   ${r.rank}. <a href="stats.php?id=${escapeHtml(r.id)}" style="color:#9cf; text-decoration:none;">${escapeHtml(r.name)}</a>
                 </td>
-                <td align="right" style="white-space:nowrap; padding:2px 4px; line-height:1.2;${r.stale ? " opacity:0.5;" : ""}"${r.title ? ` title="${escapeHtml(r.title)}"` : ""}>${escapeHtml(r.value)}</td>
+                <td align="right" style="white-space:nowrap; padding:2px 4px; line-height:1.2;${r.color ? ` color:${r.color};` : ""}${r.stale ? " opacity:0.5;" : ""}"${r.title ? ` title="${escapeHtml(r.title)}"` : ""}>${escapeHtml(r.value)}</td>
               </tr>
             `).join("")}
           </tbody>
@@ -8888,12 +8918,31 @@
     riskWindowDays: 7,
     yellowPercentile: 25,
     redPercentile: 50,
-    // Used until at least 3 steal events exist in the window
+    // Samples needed before a side (steals / safe banks) sets a line
+    minSamples: 3,
+    // Used until either side has minSamples
     fallbackYellowGold: 50000000,
     fallbackRedGold: 150000000,
+    // Safe side (v2.30, issue #40): gold held at banks with no steal since the previous bank.
+    // Recency window = the last bankWindowHours OR the last bankWindowCount banks, whichever is shorter.
+    bankWindowHours: 48,
+    bankWindowCount: 20,
+    safeYellowPercentile: 25,
+    safeRedPercentile: 50,
+    // Fresh-hit cap: lines sit just below the smallest steal (as held gold) in the last capWindowHours.
+    // Hits on less than capMinGold don't cap (a 2M hit right after banking says nothing about your line).
+    capWindowHours: 24,
+    capMinGold: 5000000,
+    capYellowFactor: 0.8,
+    capRedFactor: 0.95,
+    // Pinned lines (0 = learned)
+    overrideYellowGold: 0,
+    overrideRedGold: 0,
     // Notifications — OFF by default per integration spec; no-icon notifications only
     notifyEnabled: false,
     notifyMinGapMins: 10,
+    // Re-entering a band you were already alerted for only re-alerts with this much more gold (or after the min gap)
+    notifyMaterialRisePct: 25,
     // Show the yellow/red countdown on the box itself (off by default so the box matches the native funds box)
     showTimes: false,
     // Calibration older than this is flagged stale in the widget
@@ -9294,36 +9343,155 @@
     }
   }
 
-  // ==================== RISK MODEL ====================
-  // Each steal back-calculates held = goldStolen / stealRateMax (MAX = conservative
-  // lower bound). Yellow = P25, red = P50 of the held distribution in the window.
-  // Under 3 samples → static fallback thresholds.
-  function bankGetRiskModel() {
-    const settings = bankGetSettings();
-    const events = Object.values(bankGet('attack_events', {}));
-    const cutoff = Date.now() - settings.riskWindowDays * 86400000;
-
-    const held = events
-      .filter(e => e.goldStolen > 0 && new Date(e.ts).getTime() >= cutoff)
-      .map(e => Math.round(e.goldStolen / settings.stealRateMax))
-      .sort((a, b) => a - b);
-
-    if (held.length >= 3) {
-      return {
-        source: 'attacks',
-        sampleSize: held.length,
-        yellowGold: Math.round(bankPercentile(held, settings.yellowPercentile)),
-        redGold: Math.round(bankPercentile(held, settings.redPercentile)),
-        windowDays: settings.riskWindowDays
-      };
-    }
-    return {
-      source: 'fallback',
-      sampleSize: held.length,
-      yellowGold: settings.fallbackYellowGold,
-      redGold: settings.fallbackRedGold,
-      windowDays: settings.riskWindowDays
+  // ==================== RISK MODEL (two-sided, issue #40) ====================
+  // The Caution (yellow) and Danger (red) lines learn from BOTH sides of your own
+  // history, kept in localStorage only:
+  //   • hit level  — each steal on you back-calculates held = goldStolen /
+  //     stealRateMax (MAX = conservative lower bound); yellow = P25, red = P50 of
+  //     those in the risk window (7 d). Unchanged from v2.5.
+  //   • safe level — the gold you held when you banked, for banks with NO steal on
+  //     you since the bank before (a safe hold). Yellow = P25, red = P50, so one
+  //     lucky big hold can't drag the line up. Only banks in the recency window
+  //     count: the last 48 h or the last 20 banks, whichever is the shorter span,
+  //     so start-of-era habits age out. A bank only counts once the Attack Log has
+  //     been read after it (otherwise a hit could be hiding in the gap).
+  //   • each line = the higher of the two, capped just below the smallest amount
+  //     you were attacked for in the last 24 h (hits on under capMinGold ignored),
+  //     so a fresh hit pulls the line down at once while safe banks raise it slowly.
+  //   • a pinned override (⚙) replaces either line outright.
+  // Under minSamples on both sides → static fallback thresholds.
+  //
+  // SELF-CONTAINED on purpose: no storage, DOM, globals or other helpers, so the
+  // Companion app can copy this function verbatim. All input arrives in `input`:
+  //   { settings, attacks: [{ts, goldStolen}], banks: [{ts, held}],
+  //     attacksSeenUntil: ISO|ms|null (last Attack Log read), now: ms }
+  function bankComputeRiskModel(input) {
+    const s = (input && input.settings) || {};
+    const now = input && input.now != null ? input.now : Date.now();
+    const num = (v, d) => (typeof v === 'number' && isFinite(v) ? v : d);
+    const ms = x => (typeof x === 'number' ? x : new Date(x).getTime());
+    const asc = (a, b) => a - b;
+    const pct = (sorted, p) => {            // linear-interpolated percentile of a sorted array
+      if (!sorted.length) return null;
+      const idx = (p / 100) * (sorted.length - 1);
+      const lo = Math.floor(idx), hi = Math.ceil(idx);
+      return Math.round(sorted[lo] + (sorted[hi] - sorted[lo]) * (idx - lo));
     };
+    const rate = num(s.stealRateMax, 1) > 0 ? num(s.stealRateMax, 1) : 1;
+    const minSamples = Math.max(1, Math.round(num(s.minSamples, 3)));
+    const yP = num(s.yellowPercentile, 25), rP = num(s.redPercentile, 50);
+
+    const attacks = ((input && input.attacks) || [])
+      .filter(e => e && e.goldStolen > 0 && isFinite(ms(e.ts)))
+      .map(e => ({ ts: ms(e.ts), held: Math.round(e.goldStolen / rate) }))
+      .sort((a, b) => a.ts - b.ts);
+    const banks = ((input && input.banks) || [])
+      .filter(b => b && b.held > 0 && isFinite(ms(b.ts)))
+      .map(b => ({ ts: ms(b.ts), held: b.held }))
+      .sort((a, b) => a.ts - b.ts);
+    const seenUntil = input && input.attacksSeenUntil != null ? ms(input.attacksSeenUntil) : null;
+
+    // --- hit level: steals on you in the risk window ---
+    const windowDays = num(s.riskWindowDays, 7);
+    const hitHeld = attacks.filter(a => a.ts >= now - windowDays * 86400000 && a.ts <= now)
+      .map(a => a.held).sort(asc);
+    const hitOk = hitHeld.length >= minSamples;
+    const hit = {
+      n: hitHeld.length, windowDays,
+      yellow: hitOk ? pct(hitHeld, yP) : null,
+      red: hitOk ? pct(hitHeld, rP) : null
+    };
+
+    // --- safe level: gold held at banks with no steal since the previous bank ---
+    let winStart = now - num(s.bankWindowHours, 48) * 3600000;
+    const inTime = banks.filter(b => b.ts >= winStart && b.ts <= now);
+    const winCount = Math.max(1, Math.round(num(s.bankWindowCount, 20)));
+    if (inTime.length > winCount) winStart = inTime[inTime.length - winCount].ts;
+    const safeHeld = [];
+    let unconfirmed = 0, hitBanks = 0;
+    for (let i = 1; i < banks.length; i++) {  // the first bank has no "previous" to bound its hold
+      const b = banks[i];
+      if (b.ts < winStart || b.ts > now) continue;
+      if (seenUntil === null || !(seenUntil >= b.ts)) { unconfirmed++; continue; }
+      const prev = banks[i - 1].ts;
+      if (attacks.some(a => a.ts > prev && a.ts <= b.ts)) { hitBanks++; continue; }
+      safeHeld.push(b.held);
+    }
+    safeHeld.sort(asc);
+    const safeOk = safeHeld.length >= minSamples;
+    const safe = {
+      n: safeHeld.length, unconfirmed, hitBanks,
+      windowHours: Math.round((now - winStart) / 360000) / 10,
+      yellow: safeOk ? pct(safeHeld, num(s.safeYellowPercentile, 25)) : null,
+      red: safeOk ? pct(safeHeld, num(s.safeRedPercentile, 50)) : null
+    };
+
+    // --- each line = higher of the two; fallback only when neither side has data ---
+    const pick = (hitV, safeV, fallbackV) => {
+      if (hitV === null && safeV === null) return { gold: fallbackV, source: 'fallback', capped: false };
+      if (safeV !== null && (hitV === null || safeV > hitV)) return { gold: safeV, source: 'banks', capped: false };
+      return { gold: hitV, source: 'attacks', capped: false };
+    };
+    const yellow = pick(hit.yellow, safe.yellow, num(s.fallbackYellowGold, 50000000));
+    const red = pick(hit.red, safe.red, num(s.fallbackRedGold, 150000000));
+
+    // --- cap just below the smallest fresh hit ---
+    const capMin = num(s.capMinGold, 5000000);
+    const fresh = attacks.filter(a => a.ts >= now - num(s.capWindowHours, 24) * 3600000 && a.ts <= now && a.held >= capMin);
+    let cap = null;
+    if (fresh.length) {
+      const smallest = fresh.reduce((m, a) => (a.held < m.held ? a : m));
+      cap = { held: smallest.held, ts: new Date(smallest.ts).toISOString(), n: fresh.length,
+        yellowGold: Math.round(smallest.held * num(s.capYellowFactor, 0.8)),
+        redGold: Math.round(smallest.held * num(s.capRedFactor, 0.95)) };
+      if (yellow.gold > cap.yellowGold) { yellow.gold = cap.yellowGold; yellow.capped = true; }
+      if (red.gold > cap.redGold) { red.gold = cap.redGold; red.capped = true; }
+    }
+
+    // --- pinned overrides win outright ---
+    const pinY = num(s.overrideYellowGold, 0), pinR = num(s.overrideRedGold, 0);
+    if (pinY > 0) { yellow.gold = pinY; yellow.source = 'pinned'; yellow.capped = false; }
+    if (pinR > 0) { red.gold = pinR; red.source = 'pinned'; red.capped = false; }
+    // Keep yellow ≤ red: the unpinned line gives way.
+    if (yellow.gold > red.gold) {
+      if (red.source === 'pinned' && yellow.source !== 'pinned') yellow.gold = red.gold;
+      else if (red.source !== 'pinned') red.gold = yellow.gold;
+    }
+
+    return {
+      // overall source: 'attacks' | 'banks' | 'fallback' | 'pinned' when both lines agree, else 'mixed'
+      source: yellow.source === red.source ? yellow.source : 'mixed',
+      sampleSize: hit.n,           // back-compat: steals in the risk window
+      windowDays,
+      yellowGold: yellow.gold,
+      redGold: red.gold,
+      yellow, red, hit, safe, cap
+    };
+  }
+
+  // Storage wrapper around the pure model above.
+  function bankGetRiskModel() {
+    return bankComputeRiskModel({
+      settings: bankGetSettings(),
+      attacks: Object.values(bankGet('attack_events', {})),
+      banks: bankGet('bank_events', []),
+      attacksSeenUntil: bankGet('last_attacklog_visit', null),
+      now: Date.now()
+    });
+  }
+
+  // One line's provenance in plain words, e.g. "32.0M — your banks (P25 of 4 safe holds in 48h)".
+  function bankDescribeLine(model, which) {
+    const line = model[which];
+    const s = bankGetSettings();
+    const y = which === 'yellow';
+    let why;
+    if (line.source === 'pinned') why = 'pinned by you in ⚙';
+    else if (line.source === 'fallback') why = `fallback (fewer than ${s.minSamples} steals and ${s.minSamples} confirmed safe banks)`;
+    else if (line.source === 'banks') why = `your banks (P${y ? s.safeYellowPercentile : s.safeRedPercentile} of ${model.safe.n} safe holds in ${model.safe.windowHours}h)`;
+    else why = `attacks on you (P${y ? s.yellowPercentile : s.redPercentile} of ${model.hit.n} steals in ${model.hit.windowDays}d)`;
+    if (line.capped && model.cap) why += ` · capped by a hit at ${bankFormatGold(model.cap.held)} ${bankFormatTimeAgo(model.cap.ts)}`;
+    return `${bankFormatGold(line.gold)} — ${why}`;
   }
 
   function bankRiskBand(gold, model) {
@@ -9399,7 +9567,30 @@
   }
 
   // ==================== NOTIFICATIONS (optional, off by default) ====================
-  let bankLastNotifiedBand = 'green';
+  // State is PERSISTED ('notify_state'), so reloading the Armory no longer looks like
+  // a fresh green→yellow escalation (that reset, plus the min gap as the only guard,
+  // is what re-alerted every few minutes). A confirmed bank clears it.
+  //   state = { band: band seen last tick, alertBand, alertGold, alertTs }
+  // Pure decision (self-contained, Companion-portable): alert only when the band goes
+  // UP, and then only if it is above the band last alerted, or (re-entering a band
+  // already alerted for, e.g. after the line moved) the gold is materially higher
+  // than last alerted or the min gap has passed.
+  function bankNotifyDecision(band, gold, state, now, settings) {
+    const order = { green: 0, yellow: 1, red: 2 };
+    const st = state || {};
+    const prev = order[st.band] !== undefined ? order[st.band] : 0;
+    const keep = { ...st, band };
+    if (!(order[band] > prev)) return { notify: false, state: keep };
+    const alerted = order[st.alertBand] !== undefined ? order[st.alertBand] : -1;
+    const rise = 1 + ((settings && settings.notifyMaterialRisePct) || 0) / 100;
+    const gapMs = ((settings && settings.notifyMinGapMins) || 0) * 60000;
+    const lastTs = st.alertTs ? new Date(st.alertTs).getTime() : null;
+    const ok = order[band] > alerted ||
+      (st.alertGold != null && gold >= st.alertGold * rise) ||
+      (lastTs !== null && now - lastTs >= gapMs);
+    if (!ok) return { notify: false, state: keep };
+    return { notify: true, state: { band, alertBand: band, alertGold: gold, alertTs: new Date(now).toISOString() } };
+  }
 
   function bankEnsureNotifyPermission() {
     const settings = bankGetSettings();
@@ -9410,25 +9601,23 @@
     }
   }
 
-  // Notify on band ESCALATION only (green→yellow→red), rate-limited. {body, tag}
+  // Notify on a real escalation only (see bankNotifyDecision). {body, tag}
   // ONLY — no icon: a remote icon URL would make the display timer fire a request.
-  function bankMaybeNotifyBand(band, gold) {
+  function bankMaybeNotifyBand(band, gold, model) {
     const settings = bankGetSettings();
     if (!settings.notifyEnabled) return;
     if (!('Notification' in window) || Notification.permission !== 'granted') return;
-    if (BANK_BAND_ORDER[band] <= BANK_BAND_ORDER[bankLastNotifiedBand]) {
-      bankLastNotifiedBand = band; // de-escalation re-arms future alerts
-      return;
-    }
-    const lastTs = bankGet('last_notify_ts', null);
-    if (lastTs && Date.now() - new Date(lastTs).getTime() < settings.notifyMinGapMins * 60000) return;
+    const state = bankGet('notify_state', null);
+    const d = bankNotifyDecision(band, gold, state, Date.now(), settings);
+    if (!state || state.band !== d.state.band || d.notify) bankSet('notify_state', d.state);
+    if (!d.notify) return;
     try {
+      const line = model && band !== 'green' ? model[band] : null;
+      const why = line ? ` (line ${bankFormatGold(line.gold)}, from ${line.source === 'banks' ? 'your banks' : line.source === 'attacks' ? 'attacks on you' : line.source}${line.capped ? ', capped by a fresh hit' : ''})` : '';
       new Notification('🏦 KoC Banking Mode', {
-        body: `Risk ${BANK_BAND_META[band].label}: ~${bankFormatGold(gold)} gold exposed. Time to bank!`,
+        body: `Risk ${BANK_BAND_META[band].label}: ~${bankFormatGold(gold)} gold exposed${why}. Time to bank!`,
         tag: 'koc-banking-risk'
       });
-      bankSet('last_notify_ts', new Date().toISOString());
-      bankLastNotifiedBand = band;
       debugLog(`🔔 Banking notified: band ${band}`);
     } catch (err) {
       debugLog('⚠️ Banking notification failed:', err);
@@ -9476,9 +9665,19 @@
     // in a single buy (and which silently dropped every smaller purchase).
     const threshold = pending.type === 'buy' ? 1000000 : 1000;
     if (drop >= threshold) {
-      bankSet('last_bank', { ts: new Date().toISOString(), spent: drop, action: pending.type });
-      bankLastNotifiedBand = 'green'; // re-arm escalation notifications after banking
-      debugLog(`🏦 ✅ Banked! ${drop.toLocaleString()} gold via ${pending.type} — last_bank stamped`);
+      const ts = new Date().toISOString();
+      bankSet('last_bank', { ts: ts, spent: drop, action: pending.type });
+      // Bank history for the two-sided risk model: the gold HELD at the press (the
+      // projection stamped at submit), kept 60 days / 600 newest like attack_events.
+      const cutoff = Date.now() - 60 * 86400000;
+      const banks = bankGet('bank_events', [])
+        .concat([{ ts: ts, held: pending.gold, spent: drop }])
+        .filter(b => new Date(b.ts).getTime() >= cutoff)
+        .sort((a, b) => new Date(a.ts) - new Date(b.ts))
+        .slice(-600);
+      bankSet('bank_events', banks);
+      bankSet('notify_state', { band: 'green' }); // re-arm escalation notifications after banking
+      debugLog(`🏦 ✅ Banked! ${drop.toLocaleString()} gold via ${pending.type} (held ${pending.gold.toLocaleString()}) — last_bank stamped`);
     } else {
       debugLog(`⏭️ Banking: ${pending.type} pressed but no funds drop (drop ${drop.toLocaleString()})`);
     }
@@ -9597,6 +9796,8 @@
             <div class="kb-stat">⏱️ Last bank: <b id="koc-banking-lastbank">never</b></div>
           <div class="kb-stat">📐 Calibration: <b id="koc-banking-cal">—</b></div>
           <div class="kb-stat">🗡️ Risk model: <b id="koc-banking-risk-src">—</b> · <a href="attacklog.php">visit Attack Log to refresh</a></div>
+          <div class="kb-stat">🟡 Caution line: <b id="koc-banking-line-yellow">—</b></div>
+          <div class="kb-stat">🔴 Danger line: <b id="koc-banking-line-red">—</b></div>
           <div class="kb-stat">🏦 Vault (not at risk): <b id="koc-banking-vault">—</b></div>
           <div class="kb-stat"><span class="kb-live">●</span> display refresh only — no automated requests</div>
           <div id="koc-banking-settings">
@@ -9609,11 +9810,22 @@
             <label>Red percentile <input type="number" min="1" max="99" id="kbs-redPercentile" value="${s.redPercentile}"></label>
             <label>Fallback yellow gold <input type="text" inputmode="numeric" id="kbs-fallbackYellowGold" value="${s.fallbackYellowGold.toLocaleString()}"></label>
             <label>Fallback red gold <input type="text" inputmode="numeric" id="kbs-fallbackRedGold" value="${s.fallbackRedGold.toLocaleString()}"></label>
+            <div style="color:#FFD700; font-weight:600; margin:10px 0 4px;">Learning from your banks</div>
+            <label>Bank window (hours) <input type="number" min="1" max="1440" id="kbs-bankWindowHours" value="${s.bankWindowHours}"></label>
+            <label>…or the last N banks, if shorter <input type="number" min="1" max="600" id="kbs-bankWindowCount" value="${s.bankWindowCount}"></label>
+            <label>Safe-hold percentile — yellow <input type="number" min="1" max="99" id="kbs-safeYellowPercentile" value="${s.safeYellowPercentile}"></label>
+            <label>Safe-hold percentile — red <input type="number" min="1" max="99" id="kbs-safeRedPercentile" value="${s.safeRedPercentile}"></label>
+            <label>Samples needed per side <input type="number" min="1" max="50" id="kbs-minSamples" value="${s.minSamples}"></label>
+            <label>Fresh-hit cap window (hours) <input type="number" min="1" max="168" id="kbs-capWindowHours" value="${s.capWindowHours}"></label>
+            <label>Ignore hits on less than (gold) <input type="text" inputmode="numeric" id="kbs-capMinGold" value="${s.capMinGold.toLocaleString()}"></label>
+            <label>Pin yellow line (blank = learned) <input type="text" inputmode="numeric" id="kbs-overrideYellowGold" value="${s.overrideYellowGold ? s.overrideYellowGold.toLocaleString() : ''}"></label>
+            <label>Pin red line (blank = learned) <input type="text" inputmode="numeric" id="kbs-overrideRedGold" value="${s.overrideRedGold ? s.overrideRedGold.toLocaleString() : ''}"></label>
             <label>TBG gold/turn — regulars <input type="number" step="0.01" id="kbs-tbgRegular" value="${s.tbgRegular}"></label>
             <label>TBG gold/turn — coverts <input type="number" step="0.01" id="kbs-tbgCovert" value="${s.tbgCovert}"></label>
             <label>Growth gold/soldier/turn (SPM term) <input type="number" step="0.01" id="kbs-growthGoldPerSoldier" value="${s.growthGoldPerSoldier}"></label>
             <label>Notifications enabled <input type="checkbox" id="kbs-notifyEnabled" ${s.notifyEnabled ? 'checked' : ''}></label>
             <label>Notification min gap (mins) <input type="number" min="1" id="kbs-notifyMinGapMins" value="${s.notifyMinGapMins}"></label>
+            <label>Re-alert a band only with this % more gold <input type="number" min="0" max="500" id="kbs-notifyMaterialRisePct" value="${s.notifyMaterialRisePct}"></label>
           </div>
         </td></tr>
         </tbody></table>
@@ -9645,7 +9857,9 @@
     });
 
     const numericFields = ['stealRateMin', 'stealRateMax', 'riskWindowDays', 'yellowPercentile',
-      'redPercentile', 'tbgRegular', 'tbgCovert', 'growthGoldPerSoldier', 'notifyMinGapMins'];
+      'redPercentile', 'tbgRegular', 'tbgCovert', 'growthGoldPerSoldier', 'notifyMinGapMins',
+      'bankWindowHours', 'bankWindowCount', 'safeYellowPercentile', 'safeRedPercentile', 'minSamples',
+      'capWindowHours', 'notifyMaterialRisePct'];
     numericFields.forEach(field => {
       const el = container.querySelector('#kbs-' + field);
       if (el) el.addEventListener('change', e => {
@@ -9653,7 +9867,16 @@
         if (!isNaN(v)) bankSaveSettings({ [field]: v });
       });
     });
-    ['fallbackYellowGold', 'fallbackRedGold'].forEach(field => {
+    // Pinned lines: blank (or 0) clears the pin and the learned line returns.
+    ['overrideYellowGold', 'overrideRedGold'].forEach(field => {
+      const el = container.querySelector('#kbs-' + field);
+      if (el) el.addEventListener('change', e => {
+        const v = bankCleanNumber(e.target.value);
+        bankSaveSettings({ [field]: v && v > 0 ? v : 0 });
+        bankUpdateDisplay();
+      });
+    });
+    ['fallbackYellowGold', 'fallbackRedGold', 'capMinGold'].forEach(field => {
       const el = container.querySelector('#kbs-' + field);
       if (el) el.addEventListener('change', e => {
         const v = bankCleanNumber(e.target.value);
@@ -9779,17 +10002,24 @@
       (status.proj.goldPerMin !== null ? ` · ${bankFormatGold(status.proj.goldPerMin)}/min · SPM ${status.proj.spm}` : '');
 
     const riskEl = document.getElementById('koc-banking-risk-src');
+    const m = status.model;
     if (riskEl) riskEl.textContent =
-      status.model.source === 'attacks'
-        ? `${status.model.sampleSize} steals in ${status.model.windowDays}d · yellow ${bankFormatGold(status.model.yellowGold)} · red ${bankFormatGold(status.model.redGold)}`
-        : `fallback thresholds (only ${status.model.sampleSize} steals cached)`;
+      `banks n=${m.safe.n} safe` +
+      (m.safe.hitBanks ? ` (+${m.safe.hitBanks} hit)` : '') +
+      (m.safe.unconfirmed ? ` (+${m.safe.unconfirmed} awaiting an Attack Log visit)` : '') +
+      ` in ${m.safe.windowHours}h · attacks n=${m.hit.n} in ${m.hit.windowDays}d` +
+      (m.cap ? ` · capped by a hit at ${bankFormatGold(m.cap.held)}` : '');
+    const lyEl = document.getElementById('koc-banking-line-yellow');
+    if (lyEl) lyEl.textContent = bankDescribeLine(m, 'yellow');
+    const lrEl = document.getElementById('koc-banking-line-red');
+    if (lrEl) lrEl.textContent = bankDescribeLine(m, 'red');
 
     const vault = status.proj.reading.vault;
     const vaultEl = document.getElementById('koc-banking-vault');
     if (vaultEl) vaultEl.textContent =
       vault === null || vault === undefined ? '?' : vault.toLocaleString() + ' gold';
 
-    if (bankGet('enabled', false)) bankMaybeNotifyBand(status.band, status.proj.gold);
+    if (bankGet('enabled', false)) bankMaybeNotifyBand(status.band, status.proj.gold, status.model);
   }
 
   // 1-second DISPLAY repaint. Redraws locally-known numbers only — never the network.
@@ -9827,7 +10057,9 @@
       const st = bankGetRiskStatus();
       if (st.proj) {
         console.log(`💰 Projected: ${st.proj.gold.toLocaleString()} gold (${bankFormatTimeAgo(st.proj.reading.ts)} + ${st.proj.dtMin.toFixed(1)}min)`);
-        console.log(`🚦 Band: ${st.band} | yellow @ ${st.model.yellowGold.toLocaleString()} | red @ ${st.model.redGold.toLocaleString()} (${st.model.source}, n=${st.model.sampleSize})`);
+        console.log(`🚦 Band: ${st.band}`);
+        console.log(`🟡 Caution line: ${bankDescribeLine(st.model, 'yellow')}`);
+        console.log(`🔴 Danger line: ${bankDescribeLine(st.model, 'red')}`);
         console.log(`⏳ Time to red: ${bankFormatMinutes(st.minsToRed)}`);
       } else {
         console.log('⚠️ No banking calibration yet — visit base.php');
@@ -9838,6 +10070,25 @@
     collectAttackLog: bankCollectAttackLog,
     projection: bankGetProjection,
     riskModel: bankGetRiskModel,
+    // Where each line comes from, in words (also shown in the ⚙ panel)
+    lines: () => {
+      const m = bankGetRiskModel();
+      console.log(`🟡 Caution: ${bankDescribeLine(m, 'yellow')}`);
+      console.log(`🔴 Danger: ${bankDescribeLine(m, 'red')}`);
+      return { yellow: m.yellow, red: m.red, safe: m.safe, hit: m.hit, cap: m.cap };
+    },
+    // Pin a line in gold, or pass 0/null to go back to the learned line
+    pin: (yellowGold, redGold) => {
+      const p = {};
+      if (yellowGold !== undefined) p.overrideYellowGold = yellowGold > 0 ? yellowGold : 0;
+      if (redGold !== undefined) p.overrideRedGold = redGold > 0 ? redGold : 0;
+      return bankSaveSettings(p);
+    },
+    banks: () => {
+      const b = bankGet('bank_events', []).slice().reverse();
+      console.table(b);
+      return b;
+    },
     settings: { get: bankGetSettings, set: bankSaveSettings },
     events: () => {
       const ev = Object.values(bankGet('attack_events', {})).sort((a, b) => new Date(b.ts) - new Date(a.ts));
@@ -9846,7 +10097,7 @@
     },
     clearData: () => {
       ['enabled', 'settings', 'calibration', 'gold_reading', 'attack_events',
-       'last_bank', 'pending_action', 'last_notify_ts', 'last_attacklog_visit']
+       'last_bank', 'pending_action', 'last_notify_ts', 'notify_state', 'bank_events', 'last_attacklog_visit']
         .forEach(k => bankRemove(k));
       console.log('🗑️ Banking Mode data cleared');
     }
@@ -12458,7 +12709,7 @@
     {
       id: 'top-stats-panel', group: 'Command Centre', kind: 'display',
       name: 'Sweet Revenge Top Stats panel',
-      desc: 'The alliance dashboard on your Command Centre: mini leaderboards (TIV, Strike, Spy, Defense and more) built from the shared roster, plus who still has recon attempts left. Each column can be shown or hidden.'
+      desc: 'The alliance dashboard on your Command Centre: mini leaderboards (TIV, Strike, Spy, Defense and more) built from the shared roster, plus who still has recon attempts left (members who have finished their 1,000 Unsuccessful Recons show their own Recon Missions count for the era instead, as a goldenrod 🎯 number). Each column can be shown or hidden.'
     },
     {
       id: 'base-collector', group: 'Command Centre', kind: 'sync',
@@ -12477,7 +12728,8 @@
     {
       id: 'banking-mode', group: 'Armory', kind: 'display',
       name: 'Banking Mode',
-      desc: 'The "Estimated Funds" widget on the Armory: a live projection of your exposed (stealable) gold, colour-coded steal risk with time-to-yellow/red, screen-awake option and last-bank detection. Quietly recalibrates from your sidebar gold, Command Centre and attack log. The widget\'s own ⚙ holds its display settings.'
+      desc: 'The "Estimated Funds" widget on the Armory: a live projection of your exposed (stealable) gold, colour-coded steal risk with time-to-yellow/red, screen-awake option and last-bank detection. The Caution/Danger lines learn from your own banks (the gold you held when you banked and were not hit) as well as from the attacks on you, and drop at once after a fresh hit. Quietly recalibrates from your sidebar gold, Command Centre and attack log. The widget\'s own ⚙ holds its settings and shows where each line comes from.',
+      note: 'Your bank history stays in this browser only — nothing new is sent to the alliance server.'
     },
     {
       id: 'armory-sliders', group: 'Armory', kind: 'display',
@@ -12549,7 +12801,7 @@
     {
       id: 'recon-sharing', group: 'Attack & Intel', kind: 'both',
       name: 'Recon sharing',
-      desc: 'When you recon someone or view their stats page, quietly shares what you saw (plus your recon-attempts count from the Rewards page) with the alliance database. Opening the War List shares that whole page in one go — everyone\'s sentry, the recommended sab weapon and how many of it they hold, who is on the War List and when (and why) they were added, and your own "My 24hr" sab / poison / theft counters for each player on it, with when the page was drawn (a War List brought back with Back is not sent again). Also fills "???" rows on your recon reports with the alliance\'s last known values.',
+      desc: 'When you recon someone or view their stats page, quietly shares what you saw with the alliance database. Opening your Rewards page shares two numbers from it: your Unsuccessful Recons count (with whether that 1,000 goal is done and claimed) and your own Recon Missions count for the era. Opening the War List shares that whole page in one go — everyone\'s sentry, the recommended sab weapon and how many of it they hold, who is on the War List and when (and why) they were added, and your own "My 24hr" sab / poison / theft counters for each player on it, with when the page was drawn (a War List brought back with Back is not sent again). Also fills "???" rows on your recon reports with the alliance\'s last known values.',
       note: 'The "???" backfill on recon reports belongs to this feature, not Recon display extras — turning this off turns that off too. Your War List "My 24hr" counters are stored under your name, are visible to everyone with roster access, and are used for members\' success rates; switching off Target check log does not stop them — switch off this feature for that. On the War List (and Farm List) the script only reads: the game allows scripts no changes there at all, so nothing on those pages is altered, added or styled.'
     },
     {
