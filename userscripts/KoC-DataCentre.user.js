@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name         KoC Data Centre
 // @namespace    trevo88423
-// @version      2.38.0
-// @description  Sweet Revenge alliance tool: tracks stats, syncs to API, adds dashboards, XP→Turn calculator, mini Top Stats panel. v2.38.0: New login. The Command Center now has a Sweet Revenge login box under User Info. Press Login once in each browser and it shows a code; send that code to Blackheart-SR in an in-game message yourself, and the box logs you in when an admin has approved it. After that the browser logs itself in. The script keeps working on the old login while you wait. Your login is no longer kept in the browser's long-term storage, and the box lists your browsers so you can sign one out. v2.37.1: The old Data Centre link (stats.php?id=datacentre) now opens the Sweet Revenge roster, and your login is no longer put in the web address. Your SR login now renews itself when it runs out, even on a page left open, instead of quietly failing until you reload. v2.37.0: New 💵 Income box in the Command Centre's Sweet Revenge Stats panel — members ranked by projected gold per minute (e.g. 3.7M/m), from the Projected Income each member's own stats sync already shares. Hover a figure for the exact gold and how long ago it was synced; figures more than a day old are dimmed. It has its own show/hide tick like the other boxes. v2.36.1: Pressing Enter in the sidebar Goal box now saves the goal directly instead of pressing the Save button for you, so the script makes no automatic clicks anywhere. v2.36.0: Banking Mode fix — typing a plain number into a gold box in the ⚙ panel now means millions: 60 is 60M and 2.5 is 2.5M. Before, 60 meant 60 gold, so a pinned Caution line of "60" said DANGER — bank now with only 2.1M exposed. This applies to the pinned lines, the fallback lines and the hit floor, for any number under 1,000,000 with no K/M/B/T; type 500k if you really want less than a million. The Saved message shows how it was read. New: a Reset to defaults button at the bottom of the Banking settings (click twice to confirm) puts every setting back and clears both pins, keeping your bank and attack history, and a small ↺ beside any setting you have changed puts just that one back. v2.35.0: Vault tax warning. When your sidebar Vault holds gold, a warning appears in the "Era ends in" banner on every page from 15 minutes before each vault tax (5% every 6 hours, at 00:00, 06:00, 12:00 and 18:00 server time), with a live countdown and the gold you will lose if you don't spend your vault. Toggle: Vault tax warning (Everywhere). v2.34.0: Full-screen funds. New Banking Mode setting (off by default): double-tap the Available Funds or Estimated Funds box on the Armory for a full-screen view of your live Estimated Funds, coloured by risk, with the screen kept awake. Tap anywhere on it to load a fresh Armory so you can buy weapons. v2.33.0: Alt Watch. On a stats page, a new line under the Buddy List shows the alliance's Alt Watch badges (🚩 RL OOC Suspect or Confirmed, 👥 seen on a watched alliance, 🆕 made this era) with a dropdown and Save to Alt Watch button to flag the account yourself (saved to the alliance list only, never to the game). Flagged accounts get a 🚩 in the battlefield Icons column. Stats pages now also share Commander, Supreme Commander, Signup Time and Previous Era Rank. Toggle: Alt Watch badges (Attack & Intel). v2.32.1: Gold per Stat Point no longer reads too cheap for a stat with few tools. Every spy, sentry, venomweaver, serpentwarden, thief and ranger adds a little rating of its own, and the Live reading used to credit all of it to the tools — with 3 spy tools and 1,379 spies, Spy showed 12.3 gold per point when the true figure was 18.0. The units are now counted, so stats at the same skill level show the same gold per point. Attack and Defense are unchanged. v2.32.0: Banking Mode puts its Caution and Danger lines where your safe holds and the hits on you overlap. In v2.30.0 your routine small banks (buying at 7M, say) counted as safe holds and pulled the line down, cancelling out the times you safely held 35–40M. Now, at each gold level, the script weighs the hits on you at or just below that level against your safe holds at or above it: Caution starts where at least 1 in 4 of those was a hit, Danger where at least 1 in 2 was. So if you can bank at 40M but sometimes get hit at 40M, that is where the line sits, and small banks never touch it. With no hits among your top holds, the line sits near the top of what you have held safely (your 3rd-highest safe hold for Caution, your 2nd-highest for Danger), so one lucky big hold doesn't move it. A fresh hit still pulls the line down at once, pins still win, and the ⚙ panel says why, e.g. "38M — 1 of 3 events at or near 38M was a hit". The gold boxes in the ⚙ panel (the pinned lines and the fallback lines) now take shorthand: type 30m, 1.5b or 750k as well as 30,000,000; blank or 0 clears a pin, and anything unreadable is flagged instead of saved. Every change in that panel now shows a short "Saved" message naming the setting and its new value. v2.31.0: Once you have finished the 1,000 Unsuccessful Recons goal, your row in the Command Centre's 🔍 Recons column switches to your own Recon Missions count for the era (the Your Actions row on the Rewards page), shown as 🎯 1,278 in goldenrod. It keeps climbing past its goal and updates each time you open Rewards, so the finished rows double as a friendly "most recons this era" table for the alliance; members still working on their 1,000 stay at the top. Hover a number for its age. v2.30.0: Banking Mode learns from your own banks. Until now its Caution and Danger lines came only from the gold attackers stole from you, so early in an era a few hits on small stacks set the line at ~12M while you were safely holding 40M — and it kept telling you to bank. Now every bank you make on the Armory is remembered with the gold you were holding, and a bank with no hit on you since the bank before counts as a safe hold. Each line is the higher of what your safe holds and the hits on you say, using your recent banks (the last 48 hours or last 20 banks, whichever is shorter) and a low percentile, so one lucky big hold doesn't move it. A fresh hit pulls the line down at once: for 24 hours the lines sit just below the smallest amount you were hit for (hits on less than 5M are ignored). A bank only counts once you have opened the Attack Log after it. The ⚙ panel and KoCBanking.lines() say where each line comes from, and you can pin either line yourself. Alerts are quieter: one per real escalation, kept across page reloads, and re-entering a band only alerts again with 25% more gold or after the minimum gap. Everything stays in your browser; nothing new is sent. v2.28.2: KoC's Server Time is UTC from Era 24 (it was US Eastern), so recon ages, last seen, TIV and stat history times, sab timers and banking times were 5 hours off. They are read correctly now. v2.28.0: Gold goal in the sidebar Turn Trading Calculator — click ✏️ next to 🎯 Goal and set what you're working towards (your next XP upgrade, say) and, if you like, the gold you expect per hit (otherwise your Avg Gold/Atk). Two short lines then show what each hit must bring in to get there with only the turns on hand — no XP trades — and, at your hit size, how many hits it takes and how few XP trades will cover them (or that even trading everything falls short). Hover for the details: XP spent on trades, and how far trading all your XP gets you. Everything you hold — gold on hand, Safe and Vault — counts towards the goal (untick it to leave it out), read from the sidebar on every page, so each hit you land shrinks what is left and what each remaining hit needs. Suggested by Spook-SR. v2.27.1: Own account history now also keeps your Game Logs page — the daily login bonus, the vault tax, your purchases and repairs, Safe withdrawals, hostages, poison losses and weapons lost to sabs and thefts — when it changes, at most every 5 minutes. Only the page you open is read. v2.27.0: Own account history — for planning the next era's opening, the script now keeps a history of your own account on the alliance server: your sidebar balances (Gold, Safe, Vault, Experience, Experience Bank, Turns, Rank, Recent Logs and the era countdown) from any page, at most every 15 minutes; the tables on your own Command Centre, Armory, Upgrades, Safe, Training, Trade, Rewards and Conquest pages when they change, at most every 5 minutes; and every conquest result as it appears on the Conquest page, with your Strike, repair cost, turns, experience and gold before and after, so the cost and payoff of each attempt at each level can be worked out. Only the page you opened is read — nothing is fetched, pressed or shown, and nothing about other players is sent. It has its own switch (Own account history) in the ⚙ Data Centre settings. v2.26.3: Fix — the Recons column on the Command Centre now shows ✅ Done for members who have finished the 1,000 Unsuccessful Recons reward. The game keeps counting past 1,000 once the goal is met (it reads 1,003/1000, say), and the alliance server turned those counts away, so a finished member stayed frozen at their last count below 1,000. The server now accepts them — the next time a finished member opens the Rewards page, on any version of the script, their row shows as done — and the script also reads the reward's ✅ and CLAIMED button. Hover ✅ Done for the count and whether the reward has been claimed. Finished members are listed last. Each count is only as fresh as that member's last Rewards visit the server accepted, so hovering any count now shows how long ago it was updated, and counts more than a day old are dimmed. If the alliance server turns your count away because it does not know the player you are logged in as (for a while after an era reset, say), the browser console now says so — log out and back in from the sidebar. v2.26.2: Game rule fix — Era 24 moved the War List to a new address (warlistv4.php), which the script did not recognise as the War List, so on that page it drew its usual sidebar additions, which the game's rules forbid there. The script now treats every version of the War List as read-only and makes no changes to it. Collecting from the new War List is switched off until the script learns its new layout. v2.26.1: The Gold per Stat Point panel on the Armory now starts closed — one header line with a summary ("8 Live") — and opens with a click; it remembers whether you left it open. Plan as held can be ticked while it is closed. It also has its own switch in the ⚙ Data Centre settings, separate from the rank-up costs. v2.26.0: Gold per stat point stops jumping. The rank-up costs and the Optimizer now take each stat's gold per point from your armory page itself — your rating divided by the weapons the game says are held — read fresh on every visit, instead of learning it from purchase messages. A purchase reads low when it pushes out weapons you already hold (buying Blackpowder Missiles while your soldiers hold Chariots learned Strike at 0.4 of its real value, so Strike looked 2.5 times too expensive) or when part of it goes unheld. A new Gold per Stat Point panel under the Rank Gain table shows each stat's figure and where it came from: Live; Remembered (a stat you keep unheld on purpose keeps its last reading, with its age); Paired (Poison and Antidote, Theft and Vigilance borrow from each other, but only while both skills are at the same upgrade level, read when you open the Upgrades page); or Pinned — type your own gold per point and it stays put until you clear it. Unheld weapons are shown as information, not a warning: how many, and what they would add if held. A Plan as held tick works the rank-up costs and the Optimizer out as if every weapon you own were held — for the end-of-era push; other players' ratings stay as last recorded, and they may be hiding too. A purchase that goes unheld now gets a quiet note instead of an error. The Stat Reshuffler and the Safe page's Attacked Instead table use the same figures, and the Reshuffler now takes the game's own unheld count (untrained soldiers hold weapons too). Also: the roster no longer lets a recon of you overwrite the gold per point your own armory sent. v2.25.3: The roster's War List tab now counts down when your own sab and theft attempts on each target come back — the game's rolling 24 hours, attempt by attempt, from what the game itself showed you. To make those times exact: the attack page now also records the times the game prints for your own first and last successful sab, steal and poison on that target, and the game's "You have used the maximum … attempts" line; and the sab or theft report you land on right after the mission is stamped with the Server Time that page shows. A page brought back with the Back button is not recorded again. Theft reports are now recorded too: what you stole, or that the theft failed. A theft report showing somebody stealing from you is not recorded. Fix — the Sab Tracker counted a press the game refused (one more after your tenth sab, or a sab on a maxed target) as an attempt, and to make room for it dropped your oldest attempt time, even an exact one. A refused press is no longer counted, and the report you land on after a sab now gives the tracker that sab's exact time. The attack page's "First sab" time is a first SUCCESSFUL sab and the page never says whose, so no countdown is built on it any more — anywhere. An attempt the tracker never saw now counts from the moment you opened the page and reads "≤" (at the latest): less exact, but it can only ever run late, never let you fire early. Because earlier versions filed that "First sab" time as one of your own attempts, and nothing stored in your browser can tell those rows from real ones, updating clears the sab times already tracked, once: for up to 24 hours after the update a target you sabbed before it reads "≤ about 24h from now" — too late rather than too early — until the game's own times come back from the reports you land on and the target's Intelligence file. v2.25.2: Fix — the battle report you land on after attacking or raiding now counts in Mission history's 24h and 7-day figures straight away, whichever page you attacked from: the attack page, a recon report, a theft report or an "… Again!" button. Until now only the attack page and the "… Again!" buttons were recognised, so a battle launched from a recon report was stored without its time. Also: a battle report you open later (from the Attack Log, say) no longer takes the stolen gold off the target's current gold estimate: that gold was stolen back when the battle happened, not now. v2.25.1: Fix — raids were stored with no gold and no target. The battle-report reader only knew how an attack's report words its first line ("You stole … gold while attacking …'s camp"); a raid's says "while raiding", so every raid went into the alliance's attack records as 0 gold stolen from "Unknown". Raids now record the gold, the target and the hostages, and a lost battle takes the target's name from the report ("…'s forces overpowered your army!"). Also: your own attacks and raids now count in Mission history straight from the battle report — the one you land on after an attack or raid, or one of yours you open later from the Attack Log — with whether it was an attack or a raid (from the game's own "Raid Again!" / "Attack Again!" button, or the report's wording) and whether you won; the report you land on is also stamped with the time. Also fixed: opening the battle report of another player's attack on you recorded it in the alliance's attack records as your own attack on them. Battle reports of other players attacking you are now not recorded at all — the Attack Log still lists those attacks. As before, only the page you open is read and it is left exactly as the game drew it. v2.25.0: Mission history — the pages that list missions are now read when you open them and shared with the alliance roster: a target's Intelligence file (your recon and sab missions on them, Success or Aborted), the Poison Log and Theft Log (both directions, with what was stolen), your Intelligence page (recon and sab missions run against you, and how many of their spies were caught) and the Attack Log (attacks and raids both ways, with gold stolen and losses). Any sab report you open adds its details too — what it destroyed, spies and sentries executed, gold and XP. This feeds the War Room's new success rates — per member and per mission type, never per target — which are visible to everyone with roster access, as the settings panel now says. The script sends each page's own wording and the server interprets it, so a result nobody has seen yet (a successful poison, say) is kept rather than lost and is sorted out once it turns up. Only the page you open is read: it never turns a page, opens a report or fetches anything, and those pages look exactly as before. Also: the Sab Tracker's Intelligence-file backfill now shares that same read. v2.24.0: Attack page range warnings — under each mission's "can … up to …" line the attack page now says whether the target is actually in reach: their sentry, antidote, vigilance or defensive action as last recorded by the alliance, against the limit the game prints for you, with how old that reading is. ⛔ Out of range means the mission will fail — the game lets an out-of-range theft fire anyway, which is how four thefts on one target all failed. The Theft box also gets a theft-cap line: how much of the target's daily theft cap is left, or THEFT MAXED. New Target check log: every attack page you open records that you checked that target — whether it was maxed, how much of its sab and theft caps is used, and your own attempt and success counters on it — so the War Room can show who saw a target maxed and how long ago; those counters are visible to everyone with roster access and will feed members' success rates. The War List collector now also shares who is on the list, when and why they were added, and your own "My 24hr" counters — and on the War List and Farm List the script now makes no changes at all (no toasts, no styles, no overlays), as the game's rules require. The settings panel now says exactly what the Sab Tracker sends. v2.23.2: Fix — the Sab Tracker vanished on the page the game shows after refusing a sab on a maxed target ("This player has been maxxed…"): that page has no player id in its address, so the tracker, the TIV reading and the sab-cap sharing all quietly gave up — at the one moment the script knew for certain the target was maxed. They now read the target from the page itself. Also fixes the Intelligence-file backfill for the Sab Tracker, which looked for the mission type in the wrong column and so never matched a row; it now finds the column by its header. v2.23.1: Inactive Accounts sync now works while you are logged out — including while you are on vacation and cannot log in — using the login saved from your last visit. On that page, logged out, it is the only thing the script does; every other feature still needs you logged in. Also: a network blip or server restart while renewing your session no longer logs you out of the script. v2.23.0: Inactive Accounts sync — opening the in-game Inactive Accounts page now shares the list with the alliance roster: who went into Vacation Mode and exactly when, and who has been deleted. Anyone who has dropped off the list since the last visit is marked back from vacation. This powers the new Vacation Watch tab on the dashboard, with live countdowns to when each player can return. The script only reads the page you open; the more often members check it, the sooner returns show up. v2.22.0: The War List's "Last Sab" column is now collected too — who last hit each target, for how much, and how long ago — giving the war dashboard a "Last hit" column that shows which targets the alliance is actually working and which nobody has touched, plus a running log of destroyed value for the war. v2.21.2: Fix — TIV readings from the attack page and your Armory were being sent with a timestamp field nothing reads, so they arrived unstamped and skipped the server's "only overwrite if newer" guard, letting an older reading quietly replace a fresher one. v2.21.1: War List collector reads the AAT and Sentry cells from their own DOM nodes instead of the cell's flattened text — those cells hold two numbers separated only by a line break, so any flattening ran "488" and "488,000,000 damage per sab" together into 488 billion. Works on both the Alliance and Single Target lists. v2.21.0: War List collector — opening the War List now records, for every player on it at once, their sentry (stamped with the age the game itself shows, so it never overwrites fresher recon), the weapon the game recommends sabbing them with, and the AAT: how many of that weapon they actually hold plus the gold one full sab would destroy. The war dashboard gets an AAT column and a "Min AAT" filter, so targets who simply do not own enough weapons to be worth organising around can be filtered out in one click. v2.20.1: Fix — race now updates when a player switches race. Race was only ever read from a full recon report, so a race change sat wrong in the roster until somebody spent a recon on that player, even though every visit to their stats page showed the new race in plain sight; the stats-page collector now reads the Information table too (race and rank), and it no longer gives up on players who have no shared recon data. v2.20.0: Sab cap sharing — opening any attack page now records that target's "Total lost from sabbs in the last 24hours" and "Maximum Daily Sabotage loss" to the alliance roster, so the War Room can show how much of every player's daily cap is already gone and how much gold is still worth sabbing, with a share button that copies a Discord-ready line. Also fixes the sab-cap reader: KoC prints the cap with decimals when it isn't a whole number, which the old pattern could not match, so the in-game "sab damage left before maxed" line silently never appeared on those targets. v2.19.1: Fix — a target sabbed flat reads "Total Invested Value: ()" with empty brackets, which the TIV collector could not parse, so the roster kept that player's pre-sab value forever and never stopped asking for a recon that could not land; empty brackets now record as a real 0 (on your own Armory too), while a box the script genuinely cannot read is left alone instead of writing a false zero. v2.19.0: Stat Reshuffler — Goal mode: pick a stat and type a target rating (commas fine, or shorthand like 4.78T) and the calculator shows the gap from your PROJECTED rating — so your sells, race change and re-buys are already counted — plus how many weapons and how much gold on top of the plan would close it, netting off any unspent pool. Warns when your units couldn't hold that many more weapons. The goal is remembered between visits and updates live as you tweak the scenario. v2.18.3: Stat Reshuffler — the launcher moved: it now sits as a full-width banner directly above the "Armory Preferences" header, styled by cloning that header's own theme (background, border, font) so it looks native in any skin; falls back to the old Total Invested Value spot if the header isn't found. v2.18.2: Stat Reshuffler — stale-multiplier warning: a learned weapon multiplier quietly goes wrong after skill/tech upgrades (it only refreshes when you buy), which left phantom rating behind on sell-all scenarios; the reshuffler now compares each learned multiplier against what your live rating implies and flags "⚠ stale multiplier — buy 1 to recalibrate" per stat plus a summary warning, with the multiplier's age shown. v2.18.1: Stat Reshuffler — new "Ignore carrier caps" toggle for when you're happy to train soldiers/covert units as needed: projections then count every weapon as held (including ones currently sitting unheld) and the ⚠ unheld warnings disappear; the choice is remembered. v2.18.0: Stat Reshuffler — a 🔀 button under the Armory's Total Invested Value box opens a full what-if rework calculator: choose weapons (or whole categories) to sell, optionally switch race, and pour the proceeds — plus your on-hand + vault gold if you tick it — into any mix of the eight stats. It projects the gold you'd recover (sales pay 50% and land in your Vault), how many of each weapon you could buy, whether your units can actually carry them (unheld weapons add nothing), your projected new ratings including the race-bonus swing, and your new TIV. Pure calculator — it never sells, buys or presses anything. v2.17.1: Fix — clicking the sidebar Sweet Revenge logo now opens the feature-settings popup (same as the ⚙ Data Centre link) instead of navigating away. Internal cleanup: removed the unused armory sell-value cache (nothing has used it since the v2.11.2 "Upgrade Ready" rework). v2.17.0: Feature Settings — a new "⚙ Data Centre" link in the sidebar opens a settings panel where EVERY feature can be switched on/off individually (or all at once with the master switch), each with a plain-English description of what it does and a badge showing whether it only changes your display or also records data to the alliance roster; toggles apply on the next page load and everything stays ON by default, so nothing changes until you say so. Under the hood the script's ~40 page hooks were rebuilt onto a single feature registry that drives both the dispatcher and the panel, ~600 lines of dead legacy code were removed, and small fixes landed (DST helper deduplicated, script load message now always visible in console, toast animation style no longer re-injected per notification). Also: the sidebar Sweet Revenge logo is now a link to the Data Centre (with a hover glow), and the Top Stats panel's Debug button is gone — debug mode lives in the console via KoCDebug.toggle(). v2.16.0: Sab Tracker learns the exclusivity rule — per target you either regular-sab OR revenge-sab in a 24h window, so the panels now show 🔒 "Regular sabs locked — you revenge-sabbed this target" with an unlock countdown that keeps working after the Revenge section vanishes (target un-maxed — exactly when KoC hides the info), and 🔒 "Revenge locked — you've sabbed this target this window" when the Revenge form is up but unusable; the native "First sab (last 24hrs)" row is age-formatted like the rest (it anchored the "Can sab again in …" countdown from this version until v2.25.3, which stopped using it). v2.15.0: Sabotage Tracker on attack.php — "You last sabbed / poisoned / stole" and the revenge timestamps now show colour-coded ages like the stats pages (hover for the raw server time); the Sabotage and Revenge Sabotage sections get a live status line: attempts left in the rolling 24h window with a ticking "Can sab again in …" countdown when you're out of slots (10 sabs / 4 revenge per target per 24h, tracked automatically whenever you fire a sab and backfilled with exact server times when you open the target's Intelligence file), plus a "sab damage left before maxed" line (Maximum Daily Sabotage loss − lost in last 24h) that flips to TARGET MAXED when the cap is hit. Display-only: it records only missions you fire by hand and never presses anything. v2.14.0: Tech Level Projector — the "Stats After Upgrading Tech" table on safe.php gets a "Project to" dropdown: pick ANY future tech level (up to Obi Bon Kenobi) and the table shows your projected stats at that level, with the total ▲% vs now and the cumulative EXP needed across all the upgrades in between. v2.13.1: Rank-neighbour links now blend into the native table — no dot markers or underline, the numbers just quietly became links (hover tooltip still shows who it is, data age, and gap/stale warnings). v2.13.0: Rank-neighbour recon links — the "Rating For Previous/Next Rank Gain" numbers are now hyperlinks to the player we believe holds that rank (matched by rating value from the roster DB, never by stale DB rank), with a tooltip showing who it is + how fresh their data is; an orange dot means a DB gap (recon upward), a red dot means DB rank/rating disagree (recon me first). Click → recon → DB refreshes; wrong candidates rotate out on the next page load, so the links self-correct toward the true neighbour. v2.11.2: Banking Mode redesigned — your exposed gold now shows in a native-style "Estimated Funds" box that matches the in-game funds boxes, with a ⚙ that holds the Banking Mode toggle, screen-awake, and all settings (including an optional "show yellow/red times" line); a live-ticking Server Time clock on every page; and the Upgrades "Upgrade Ready" row now uses realistic funds (drops full-armory-sell) and shows any shortfall as a slay estimate. v2.10.1: Fix — the slider Armory Preferences now also resync when you press KoC's "Clear Percentage Prefills" button (sliders drop to 0 instead of keeping their old values). v2.10.0: New slider-based Armory Preferences — drag to allocate with auto-balancing, theme-matched styling, and one-tap presets (Cheapest first, Optimizer, All spy, All defense) plus saved presets — replacing the in-game percentage form; rank Optimizer also fixed (weapon efficiency now synced). v2.9.0: "Time to upgrade" + "EXP still needed to be deposited" now show on ALL EXP-cost safe.php upgrades (Increase Soldiers, Economic Development, SAFE Upgrade) — not just Technological Development. v2.8.2: Fix — "EXP still needed to be deposited" now shows cost − Experience Bank (what must still be banked) instead of also subtracting on-hand EXP, so it no longer reads 0 when you hold the EXP but haven't deposited it. v2.8.1: Fix — sidebar abbreviates large gold/safe values (e.g. "2,560M"); getSidebarValue now parses K/M/B/T suffixes so SAFE Forecasts and gold-upgrade rows use real balances (previously read as ~0). SAFE Forecasts also uses the full-precision "Gold in Safe" value. v2.8.0: SAFE Forecasts on safe.php — time for your Safe to reach 1B/2B/5B/9B/10B(MAX) based on current Safe + deposit/min. v2.7.0: Gold upgrade timer — upgrades.php now shows "Upgrade Ready" (liquidation + safe-growth time) and "Gold Needed on top of Safe" under each skill upgrade (uses gold/vault/safe + full armory sell value from Armory + safe deposit rate from Safe). v2.6.0: Tech upgrade timer — safe.php now shows "Time to upgrade" + "EXP still needed to be deposited" under Technological Development (uses EXP on-hand + Experience Bank + your EXP/turn rate, auto-captured from the Upgrades page). v2.5.1: Banking Mode last-bank fix — now watches the per-weapon buy form (anotherbuyform), not just the hidden one-click form, and stamps banks reliably for high-income accounts. v2.5.0: 🏦 Banking Mode on the Armory page — toggleable inline widget that projects your exposed (stealable) gold every second, colour-codes the risk (SAFE/CAUTION/DANGER) from your attack-log steal history, shows time-to-yellow/red, and keeps the screen awake. Display-only: no automated requests, observes (never presses) the buy/repair forms. v2.4.0: Banking trend graph (📈 in the sidebar tracks your banked % over time) + manual override for Avg Gold/Atk (✏️ in the sidebar, survives attack-log recalibration). v2.3.4: Recons panel now shares counts alliance-wide via API (previously localStorage-only — each user only saw themselves). v2.3.0: Added "Stats If You Attacked Instead" table on safe.php to compare tech upgrades vs attacking. v2.2.9: Added optimizer auto-fill for armory (uses roster API to calculate optimal stat allocation). v2.2.8: Minor fixes. v2.1.0: Integrated slaying competition tracker (attack missions & gold stolen tracking, team competitions, leaderboards). v2.0.0: Optimized API architecture, previous versions deprecated.
+// @version      3.0.0
+// @description  Sweet Revenge alliance tool for Kings of Chaos. Adds display panels and calculators to game pages, and can share the stats you see with the Sweet Revenge roster. Every feature and every data share can be switched off from ⚙ Data Centre in the sidebar.
 // @author       Blackheart
 // @match        https://www.kingsofchaos.com/*
 // @exclude      https://*.kingsofchaos.com/confirm.login.php*
@@ -26,7 +26,7 @@
   // Don't run on login/security pages or when logged out — with one exception.
   // The Inactive Accounts page opens without logging in, and a player on
   // vacation cannot log in at all, so on that page alone a logged-out visit
-  // runs the Inactive Accounts collector and nothing else (see runFeatures).
+  // runs the Inactive Accounts collector and nothing else (see FEATURE_STEPS).
   // It authenticates with the identity saved at the member's last login.
   const onSecurityPage = location.pathname.includes("login.php") ||
                          location.pathname.includes("security.php");
@@ -41,12 +41,12 @@
   // cannot make any changes to warlist.php and farmlist.php at all" — not a
   // row, not a style, not a toast. The War List is still the best single page
   // in the game for reading targets, so the script runs there, but only the
-  // collectors marked readOnly (see runFeatures), and every piece of shared
+  // collectors marked readOnly (see FEATURE_STEPS), and every piece of shared
   // machinery that could draw something — the version-check overlay, error
   // toasts, the stylesheet at the end of this file — stands down. farmlist.php
   // is @excluded as well; it is listed here so the guard holds even if a
-  // script manager ignores the exclude. Era 24 moved the War List to
-  // warlistv4.php, so any "v<N>" rename of either page counts too.
+  // script manager ignores the exclude. The War List is warlistv4.php; any
+  // "v<N>" version of either page counts too.
   const READ_ONLY_PAGE = /\/(warlist|farmlist)(v\d+)?\.php/i.test(location.pathname);
 
   // ==================== SCRIPT MANAGER CHECK ====================
@@ -59,11 +59,11 @@
   // ==================== VERSION CHECK ====================
   // Check if this script version is allowed to run
   const SCRIPT_NAME = 'koc-data-centre';
-  const SCRIPT_VERSION = '2.38.0'; // Must match @version above
-  const VERSION_CHECK_API = 'https://koc-roster-api-production.up.railway.app';
+  const SCRIPT_VERSION = '3.0.0'; // Must match @version above
+  const API_URL = "https://koc-roster-api-production.up.railway.app";   // the Sweet Revenge server
   // What the API said about the public release: { latestVersion, updateUrl,
   // isLatest }, or null when it could not say. The sidebar box and the ⚙ panel
-  // show an Update link from it (issue #34). The link goes to the raw .user.js;
+  // show an Update link from it. The link goes to the raw .user.js;
   // the member's userscript manager then asks them to confirm the update —
   // nothing here fetches or installs anything.
   let scriptUpdate = null;
@@ -71,7 +71,7 @@
 
   async function checkScriptVersion() {
     try {
-      const response = await fetch(`${VERSION_CHECK_API}/script-version/check/${SCRIPT_NAME}/${SCRIPT_VERSION}`);
+      const response = await netFetch('login', `${API_URL}/script-version/check/${SCRIPT_NAME}/${SCRIPT_VERSION}`);
       const data = await response.json();
 
       if (!data.allowed) {
@@ -101,13 +101,13 @@
 
         errorDiv.innerHTML = `
           <h3 style="margin: 0 0 10px 0;">⚠️ Script Version Outdated</h3>
-          <p style="margin: 0 0 10px 0;">${data.message}</p>
+          <p style="margin: 0 0 10px 0;">${escapeHtml(data.message)}</p>
           <p style="margin: 0 0 10px 0;">
-            <strong>Your version:</strong> ${data.currentVersion}<br>
-            <strong>Minimum required:</strong> ${data.minVersion}<br>
-            <strong>Latest version:</strong> ${data.latestVersion}
+            <strong>Your version:</strong> ${escapeHtml(data.currentVersion)}<br>
+            <strong>Minimum required:</strong> ${escapeHtml(data.minVersion)}<br>
+            <strong>Latest version:</strong> ${escapeHtml(data.latestVersion)}
           </p>
-          <a href="${data.updateUrl}" target="_blank" style="
+          <a href="${escapeHtml(data.updateUrl)}" target="_blank" rel="noopener" style="
             display: inline-block;
             background: white;
             color: #d32f2f;
@@ -158,25 +158,19 @@
 
   // ==================== CONSTANTS ====================
 
-  // Version & API
-  const VERSION = (typeof GM_info !== "undefined" && GM_info.script && GM_info.script.version)
-    ? GM_info.script.version : "1.41.9";
-  const API_URL = "https://koc-roster-api-production.up.railway.app";
-
   // LocalStorage Keys
-  const TOKEN_KEY = "KoC_SRAUTH";               // the OLD login (token in localStorage): read once, then deleted (#92)
-  const LEGACY_ID_KEY = "KoC_SRLegacyLogin";     // { id, name } of the old login, no token; gone with the switch-off (#94)
-  // Login (#92)
+  const TOKEN_KEY = "KoC_SRAUTH";               // the old login's token in localStorage: read once, then deleted
+  const LEGACY_ID_KEY = "KoC_SRLegacyLogin";     // { id, name } of the old login, no token; used only by the old login
+  // Login
   const DEVICE_DB = "KoC_SR_DEVICE";             // IndexedDB: this browser's key
   const SESSION_KEY = "KoC_SRSESSION";           // sessionStorage: the current token, this tab only
   const SESSION_CHANNEL = "KoC_SR_SESSION";      // BroadcastChannel: open tabs pass the token to each other
   const NOTICE_KEY = "KoC_SRLoginNotice";        // sessionStorage: one message kept across the reload after Login
   const SR_APPROVER_NAME = "Blackheart-SR";      // whose in-game inbox the login codes go to
-  const TIV_KEY = "KoC_DataCentre";
   const MAP_KEY = "KoC_NameMap";
 
   // Authentication & API
-  const TOKEN_EXPIRY_MS = 12 * 60 * 60 * 1000; // fallback only — the JWT's exp wins (#96)
+  const TOKEN_EXPIRY_MS = 12 * 60 * 60 * 1000; // fallback only — the JWT's exp wins
   const TOKEN_EXPIRY_MARGIN_MS = 2 * 60 * 1000; // renew when the token has under two minutes left
   const RETRY_ATTEMPTS = 2;
   const RETRY_DELAY_BASE_MS = 1000; // 1 second
@@ -198,20 +192,98 @@
   const SAFE_FORECAST_MILESTONES = [1e9, 2e9, 5e9, 9e9, 10e9];
 
   // Timeouts & Delays
-  const PAGE_LOAD_DELAY_MS = 500;
   const ATTACK_LOG_DELAY_MS = 600;
-  const POPUP_REFRESH_MS = 1000;
   const NOTIFICATION_DURATION_MS = 5000;
 
   // Storage & Validation
   const MAX_STRING_LENGTH = 1000;
   const MAX_PLAYER_FIELD_LENGTH = 200;
-  const STORAGE_CLEANUP_DAYS = 30;
   const ASSUMED_STORAGE_LIMIT_MB = 5;
 
   // Performance
   const BATTLEFIELD_DEBOUNCE_MS = 300; // Debounce battlefield observer
   const BATTLEFIELD_COLLECT_DELAY_MS = 200; // Delay before collecting battlefield data
+
+  // ==================== NETWORK GATE ====================
+  // Every request this script makes goes through netFetch(); nothing else in
+  // the file calls fetch(). Each request names its kind:
+  //   'login' — the Sweet Revenge login and the version check. Always allowed.
+  //   'read'  — reads alliance data for something drawn on the page. Made only
+  //             while "Read from the Sweet Revenge server" is on.
+  //   a SYNCS id — sends game data out. Made only while "Send data to the
+  //             Sweet Revenge server" is on AND that one share is on.
+  // A request that is not allowed is never made: netFetch returns null.
+  // The switches live in the ⚙ Data Centre panel.
+
+  const FEATURES_KEY = "KoC_DataCentre_Features";   // one map for every switch in the ⚙ panel
+  const NET_DEFAULT_SEND = true;                     // "Send data" when the member has never set it
+  const NET_DEFAULT_READ = true;                     // "Read" when the member has never set it
+
+  // Everything the script can send. Each entry is one switch in the ⚙ panel.
+  const SYNCS = [
+    { id: 'own-stats', name: 'Your Command Centre stats',
+      desc: 'When you open your Command Centre: your name, projected income per turn, a last-seen time and your stat ranks.' },
+    { id: 'armory', name: 'Your Armory stats',
+      desc: 'When you open your Armory: your TIV, your eight ratings with the time they were read, your stat ranks and your gold per stat point.' },
+    { id: 'own-history', name: 'Your account history',
+      desc: 'Your sidebar balances (gold, safe, vault, experience, turns, rank) at most every 15 minutes, the tables on your own Command Centre, Armory, Upgrades, Safe, Training, Trade, Rewards, Conquest and Game Logs pages when they change, and each conquest result you see.' },
+    { id: 'banking-snapshots', name: 'Banked % snapshots',
+      desc: 'From the sidebar calculator, at most every 30 minutes: your banked %, gold on hand, gold lost to attacks and projected income.' },
+    { id: 'recon', name: 'Recon and stats pages',
+      desc: 'When you open a recon report or a player’s stats page: the stats you can see there. When you open your Rewards page: your Unsuccessful Recons and Recon Missions counts.' },
+    { id: 'war-list', name: 'War List',
+      desc: 'When you open the War List: each player’s sentry, the recommended sab weapon and how many they hold, when and why they were added, and your own 24-hour sab, poison and theft counters for each.' },
+    { id: 'attack-pages', name: 'Attack pages and battle reports',
+      desc: 'When you open an attack page: the target’s TIV. When you open a battle report of your own attack or raid: gold stolen, hostages and casualties.' },
+    { id: 'target-checks', name: 'Target checks',
+      desc: 'When you open an attack page: that you checked the target, whether it showed as maxed, how much of its daily sab and theft caps is used, your attempt counters and your ratings with the limits the page shows.' },
+    { id: 'sab-caps', name: 'Sabotage caps',
+      desc: 'When you open an attack page: the target’s two sabotage numbers, "Total lost from sabbs in the last 24hours" and "Maximum Daily Sabotage loss".' },
+    { id: 'missions', name: 'Mission history',
+      desc: 'When you open your Intelligence page, an Intelligence file, the Poison, Theft or Attack Log, or one of your own sab, theft or battle reports: the missions listed there, with their results.' },
+    { id: 'battlefield', name: 'Battlefield',
+      desc: 'When you scroll the battlefield: each player’s name, alliance and rank.' },
+    { id: 'inactives', name: 'Inactive Accounts',
+      desc: 'When you open the Inactive Accounts page: who is on vacation, since when, and who has been deleted.' },
+    { id: 'competitions', name: 'Competitions',
+      desc: 'For each running competition you take part in: your attack missions, gold stolen, experience, turns and gold on hand, and your team choice when you pick one.' },
+    { id: 'alt-watch-flags', name: 'Alt Watch flags',
+      desc: 'Only when you press Save to Alt Watch on a stats page: the flag you chose and your note.' }
+  ];
+  const SYNC_IDS = new Set(SYNCS.map(s => s.id));
+
+  function netSwitches() {
+    const flags = SafeStorage.get(FEATURES_KEY, {});
+    return (flags && typeof flags === 'object') ? flags : {};
+  }
+
+  function netSendOn() {
+    const v = netSwitches()['net:send'];
+    return v === undefined ? NET_DEFAULT_SEND : v === true;
+  }
+
+  function netReadOn() {
+    const v = netSwitches()['net:read'];
+    return v === undefined ? NET_DEFAULT_READ : v === true;
+  }
+
+  function syncOn(id) {
+    return netSwitches()['sync:' + id] !== false;
+  }
+
+  function netAllowed(kind) {
+    if (kind === 'login') return true;
+    if (kind === 'read') return netReadOn();
+    return SYNC_IDS.has(kind) && netSendOn() && syncOn(kind);   // an unknown kind never goes out
+  }
+
+  async function netFetch(kind, url, options) {
+    if (!netAllowed(kind)) {
+      debugLog(`⛔ Not sent (${kind} is switched off): ${String(url).split('?')[0]}`);
+      return null;
+    }
+    return fetch(url, options);
+  }
 
   // ==================== DEBUG MODE SYSTEM ====================
 
@@ -219,7 +291,7 @@
    * Debug Mode System
    * - Stores debug state in localStorage
    * - Provides conditional logging functions
-   * - Can be toggled via UI or console
+   * - Toggle from the console: KoCDebug.toggle()
    */
   const DEBUG_KEY = "KoC_DebugMode";
 
@@ -272,7 +344,7 @@
   }
 
   // Always show script load message
-  infoLog(`✅ DataCentre+XPTool v${VERSION} loaded on`, location.pathname);
+  infoLog(`✅ KoC Data Centre v${SCRIPT_VERSION} loaded on`, location.pathname);
   if (DebugMode.isEnabled()) {
     infoLog("🐛 Debug mode is ENABLED - Toggle with: KoCDebug.toggle()");
   }
@@ -282,7 +354,7 @@
   /**
    * Parse KoC Server Time from page and convert to UTC ISO string
    * Server Time is displayed in left panel on all pages
-   * KoC printed US Eastern Time (EDT/EST) up to Era 23 and UTC from Era 24 (kocOffsetHours)
+   * Server Time is UTC; timestamps from before 3 Nov 2026 were US Eastern (kocOffsetHours)
    */
   function getKoCServerTimeUTC() {
     try {
@@ -312,7 +384,7 @@
 
   /**
    * The element holding the page's Server Time: a leaf with ONLY a datetime
-   * in it. Seen live (19 Sep 2026, every page): td.menu_cell > p "Server
+   * in it. On every page: td.menu_cell > p "Server
    * Time" > table > tbody > tr > th > b "2026-09-19 08:27:16" — the label is
    * in the <p>, six levels up, and the stamp's own table holds nothing else.
    * So, in order:
@@ -454,7 +526,7 @@
     if (!m) return;
     const p = n => (n < 10 ? '0' + n : '' + n);
     // Follow the game's countdown: the printed time minus (end − remaining) is
-    // the clock's zone offset (whole quarter-hours: UTC now, Eastern before Era 24).
+    // the clock's zone offset (whole quarter-hours; 0 while the clock is UTC).
     const span = findEraCountdown();
     const r0 = countdownRemaining(span);
     if (span && r0 != null) {
@@ -482,8 +554,8 @@
 
   // When each era opened, in UTC epoch seconds. The page gives only the era's
   // END (span[data-age-countdown] data-end), so the start has to be known.
-  // Era 24 opened 3 Nov 2026 11:00 server time (UTC); its timer read 82d 23h 59m
-  // at 11:00:58. Add a line here when a new era opens — an era not listed
+  // Era 24 opened 3 Nov 2026 11:00 server time (UTC). Add a line here when a
+  // new era opens — an era not listed
   // simply shows no "day" line.
   const ERA_STARTS = {
     24: Date.UTC(2026, 10, 3, 11, 0, 0) / 1000
@@ -591,7 +663,7 @@
     const r0 = countdownRemaining(span);
     if (span && r0 != null) {
       const end = +span.getAttribute('data-end');
-      // Wall clock = UTC + offset (0 from Era 24); whole quarter-hours.
+      // Wall clock = UTC + offset (0 while the clock is UTC); whole quarter-hours.
       const offset = printed != null ? Math.round((printed - (end - r0)) / 900) * 900 : 0;
       if (onGameTick(r => paint(end - r + offset))) { debugLog(`🏦 Vault tax warning armed (vault ${vault.toLocaleString()})`); return; }
     }
@@ -610,9 +682,8 @@
    * Whether US Eastern DST (EDT, UTC-4) applies on the given date.
    * US DST: 2nd Sunday in March to 1st Sunday in November.
    */
-  // KoC's clock: US Eastern up to Era 23, UTC from Era 24 (3 Nov 2026). The
-  // date the game printed decides: Era 23 ended on 2 Nov, so no Eastern time
-  // carries a later date. Same rule as the server's utils/koc-clock.js.
+  // KoC's clock is UTC from 3 Nov 2026 and was US Eastern before. The date
+  // the game printed decides. Same rule as the server's utils/koc-clock.js.
   const KOC_UTC_FROM = '2026-11-03';
   const KOC_UTC_FROM_MS = Date.UTC(2026, 10, 3);
 
@@ -651,7 +722,7 @@
       const minute = parseInt(parts[5]);
       const second = parseInt(parts[6]);
 
-      const offset = kocOffsetHours(year, month, day); // 0 from Era 24 (UTC)
+      const offset = kocOffsetHours(year, month, day); // 0 for UTC dates
 
       // Wall-clock time in KoC's zone -> UTC by adding the offset
       const date = new Date(Date.UTC(year, month, day, hour + offset, minute, second));
@@ -664,8 +735,8 @@
 
   /**
    * Convert UTC ISO string to KoC Server Time string
-   * @param {string} utcIsoString - UTC ISO string like "2025-12-22T13:57:05.000Z"
-   * @returns {string} KoC Server Time string like "2025-12-22 09:57:05" (or "2025-12-22 08:57:05" in winter)
+   * @param {string} utcIsoString - UTC ISO string like "2026-11-22T13:57:05.000Z"
+   * @returns {string} KoC Server Time string like "2026-11-22 13:57:05"
    */
   function convertUTCToKoCServerTime(utcIsoString) {
     try {
@@ -677,7 +748,7 @@
       const minute = utcDate.getUTCMinutes();
       const second = utcDate.getUTCSeconds();
 
-      // From Era 24 the game's clock IS UTC; before it, US Eastern
+      // The game's clock is UTC; before 3 Nov 2026 it was US Eastern
       const offset = utcDate.getTime() >= KOC_UTC_FROM_MS
         ? 0
         : (isEasternDST(year, month, day) ? 4 : 5); // EDT = UTC-4, EST = UTC-5
@@ -860,10 +931,7 @@
         if (error.name === 'QuotaExceededError') {
           ErrorHandler.log(ErrorHandler.LOG_LEVELS.ERROR, 'localStorage quota exceeded', error, { key });
 
-          // Try to free up space
-          this.cleanup();
-
-          // Try again
+          // Try once more (the browser may have freed space)
           try {
             const serialized = typeof value === 'string' ? value : JSON.stringify(value);
             localStorage.setItem(key, serialized);
@@ -890,39 +958,6 @@
       }
     }
 
-    static cleanup() {
-      ErrorHandler.log(ErrorHandler.LOG_LEVELS.INFO, 'Attempting to cleanup old localStorage data');
-
-      try {
-        // Remove old data (anything with timestamps older than configured days)
-        const cutoff = Date.now() - (STORAGE_CLEANUP_DAYS * 24 * 60 * 60 * 1000);
-
-        for (let i = 0; i < localStorage.length; i++) {
-          const key = localStorage.key(i);
-          if (!key) continue;
-
-          // Check if it's a timestamp key
-          if (key.includes('_time')) {
-            try {
-              const value = localStorage.getItem(key);
-              const timestamp = parseInt(value, 10) || Date.parse(value);
-              if (timestamp && timestamp < cutoff) {
-                localStorage.removeItem(key);
-                // Also remove associated data key
-                const dataKey = key.replace('_time', '');
-                localStorage.removeItem(dataKey);
-                ErrorHandler.log(ErrorHandler.LOG_LEVELS.DEBUG, `Cleaned up old data: ${key}`);
-              }
-            } catch (e) {
-              // Skip if can't parse
-            }
-          }
-        }
-      } catch (error) {
-        ErrorHandler.log(ErrorHandler.LOG_LEVELS.ERROR, 'Cleanup failed', error);
-      }
-    }
-
     static getUsage() {
       try {
         let total = 0;
@@ -943,63 +978,6 @@
     }
   }
 
-  /**
-   * API call wrapper with offline detection
-   */
-  class ResilientAPI {
-    static isOnline = navigator.onLine;
-    static failureCount = 0;
-    static MAX_FAILURES = 3;
-
-    static {
-      // Monitor online/offline status
-      window.addEventListener('online', () => {
-        this.isOnline = true;
-        this.failureCount = 0;
-        ErrorHandler.showNotification('Connection restored', 'info');
-      });
-
-      window.addEventListener('offline', () => {
-        this.isOnline = false;
-        ErrorHandler.showNotification('You are offline. Some features may not work.', 'warn');
-      });
-    }
-
-    static async callWithFallback(apiFn, fallbackFn = null) {
-      // Check online status first
-      if (!this.isOnline) {
-        ErrorHandler.log(ErrorHandler.LOG_LEVELS.WARN, 'Offline - using fallback');
-        return fallbackFn ? fallbackFn() : null;
-      }
-
-      try {
-        const result = await apiFn();
-        this.failureCount = 0; // Reset on success
-        return result;
-      } catch (error) {
-        this.failureCount++;
-
-        ErrorHandler.log(
-          ErrorHandler.LOG_LEVELS.ERROR,
-          `API call failed (${this.failureCount}/${this.MAX_FAILURES})`,
-          error
-        );
-
-        // If too many failures, suggest offline mode
-        if (this.failureCount >= this.MAX_FAILURES) {
-          ErrorHandler.showUserError('API appears to be unavailable. Working in offline mode.', error);
-        }
-
-        // Use fallback if available
-        if (fallbackFn) {
-          ErrorHandler.log(ErrorHandler.LOG_LEVELS.INFO, 'Using fallback function');
-          return fallbackFn();
-        }
-
-        return null;
-      }
-    }
-  }
 
   // ==================== SECURITY UTILITIES ====================
 
@@ -1127,11 +1105,6 @@
       result.valid = false;
     }
 
-    if (result.values.avgGold < 0) {
-      result.errors.push('Average gold cannot be negative');
-      result.valid = false;
-    }
-
     return result;
   }
 
@@ -1172,8 +1145,7 @@
   // Find your own id/name from the native "User Info" table on base.php:
   // a row whose label cell is exactly "Name" and whose value cell holds your
   // stats.php link. Never read identity from the first stats.php link on the
-  // page — injected leaderboards and farm lists come first in DOM order, which
-  // is how wrong identities (Tobi-SR id='self', 'Members') got stored.
+  // page — injected leaderboards and farm lists come first in DOM order.
   function findOwnIdentityRow() {
     for (const row of document.querySelectorAll("tr")) {
       const labelCell = row.querySelector("td, th");
@@ -1193,7 +1165,7 @@
   }
 
   // ==================== SR LOGIN: device key store ====================
-  // Issue #92, design doc §6.1. One record per browser profile, kept in
+  // One record per browser profile, kept in
   // IndexedDB "KoC_SR_DEVICE" (store "device", key "current"):
   //   { v, deviceId, playerId, playerName, privateKey, publicJwk, label,
   //     status: "pending" | "active" | "suspended",
@@ -1256,7 +1228,7 @@
     const ctl = typeof AbortController !== "undefined" ? new AbortController() : null;
     const timer = ctl ? setTimeout(() => ctl.abort(), 15000) : null;
     try {
-      const resp = await fetch(`${API_URL}${path}`, {
+      const resp = await netFetch('login', `${API_URL}${path}`, {
         method,
         headers,
         body: body !== undefined ? JSON.stringify(body) : undefined,
@@ -1319,12 +1291,12 @@
 
   // ==================== AUTH MANAGER ====================
   //
-  // Two logins live here until the switch-off (#94):
+  // Two logins live here:
   //   "device": the browser holds an approved key and trades a signature for
   //             a 15 minute token. This is the login that proves ownership.
   //   "legacy": the old POST /auth/koc {id, name}. Kept ONLY so nobody loses
   //             the script while their browser waits for approval, or before
-  //             they have pressed Login (design doc A5).
+  //             they have pressed Login.
   // The token is kept in memory and sessionStorage, never in localStorage.
   // Open tabs pass it to each other over a BroadcastChannel, so a new tab
   // does not have to ask the server for its own.
@@ -1388,8 +1360,7 @@
       } catch (err) { /* private mode: the token then lives in memory only */ }
     }
 
-    // Who this tab is logged in as, or null. (The name is historical: nothing
-    // is stored in localStorage any more.)
+    // Who this tab is logged in as, or null.
     getStoredAuth() {
       return this.authData || this.readSession();
     }
@@ -1495,8 +1466,8 @@
 
     // ---- start-up ----
 
-    // The old script kept its login, token included, in localStorage
-    // "KoC_SRAUTH". Remember only who it was for, and delete it.
+    // The old login keeps its token in localStorage "KoC_SRAUTH". Remember
+    // only who it was for, and delete it.
     migrateOldLogin() {
       const old = SafeStorage.get(TOKEN_KEY, null);
       if (old === null) return;
@@ -1688,8 +1659,8 @@
       return false;
     }
 
-    // The page shows one player, this browser is registered to another
-    // (design doc §4.4). Stop, tell the server once, explain.
+    // The page shows one player, this browser is registered to another.
+    // Stop, tell the server once, explain.
     async handleMismatch(rec, page) {
       this.dropSession(true);
       SafeStorage.remove(LEGACY_ID_KEY);
@@ -1725,9 +1696,9 @@
     }
 
     // POST /auth/koc and return the token. Throws an Error with .status on a
-    // non-2xx response. Removed with the switch-off (#94).
+    // non-2xx response. Used only by the old login.
     async requestToken(id, name) {
-      const resp = await fetch(`${API_URL}/auth/koc`, {
+      const resp = await netFetch('login', `${API_URL}/auth/koc`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -1773,12 +1744,6 @@
       if (this.token && this.token !== rejectedToken) return true;
       if (!this.refreshPromise) this.dropSession(false);
       return this.renew({ force: true });
-    }
-
-    // Check if authenticated
-    async isAuthenticated() {
-      const token = await this.getToken();
-      return !!token;
     }
 
     // ---- the Login and Log out buttons ----
@@ -1837,7 +1802,7 @@
           await this.saveDevice(rec);
         }
 
-        // The old login keeps the script working meanwhile (A5).
+        // The old login keeps the script working until the device is approved.
         SafeStorage.set(LEGACY_ID_KEY, { id: String(page.id), name: page.name });
 
         const wasRunning = !!this.token;
@@ -1852,7 +1817,7 @@
           if (!wasRunning) { try { sessionStorage.setItem(NOTICE_KEY, message); } catch (err) { /* no notice */ } }
         }
         if (wasRunning) this.emit('stateChanged', this.state);
-        else location.reload();   // start the features, as Login always has
+        else location.reload();   // reload so the features start
       } catch (err) {
         ErrorHandler.log(ErrorHandler.LOG_LEVELS.ERROR, 'Login failed', err);
         this.setState({ code: this.state.code, message: "Could not reach the Sweet Revenge server. Try again shortly." });
@@ -1901,14 +1866,13 @@
       return r;
     }
 
-    // Clear auth data (this tab's token only; the browser's key stays).
-    clearAuth() {
-      this.dropSession(false);
-      this.initPromise = null;
-    }
-
-    // Make authenticated API call with auto-retry
-    async apiCall(endpoint, data, retries = RETRY_ATTEMPTS) {
+    // Authenticated API call with retry. `kind` is 'read' or a SYNCS id (see
+    // NETWORK GATE); a call whose kind is switched off is not made at all.
+    async apiCall(kind, endpoint, data, retries = RETRY_ATTEMPTS) {
+      if (!netAllowed(kind)) {
+        debugLog(`⛔ Not sent (${kind} is switched off): ${endpoint.split('?')[0]}`);
+        return null;
+      }
       let token = await this.getToken();
 
       if (!token) {
@@ -1935,7 +1899,7 @@
               "Authorization": "Bearer " + token,
               "X-Script-Name": SCRIPT_NAME,
               "X-Script-Version": SCRIPT_VERSION,
-              "X-KoC-Clock": "utc" // reads the KoC clock as UTC (Era 24+); the server corrects older versions
+              "X-KoC-Clock": "utc" // KoC times in this request are UTC
             }
           };
 
@@ -1945,7 +1909,7 @@
             fetchOptions.body = JSON.stringify(data);
           }
 
-          const resp = await fetch(`${API_URL}/${endpoint}`, fetchOptions);
+          const resp = await netFetch(kind, `${API_URL}/${endpoint}`, fetchOptions);
 
           // Handle 401 - token expired
           if (resp.status === 401 && attempt === 1) {
@@ -2001,65 +1965,8 @@
   // Create global auth instance
   const auth = new AuthManager();
 
-  // Add server debug control functions to KoCDebug (now that auth exists)
-  window.KoCDebug.serverEnable = async function() {
-    const token = await auth.getToken();
-    if (!token) {
-      console.error("❌ No auth token found. Please log in first.");
-      return;
-    }
-    try {
-      const response = await fetch('https://koc-roster-api-production.up.railway.app/debug/enable', {
-        method: 'POST',
-        headers: { 'Authorization': 'Bearer ' + token }
-      });
-      const result = await response.json();
-      console.log("🐛 Server debug mode ENABLED:", result.message || result);
-      return result;
-    } catch (err) {
-      console.error("❌ Failed to enable server debug mode:", err);
-    }
-  };
-
-  window.KoCDebug.serverDisable = async function() {
-    const token = await auth.getToken();
-    if (!token) {
-      console.error("❌ No auth token found. Please log in first.");
-      return;
-    }
-    try {
-      const response = await fetch('https://koc-roster-api-production.up.railway.app/debug/disable', {
-        method: 'POST',
-        headers: { 'Authorization': 'Bearer ' + token }
-      });
-      const result = await response.json();
-      console.log("🔇 Server debug mode DISABLED:", result.message || result);
-      return result;
-    } catch (err) {
-      console.error("❌ Failed to disable server debug mode:", err);
-    }
-  };
-
-  window.KoCDebug.serverStatus = async function() {
-    const token = await auth.getToken();
-    if (!token) {
-      console.error("❌ No auth token found. Please log in first.");
-      return;
-    }
-    try {
-      const response = await fetch('https://koc-roster-api-production.up.railway.app/debug/status', {
-        headers: { 'Authorization': 'Bearer ' + token }
-      });
-      const result = await response.json();
-      console.log("📊 Server debug status:", result);
-      return result;
-    } catch (err) {
-      console.error("❌ Failed to check server debug status:", err);
-    }
-  };
-
   // ==================== SR LOGIN: Command Center box ====================
-  // The login box under the native User Info table on base.php (#92). It is
+  // The login box under the native User Info table on base.php. It is
   // drawn from auth.state and redrawn when that changes. Every piece of text
   // goes in with textContent. Nothing in it links out of the game, and nothing
   // in it sends the in-game message: the member does that by hand.
@@ -2267,18 +2174,6 @@
 
   // ==================== STORAGE HELPERS ====================
 
-  function getTivLog() {
-    return SafeStorage.get(TIV_KEY, []);
-  }
-
-  function saveTivLog(arr) {
-    // Limit TIV log to last 100 entries to prevent unbounded growth
-    const MAX_TIV_ENTRIES = 100;
-    const trimmed = arr.slice(-MAX_TIV_ENTRIES);
-    debugLog(`📊 TIV log trimmed from ${arr.length} to ${trimmed.length} entries`);
-    return SafeStorage.set(TIV_KEY, trimmed);
-  }
-
   function getNameMap() {
     return SafeStorage.get(MAP_KEY, {});
   }
@@ -2323,7 +2218,17 @@
    * Run periodic localStorage maintenance
    * Cleanup runs once every 7 days
    */
+  // Storage keys earlier versions kept that nothing reads now.
+  const UNUSED_KEYS = [
+    "KoC_DataCentre",            // a local TIV log
+    "KoC_WeaponMultipliers",     // gold per point learned from purchases
+    "KoC_SabLogReset",           // a one-time Sab Tracker reset
+    ...['enabled', 'settings', 'attack_events', 'last_bank', 'pending_action', 'last_notify_ts',
+      'notify_state', 'bank_events', 'last_attacklog_visit'].map(k => "KoC_Banking_" + k)   // Banking Mode
+  ];
+
   function runPeriodicMaintenance() {
+    UNUSED_KEYS.forEach(k => SafeStorage.remove(k));
     const CLEANUP_INTERVAL_DAYS = 7;
     const LAST_CLEANUP_KEY = "KoC_LastCleanup";
 
@@ -2353,7 +2258,7 @@
     // Initialize authentication
     const isAuthenticated = await auth.initialize();
 
-    // The login box lives on the Command Center, logged in or not (#92).
+    // The login box lives on the Command Center, logged in or not.
     if (onPage("base.php") && !READ_ONLY_PAGE) {
       try {
         renderSrLoginBox();
@@ -2378,7 +2283,8 @@
 
   // ==================== PLAYER DATA MANAGEMENT ====================
 
-  function updatePlayerInfo(id, patch) {
+  // `kind` is the SYNCS id the caller shares under (see NETWORK GATE).
+  function updatePlayerInfo(id, patch, kind) {
     if (!id) return;
 
     const map = getNameMap();
@@ -2411,7 +2317,7 @@
       }
       // Include lastSeen since it was just updated
       apiPayload.lastSeen = updated.lastSeen;
-      auth.apiCall("players", { id, ...apiPayload });
+      auth.apiCall(kind, "players", { id, ...apiPayload });
     }
   }
 
@@ -2512,8 +2418,8 @@
 
   // ==================== BANKING HISTORY (TREND GRAPH) ====================
 
-  // Throttled submission of a banking-efficiency snapshot to the API. The server
-  // also throttles, but we avoid needless calls on every base.php load.
+  // Send a banked-% snapshot from the sidebar box, at most every 30 minutes.
+  // The server also throttles.
   let bankingSnapshotInFlight = false;
   async function maybeSubmitBankingSnapshot(data) {
     try {
@@ -2527,7 +2433,7 @@
       if (now - last < 30 * 60 * 1000) return;       // client throttle: once / 30 min
 
       bankingSnapshotInFlight = true;
-      const result = await auth.apiCall("banking/snapshot", data);  // data present → POST
+      const result = await auth.apiCall("banking-snapshots", "banking/snapshot", data);  // data present → POST
       if (result) {
         SafeStorage.set(SUBMIT_KEY, now);
         debugLog("[Banking] Snapshot submitted:", data.bankedPct + "%");
@@ -2542,18 +2448,18 @@
   // Fetch banking history and show a banked-% line chart (hand-rolled SVG, no libs).
   async function showBankingTrend() {
     if (!auth.getStoredAuth()) {
-      alert("Log in (🔐 button in the sidebar) to track your banking trend.");
+      alert("Open your Command Center and press Login to track your banking trend.");
       return;
     }
 
-    const history = await auth.apiCall("banking/history?days=30");  // no data → GET
+    const history = await auth.apiCall("read", "banking/history?days=30");  // no data → GET
     const points = (history || [])
       .map(r => ({ t: new Date(r.recorded_at).getTime(), pct: Number(r.banked_pct) }))
       .filter(p => isFinite(p.t) && isFinite(p.pct))
       .sort((a, b) => a.t - b.t);
 
     if (points.length === 0) {
-      alert("No banking history yet.\n\nVisit the attack log, then the command centre, a few times over the coming days — the banked % trend will build up here.");
+      alert("No banking history yet.\n\nA snapshot is sent from the sidebar box at most every 30 minutes on any page with the sidebar — the banked % trend will build up here over the coming days.");
       return;
     }
 
@@ -2638,9 +2544,16 @@
   // ==================== SIDEBAR CALCULATOR ====================
 
   function initSidebarCalculator() {
-    debugLog("[XPTool] initSidebarCalculator called");
     const BOX_ID = "koc-xp-box";
     if (document.getElementById(BOX_ID)) return; // Prevent duplicates
+
+    if (!document.getElementById("koc-logo-style")) {
+      const style = document.createElement("style");
+      style.id = "koc-logo-style";
+      style.textContent = "a.koc-button img { transition: transform 0.2s ease, filter 0.2s ease; }" +
+        " a.koc-button img:hover { transform: scale(1.05); filter: drop-shadow(0 0 6px gold); }";
+      document.head.appendChild(style);
+    }
 
     const xpBox = document.createElement("table");
     xpBox.id = BOX_ID;
@@ -2669,7 +2582,7 @@
         <tr>
           <td align="center">
             <a href="#" id="sr-logo-link" class="koc-button" title="Data Centre feature settings">
-              <img src="https://raw.githubusercontent.com/Trevo88423/koc-userscripts/main/images/SR_Logo.png"
+              <img src="${srLogoSrc()}"
                    alt="Sweet Revenge"
                    style="max-width:110px; height:auto; margin-top:6px; display:block; margin-left:auto; margin-right:auto;">
             </a>
@@ -2710,7 +2623,7 @@
       if (firstSidebar) firstSidebar.appendChild(xpBox);
     }
 
-    // "Update available" pill when the public release is newer (issue #34).
+    // "Update available" pill when the public release is newer.
     // The link opens the raw .user.js; the member's userscript manager shows
     // its own Update prompt. Hidden when current or when the API didn't say.
     if (scriptUpdate && !scriptUpdate.isLatest) {
@@ -2853,7 +2766,7 @@
         const bankedGold = Math.max(0, dailyTbg - goldLost);
         const pct = (bankedGold / dailyTbg * 100).toFixed(1);
 
-        // Feature 1: record a throttled banking snapshot for the trend graph
+        // Send a banked-% snapshot (at most every 30 min).
         maybeSubmitBankingSnapshot({
           bankedPct: parseFloat(pct),
           dailyTbg: Math.round(dailyTbg),
@@ -2958,7 +2871,7 @@
           SafeStorage.set("xpTool_avgGold_isManual", false);
           const auto = SafeStorage.get("xpTool_avgGold_auto", SafeStorage.get("xpTool_avgGold", 0));
           SafeStorage.set("xpTool_avgGold", auto);
-          debugLog("[XPTool] Avg Gold/Atk reverted to auto:", auto);
+          debugLog("[Sidebar] Avg Gold/Atk reverted to auto:", auto);
         } else {
           let raw = trimmed.replace(/[,\s]/g, "");
           let mult = 1;
@@ -2973,7 +2886,7 @@
           SafeStorage.set("xpTool_avgGold_manual", val);
           SafeStorage.set("xpTool_avgGold_isManual", true);
           SafeStorage.set("xpTool_avgGold", val);
-          debugLog("[XPTool] Avg Gold/Atk manual override set:", val);
+          debugLog("[Sidebar] Avg Gold/Atk manual override set:", val);
         }
         updateXPBox();
       });
@@ -3044,7 +2957,7 @@
       });
     }
 
-    debugLog("[XPTool] Sidebar box inserted into page");
+    debugLog("[Sidebar] Sidebar box inserted into page");
   }
 
   // ==================== POPUP CALCULATOR ====================
@@ -3182,7 +3095,7 @@
   // ==================== ATTACK LOG ENHANCER ====================
 
   function enhanceAttackLog() {
-    debugLog("[XPTool] enhanceAttackLog called");
+    debugLog("[Sidebar] enhanceAttackLog called");
 
     const tables = document.querySelectorAll('table');
     for (let i = 0; i < tables.length; i++) {
@@ -3212,7 +3125,10 @@
 
                   const th = tbl.querySelector('th');
                   if (th && !th.innerHTML.includes('AV')) {
-                    th.innerHTML = `<div style="text-align:center;">${th.innerText} (${labelTxt})</div>`;
+                    const div = document.createElement('div');
+                    div.style.textAlign = 'center';
+                    div.textContent = `${th.innerText} (${labelTxt})`;
+                    th.replaceChildren(div);
                   }
 
                   // Save avg gold for Sidebar + Popup.
@@ -3224,9 +3140,9 @@
                     SafeStorage.set('xpTool_avgGold_time', Date.now());
                     if (!SafeStorage.get('xpTool_avgGold_isManual', false)) {
                       SafeStorage.set('xpTool_avgGold', avg);
-                      debugLog("[XPTool] Avg Gold/Atk auto-calibrated:", avg);
+                      debugLog("[Sidebar] Avg Gold/Atk auto-calibrated:", avg);
                     } else {
-                      debugLog("[XPTool] Avg Gold/Atk auto value updated, but manual override active — keeping manual.");
+                      debugLog("[Sidebar] Avg Gold/Atk auto value updated, but manual override active — keeping manual.");
                     }
                   }
                 }
@@ -3305,7 +3221,7 @@
 
     usableResourcesTable.appendChild(newRow);
 
-    debugLog("[XPTool] Recon Max Attacks row added:", maxAttacks);
+    debugLog("[Sidebar] Recon Max Attacks row added:", maxAttacks);
   }
 
   // ==================== BATTLEFIELD COLLECTOR ====================
@@ -3324,8 +3240,8 @@
 
       // Map column indexes from the table header — the battlefield sometimes
       // renders rows without the Alliance column (mid-AJAX states drop cells),
-      // so fixed indexes corrupt data: name gets the army size and alliance
-      // gets the player name (the 'OwenN17'/'zeke1st' alliance rows in the DB).
+      // so fixed indexes would corrupt data: name would get the army size and
+      // alliance the player name.
       const headerCells = rows[0]
         ? [...(rows[0].closest("table")?.querySelectorAll("th") || [])]
         : [];
@@ -3368,7 +3284,7 @@
 
         const player = sanitizePlayerData(patch);
 
-        updatePlayerInfo(player.id, player);
+        updatePlayerInfo(player.id, player, 'battlefield');
         collectedPlayers.add(id);
         newCount++;
       });
@@ -3406,9 +3322,8 @@
     }).pop();
     if (!table) return [];
 
-    // Columns by header name, never by fixed position — the same rule the
-    // battlefield collector learned the hard way when a dropped cell shifted
-    // every value one place left.
+    // Columns by header name, never by fixed position: a dropped cell would
+    // shift every value one place left.
     const heads = [...table.querySelectorAll('th')].map(th => th.textContent.trim().toLowerCase());
     const col = {};
     heads.forEach((h, i) => {
@@ -3584,7 +3499,7 @@
     // page was reached and the Server Time it was drawn with (pageInfo).
     const view = new URLSearchParams(location.search).get('view') || 'Alliance';
     try {
-      const res = await auth.apiCall('api/war-room/warlist', {
+      const res = await auth.apiCall('war-list', 'api/war-room/warlist', {
         view,
         rows: rows.map((r) => ({ id: r.id, addedAt: r.addedAt, reason: r.reason, my24h: r.my24h })),
         page: pageInfo()
@@ -3622,7 +3537,7 @@
       if (r.alliance) payload.alliance = r.alliance;
       if (Object.keys(payload).length <= 2) continue;  // id + noReactivate only
 
-      try { await auth.apiCall('players', payload); } catch (e) { /* keep going */ }
+      try { await auth.apiCall('war-list', 'players', payload); } catch (e) { /* keep going */ }
     }
 
     // The same sabs, logged once for the war's own record: a running account of
@@ -3639,7 +3554,7 @@
     }));
     if (observed.length) {
       try {
-        const res = await auth.apiCall("api/war-room/sab-results/bulk", { results: observed });
+        const res = await auth.apiCall("war-list", "api/war-room/sab-results/bulk", { results: observed });
         debugLog(`⚔️ War list sab log: ${observed.length} seen, ${res && res.inserted} new`);
       } catch (e) { /* the war room may not be configured; never break the page */ }
     }
@@ -3682,7 +3597,7 @@
     const read = readInactivesTable();
     if (!read) { debugLog('🏖️ Inactive Accounts: table not found'); return; }
 
-    const res = await auth.apiCall('api/war-room/inactives', read);
+    const res = await auth.apiCall('inactives', 'api/war-room/inactives', read);
     if (!res || !res.ok) {
       debugLog('🏖️ Inactive Accounts: not recorded', res);
       return;
@@ -3706,9 +3621,7 @@
    * importantly when it refuses a sab because the target is maxed — it redraws
    * attack.php with no query string at all. Every mission form on the page
    * carries the target in a hidden defender_id field, so fall back to that.
-   * Reading the address alone made everything on that page go quiet: the Sab
-   * Tracker vanished and the maxed state was never shared, at the one moment
-   * the script knew for certain.
+   * That redrawn page is the one that says for certain the target is maxed.
    */
   function attackPageTargetId() {
     const m = location.search.match(/[?&]id=(\d+)/);
@@ -3725,7 +3638,7 @@
       if (targetId) {
         const id = targetId;
         console.warn(`⚠️ Invalid User ID detected for player ${id} - marking as deleted`);
-        await auth.apiCall(`players/${id}/mark-inactive`, {
+        await auth.apiCall('attack-pages', `players/${id}/mark-inactive`, {
           status: "deleted",
           error: "Invalid User ID"
         });
@@ -3734,9 +3647,7 @@
     }
 
     // A target sabbed flat renders "Total Invested Value: ()" — empty parens,
-    // not "(0)". The old [\d,]+ could not match that, so the one case we most
-    // need to record silently skipped: the roster kept serving the pre-sab TIV
-    // and the player sat on the War Room recon worklist forever, un-refreshable.
+    // not "(0)". The regex allows empty digits and records that as TIV 0.
     const tivMatch = document.body.textContent.match(/Total Invested Value:\s*\(([\d,]*)\)/i);
     if (!targetId || !tivMatch) return;
 
@@ -3746,19 +3657,12 @@
     if (!Number.isFinite(tiv)) return;
     const now = getKoCServerTimeUTC();
 
-    // TIV on attack.php IS fresh data - it loads when you visit the page
-    // It's used to calculate sabotage limits, so it must be current
-    // Save locally
-    const log = getTivLog();
-    log.push({ id, tiv, time: now });
-    saveTivLog(log);
-
-    updatePlayerInfo(id, { tiv, tivTime: now });
+    updatePlayerInfo(id, { tiv, tivTime: now }, 'attack-pages');
 
     debugLog("📊 Attack TIV saved", { id, tiv });
 
     // Push to API
-    await auth.apiCall("tiv", { playerId: id, tiv, time: now });
+    await auth.apiCall("attack-pages", "tiv", { playerId: id, tiv, time: now });
   }
 
   // ==================== ATTACK LOG COLLECTOR ====================
@@ -3786,10 +3690,10 @@
    * The first line of a WON battle report, matched as [line, gold, the
    * defender's name], or null. An attack and a raid word it differently:
    * "You stole N gold while attacking <name>'s camp and made off with H
-   * hostages (…)" / "… while raiding <name>'s camp …" (seen live 18 Sep
-   * 2026). Takes the report's own lines (battleReportLines), and only a line
-   * that STARTS with those words counts: the defender's own message sits
-   * above the report ("b00000n said …") and can name any camp it likes.
+   * hostages (…)" / "… while raiding <name>'s camp …". Takes the report's
+   * own lines (battleReportLines), and only a line that STARTS with those
+   * words counts: the defender's own message sits above the report
+   * ("<name> said …") and can name any camp it likes.
    *
    * A message broken over lines could still start one with those very
    * words, so the line must also agree with the battle text below it, which
@@ -3835,8 +3739,8 @@
    * no such line, but its battle text has a line that starts "<name>'s
    * forces counter-attack …" and, at the end, "<name>'s forces overpowered
    * your army!". Held to the start of a line, with no space in the name, so
-   * a defender's message ("b00000n said Trevor's forces overpowered your
-   * army lol") can never be the one read. A string is taken as its lines.
+   * a defender's message ("<name> said <name>'s forces overpowered your
+   * army") can never be the one read. A string is taken as its lines.
    */
   function battleReportTargetName(lines) {
     const list = Array.isArray(lines) ? lines : String(lines || '').split('\n');
@@ -3854,8 +3758,7 @@
    * attack or raid, told from the attacker's side. Both sides of a battle
    * get a report, and both open with "Your soldiers march onto the
    * battlefield" — that line says nothing about whose attack it was. What
-   * does (the defender's side seen live 18 Sep 2026: DarkDestiny's attack on
-   * Trevor, attack_id 1002196):
+   * does:
    *   attacker's side only — a "… Again!" button (battleReportAgainButton);
    *     "N of your soldiers are trained attack specialists"; "<name>'s
    *     forces counter-attack and inflict …"; "You stole N gold while
@@ -3874,9 +3777,8 @@
    * starting "<word> took ya" over the member's own lost raid is not one of
    * the report's lines, and the raid is still recorded. Shared by
    * collectAttackLog and the mission history: an enemy's hit on the member,
-   * filed as the member's own attack, stays wrong for good (the server keeps
-   * the first attacker it is told) — until v2.25.1 collectAttackLog did
-   * exactly that.
+   * filed as the member's own attack, would stay wrong for good (the server
+   * keeps the first attacker it is told).
    */
   function battleReportIsOwnAttack(lines) {
     const list = (lines || []).filter((l) => typeof l === 'string').map((l) => l.trim());
@@ -3901,10 +3803,9 @@
    * the server took it ({ ok: true }); false otherwise.
    *
    * after: the first read's promise, on the delayed read. When it resolves
-   * true there is nothing to add and nothing is sent — until v2.25.1 every
-   * report view posted the same row twice. A first read that found only part
-   * of the report, or whose post failed, leaves the delayed read to send as
-   * before (the server fills a repeat's missing fields and takes the late
+   * true there is nothing to add and nothing is sent. A first read that found
+   * only part of the report, or whose post failed, leaves the delayed read to
+   * send (the server fills a repeat's missing fields and takes the late
    * gold).
    */
   async function collectAttackLog({ after = null } = {}) {
@@ -3925,16 +3826,15 @@
 
     // Everything is read from the report's own lines (battleReportLines, the
     // same reader the mission history uses), never from the whole page: the
-    // defender's message above the report ("b00000n said …") is on the page
-    // too, and used to be able to supply the target's name.
+    // defender's message above the report ("<name> said …") is on the page
+    // too and must never supply the target's name.
     const lines = battleReportLines();
     if (!lines.length) {
       debugLog("⚠️ No battle report on this page (yet)");
       return false;
     }
-    // Both sides of a battle get a report. Until v2.25.1 one of another
-    // player's attacks on the member was filed here as the MEMBER's attack
-    // on them (target the real attacker, 'Unknown', 0 gold).
+    // Both sides of a battle get a report; only the member's own attack or
+    // raid is recorded here.
     if (!battleReportIsOwnAttack(lines)) {
       debugLog("📊 Attack log: not a report of your own attack or raid (another player's attack on you, or not drawn yet) — not sent");
       return false;
@@ -3944,9 +3844,8 @@
 
     // Gold, target and hostages are on a win's first line: "You stole N gold
     // while attacking <name>'s camp and made off with H hostages (Attack: …)".
-    // A raid reads "while RAIDING" — until v2.25.1 only "while attacking"
-    // matched, so every raid was stored with 0 gold stolen and target
-    // 'Unknown'. A lost battle has no such line: 0 stolen is then the truth,
+    // A raid reads "while RAIDING"; both wordings match. A lost battle has no
+    // such line: 0 stolen is then the truth,
     // and the name comes from its battle text (battleReportTargetName).
     const stole = battleReportStoleLine(lines);
     const stoleLine = stole ? stole.input : '';
@@ -3957,8 +3856,7 @@
     const hostages = hostagesMatch ? parseInt(hostagesMatch[1].replace(/,/g, ''), 10) : 0;
 
     // The hostages by unit type, same line. Thousands separators allowed: a
-    // big hit takes more than 999 of one kind, and "1,203" used to void the
-    // whole split.
+    // big hit can take more than 999 of one kind ("1,203").
     const casualtiesMatch = stoleLine.match(/\(Attack:\s*([\d,]+),\s*Defense:\s*([\d,]+),\s*Untrained:\s*([\d,]+),\s*Spies:\s*([\d,]+),\s*Sentries:\s*([\d,]+)\)/i);
     const count = (s) => parseInt(String(s).replace(/,/g, ''), 10) || 0;
     const casualties = casualtiesMatch ? {
@@ -4029,11 +3927,11 @@
 
     // Only a read of the whole report (battleReportWhole) stops the delayed
     // read; a win worded any other way is never taken as whole, so the
-    // delayed read posts it again, as it always did.
+    // delayed read posts it again.
     const whole = battleReportWhole(lines);
 
     // Send to API
-    const res = await auth.apiCall("battlefield/attack-log", attackLog);
+    const res = await auth.apiCall("attack-pages", "battlefield/attack-log", attackLog);
     return whole && !!(res && res.ok);
   }
 
@@ -4052,7 +3950,7 @@
 
     const table = header.closest("table");
     const stats = {};
-    const ranks = {}; // NEW: Track ranks separately
+    const ranks = {}; // ranks tracked separately
     const now = getKoCServerTimeUTC();
 
     table.querySelectorAll("tr").forEach(row => {
@@ -4061,7 +3959,7 @@
 
       const label = cells[0].innerText.trim().toLowerCase();
       const value = cells[1].innerText.trim();
-      const rankText = cells[2]?.innerText.trim(); // NEW: Extract rank from 3rd column
+      const rankText = cells[2]?.innerText.trim(); // rank from the 3rd column
 
       // Extract rank number from "#117" or "#1,234" format (handle commas for ranks over 1000)
       const rankMatch = rankText?.match(/#([\d,]+)/);
@@ -4109,7 +4007,7 @@
       }
     });
 
-    // Store ranks separately for Stat Hunt feature
+    // Store ranks separately: your stat ranks
     stats._realRanks = ranks;
 
     return stats;
@@ -4130,7 +4028,7 @@
     if (bodyText.includes("Stats Page that does not exist") ||
         bodyText.includes("Invalid User ID")) {
       console.warn(`⚠️ Player ${playerId} does not exist - marking as deleted`);
-      await auth.apiCall(`players/${playerId}/mark-inactive`, {
+      await auth.apiCall('recon', `players/${playerId}/mark-inactive`, {
         status: "deleted",
         error: "Stats page does not exist"
       });
@@ -4168,7 +4066,7 @@
     };
 
     // Parse timestamp from page (format: "2026-01-24 01:57:14")
-    // KoC server time (US Eastern to Era 23, UTC from Era 24): convertKoCServerTimeToUTC handles both
+    // KoC server time: convertKoCServerTimeToUTC handles UTC and the older US Eastern dates
     // May also be "time ago" format if table was already enhanced - fall back to current time
     function parseTimestamp(text) {
       if (!text) return null;
@@ -4184,15 +4082,12 @@
     const now = getKoCServerTimeUTC();
 
     // The Information table is on this same page and carries Race and Rank.
-    // Nothing else routinely refreshed them: race was only ever read on a full
-    // recon (inteldetail.php), so a player who switched race kept the old one
-    // in the roster until somebody spent a recon on them — while every visit
-    // to this page had the new race sitting in plain sight. Reading it here
-    // means race and rank refresh on the cheapest, most common action there is.
+    // Reading it here refreshes race and rank on every stats-page visit,
+    // without needing a full recon.
     const info = readStatsInfoTable();
     if (info.race) { stats.race = info.race; stats.raceTime = now; }
     if (info.rank) { stats.rank = info.rank; stats.rankTime = now; }
-    // Alt Watch (issue #52): commander chain, signup time, previous-era rank
+    // Alt Watch: commander chain, signup time, previous-era rank
     let infoRead = false;
     for (const k of ['commanderId', 'commanderName', 'supremeCommanderId', 'supremeCommanderName', 'signupAt', 'previousEraRank']) {
       if (info[k] !== undefined && info[k] !== null) { stats[k] = info[k]; infoRead = true; }
@@ -4237,7 +4132,7 @@
     }
 
     // Save to localStorage and send to API
-    updatePlayerInfo(playerId, stats);
+    updatePlayerInfo(playerId, stats, 'recon');
     debugLog(`📊 Stats page collected ${statCount}/8 stats for player ${playerId}`, {
       race: stats.race || null, rank: stats.rank || null
     });
@@ -4250,7 +4145,7 @@
    *
    * Only race and rank are taken. Name and alliance are deliberately left
    * alone — those have their own trusted collectors, and a bad scrape of the
-   * name field is exactly what caused the 'Members' corruption incident.
+   * name field would overwrite the roster's name.
    */
   function readStatsInfoTable() {
     const out = {};
@@ -4269,11 +4164,11 @@
       } else if (label === 'rank:') {
         // "Rank:" exactly — never "Previous Era Rank:" or "Highest Rank:".
         // Digits only: KoC comma-formats ranks over 999 and parseInt("1,039")
-        // is 1, which is how every 4-digit rank once showed as #1.
+        // is 1.
         const digits = value.replace(/[^0-9]/g, '');
         if (digits) out.rank = digits;
       } else if (label === 'commander:' || /^supreme commander:?$/.test(label)) {
-        // Alt Watch (issue #52): a stats.php?id= link, or "None". "none" is
+        // Alt Watch: a stats.php?id= link, or "None". "none" is
         // sent for None because empty values are never sent.
         const pre = label === 'commander:' ? 'commander' : 'supremeCommander';
         const link = cells[1].querySelector("a[href*='stats.php?id=']");
@@ -4286,9 +4181,9 @@
           out[pre + 'Name'] = 'none';
         }
       } else if (label === 'signup time:') {
-        // The account's creation, shown on TODAY's server clock (UTC from Era 24) even for
-        // old accounts, so no era-dependent Eastern offset (convertKoCServerTimeToUTC
-        // would add 4-5h to pre-Era-24 dates; issue #54)
+        // The account's creation, shown on TODAY's server clock (UTC) even for
+        // old accounts, so it is read as UTC directly (convertKoCServerTimeToUTC
+        // would add 4-5h to dates before 3 Nov 2026)
         const m = value.match(/(\d{4})-(\d{2})-(\d{2})\s+(\d{2}):(\d{2}):(\d{2})/);
         if (m) out.signupAt = new Date(Date.UTC(+m[1], +m[2] - 1, +m[3], +m[4], +m[5], +m[6])).toISOString();
       } else if (label.startsWith('previous era rank:')) {
@@ -4308,221 +4203,45 @@
   // ==================== BASE PAGE COLLECTOR ====================
 
   function collectFromBasePage() {
+    // Your id and name come from the game's own User Info table on this page.
+    // A name saved with an older login is never preferred over it.
     let myId = SafeStorage.get("KoC_MyId", null);
     let myName = SafeStorage.get("KoC_MyName", null);
-
-    // Prefer the name from the native User Info table — it's the ground truth
-    // on base.php. Stored auth names have been poisoned by bad login scrapes
-    // before (the 'Members' incident) and would then overwrite the real name
-    // in the roster on every base.php visit.
-    const authData = auth.getStoredAuth();
     const nativeIdentity = findOwnIdentityOnPage();
     if (nativeIdentity) {
-      if (authData?.name && authData.name !== nativeIdentity.name) {
-        console.warn(`⚠️ Stored auth name "${authData.name}" doesn't match page name "${nativeIdentity.name}" — using page name`);
-      }
-      myName = nativeIdentity.name;
       myId = nativeIdentity.id;
-    } else if (authData && authData.name) {
-      myName = authData.name;
-    }
-
-    // Only scrape ID from page if we don't have it stored yet
-    // (prevents grabbing alliance member links from stats tables)
-    if (!myId) {
-      // Look for YOUR stats link - it should be in the header/navigation area
-      // Try multiple selectors to find the right link
-      let myLink = null;
-
-      // Strategy 1: Look for link with text matching authenticated name
-      // CRITICAL: Exclude links from script-injected tables (Sweet Revenge panel, Competition panels)
-      if (myName) {
-        const links = document.querySelectorAll("a[href*='stats.php?id=']");
-        for (const link of links) {
-          // Skip links inside script-injected content
-          const parent = link.closest('[data-koc-injected], .sr-stat-tiv, .sr-stat-strike, .sr-stat-spy, .sr-stat-poison, .sr-stat-theft, .sr-stat-rank, .sr-stat-defense, .sr-stat-sentry, .sr-stat-antidote, .sr-stat-vigilance, .sr-stat-recons, .sr-stat-income, [id^="koc-comp-panel"]');
-          if (parent) {
-            continue; // Skip links from injected content (no logging - too many!)
-          }
-
-          if (link.textContent.trim() === myName) {
-            myLink = link;
-            debugLog("📊 Found stats link by name match:", myName);
-            break;
-          }
-        }
-      }
-
-      // Strategy 2: Look in sidebar menu (safer than first table)
-      if (!myLink) {
-        const sidebar = document.querySelector("td.menu_cell");
-        if (sidebar) {
-          myLink = sidebar.querySelector("a[href*='stats.php']");
-          if (myLink) {
-            debugLog("📊 Found stats link in sidebar");
-          }
-        }
-      }
-
-      // Strategy 3: REMOVED - Don't blindly grab first link (could be from leaderboards!)
-      // If we still don't have a link, warn and skip to avoid data corruption
-      if (!myLink) {
-        console.warn("⚠️ Could not safely find player stats link - skipping ID scraping");
-      }
-
-      if (myLink) {
-        myId = myLink.href.match(/id=(\d+)/)?.[1] || "self";
-        debugLog("📊 Scraped my KoC ID from page:", myId);
-      }
-    }
-
-    // Save ID and name
-    if (myId) {
+      myName = nativeIdentity.name;
       SafeStorage.set("KoC_MyId", myId);
-    }
-    if (myName) {
       SafeStorage.set("KoC_MyName", myName);
     }
+    if (!myId) return;
 
-    debugLog("📊 Using my KoC ID/Name:", myId, myName);
-
+    // Projected Income (gold per turn)
     let projectedIncome;
-    let treasury;
-    let economy;
-    let xpPerTurn;
-    let turnsAvailable;
-    let economyLevel;
-    let goldPerTurn;
-    let technologyLevel;
-    let technologyMultiplier;
-    let soldiersPerTurn;
-    let covertSkill;
-    let sentrySkill;
-    let toxicInfusionLevel;
-    let viperbaneLevel;
-    let siegeTechnology;
-
-    // Economy / Treasury block
-    const rows = [...document.querySelectorAll("tr")];
-    rows.forEach(tr => {
+    for (const tr of document.querySelectorAll("tr")) {
       const txt = tr.innerText.trim();
-
       if (txt.includes("Projected Income")) {
         const match = txt.match(/([\d,]+)\s+Gold/);
         if (match) projectedIncome = parseInt(match[1].replace(/,/g, ""), 10);
       }
+    }
 
-      // Economy: Industrial (9,536,800 gold per turn)
-      if (txt.startsWith("Economy")) {
-        const levelMatch = txt.match(/Economy\s+([A-Za-z\s]+)\s*\(/);
-        const goldMatch = txt.match(/\(?([\d,]+)\s+gold per turn\)?/i);
-        if (levelMatch) economyLevel = levelMatch[1].trim();
-        if (goldMatch) goldPerTurn = parseInt(goldMatch[1].replace(/,/g, ""), 10);
-        // Legacy economy field (just the number)
-        if (goldMatch) economy = parseInt(goldMatch[1].replace(/,/g, ""), 10);
-      }
-
-      // Technology: Steam Engine (x 6.7)
-      if (txt.startsWith("Technology")) {
-        const levelMatch = txt.match(/Technology\s+([A-Za-z\s]+)\s*\(/);
-        const multMatch = txt.match(/\(x\s*([\d.]+)\)/);
-        if (levelMatch) technologyLevel = levelMatch[1].trim();
-        if (multMatch) technologyMultiplier = parseFloat(multMatch[1]);
-      }
-
-      // Soldier Per Turn: 33 Soldiers
-      if (txt.includes("Soldier Per Turn")) {
-        const match = txt.match(/([\d,]+)\s+Soldiers/i);
-        if (match) soldiersPerTurn = parseInt(match[1].replace(/,/g, ""), 10);
-      }
-
-      // Covert Level: George Love (Level 20)
-      if (txt.includes("Covert Level")) {
-        const match = txt.match(/Level\s+(\d+)/);
-        if (match) covertSkill = parseInt(match[1], 10);
-      }
-
-      // Sentry Level: UnABooner (Level 20)
-      if (txt.includes("Sentry Level")) {
-        const match = txt.match(/Level\s+(\d+)/);
-        if (match) sentrySkill = parseInt(match[1], 10);
-      }
-
-      // Poison Level: Miasmic Venom Concoction (Level 7)
-      if (txt.includes("Poison Level")) {
-        const match = txt.match(/Level\s+(\d+)/);
-        if (match) toxicInfusionLevel = parseInt(match[1], 10);
-      }
-
-      // Antidote Level: Venomfang Wardenship (Level 8)
-      if (txt.includes("Antidote Level")) {
-        const match = txt.match(/Level\s+(\d+)/);
-        if (match) viperbaneLevel = parseInt(match[1], 10);
-      }
-
-      // Siege: Morgath (x 146.19)
-      if (txt.startsWith("Siege")) {
-        const match = txt.match(/Siege\s+(.+)/);
-        if (match) siegeTechnology = match[1].trim();
-      }
-
-      if (txt.includes("Experience Per Turn")) {
-        const match = txt.match(/([\d,]+)/);
-        if (match) xpPerTurn = parseInt(match[1].replace(/,/g, ""), 10);
-      }
-    });
-
-    // Military Effectiveness block
+    // Military Effectiveness ratings and your rank in each stat
     const stats = collectMilitaryStats();
-
-    // Extract real ranks for Stat Hunt (separate from stats)
     const realRanks = stats._realRanks || {};
-    delete stats._realRanks; // Don't send _realRanks to players endpoint
-
+    delete stats._realRanks;
     const now = getKoCServerTimeUTC();
 
-    // Full payload for local storage (UI features like recon ??? filling)
-    const fullPayload = {
-      name: myName,
-      projectedIncome,
-      treasury,
-      economy,
-      xpPerTurn,
-      turnsAvailable,
-      economyLevel,
-      goldPerTurn,
-      technologyLevel,
-      technologyMultiplier,
-      soldiersPerTurn,
-      covertSkill,
-      sentrySkill,
-      toxicInfusionLevel,
-      viperbaneLevel,
-      siegeTechnology,
-      ...stats,
-      lastSeen: now
-    };
-
-    // Save full data locally for UI features (direct to localStorage, skip API)
+    // Kept on this device for the sidebar calculator (projected income) and
+    // the Stat Reshuffler (race).
     const map = getNameMap();
-    map[myId] = { ...map[myId], ...sanitizePlayerData(fullPayload) };
+    map[myId] = { ...map[myId], ...sanitizePlayerData({ name: myName, projectedIncome, ...stats, lastSeen: now }) };
     saveNameMap(map);
-    debugLog("📊 Base.php self stats captured locally", fullPayload);
 
-    // Send ONLY projectedIncome to API (needed for sidebar banked % calculator)
-    const apiPayload = {
-      name: myName,
-      projectedIncome,
-      lastSeen: now
-    };
-
-    auth.apiCall("players", { id: myId, ...apiPayload });
-    debugLog("📊 Base.php data sent to API", apiPayload);
-
-    // Push real ranks to API (for Stat Hunt feature)
+    // Shared under "Your Command Centre stats". Not awaited: nothing waits on it.
+    auth.apiCall("own-stats", "players", { id: myId, name: myName, projectedIncome, lastSeen: now });
     if (Object.keys(realRanks).length > 0) {
-      auth.apiCall(`rankings/real-ranks/${myId}`, { ranks: realRanks });
-      debugLog("🎯 Real ranks captured for Stat Hunt:", realRanks);
+      auth.apiCall("own-stats", `rankings/real-ranks/${myId}`, { ranks: realRanks });
     }
   }
 
@@ -4531,22 +4250,23 @@
   // POST our current/max recon count to the API so alliance members can see it.
   // current may run past max: the game keeps counting once the goal is done.
   // No-ops cleanly if not logged in. Errors are swallowed by the caller.
-  // missions: your own "Recon Missions" count (#41), or null when the page
+  // missions: your own "Recon Missions" count, or null when the page
   // had no such row — the server then keeps the last one it stored.
   async function publishReconCount(current, max, completed, claimed, missions) {
     const token = await auth.getToken();
     if (!token) return;
-    const resp = await fetch(`${API_URL}/player-recons`, {
+    const resp = await netFetch('recon', `${API_URL}/player-recons`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
         "Authorization": "Bearer " + token,
         "X-Script-Name": SCRIPT_NAME,
         "X-Script-Version": SCRIPT_VERSION,
-        "X-KoC-Clock": "utc" // reads the KoC clock as UTC (Era 24+); the server corrects older versions
+        "X-KoC-Clock": "utc" // KoC times in this request are UTC
       },
       body: JSON.stringify({ current, max, completed, claimed, missions })
     });
+    if (!resp) return;   // switched off
     if (resp.status === 404) {
       // The roster has no player for the id this login carries (an era reset
       // drops every player; a login made before it, or for another account,
@@ -4562,11 +4282,11 @@
   // The "Unsuccessful Recons" /1000 goal as the Rewards page draws it, or null.
   // Each goal is a <td>: "Unsuccessful Recons<br><font color=goldenrod>N/1000</font>"
   // (the /100 and /1000 goals share one <tr>), then a cell with its button.
-  // The game keeps counting past the goal and marks it done (live, Era 23):
+  // The game keeps counting past the goal and marks it done:
   //   …<font …>1278/1000</font> &#9989; Completed</td> … class="reward_claimed" value="CLAIMED"
   // LOCKED (reward_notel) = not reached, CLAIM = reached but not claimed.
   // `label` picks the row: Unsuccessful Recons (Actions against you) by
-  // default, or /Recon Missions/ (Your Actions, #41) — same markup, same states.
+  // default, or /Recon Missions/ (Your Actions) — same markup, same states.
   function readReconReward(doc = document, label = /Unsuccessful Recons/i) {
     for (const cell of doc.querySelectorAll("td")) {
       // The goal's own cell only, not a layout cell wrapping the whole page
@@ -4600,8 +4320,9 @@
     // its goal, so the Recons column shows it once your 1,000 above is done.
     const missionsRow = readReconReward(document, /Recon Missions/i);
     const missions = missionsRow ? missionsRow.current : null;
-    const myId = SafeStorage.get("KoC_MyId", "self");
-    const myName = SafeStorage.get("KoC_MyName", "Me");
+    const myId = SafeStorage.get("KoC_MyId", null);
+    const myName = SafeStorage.get("KoC_MyName", null);
+    if (!myId) return;
 
     // Kept once done too, so the panel's offline fallback shows ✅ Done
     const reconData = {
@@ -4624,22 +4345,20 @@
     );
   }
 
-  // ==================== OWN-ACCOUNT TRACKING (issue #12) ====================
-  // For the next era's opening simulation: the member's OWN account as their
-  // own pages show it (REVIEW.md §6.1/§6.2) — the sidebar balances on any
-  // page, the tables the game drew on Base / Armory / Upgrades / Safe /
-  // Training / Trade / Rewards / Conquest, and each conquest result. Only the
-  // page in front of the member is read: nothing is fetched or clicked, and
-  // the page is left exactly as drawn. The War List and Farm List never get
-  // here (READ_ONLY_PAGE). Stored on the roster (routes/own-tracking.js);
-  // nothing shows it — the sim reads it back with /own-tracking/export.
+  // ==================== OWN-ACCOUNT TRACKING ====================
+  // The member's OWN account as their own pages show it — the sidebar
+  // balances on any page, the tables the game drew on Base / Armory /
+  // Upgrades / Safe / Training / Trade / Rewards / Conquest / Game Logs, and
+  // each conquest result. Only the page in front of the member is read:
+  // nothing is fetched or clicked, and the page is left exactly as drawn.
+  // The War List and Farm List never get here (READ_ONLY_PAGE).
 
   // Page file → snapshot key. Any other page sends the sidebar alone.
   const OWN_TRACK_PAGES = {
     "base.php": "base", "armory.php": "armory", "upgrades.php": "upgrades", "safe.php": "safe",
     "training.php": "training", "trade.php": "trade", "rewards.php": "rewards", "conquestv2.php": "conquest",
     // Game Logs: daily login bonus, vault tax, purchases, repairs, safe, hostages,
-    // poison, weapons lost to sabs and thefts — all your own (#28)
+    // poison, weapons lost to sabs and thefts — all your own
     "logs.php": "logs"
   };
   // Tables left out, by the header of the table or of any table around it:
@@ -4793,7 +4512,7 @@
     const gap = snap.page === "sidebar" ? OWN_TRACK_SIDEBAR_GAP_MS : OWN_TRACK_PAGE_GAP_MS;
     if (!ownTrackShouldSend(snap.page, snap.digest, gap)) return;
     const { digest, ...body } = snap;
-    const resp = await auth.apiCall("own-tracking/snapshot", body);
+    const resp = await auth.apiCall("own-history", "own-tracking/snapshot", body);
     if (resp && resp.ok) ownTrackMarkSent(snap.page, digest);
     else debugLog("⚠️ Own snapshot not stored:", resp);
   }
@@ -4827,7 +4546,7 @@
     conquestFlushing = true;
     try {
       const batch = queue.slice(0, 200);
-      const resp = await auth.apiCall("own-tracking/conquest", { eraText: (readOwnSidebar() || {}).eraText || null, attempts: batch });
+      const resp = await auth.apiCall("own-history", "own-tracking/conquest", { eraText: (readOwnSidebar() || {}).eraText || null, attempts: batch });
       if (resp && resp.ok) {
         const sent = new Set(batch.map(a => a.key));
         SafeStorage.set(CONQUEST_QUEUE_KEY, (SafeStorage.get(CONQUEST_QUEUE_KEY, []) || []).filter(a => !sent.has(a.key)));
@@ -4890,25 +4609,12 @@
     const infoRow = document.querySelector("a[href='info.php']")?.closest("tr");
     if (!infoRow) return;
 
-    // Fetch players (API → fallback to cache)
-    let players = [];
-    try {
-      const token = await auth.getToken();
-      if (token) {
-        // Optimized: Filter by alliance and select only needed fields
-        const fields = 'id,name,alliance,tiv,strikeAction,defensiveAction,spyRating,sentryRating,poisonRating,antidoteRating,theftRating,vigilanceRating,rank,projectedIncome,projectedIncomeTime';
-        const resp = await fetch(`${API_URL}/players?alliance=Sweet+Revenge&fields=${fields}`, {
-          headers: {
-            "Authorization": "Bearer " + token,
-            "X-Script-Name": SCRIPT_NAME,
-            "X-Script-Version": SCRIPT_VERSION,
-            "X-KoC-Clock": "utc" // reads the KoC clock as UTC (Era 24+); the server corrects older versions
-          }
-        });
-        if (resp.ok) players = await resp.json();
-      }
-    } catch (err) {
-      console.warn("TopStats API failed, using cache", err);
+    // The alliance's players, only the fields the panel shows. Without an
+    // answer (Read switched off, logged out, server down) the members this
+    // device has seen are used.
+    const fields = 'id,name,alliance,tiv,strikeAction,defensiveAction,spyRating,sentryRating,poisonRating,antidoteRating,theftRating,vigilanceRating,rank,projectedIncome,projectedIncomeTime';
+    let players = await auth.apiCall('read', `players?alliance=Sweet+Revenge&fields=${fields}`);
+    if (!Array.isArray(players)) {
       players = Object.values(getNameMap()).filter(p => p.alliance === "Sweet Revenge");
     }
 
@@ -4981,14 +4687,12 @@
     // (the game keeps counting past it — 1278/1000 — so the raw count goes
     // in the tooltip). Each row is only as fresh as that member's last
     // Rewards visit that reached the server, so the tooltip gives its age and
-    // a row older than a day is dimmed: a member at 804 still read 402 here
-    // while their own uploads were being turned away.
+    // a row older than a day is dimmed.
     //
     // Once the goal is done the row switches to the member's own Recon
-    // Missions count (#41) — 🎯 1,278 in goldenrod, like the game draws it —
+    // Missions count — 🎯 1,278 in goldenrod, like the game draws it —
     // which keeps climbing, so the done rows read as a friendly "most recons
-    // this era" table. A done member with no count yet (older script, or no
-    // Rewards visit since updating) still shows ✅ Done.
+    // this era" table. A done member with no count yet still shows ✅ Done.
     function reconAge(updatedAt) {
       const t = Date.parse(updatedAt || "");
       const ageH = Number.isFinite(t) ? Math.max(0, (Date.now() - t) / 3600000) : null;
@@ -5016,38 +4720,19 @@
     // Fetch alliance-wide recon counts from the API, with localStorage as fallback.
     // Returns rows in the shape expected by makeRBTable: { id, rank, name, value, rawValue }
     async function getReconTracking() {
-      // 1) Try the API for alliance-wide data
-      try {
-        const token = await auth.getToken();
-        if (token) {
-          const resp = await fetch(
-            `${API_URL}/player-recons?alliance=${encodeURIComponent("Sweet Revenge")}`,
-            {
-              headers: {
-                "Authorization": "Bearer " + token,
-                "X-Script-Name": SCRIPT_NAME,
-                "X-Script-Version": SCRIPT_VERSION,
-                "X-KoC-Clock": "utc" // reads the KoC clock as UTC (Era 24+); the server corrects older versions
-              }
-            }
-          );
-          if (resp.ok) {
-            const list = await resp.json();
-            return list.map((p, i) => ({
-              id: p.id,
-              rank: i + 1, // API already sorts by remaining desc, done last
-              name: p.name,
-              ...reconCell(p.count ?? p.current, p.max, p.completed, p.claimed, p.updatedAt, p.missions, p.missionsUpdatedAt),
-              rawValue: p.remaining
-            }));
-          }
-          debugLog(`⚠️ /player-recons returned ${resp.status} — using localStorage fallback`);
-        }
-      } catch (err) {
-        debugLog("⚠️ Recon fetch failed, using localStorage fallback:", err);
+      // 1) The alliance-wide list (the server sorts it: most remaining first, done last)
+      const list = await auth.apiCall('read', `player-recons?alliance=${encodeURIComponent("Sweet Revenge")}`);
+      if (Array.isArray(list)) {
+        return list.map((p, i) => ({
+          id: p.id,
+          rank: i + 1,
+          name: p.name,
+          ...reconCell(p.count ?? p.current, p.max, p.completed, p.claimed, p.updatedAt, p.missions, p.missionsUpdatedAt),
+          rawValue: p.remaining
+        }));
       }
 
-      // 2) Fallback: read this user's own captures from localStorage
+      // 2) Without it: this device's own capture
       const reconPlayers = [];
       for (const key of Object.keys(localStorage)) {
         if (key.startsWith("reconTrack_")) {
@@ -5128,7 +4813,7 @@
     cell.colSpan = 2;
     container.appendChild(cell);
 
-    // Header with column toggles (debug mode stays reachable via KoCDebug.toggle() in the console)
+    // Header with column toggles
     const header = document.createElement("div");
     header.style.cssText = "margin-bottom:8px; color:gold; font-size:12px; font-weight:bold;";
 
@@ -5465,7 +5150,7 @@
   // until opened (remembered); Plan as held stays usable from the header.
   // Display-only — pins, the toggle and open/closed are stored on this device.
   const GPP_PANEL_OPEN_KEY = 'KoC_GppPanelOpen';
-  const GPP_SOURCE_SHORT = { live: 'Live', remembered: 'Remembered', learned: 'old buy', paired: 'Paired', pinned: 'Pinned' };
+  const GPP_SOURCE_SHORT = { live: 'Live', remembered: 'Remembered', paired: 'Paired', pinned: 'Pinned' };
 
   function renderGppPanel(resolved) {
     const rankTable = findRankGainTable();
@@ -5507,7 +5192,7 @@
       let unheld = '?';
       if (r.unheldQty === 0) unheld = '—';
       else if (r.unheldQty > 0) unheld = rankupShort(r.unheldQty) + ((r.mult > 0 && r.unheldStrength > 0) ? ' <span style="' + muted + '">(+' + rankupShort(r.mult * r.unheldStrength) + ' if held)</span>' : '');
-      const srcColor = r.stale || r.source === 'learned' ? 'color:#e6b450;' : (r.source ? '' : muted);
+      const srcColor = r.stale ? 'color:#e6b450;' : (r.source ? '' : muted);
       html += bodyRow +
         '<td>' + label + '</td>' +
         '<td align="right">' + fmtGpp(r.gpp) + '</td>' +
@@ -5548,11 +5233,10 @@
 
   // ==================== RANK NEIGHBOUR RECON LINKS ====================
   // Turns each Previous/Next rating threshold into a hyperlink to the player we
-  // believe holds that rank. Clicking → recon → their stats refresh in the DB.
-  // Candidates are matched by RATING VALUE (the game's threshold is ground
-  // truth), never by the drift-prone DB rank columns, so a wrong candidate
-  // rotates out on the next page load — the loop self-corrects toward the true
-  // neighbour and curious clickers become a distributed recon workforce.
+  // believe holds that rank. Candidates are matched by RATING VALUE (the
+  // game's threshold is ground truth), never by the drift-prone DB rank
+  // columns, so a wrong candidate rotates out on the next page load.
+  // Clicking a link opens that player's stats page.
 
   const RANK_NEIGHBOR_ACTION_MAP = {
     'Strike': 'strikeAction',
@@ -5599,7 +5283,7 @@
       return;
     }
 
-    const resp = await auth.apiCall('rankings/rank-neighbors', { thresholds });
+    const resp = await auth.apiCall('read', 'rankings/rank-neighbors', { thresholds });
     if (!resp || !resp.neighbors) {
       debugLog('⚠️ Rank neighbours: no API response');
       return;
@@ -5739,7 +5423,7 @@
 
     // 2. Validate cost data
     if (!armoryRankCosts.costs || Object.keys(armoryRankCosts.costs).length === 0) {
-      showAutoFillMessage('❌ Cost data not available. Please refresh the page.', 'error');
+      showAutoFillMessage('❌ Cost data not available: turn on Rank-up cost display and reload.', 'error');
       return;
     }
 
@@ -5888,14 +5572,14 @@
     // 2. Get authentication token
     const token = await auth.getToken();
     if (!token) {
-      showAutoFillMessage('❌ Please log in first. Visit your Profile page to authenticate.', 'error');
+      showAutoFillMessage('❌ Please log in first. Open your Command Center and press Login.', 'error');
       return;
     }
 
     // 3. Get player ID
     const playerId = SafeStorage.get("KoC_MyId", null);
     if (!playerId) {
-      showAutoFillMessage('❌ Player ID not found. Please visit your Profile page.', 'error');
+      showAutoFillMessage('❌ Player ID not found. Open your Command Center once so the script knows your id.', 'error');
       return;
     }
 
@@ -5917,15 +5601,16 @@
     debugLog(`🌐 Calling optimizer API: ${apiUrl}`);
 
     try {
-      const resp = await fetch(apiUrl, {
+      const resp = await netFetch('read', apiUrl, {
         headers: {
           "Authorization": "Bearer " + token,
           "X-Script-Name": SCRIPT_NAME,
           "X-Script-Version": SCRIPT_VERSION,
-          "X-KoC-Clock": "utc" // reads the KoC clock as UTC (Era 24+); the server corrects older versions
+          "X-KoC-Clock": "utc" // KoC times in this request are UTC
         }
       });
 
+      if (!resp) throw new Error("Reading from the Sweet Revenge server is switched off in ⚙ Data Centre.");
       if (!resp.ok) {
         if (resp.status === 401) {
           throw new Error("Authentication failed. Please log in again.");
@@ -6183,8 +5868,7 @@
   // Reads the "You Purchased …" lines. A buy that gained nothing went unheld —
   // often on purpose (rank hiding, keeping soldiers on income, holding
   // Poison/Antidote for the last day), so it gets a neutral note, not an error.
-  // Purchases no longer teach a multiplier (see GOLD PER STAT POINT): a buy that
-  // displaced held weapons or landed partly unheld reads low.
+  // Gold per point comes from the page (GOLD PER STAT POINT), not from purchases.
   function scrapePurchaseConfirmation() {
     const bodyText = document.body.textContent;
 
@@ -6221,18 +5905,16 @@
   // ==================== ARMORY SELF COLLECTOR ====================
 
   async function collectTIVAndStatsFromArmory() {
-    const myId = SafeStorage.get("KoC_MyId", "self");
-    const myName = SafeStorage.get("KoC_MyName", "Me");
+    const myId = SafeStorage.get("KoC_MyId", null);
+    const myName = SafeStorage.get("KoC_MyName", null);
+    if (!myId) return;
 
     // TIV
     const header = [...document.querySelectorAll("th.subh")]
       .find(th => th.textContent.includes("Total Invested Value"));
     const tivCell = header?.closest("tr").nextElementSibling?.querySelector("td b");
-    // null = the box could not be read at all, so say nothing and leave the
-    // roster's value alone. 0 = the box really is empty/zero (sabbed flat, or
-    // sold out mid-reshuffle), which is data worth recording. The old code
-    // collapsed both to 0: an unreadable box wrote a bogus zero to the roster,
-    // while a genuine zero was swallowed by the `if (tiv)` guard below.
+    // null = the box couldn't be read, so nothing is sent; 0 = a real empty
+    // TIV, which is recorded.
     const tivText = tivCell ? tivCell.textContent.replace(/,/g, "").trim() : null;
     const tivDigits = tivText === null ? null : tivText.replace(/[^\d]/g, "");
     const tiv = tivDigits === null ? null : (tivDigits === "" ? 0 : parseInt(tivDigits, 10));
@@ -6277,20 +5959,13 @@
 
     // === CALCULATE GOLD-PER-POINT EFFICIENCY ===
     // Sent to the API below — the server rank optimizer needs gold_per_point.
-    // (The rank-up display and slider UI are separate registry features now.)
-    const efficiency = calculateWeaponEfficiency();
+    const efficiency = gppEfficiencyMap(gppResolve(gppReadArmory()));
 
     const now = getKoCServerTimeUTC();
 
-    // Save to TIV log — a real zero counts (it is the whole point of the
-    // timestamped /tiv endpoint that it records what the armory says today).
+    // A real zero counts: the /tiv endpoint records what the armory says today.
     if (tiv !== null) {
-      const log = getTivLog();
-      log.push({ id: myId, tiv, time: now });
-      saveTivLog(log);
-
-      // Send TIV to API
-      await auth.apiCall("tiv", { playerId: myId, tiv, time: now });
+      await auth.apiCall("armory", "tiv", { playerId: myId, tiv, time: now });
     }
 
     // Extract real ranks from stats for API submission
@@ -6329,9 +6004,7 @@
       vigilanceRatingTime: stats.vigilanceRatingTime,
       // Real ranks
       ...realRanks,
-      // Gold-per-point efficiency (goldPerAttackPoint, …) — computed above for the rank-up
-      // display but PREVIOUSLY NEVER SENT. The server rank optimizer skips any stat whose
-      // gold_per_point is null, so without this it returned an empty allocation ("no allocations").
+      // Gold per stat point: the server's rank optimizer skips any stat without one.
       ...efficiency
     };
 
@@ -6340,7 +6013,7 @@
     map[myId] = { ...map[myId], ...sanitizePlayerData(payload) };
     saveNameMap(map);
 
-    await auth.apiCall("players", { id: myId, ...payload });
+    await auth.apiCall("armory", "players", { id: myId, ...payload });
 
     debugLog("📊 Armory data sent to API", { id: myId, name: myName, tiv, ...realRanks });
     debugLog("📊 Local stats captured for UI", { stats, weapons: weapons.length, efficiency });
@@ -6367,22 +6040,6 @@
     }
     SafeStorage.set('KoC_SpendPrefs', { distribution, raw, timestamp: Date.now() });
     debugLog('📊 Cached armory spend prefs:', distribution);
-  }
-
-  // ==================== WEAPON MULTIPLIER SYSTEM ====================
-  // Pre-v2.26.0 purchase-learned multipliers. Nothing writes them any more;
-  // gppResolve reads them once to seed stats the page has never shown held.
-  function getStoredMultipliers() {
-    return SafeStorage.get('KoC_WeaponMultipliers', {});
-  }
-
-  // Gold-per-point per stat (goldPerAttackPoint, …) for the rank-up display and
-  // the roster API. Since v2.26.0 it comes from gppResolve (live reading from
-  // the page, remembered, paired or pinned) — no longer from purchase messages.
-  function calculateWeaponEfficiency() {
-    const efficiency = gppEfficiencyMap(gppResolve(gppReadArmory()));
-    debugLog('💰 Weapon efficiency calculated:', efficiency);
-    return efficiency;
   }
 
   function collectWeaponsFromArmory() {
@@ -6500,9 +6157,8 @@
 
           // Cell 3 contains the STRENGTH. Repairable weapons (attack/defense) show
           // "current / max" e.g. "1,000 / 1,000"; covert tools DON'T degrade so KoC
-          // prints a single number e.g. "1,000". Parse BOTH — the old slash-only regex
-          // read covert strength as 0, collapsing covert TIV/distribution to 0 (which
-          // zeroed the safe.php "Attacked Instead" table and under-reported covert TIV to the API).
+          // prints a single number e.g. "1,000". Attack/defense weapons print
+          // 'current / max'; covert tools print one number. Both are parsed.
           const strengthText = cells[3]?.textContent.trim() || '';
           const slashMatch = strengthText.match(/([\d,]+)\s*\/\s*([\d,]+)/);
           let minStrength, maxStrength;
@@ -6514,7 +6170,6 @@
             maxStrength = minStrength = single ? parseInt(single[1].replace(/,/g, ''), 10) : 0;
           }
 
-          // No longer need totalStrength - we calculate it from quantity × strength
           const totalStrength = quantity * maxStrength;
 
           if (weaponName && quantity > 0) {
@@ -6524,7 +6179,7 @@
               quantity: quantity,
               minStrength: minStrength,
               maxStrength: maxStrength,
-              totalStrength: totalStrength,  // Use game's pre-calculated total
+              totalStrength: totalStrength,  // quantity × max strength
               sellValue: sellValue           // per-unit sell value as printed (null if unreadable)
             });
           }
@@ -6560,7 +6215,7 @@
     theft:     [{ name: 'Greasy Gloves', price: 140000, strength: 140 }, { name: 'Rusty Lockpick', price: 250000, strength: 250 }, { name: 'Shadow Cloak', price: 600000, strength: 600 }, { name: 'Ethereal Grasp', price: 1000000, strength: 1000 }],
     vigilance: [{ name: 'Wooden Whistle', price: 140000, strength: 140 }, { name: 'Steel Shackles', price: 250000, strength: 250 }, { name: 'Silver Scepter', price: 600000, strength: 600 }, { name: 'Adamantine Bastion', price: 1000000, strength: 1000 }]
   };
-  // Era 23 race bonuses that touch armory stats (Humans' 15% Hostage isn't one).
+  // Race bonuses that touch armory stats (Humans' 15% Hostage isn't one).
   const RESHUF_RACES = ['Humans', 'Dwarves', 'Elves', 'Orcs', 'Undead', 'Trolls', 'Goblins'];
   const RESHUF_RACE_BONUS = { Humans: { poison: 0.10 }, Dwarves: { defense: 0.25 }, Elves: { spy: 0.25 }, Orcs: { attack: 0.25 }, Undead: { sentry: 0.25 }, Trolls: { theft: 0.25 }, Goblins: { vigilance: 0.25 } };
   // Which units carry each category's weapons (personnel-table labels).
@@ -6574,7 +6229,7 @@
   function reshufUnitCaps() {
     try {
       const table = document.querySelector('table.table_lines.personnel') ||
-                    bankFindInnermostTable('Trained Attack Soldiers');
+                    findInnermostTable('Trained Attack Soldiers');
       if (!table) return null;
       const counts = {};
       [...table.rows].forEach(row => {
@@ -6644,7 +6299,7 @@
     const tivHeader = [...document.querySelectorAll('th.subh')].find(th => th.textContent.includes('Total Invested Value'));
     const tivCell = tivHeader?.closest('tr').nextElementSibling?.querySelector('td b');
     const tiv = tivCell ? num(tivCell.textContent) : 0;
-    // Same live-tested funds regexes as Banking Mode (read-only, no side effects)
+    // Available Funds and Vault Gold, as printed on the Armory.
     const bodyText = document.body.textContent;
     const funds = num(bodyText.match(/Available\s+Funds:\s*([\d,]+)\s*Gold/i)?.[1]);
     const vault = num(bodyText.match(/Vault\s+Gold:\s*([\d,]+)\s*Gold/i)?.[1]);
@@ -6680,16 +6335,7 @@
     return { cats, tiv, funds, vault, capsKnown: caps !== null };
   }
 
-  // Learned multipliers go quietly stale: every skill/tech upgrade multiplies
-  // the rating, but the stored value only refreshes on a purchase — so an old
-  // one under-counts what your weapons contribute and leaves phantom rating
-  // behind on sell-all scenarios. The page itself implies rating/heldNow
-  // (a hair HIGH — it includes the tiny unarmed-unit base, ~0.1% on live
-  // data), so a learned value well below it predates upgrades. Fresh mults
-  // sit at ~1.0× implied; real stale cases measured 0.23–0.86× (2026-08-30).
-  // Since v2.26.0 the multiplier comes from gppResolve, which re-reads the page
-  // on every visit — so the only stale case left is a Remembered reading taken
-  // before that stat's skill was upgraded.
+  // A Remembered reading taken before that stat's skill upgrade is flagged as stale.
   function reshufStaleCheck(c) {
     return c.stale ? { from: c.stale.from, to: c.stale.to } : null;
   }
@@ -6705,9 +6351,8 @@
   //                (rank hiding, income, holding Poison/Antidote for the last day)
   //   paired     — Poison↔Antidote, Theft↔Vigilance: the partner's multiplier,
   //                only while both skills sit at the same upgrade level
-  // Purchases no longer teach a multiplier: a buy that displaces held weapons
-  // (BPMs over held chariots) or lands unheld reads low — 0.41× on live data
-  // (30 Oct 2026: learned Strike ×1,133 against ×2,776 from the page).
+  // Purchases are not used: a buy that displaces held weapons (BPMs over held
+  // chariots) or lands unheld reads low.
   const GPP_LIVE_KEY = 'KoC_GppLive';
   const GPP_PINS_KEY = 'KoC_GppPins';
   const GPP_HELD_KEY = 'KoC_PlanAsHeld';
@@ -6763,10 +6408,9 @@
   // stat whose unheld line isn't on the page (no live reading from guesses).
   //
   // unitStrength: every spy, sentry, venomweaver… adds about 1 strength point
-  // of its own to the rating, tool or no tool. Live 12 Nov 2026 (issue #45):
-  // 3 Nunchaku + 1,379 spies read 243,131 Spy — ×81 over the tools alone,
-  // ×55.5 over tools + spies, and a bought Nunchaku gained 55,505. Sentry
-  // (4,915 towers, 4,924 sentries) fits "all units", not "unarmed only".
+  // of its own to the rating, tool or no tool: 3 Nunchaku + 1,379 spies read
+  // 243,131 Spy (×55.5 over tools + spies), and a bought Nunchaku gained
+  // 55,505. Sentry fits "all units", not "unarmed only".
   // Attack/Defense are left out: not measured, and untrained soldiers hold too.
   function gppReadArmory() {
     const weapons = collectWeaponsFromArmory();
@@ -6813,14 +6457,9 @@
         dirty = true;
       }
     }
-    // Seed once from the pre-v2.26 purchase-learned multipliers, for stats the
-    // page has never shown held; any live reading replaces it.
-    const learned = getStoredMultipliers();
+    // Readings marked `seeded` came from purchases, which are not used.
     for (const cat of RESHUF_CATS) {
-      if (!live[cat] && learned[cat] && learned[cat].value > 0) {
-        live[cat] = { mult: learned[cat].value, ts: learned[cat].timestamp || null, level: null, seeded: true };
-        dirty = true;
-      }
+      if (live[cat] && live[cat].seeded) { delete live[cat]; dirty = true; }
     }
     if (dirty) SafeStorage.set(GPP_LIVE_KEY, live);
 
@@ -6838,7 +6477,7 @@
       const e = live[cat];
       if (e) {
         r.mult = e.mult; r.ts = e.ts;
-        r.source = fresh ? 'live' : (e.seeded ? 'learned' : 'remembered');
+        r.source = fresh ? 'live' : 'remembered';
         if (!fresh) r.stale = staleOf(cat);
       } else {
         const p = GPP_PAIR[cat];
@@ -6884,7 +6523,6 @@
       case 'pinned': return 'Pinned';
       case 'live': return 'Live';
       case 'remembered': return 'Remembered' + ago + (r.stale ? ' · before L' + r.stale.from + '→L' + r.stale.to + ' upgrade — hold 1 to refresh' : '');
-      case 'learned': return 'From an old buy' + ago + ' — hold 1 to refresh';
       case 'paired': return 'est. from ' + RESHUF_LABELS[r.pairFrom] + ' (both L' + gppLevels()[r.cat] + ')';
       default: return 'none — pin one';
     }
@@ -6995,7 +6633,7 @@
 
     // Best guess at current race: last manual pick, else the roster's view of us
     const raceStored = SafeStorage.get('KoC_MyRace', null);
-    const mapRace = (getNameMap()[SafeStorage.get('KoC_MyId', 'self')] || {}).race || null;
+    const mapRace = (getNameMap()[SafeStorage.get('KoC_MyId', null)] || {}).race || null;
     const guessRace = [raceStored, mapRace]
       .map(r => RESHUF_RACES.find(x => r && x.toLowerCase() === String(r).toLowerCase()))
       .find(Boolean) || '';
@@ -7074,7 +6712,7 @@
     const body = document.createElement('div');
     body.style.cssText = 'overflow-y:auto;flex:1 1 auto;';
     body.innerHTML =
-      '<div style="padding:8px 12px;color:#8b94a7;font-size:11px;border-bottom:1px solid #262c37;">Every sale returns <b>50%</b> of a weapon\'s value (and lands in your Vault), so a full rework costs half of what you liquidate. Projections use the weapon multipliers learned from your own purchases.</div>' +
+      '<div style="padding:8px 12px;color:#8b94a7;font-size:11px;border-bottom:1px solid #262c37;">Every sale returns <b>50%</b> of a weapon\'s value (and lands in your Vault), so a full rework costs half of what you liquidate. Projections use the gold per point from the Gold per Stat Point panel (Live, Remembered, Paired or Pinned).</div>' +
       '<div style="' + secCss + '">Race</div>' +
       '<div style="display:flex;align-items:center;gap:8px;padding:2px 12px 8px 12px;font-size:11px;flex-wrap:wrap;">' +
       '<span style="color:#8b94a7;">Now:</span><select id="kdc-rs-race-from" style="' + selCss + '"><option value="">— set race —</option>' + RESHUF_RACES.map(raceOpt).join('') + '</select>' +
@@ -7126,13 +6764,13 @@
       const L = h(RESHUF_LABELS[cat]);
       let html = '<div style="padding:0 12px 6px 12px;font-size:11px;line-height:1.7;">';
       if (g.unknown) {
-        html += '<span style="color:#e6b450;">Projected ' + L + ' is unknown (no multiplier learned) — buy 1 ' + L.toLowerCase() + ' item once to calibrate.</span>';
+        html += '<span style="color:#e6b450;">Projected ' + L + ' is unknown (no multiplier) — hold at least one, or pin a gold/pt under the Rank Gain table.</span>';
       } else {
         html += '<span style="color:#8b94a7;">Projected ' + L + ' after this plan:</span> <b>' + fmt(g.projected) + '</b> &nbsp;·&nbsp; <span style="color:#8b94a7;">goal:</span> <b>' + fmt(target) + '</b><br>';
         if (g.reached) {
           html += '<span style="color:#5fcf7a;">✅ Goal reached — ' + fmt(g.surplus) + ' over the target.</span>';
         } else if (g.noMult) {
-          html += '<span style="color:#e6b450;">Gap ' + fmt(g.gap) + ', but no ' + L + ' multiplier is known — buy 1 item once to calibrate.</span>';
+          html += '<span style="color:#e6b450;">Gap ' + fmt(g.gap) + ', but no ' + L + ' multiplier — hold at least one, or pin a gold/pt under the Rank Gain table.</span>';
         } else {
           html += '<span style="color:#8b94a7;">Gap:</span> <b style="color:#e06a6a;">' + fmt(g.gap) + '</b> &nbsp;≈&nbsp; <b>' + fmt(g.weaponsNeeded) + ' × ' + h(g.weapon) + '</b> &nbsp;=&nbsp; <b style="color:#c9a959;">' + fmt(g.goldNeeded) + ' gold</b> on top of this plan';
           if (sim.leftover > 0) {
@@ -7168,7 +6806,7 @@
         }
         if (r.bought > 0) notes.push(fmt(r.bought) + ' × ' + h(r.weapon));
         if (r.unheld > 0) notes.push('<span style="color:#8b94a7;">' + fmt(r.unheld) + ' unheld (' + fmt(c.capacity) + ' held)</span>');
-        if ((c.multSource === 'paired' || c.multSource === 'learned') && r.changed) notes.push('<span style="color:#8b94a7;">est. multiplier</span>');
+        if (c.multSource === 'paired' && r.changed) notes.push('<span style="color:#8b94a7;">est. multiplier</span>');
         if (c.mult === null && after === null) notes.push('<span style="color:#e6b450;">no multiplier — pin a gold/pt for ' + h(RESHUF_LABELS[cat]) + ' under the Rank Gain table</span>');
         return '<tr style="border-top:1px solid #262c37;' + (r.changed ? '' : 'opacity:.55;') + '">' +
           '<td style="padding:4px 10px;">' + h(RESHUF_LABELS[cat]) + '</td>' +
@@ -7314,7 +6952,7 @@
         return;
       }
 
-      // Fallback: the old native-styled button under the Total Invested Value box
+      // Fallback when the Armory Preferences header isn't found: a button under the TIV box.
       const tivHeader = [...document.querySelectorAll('th.subh')].find(th => th.textContent.includes('Total Invested Value'));
       const anchorRow = tivHeader && tivHeader.closest('tr');
       if (!anchorRow || !anchorRow.parentNode) { debugLog('🔀 Reshuffler: neither Armory Preferences nor TIV anchor found — skipped'); return; }
@@ -7758,7 +7396,6 @@
   /**
    * Competition tracking system - tracks attack missions and gold stolen
    * Supports individual and team competitions
-   * Works alongside standalone KoC-SlayingComp.user.js script
    */
 
   const COMP_SETTINGS_PREFIX = "KoC_CompSettings"; // Per-competition settings
@@ -7815,7 +7452,6 @@
     }
   }
 
-  // Helper function to extract sidebar values
   // Parse a KoC number that may be abbreviated with a K/M/B/T suffix.
   // The sidebar shows large gold/safe values abbreviated (e.g. "2,560M" = 2.56 billion),
   // so a plain parseInt("2,560M") would wrongly yield 2560. Returns a number or null.
@@ -7831,6 +7467,8 @@
     return Math.round(n * mult);
   }
 
+  // The number after "<label>:" in the first cell starting with that label
+  // (sidebar Gold, Safe, …), abbreviations included, or null.
   function getSidebarValue(label) {
     const el = [...document.querySelectorAll("td")].find(td =>
       td.innerText.trim().startsWith(label)
@@ -7921,14 +7559,13 @@
 
   async function loadActiveCompetitions() {
     // Fetch all active competitions (API returns array)
-    const comps = await auth.apiCall("competitions/active");
-    if (!comps || (Array.isArray(comps) && comps.length === 0)) {
+    const comps = await auth.apiCall("read", "competitions/active");
+    if (!Array.isArray(comps) || comps.length === 0) {
       debugLog("ℹ️ No active competitions");
       return false;
     }
 
-    // Handle both single object (old API) and array (new API) responses
-    activeCompetitions = Array.isArray(comps) ? comps : [comps];
+    activeCompetitions = Array.isArray(comps) ? comps : [];
 
     // Clear old competition data from localStorage
     const activeIds = activeCompetitions.map(c => c.id);
@@ -7936,7 +7573,7 @@
 
     // Load entries for each competition
     for (const comp of activeCompetitions) {
-      const entry = await auth.apiCall(`competitions/${comp.id}/my-entry`);
+      const entry = await auth.apiCall("read", `competitions/${comp.id}/my-entry`);
       if (entry) {
         myCompEntries.set(comp.id, entry);
       }
@@ -7947,7 +7584,7 @@
 
   // Team management
   async function joinCompTeam(competitionId, teamId) {
-    const result = await auth.apiCall(`competitions/${competitionId}/join-team`, "POST", { team_id: teamId });
+    const result = await auth.apiCall("competitions", `competitions/${competitionId}/join-team`, { team_id: teamId });
     if (result) {
       myCompEntries.set(competitionId, result);
       return true;
@@ -7956,7 +7593,7 @@
   }
 
   async function getAvailableCompTeams(competitionId) {
-    return await auth.apiCall(`competitions/${competitionId}/teams`);
+    return await auth.apiCall("read", `competitions/${competitionId}/teams`);
   }
 
   // Submit stats
@@ -7985,6 +7622,7 @@
     try {
       debugLog(`📤 Submitting stats for competition "${competition.name}"`, stats);
       const result = await auth.apiCall(
+        "competitions",
         `competitions/${competition.id}/entries`,
         stats
       );
@@ -8001,13 +7639,6 @@
     }
   }
 
-  async function submitAllCompStats() {
-    // Submit stats for all active competitions
-    for (const comp of activeCompetitions) {
-      await submitCompStats(comp);
-    }
-  }
-
   // Toggle participation
   async function toggleCompParticipation(competition, enabled) {
     if (!competition) return;
@@ -8020,8 +7651,8 @@
     const entry = myCompEntries.get(competition.id);
     if (entry) {
       await auth.apiCall(
+        "competitions",
         `competitions/${competition.id}/toggle`,
-        "POST",
         { enabled }
       );
     }
@@ -8043,7 +7674,7 @@
         : `competitions/${competition.id}/leaderboard`;
 
       debugLog(`📊 Fetching leaderboard from: ${endpoint}`);
-      leaderboard = await auth.apiCall(endpoint);
+      leaderboard = await auth.apiCall("read", endpoint);
 
       if (!leaderboard) {
         console.error(`❌ No leaderboard data returned for competition: ${competition.name}`);
@@ -8164,7 +7795,7 @@
             <td style="padding:8px; border:1px solid #444; color:${rankColor}; font-weight:bold; text-align:center;">${idx + 1}</td>
             <td style="padding:8px; border:1px solid #444;">
               ${isMyTeam ? '<strong>' : ''}
-              ${entry.team_name || 'Unknown'}${currentMedal}
+              ${escapeHtml(entry.team_name || 'Unknown')}${currentMedal}
               ${isMyTeam ? '</strong>' : ''}
             </td>
             <td style="padding:8px; border:1px solid #444; text-align:center;">${entry.member_count || 0}</td>
@@ -8195,14 +7826,14 @@
         const bgColor = isMe ? '#2a2a00' : (idx % 2 === 0 ? '#111' : '#1a1a1a');
         const rankColor = idx === 0 ? 'gold' : idx === 1 ? 'silver' : idx === 2 ? '#cd7f32' : '#999';
         const currentMedal = idx === 0 ? ' 🥇' : idx === 1 ? ' 🥈' : idx === 2 ? ' 🥉' : '';
-        const permanentRibbons = entry.ribbons ? ` ${entry.ribbons}` : '';
+        const permanentRibbons = entry.ribbons ? ` ${escapeHtml(entry.ribbons)}` : '';
 
         tableHTML += `
           <tr style="background:${bgColor};">
             <td style="padding:8px; border:1px solid #444; color:${rankColor}; font-weight:bold; text-align:center;">${idx + 1}</td>
             <td style="padding:8px; border:1px solid #444;">
               ${isMe ? '<strong>' : ''}
-              ${entry.player_name || 'Unknown'}${currentMedal}${permanentRibbons}
+              ${escapeHtml(entry.player_name || 'Unknown')}${currentMedal}${permanentRibbons}
               ${isMe ? '</strong>' : ''}
               ${!entry.enabled ? ' <span style="color:#999;">(hidden)</span>' : ''}
             </td>
@@ -8247,8 +7878,8 @@
       // Minimized view - just show expand button
       cell.innerHTML = `
         <div style="display:flex; align-items:center; gap:8px;">
-          <span style="color:gold; font-size:12px;">🏆 ${competition.name}</span>
-          <button class="comp-expand-btn" data-comp-id="${competition.id}" style="margin-left:auto; padding:4px 12px; cursor:pointer; background:#2196F3; color:white; border:none; border-radius:4px; font-size:11px;">
+          <span style="color:gold; font-size:12px;">🏆 ${escapeHtml(competition.name)}</span>
+          <button class="comp-expand-btn" data-comp-id="${escapeHtml(competition.id)}" style="margin-left:auto; padding:4px 12px; cursor:pointer; background:#2196F3; color:white; border:none; border-radius:4px; font-size:11px;">
             ▼ Show Panel
           </button>
         </div>
@@ -8332,7 +7963,7 @@
         teamDisplay = `
           <div style="margin-top:8px; padding:6px; background:#2a2a2a; border-radius:4px;">
             <div style="font-size:10px; color:#6cf;">
-              👥 Team: <strong>${myEntry.team_name}</strong>
+              👥 Team: <strong>${escapeHtml(myEntry.team_name)}</strong>
             </div>
           </div>
         `;
@@ -8342,7 +7973,7 @@
             <div style="font-size:10px; color:#f90; margin-bottom:4px;">
               ⚠️ No team selected
             </div>
-            <button class="comp-select-team-btn" data-comp-id="${competition.id}" style="padding:4px 8px; cursor:pointer; background:#2196F3; color:white; border:none; border-radius:4px; font-size:10px;">
+            <button class="comp-select-team-btn" data-comp-id="${escapeHtml(competition.id)}" style="padding:4px 8px; cursor:pointer; background:#2196F3; color:white; border:none; border-radius:4px; font-size:10px;">
               Select Team
             </button>
           </div>
@@ -8361,9 +7992,9 @@
     cell.innerHTML = `
       <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:8px;">
         <div style="color:gold; font-weight:bold;">
-          🏆 ${competition.name}
+          🏆 ${escapeHtml(competition.name)}
         </div>
-        <button class="comp-minimize-btn" data-comp-id="${competition.id}" style="padding:2px 8px; cursor:pointer; background:#555; color:white; border:none; border-radius:3px; font-size:10px;">
+        <button class="comp-minimize-btn" data-comp-id="${escapeHtml(competition.id)}" style="padding:2px 8px; cursor:pointer; background:#555; color:white; border:none; border-radius:3px; font-size:10px;">
           ▲ Hide
         </button>
       </div>
@@ -8372,13 +8003,13 @@
         ${scoringDisplay}
       </div>
       <div style="display:flex; gap:8px; margin-bottom:8px;">
-        <button class="comp-toggle-btn" data-comp-id="${competition.id}" style="flex:1; padding:6px; cursor:pointer; background:${isEnabled ? '#4CAF50' : '#f44336'}; color:white; border:none; border-radius:4px;">
+        <button class="comp-toggle-btn" data-comp-id="${escapeHtml(competition.id)}" style="flex:1; padding:6px; cursor:pointer; background:${isEnabled ? '#4CAF50' : '#f44336'}; color:white; border:none; border-radius:4px;">
           ${isEnabled ? '▶️ Tracking is ON' : '⏸️ Tracking is OFF'}
         </button>
-        <button class="comp-update-btn" data-comp-id="${competition.id}" style="flex:1; padding:6px; cursor:pointer; background:#FF9800; color:white; border:none; border-radius:4px;">
+        <button class="comp-update-btn" data-comp-id="${escapeHtml(competition.id)}" style="flex:1; padding:6px; cursor:pointer; background:#FF9800; color:white; border:none; border-radius:4px;">
           🔄 Update Stats
         </button>
-        <button class="comp-leaderboard-btn" data-comp-id="${competition.id}" style="flex:1; padding:6px; cursor:pointer; background:#2196F3; color:white; border:none; border-radius:4px;">
+        <button class="comp-leaderboard-btn" data-comp-id="${escapeHtml(competition.id)}" style="flex:1; padding:6px; cursor:pointer; background:#2196F3; color:white; border:none; border-radius:4px;">
           📊 Leaderboard
         </button>
       </div>
@@ -8559,7 +8190,7 @@
           const minute = parseInt(parts[5]);
           const second = parseInt(parts[6]);
 
-          const offset = kocOffsetHours(year, month, day); // 0 from Era 24 (UTC)
+          const offset = kocOffsetHours(year, month, day); // 0 for UTC dates
           const reconTime = new Date(Date.UTC(year, month, day, hour + offset, minute, second));
 
           // Calculate age
@@ -8610,8 +8241,6 @@
     const allStatsLinks = document.querySelectorAll('a[href*="stats.php?id="]');
 
     for (const a of allStatsLinks) {
-      // Skip our own Data Centre link
-      if (a.href.includes('id=datacentre')) continue;
       // Skip if it's just "stats.php?id=" with no actual ID
       if (!a.href.match(/id=\d+/)) continue;
       // Found a valid player stats link
@@ -8630,7 +8259,7 @@
     // Check for Invalid User ID error
     if (document.body.textContent.includes("Invalid User ID")) {
       console.warn(`⚠️ Invalid User ID detected for player ${id} - marking as deleted`);
-      await auth.apiCall(`players/${id}/mark-inactive`, {
+      await auth.apiCall('recon', `players/${id}/mark-inactive`, {
         status: "deleted",
         error: "Invalid User ID"
       });
@@ -8760,18 +8389,18 @@
     }
 
     // Save to localStorage and send to API
-    updatePlayerInfo(id, stats);
+    updatePlayerInfo(id, stats, 'recon');
     debugLog(`📊 Fresh recon collected for ${id}: ${statCount} combat stats`);
 
-    // Fill any ??? values with last known data from API
-    await fillMilitaryStatsFromAPI(id);
+    // Fill any ??? values with the alliance's last known data
+    if (featureEnabled('recon-display')) await fillMilitaryStatsFromAPI(id);
   }
 
   // Fill ??? values in Military Stats table with last known data from API
   async function fillMilitaryStatsFromAPI(playerId) {
     try {
       // Fetch player data from API
-      const playerData = await auth.apiCall(`players/${playerId}`);
+      const playerData = await auth.apiCall('read', `players/${playerId}`);
       if (!playerData || playerData.error) {
         debugLog("⚠️ No API data available for player", playerId);
         return;
@@ -8864,7 +8493,7 @@
   async function fillSharedReconInfoFromAPI(playerId) {
     try {
       // Fetch player data from API
-      const playerData = await auth.apiCall(`players/${playerId}`);
+      const playerData = await auth.apiCall('read', `players/${playerId}`);
       if (!playerData || playerData.error) {
         debugLog("⚠️ No API data available for player", playerId, playerData?.error);
         return;
@@ -8984,18 +8613,6 @@
 
     const day = Math.floor(hr / 24);
     return `${day}d ago`;
-  }
-
-  // ==================== DATA CENTRE REDIRECT ====================
-
-  // Old "stats.php?id=datacentre" links open the live roster. The login
-  // token is never put in the URL (#75): /roster signs in with Discord.
-  async function handleDataCentreRedirect() {
-    if (!location.search.includes("id=datacentre")) {
-      return false; // Not a redirect request
-    }
-    window.location.href = `${API_URL}/roster`;
-    return true; // Redirect was handled
   }
 
   // ==================== SAFE.PHP ATTACK ALTERNATIVE TABLE ====================
@@ -9138,8 +8755,7 @@
 
     // Strength of each best weapon above (parallels bestWeaponPrices). The
     // multiplier is stat per (quantity × strength) — see gppResolve — so the
-    // projected gain MUST include the weapon's strength. Omitting it made every
-    // gain come out 600× (attack/defense) to 1000× (covert) too small.
+    // projected gain MUST include the weapon's strength.
     const bestWeaponStrength = {
       attack: 600,     // Chariot
       defense: 600,    // Ebony Platemail
@@ -9204,7 +8820,7 @@
       const weaponStrength = bestWeaponStrength[cat] || 1;
 
       // weapons bought = goldForStat / weaponPrice; each weapon adds (strength × multiplier)
-      // stat, since multiplier is stat per (qty × strength). The strength factor was missing.
+      // stat, since multiplier is stat per (qty × strength).
       const statGained = multiplier > 0 ? Math.floor(goldForStat / weaponPrice * weaponStrength * multiplier) : 0;
       projectedStats[cat] = (currentStats[cat] || 0) + statGained;
 
@@ -9566,7 +9182,7 @@
     });
   }
 
-  // ==================== GOLD UPGRADES: READINESS + TIME (upgrades.php) ====================
+  // ==================== SAFE DEPOSIT RATE + FORECASTS (safe.php), GOLD UPGRADE READINESS (upgrades.php) ====================
 
   /**
    * Read the current "SAFE Gold Deposited / Every Minute" rate from the safe.php DOM.
@@ -9694,9 +9310,9 @@
       const cost = parseInt(costMatch[1].replace(/,/g, ''), 10);
       const tbody = table.querySelector('tbody') || table;
 
-      // Row 1: can we afford it from gold we actually hold? Full-armory-sell is excluded —
-      // selling your whole armory to upgrade isn't realistic. The shortfall is what you'd make
-      // up by selling some weapons or slaying (shown as a slay estimate from your avg gold/atk).
+      // Row 1: can we afford it? Counts only gold you hold (on hand, vault, safe), not what
+      // selling weapons would raise. The shortfall is what you'd make up by selling some
+      // weapons or slaying (shown as a slay estimate from your avg gold/atk).
       const liquid = goldOnHand + vault + safe;
       const ready = liquid >= cost;
       const shortfall = cost - liquid;
@@ -9750,95 +9366,35 @@
     debugLog('[Upgrades] Upgrade-ready rows injected', { goldOnHand, vault, safe, safePerMin, count: buttons.length });
   }
 
-  // ==================== BANKING MODE (inline armory enhancement) ====================
-  // Display-only gold projection + attack-risk colour bands, inserted INTO the live
-  // Armory page (above the "Available Funds:" banner). Ported from the standalone
-  // koc-banking-mode.user.js v0.2.2 — the kiosk shell is dropped; the game page is
-  // never reparented, hidden, or touched. We only INSERT widgets and OBSERVE forms.
+  // ==================== ESTIMATED FUNDS (armory.php) ====================
+  // One box on the Armory, above the game's "Available Funds:" banner, showing
+  // an estimate of the gold on hand right now: the last gold amount the game
+  // showed you, plus the income earned since then.
   //
-  // HARD CONSTRAINTS honoured throughout:
-  //  - The 1s ticker is DISPLAY-ONLY: it repaints numbers already known locally.
-  //    No fetch/XHR, no navigation, no game action ever fires from any timer.
-  //  - ZERO synthetic events on game elements. The buy/repair forms are OBSERVED
-  //    with passive listeners only — never .click()/.submit()/dispatchEvent.
-  //  - Notifications (off by default) carry {body, tag} ONLY — never an icon: URL
-  //    (a remote icon would make the display timer fire a network request).
-  //  - All persistence via SafeStorage under the KoC_Banking_ key namespace.
-  //  - TIMEKEEPING: LOCAL clock (new Date()) for every "now" stamp; the existing
-  //    convertKoCServerTimeToUTC() (KoC clock→UTC) is used ONLY for genuine past
-  //    event times scraped from attack-log rows. "now" is never inferred from the
-  //    first datetime on the page (on attacklog.php that is a stale attack time).
+  //   estimate = G0 + income·t + ½·g·spm·t²      (1 game turn = 1 minute)
+  //     G0     = gold on hand at the last reading (sidebar, Command Centre or Armory)
+  //     income = the Command Centre's "Projected Income (in 1 min)"; if that has
+  //              never been read, an estimate from soldier counts
+  //     g, spm = gold per new soldier per turn, and "Soldier Per Turn"
+  //
+  // Readings come only from pages the player opened. Nothing is sent anywhere,
+  // nothing on the game page is changed or pressed, and the box gives no advice.
 
-  const BANK_PREFIX = 'KoC_Banking_';
+  const FUNDS_PREFIX = 'KoC_Banking_';         // storage prefix kept so existing readings carry over
+  const FUNDS_TBG_REGULAR = 2.3;               // gold per regular soldier per turn (fallback income)
+  const FUNDS_TBG_COVERT = 0.92;               // gold per covert unit per turn (fallback income)
+  const FUNDS_GOLD_PER_NEW_SOLDIER = 2.3;      // new soldiers arrive untrained
 
-  // Era 23 verified defaults — every one is editable in the inline Settings panel
-  // and none is hardcoded into the maths.
-  const BANK_DEFAULT_SETTINGS = {
-    // Steal rate is a RANGE (TFF-relative: 0.75–1.0). v1 risk maths divides stolen
-    // gold by the MAX (1.0 conservative bound) so held-gold estimates are lower
-    // bounds and risk bands trip earlier, never later.
-    stealRateMin: 0.75,
-    stealRateMax: 1.00,
-    // TBG fallback (gold/unit/turn, 1 turn = 1 minute). Regulars 2.3, coverts 0.92,
-    // mercs 0 (excluded). Only used when no scraped Projected Income is calibrated.
-    tbgRegular: 2.3,
-    tbgCovert: 0.92,
-    // Quadratic growth term: new production arrives untrained → 2.3 gold/turn.
-    growthGoldPerSoldier: 2.3,
-    // Risk model
-    riskWindowDays: 7,
-    yellowPercentile: 25,
-    redPercentile: 50,
-    // Samples needed before a side (steals / safe banks) sets a line
-    minSamples: 3,
-    // Used until either side has minSamples
-    fallbackYellowGold: 50000000,
-    fallbackRedGold: 150000000,
-    // Safe side (v2.30, issue #40): gold held at banks with no steal since the previous bank.
-    // Recency window = the last bankWindowHours OR the last bankWindowCount banks, whichever is shorter.
-    bankWindowHours: 48,
-    bankWindowCount: 20,
-    // Overlap curve (v2.32): risk at G = hits near G / (hits near G + safe holds ≥ G).
-    // A hit at H is "near" G from H up to H / (1 − hitBand%).
-    yellowRisk: 25,
-    redRisk: 50,
-    hitBand: 25,
-    // Fresh-hit cap: lines sit just below the smallest steal (as held gold) in the last capWindowHours.
-    // Hits on less than capMinGold don't cap (a 2M hit right after banking says nothing about your line).
-    capWindowHours: 24,
-    capMinGold: 5000000,
-    capYellowFactor: 0.8,
-    capRedFactor: 0.95,
-    // Pinned lines (0 = learned)
-    overrideYellowGold: 0,
-    overrideRedGold: 0,
-    // Notifications — OFF by default per integration spec; no-icon notifications only
-    notifyEnabled: false,
-    notifyMinGapMins: 10,
-    // Re-entering a band you were already alerted for only re-alerts with this much more gold (or after the min gap)
-    notifyMaterialRisePct: 25,
-    // Show the yellow/red countdown on the box itself (off by default so the box matches the native funds box)
-    showTimes: false,
-    // Double-tap the Available/Estimated Funds box for a full-screen gold view; tap it to reload the Armory
-    fullscreenTap: false,
-    // Calibration older than this is flagged stale in the widget
-    staleCalibrationMins: 1440
-  };
+  function fundsGet(key, def = null) { return SafeStorage.get(FUNDS_PREFIX + key, def); }
+  function fundsSet(key, val) { return SafeStorage.set(FUNDS_PREFIX + key, val); }
 
-  // --- namespaced persistence (delegates to SafeStorage; KoC_Banking_ prefix) ---
-  function bankGet(key, def = null) { return SafeStorage.get(BANK_PREFIX + key, def); }
-  function bankSet(key, val) { return SafeStorage.set(BANK_PREFIX + key, val); }
-  function bankRemove(key) { return SafeStorage.remove(BANK_PREFIX + key); }
-
-  // --- self-contained utilities (bank-prefixed to avoid collisions) ---
-  function bankCleanNumber(str) {
-    if (str === null || str === undefined || str === '???' || str === 'Unknown') return null;
-    const cleaned = String(str).replace(/,/g, '').replace(/[^\d]/g, '');
-    const num = parseInt(cleaned, 10);
+  function fundsCleanNumber(str) {
+    if (str === null || str === undefined) return null;
+    const num = parseInt(String(str).replace(/[^\d]/g, ''), 10);
     return isNaN(num) ? null : num;
   }
 
-  function bankFormatGold(n) {
+  function fundsFormatGold(n) {
     if (n === null || n === undefined || isNaN(n)) return '???';
     const abs = Math.abs(n);
     if (abs >= 1e12) return (n / 1e12).toFixed(2) + 'T';
@@ -9848,1466 +9404,140 @@
     return String(Math.round(n));
   }
 
-  // Short form for the ⚙ gold inputs ("30M", "1.5B", "750K") that reads back to
-  // EXACTLY the same number; anything that wouldn't (33,333,333) keeps its commas.
-  function bankFormatGoldShort(n) {
-    if (n === null || n === undefined || isNaN(n)) return '';
-    const big = [[1e12, 'T'], [1e9, 'B'], [1e6, 'M'], [1e3, 'K']].find(([unit]) => Math.abs(n) >= unit);
-    if (big) {
-      const v = +(n / big[0]).toFixed(3);
-      if (Math.round(v * big[0]) === n) return v + big[1];
-    }
-    return Math.round(n).toLocaleString('en-US');
-  }
-
-  // A ⚙ gold input: { clear: true } for blank or 0, { value } for a readable
-  // amount, { error: true } otherwise. Reuses the Stat Reshuffler's shorthand
-  // parser (digits, commas/spaces, K/M/B/T, any case). Banking only (#60): a
-  // BARE number under 1,000,000 means millions ("60" → 60M, "2.5" → 2.5M) —
-  // nobody sets a banking line below 1M gold, and typing 60 for 60M once put a
-  // pin at 60 gold and sounded DANGER at 2.1M. { millions: true } flags that read.
-  function bankParseGoldInput(raw) {
-    const t = String(raw == null ? '' : raw).trim();
-    if (t === '' || /^0+(\.0*)?\s*[kmbt]?$/i.test(t.replace(/[,\s]/g, ''))) return { clear: true };
-    const v = reshufParseTarget(t);
-    if (v === null) return { error: true };
-    const bare = !/[kmbt]/i.test(t);
-    if (bare && v < 1e6) {
-      const n = parseFloat(t.replace(/[,\s]/g, ''));
-      return { value: Math.round(n * 1e6), millions: true };
-    }
-    return { value: v };
-  }
-
-  // ⚙ "Reset to defaults" (#60): drops the saved settings object, so every
-  // setting reads BANK_DEFAULT_SETTINGS again and both pins clear. Banks,
-  // attacks, calibration and the notify state are separate keys — untouched.
-  function bankResetSettings() {
-    bankRemove('settings');
-    return bankGetSettings();
-  }
-
-  function bankFormatMinutes(min) {
-    if (min === null || min === undefined || !isFinite(min)) return '—';
-    if (min <= 0) return 'now';
-    const m = Math.round(min);
-    if (m < 60) return `${m}m`;
-    const h = Math.floor(m / 60);
-    if (h < 24) return `${h}h ${m % 60}m`;
-    return `${Math.floor(h / 24)}d ${h % 24}h`;
-  }
-
-  function bankFormatTimeAgo(timestamp) {
-    if (!timestamp) return '';
-    const d = new Date(timestamp);
-    if (isNaN(d)) return '';
-    const sec = Math.floor((Date.now() - d.getTime()) / 1000);
-    if (sec < 0) return 'just now';
-    if (sec < 60) return `${sec}s ago`;
-    const min = Math.floor(sec / 60);
+  function fundsFormatAgo(ts) {
+    const min = Math.max(0, Math.round((Date.now() - new Date(ts).getTime()) / 60000));
+    if (min < 1) return 'just now';
     if (min < 60) return `${min}m ago`;
-    const hr = Math.floor(min / 60);
-    const remMin = min % 60;
-    if (hr < 24) return remMin > 0 ? `${hr}h ${remMin}m ago` : `${hr}h ago`;
-    return `${Math.floor(hr / 24)}d ago`;
+    const h = Math.floor(min / 60);
+    if (h < 24) return `${h}h ${min % 60}m ago`;
+    return `${Math.floor(h / 24)}d ${h % 24}h ago`;
   }
 
-  // Percentile of a SORTED ascending numeric array (linear interpolation)
-  function bankPercentile(sorted, p) {
-    if (!sorted.length) return null;
-    if (sorted.length === 1) return sorted[0];
-    const idx = (p / 100) * (sorted.length - 1);
-    const lo = Math.floor(idx);
-    const hi = Math.ceil(idx);
-    if (lo === hi) return sorted[lo];
-    return sorted[lo] + (sorted[hi] - sorted[lo]) * (idx - lo);
+  // The innermost table whose text contains the marker.
+  function findInnermostTable(marker) {
+    const tables = [...document.querySelectorAll('table')].filter(t => t.textContent.includes(marker));
+    return tables.find(t => !tables.some(o => o !== t && t.contains(o))) || null;
   }
 
-  function bankFindInnermostTable(marker) {
-    const matches = [...document.querySelectorAll('table')]
-      .filter(t => t.textContent.includes(marker));
-    return matches.length ? matches[matches.length - 1] : null;
+  function fundsFindRow(table, labelRegex) {
+    return [...table.rows].find(r => r.cells[0] && labelRegex.test(r.cells[0].textContent.trim())) || null;
   }
 
-  function bankFindRowByLabel(table, labelRegex) {
-    if (!table) return null;
-    return [...table.rows].find(r => r.cells[0] && labelRegex.test(r.cells[0].textContent.trim()));
-  }
-
-  // --- settings ---
-  function bankGetSettings() { return { ...BANK_DEFAULT_SETTINGS, ...bankGet('settings', {}) }; }
-  function bankSaveSettings(partial) {
-    const merged = { ...bankGet('settings', {}), ...partial };
-    bankSet('settings', merged);
-    debugLog('💾 Banking settings saved:', partial);
-    return merged;
-  }
-
-  // ==================== OWN-STATE CALIBRATION ====================
-  // base.php recalibrates G0/income/SPM; armory + sidebar refresh G0 (and vault).
-  // All scrapes are passive reads of the already-loaded page — no requests.
-
-  // Save a fresh available-funds reading. Vault is stored alongside but NEVER
-  // counted toward exposed gold — only available funds are stealable (era 23).
-  function bankSaveGoldReading(gold, vault, source) {
+  // Gold on hand (the vault is kept apart and never added in).
+  function fundsSaveReading(gold, source) {
     if (gold === null || gold === undefined) return;
-    const prevVault = bankGet('gold_reading', {}).vault;
-    const reading = {
-      gold: gold,
-      vault: (vault === null || vault === undefined) ? (prevVault === undefined ? null : prevVault) : vault,
-      ts: new Date().toISOString(),   // LOCAL clock — keeps dt-arithmetic self-consistent
-      source: source
-    };
-    bankSet('gold_reading', reading);
-    debugLog(`💰 Banking gold reading: ${gold.toLocaleString()} available (vault ${reading.vault === null ? '?' : reading.vault.toLocaleString()}) from ${source}`);
+    fundsSet('gold_reading', { gold, ts: new Date().toISOString(), source });
   }
 
-  // Sidebar money cells (present on every page with the left menu):
-  // td[align=center] whose trimmed text starts "Gold:"/"Vault:" → its <b> amount.
-  function bankCollectSidebarGold() {
-    try {
-      let gold = null, vault = null;
-      [...document.querySelectorAll('td[align="center"]')].forEach(td => {
-        const label = td.textContent.trim();
-        if (label.length > 80) return;
-        const amountEl = td.querySelector('b');
-        if (!amountEl) return;
-        if (/^Gold:/.test(label)) gold = bankCleanNumber(amountEl.textContent);
-        else if (/^Vault:/.test(label)) vault = bankCleanNumber(amountEl.textContent);
-      });
-      if (gold !== null) bankSaveGoldReading(gold, vault, 'sidebar');
-      return gold;
-    } catch (err) {
-      debugLog('⚠️ Banking sidebar gold scrape failed:', err);
-      return null;
-    }
+  // Sidebar "Gold:" cell, on any page with the left menu. Large amounts are
+  // abbreviated there ("2,560M"), so the K/M/B/T suffix is read too.
+  function fundsReadSidebarGold() {
+    const side = readOwnSidebar();
+    if (side && side.goldN !== undefined) fundsSaveReading(side.goldN, 'sidebar');
   }
 
-  // Personnel table (base.php AND armory.php: table.table_lines.personnel).
-  // regulars exclude mercenaries (0 TBG); coverts are the six covert unit types.
-  function bankCollectPersonnel() {
-    try {
-      const table = document.querySelector('table.table_lines.personnel') ||
-                    bankFindInnermostTable('Trained Attack Soldiers');
-      if (!table) return null;
-
-      const counts = {};
-      [...table.rows].forEach(row => {
-        if (row.cells.length < 2) return;
-        const label = row.cells[0].textContent.trim();
-        const val = bankCleanNumber(row.cells[1].textContent);
-        if (val !== null) counts[label] = val;
-      });
-
-      const regulars = (counts['Trained Attack Soldiers'] || 0) +
-                       (counts['Trained Defense Soldiers'] || 0) +
-                       (counts['Untrained Soldiers'] || 0);
-      const coverts = (counts['Spies'] || 0) +
-                      (counts['Sentries'] || 0) +
-                      (counts['Venomweavers'] || 0) +
-                      (counts['Serpentwardens'] || 0) +
-                      (counts['Thieves'] || 0) +
-                      (counts['Rangers'] || 0);
-
-      if (regulars === 0 && coverts === 0) return null;
-      return { regulars, coverts };
-    } catch (err) {
-      debugLog('⚠️ Banking personnel scrape failed:', err);
-      return null;
-    }
-  }
-
-  // Calibrate from the Command Centre (base.php) — reuses the same overview rows
-  // the main script already reads ("Projected Income", "Soldier Per Turn").
-  function bankCollectCommandCentre() {
-    try {
-      const mo = bankFindInnermostTable('Projected Income');
-      if (!mo) {
-        debugLog('⚠️ Banking: Military Overview table not found on base.php');
-        return null;
-      }
-
-      // Available funds (exposed gold — this is G0)
-      let gold = null;
-      const fundsRow = bankFindRowByLabel(mo, /^Available Funds/);
-      if (fundsRow && fundsRow.cells[1]) {
-        gold = bankCleanNumber(fundsRow.cells[1].textContent.match(/([\d,]+)\s+Gold/i)?.[1]);
-      }
-
-      // Projected income (gold/turn = gold/min) — already includes economy, tech
-      // and era bonuses, so it is preferred over the troop-count fallback.
-      let goldPerMin = null;
-      const projRow = bankFindRowByLabel(mo, /^Projected Income/);
-      if (projRow && projRow.cells[1]) {
-        goldPerMin = bankCleanNumber(projRow.cells[1].textContent.match(/([\d,]+)\s+Gold\s+\(in 1 min\)/i)?.[1]);
-      }
-
-      // Soldiers per turn (= per minute) for the quadratic growth term
-      let spm = null;
-      const sptRow = bankFindRowByLabel(mo, /^Soldier Per Turn/);
-      if (sptRow && sptRow.cells[1]) {
-        spm = bankCleanNumber(sptRow.cells[1].textContent.match(/([\d,]+)\s+Soldiers/i)?.[1]);
-      }
-
-      const personnel = bankCollectPersonnel();
-      const cal = {
-        goldPerMin: goldPerMin,
-        spm: spm,
-        regulars: personnel ? personnel.regulars : null,
-        coverts: personnel ? personnel.coverts : null,
-        ts: new Date().toISOString(),
-        source: 'base.php'
-      };
-      bankSet('calibration', cal);
-      if (gold !== null) bankSaveGoldReading(gold, null, 'base.php');
-
-      debugLog(`✅ Banking calibrated: income ${goldPerMin === null ? '?' : goldPerMin.toLocaleString()}/min, SPM ${spm === null ? '?' : spm}, G0 ${gold === null ? '?' : gold.toLocaleString()}`);
-      return cal;
-    } catch (err) {
-      debugLog('⚠️ Banking calibration failed:', err);
-      return null;
-    }
-  }
-
-  // Read own state from the Armory page (funds banner + vault + personnel).
-  // Reuses the proven body-text regexes ("Available Funds:" / "Vault Gold:").
-  function bankCollectArmoryState() {
-    try {
-      const bodyText = document.body.textContent;
-      // \s*Gold (not \s+) — textContent can concatenate adjacent cells without a
-      // space; this is the live-tested form from the verified selectors table.
-      const fundsMatch = bodyText.match(/Available\s+Funds:\s*([\d,]+)\s*Gold/i);
-      const vaultMatch = bodyText.match(/Vault\s+Gold:\s*([\d,]+)\s*Gold/i);
-      const gold = fundsMatch ? bankCleanNumber(fundsMatch[1]) : null;
-      const vault = vaultMatch ? bankCleanNumber(vaultMatch[1]) : null;
-
-      if (gold !== null) bankSaveGoldReading(gold, vault, 'armory.php');
-
-      // Refresh personnel (fallback income inputs) without clobbering the scraped
-      // goldPerMin/spm from the last base.php calibration.
-      const personnel = bankCollectPersonnel();
-      if (personnel) {
-        const cal = bankGet('calibration', {});
-        cal.regulars = personnel.regulars;
-        cal.coverts = personnel.coverts;
-        if (!cal.ts) cal.ts = new Date().toISOString();
-        bankSet('calibration', cal);
-      }
-      return gold;
-    } catch (err) {
-      debugLog('⚠️ Banking armory state read failed:', err);
-      return null;
-    }
-  }
-
-  // ==================== GOLD PROJECTION MODEL ====================
-  // gold(t) = G0 + S0·g·t + 0.5·g·spm·t²   (1 game turn = 1 minute; vault excluded)
-  //   G0   = available funds at last reading
-  //   S0·g = gold/min — PREFERRED scraped "Projected Income (in 1 min)";
-  //          FALLBACK tbgRegular·regulars + tbgCovert·coverts (mercs excluded)
-  //   g    = growthGoldPerSoldier (new production arrives untrained)
-  //   spm  = "Soldier Per Turn"
-
-  function bankFallbackIncome(cal, settings) {
-    if (!cal || cal.regulars === null || cal.regulars === undefined) return null;
-    return settings.tbgRegular * cal.regulars + settings.tbgCovert * (cal.coverts || 0);
-  }
-
-  function bankGetProjection(nowMs = Date.now()) {
-    const reading = bankGet('gold_reading', null);
-    if (!reading) return null;
-
-    const settings = bankGetSettings();
-    const cal = bankGet('calibration', null);
-    const dtMin = Math.max(0, (nowMs - new Date(reading.ts).getTime()) / 60000);
-    const calAgeMin = (cal && cal.ts)
-      ? Math.max(0, (nowMs - new Date(cal.ts).getTime()) / 60000)
-      : Infinity;
-
-    let goldPerMin = cal && cal.goldPerMin !== null && cal.goldPerMin !== undefined
-      ? cal.goldPerMin
-      : bankFallbackIncome(cal, settings);
-    const spm = cal && cal.spm ? cal.spm : 0;
-
-    // The scraped rate is as old as the calibration; production has been adding
-    // soldiers since. Age the linear term forward to the gold-reading time so the
-    // projection starts from a current income rate.
-    if (goldPerMin !== null && cal && cal.ts && spm) {
-      const rateAgeMin = Math.max(0, (new Date(reading.ts).getTime() - new Date(cal.ts).getTime()) / 60000);
-      goldPerMin += settings.growthGoldPerSoldier * spm * rateAgeMin;
-    }
-
-    let gold;
-    if (goldPerMin === null) {
-      gold = reading.gold; // no income data — show the raw last reading
-    } else {
-      gold = reading.gold +
-             goldPerMin * dtMin +
-             0.5 * settings.growthGoldPerSoldier * spm * dtMin * dtMin;
-    }
-
-    return {
-      gold: Math.round(gold),
-      dtMin: dtMin,
-      calAgeMin: calAgeMin,
-      goldPerMin: goldPerMin,
-      spm: spm,
-      stale: goldPerMin !== null && calAgeMin > settings.staleCalibrationMins,
-      noIncome: goldPerMin === null,
-      reading: reading,
-      cal: cal
-    };
-  }
-
-  // Minutes from now until projected gold reaches targetGold. Solves the quadratic
-  //   0.5·g·spm·t² + goldPerMin·t + (gNow − target) = 0
-  function bankMinutesToGold(targetGold, proj) {
-    if (!proj || proj.noIncome) return null;
-    const settings = bankGetSettings();
-    const gNow = proj.gold;
-    if (gNow >= targetGold) return 0;
-
-    const a = 0.5 * settings.growthGoldPerSoldier * proj.spm; // gold/min²
-    const b = proj.goldPerMin;                                // gold/min
-    const c = gNow - targetGold;
-
-    if (a > 0) {
-      const disc = b * b - 4 * a * c;
-      if (disc < 0) return null;
-      return (-b + Math.sqrt(disc)) / (2 * a);
-    }
-    if (b > 0) return -c / b;
-    return null;
-  }
-
-  // ==================== ATTACK-LOG SCRAPER (feeds the risk model) ====================
-  // On attacklog.php: the "Attacks Against You" header table is a table_lines.attacklog;
-  // the data rows live in the NEXT table_lines. Cache is keyed by attack_id.
-  function bankCollectAttackLog() {
-    try {
-      const tables = [...document.querySelectorAll('table')];
-      const headerIdx = tables.findIndex(t =>
-        t.classList.contains('attacklog') && /Attacks Against You/.test(t.textContent));
-      if (headerIdx === -1) {
-        debugLog('⚠️ Banking: "Attacks Against You" header table not found');
-        return 0;
-      }
-
-      let dataTable = null;
-      for (let i = headerIdx + 1; i < tables.length; i++) {
-        if (tables[i].classList.contains('table_lines') && tables[i].rows.length > 1) {
-          dataTable = tables[i];
-          break;
-        }
-      }
-      if (!dataTable) {
-        debugLog('⚠️ Banking: attack-log data table not found');
-        return 0;
-      }
-
-      const events = bankGet('attack_events', {});
-      let newCount = 0;
-
-      [...dataTable.rows].forEach(row => {
-        try {
-          if (row.cells.length < 8) return;
-          const rowText = row.textContent;
-          // Only "attacked by" rows (excludes "Attacks By You" + the pagination row)
-          if (!/attacked by/i.test(rowText)) return;
-
-          const detailLink = row.querySelector('a[href*="attack_id="]');
-          const idMatch = detailLink ? detailLink.getAttribute('href').match(/attack_id=(\d+)/) : null;
-          if (!idMatch) return;
-          const attackId = idMatch[1];
-          if (events[attackId]) return; // already cached
-
-          const attackerLink = row.querySelector('a[href*="stats.php?id="]');
-          const attackerName = attackerLink ? attackerLink.textContent.trim() : 'Unknown';
-          const attackerId = attackerLink ? (attackerLink.getAttribute('href').match(/id=(\d+)/)?.[1] || null) : null;
-
-          const stolenMatch = rowText.match(/([\d,]+)\s+Gold stolen/i); // defended rows → 0
-          const goldStolen = stolenMatch ? bankCleanNumber(stolenMatch[1]) : 0;
-
-          // Exact server timestamp — the one place the KoC-clock→UTC conversion belongs
-          const tsMatch = rowText.match(/\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}/);
-          const ts = (tsMatch ? convertKoCServerTimeToUTC(tsMatch[0]) : null) || new Date().toISOString();
-
-          events[attackId] = { id: attackId, attacker: attackerName, attackerId: attackerId, goldStolen: goldStolen || 0, ts: ts };
-          newCount++;
-        } catch (err) {
-          debugLog('⚠️ Banking: attack-log row parse failed:', err);
-        }
-      });
-
-      // Prune: keep 60 days, cap 600 newest
-      const cutoff = Date.now() - 60 * 86400000;
-      const kept = Object.values(events)
-        .filter(e => new Date(e.ts).getTime() >= cutoff)
-        .sort((a, b) => new Date(b.ts) - new Date(a.ts))
-        .slice(0, 600);
-      const pruned = {};
-      kept.forEach(e => { pruned[e.id] = e; });
-
-      bankSet('attack_events', pruned);
-      bankSet('last_attacklog_visit', new Date().toISOString());
-      debugLog(`✅ Banking attack log: ${newCount} new, ${kept.length} stored`);
-      return newCount;
-    } catch (err) {
-      debugLog('⚠️ Banking attack-log scrape failed:', err);
-      return 0;
-    }
-  }
-
-  // ==================== RISK MODEL (overlap curve, issue #40) ====================
-  // The Caution (yellow) and Danger (red) lines sit where your own SAFE HOLDS and
-  // the HITS on you overlap, from your history in localStorage only:
-  //   • safe hold — the gold you held when you banked, for a bank with NO steal on
-  //     you since the bank before. Only banks in the recency window count (the last
-  //     48 h or the last 20 banks, whichever is the shorter span), and only once the
-  //     Attack Log has been read after them (else a hit could hide in the gap).
-  //   • hit — held = goldStolen / stealRateMax (MAX = conservative lower bound).
-  //     Hits in the same window take part in the curve.
-  //   • risk at a gold level G = hits near G / (hits near G + safe holds ≥ G), where
-  //     a hit at H is "near" every G from H up to H / (1 − hitBand) (default 25 %):
-  //     being hit holding 38M says 38–50M is risky, but says nothing about 120M, and
-  //     an early hit at 10M says nothing about 35M. A safe hold at S speaks for every
-  //     level ≤ S. So routine low banks (buying at 7M) never touch the higher
-  //     levels, and one lucky big hold or one stray hit is a single vote.
-  //   • scanning the event values from the TOP down, yellow = the lowest G of the
-  //     run where risk ≥ yellowRisk % (default 25), red = where risk ≥ redRisk %
-  //     (default 50). A level needs minSamples events (default 3) to count.
-  //   • no contested zone (no hits among your top holds): yellow = your
-  //     minSamples-th highest safe hold, red = the next one up, so the line sits
-  //     near the top of what you have held safely, not at infinity.
-  //   • only hits and no safe holds: the old attack percentiles (P25 / P50, 7 d).
-  //     No data: the static fallback.
-  //   • capped just below the smallest amount you were attacked for in the last
-  //     24 h (hits on under capMinGold ignored), and a pinned override (⚙) wins.
-  //
-  // SELF-CONTAINED on purpose: no storage, DOM, globals or other helpers, so the
-  // Companion app can copy this function verbatim. All input arrives in `input`:
-  //   { settings, attacks: [{ts, goldStolen}], banks: [{ts, held}],
-  //     attacksSeenUntil: ISO|ms|null (last Attack Log read), now: ms }
-  function bankComputeRiskModel(input) {
-    const s = (input && input.settings) || {};
-    const now = input && input.now != null ? input.now : Date.now();
-    const num = (v, d) => (typeof v === 'number' && isFinite(v) ? v : d);
-    const ms = x => (typeof x === 'number' ? x : new Date(x).getTime());
-    const asc = (a, b) => a - b;
-    const pct = (sorted, p) => {            // linear-interpolated percentile of a sorted array
-      if (!sorted.length) return null;
-      const idx = (p / 100) * (sorted.length - 1);
-      const lo = Math.floor(idx), hi = Math.ceil(idx);
-      return Math.round(sorted[lo] + (sorted[hi] - sorted[lo]) * (idx - lo));
-    };
-    const rate = num(s.stealRateMax, 1) > 0 ? num(s.stealRateMax, 1) : 1;
-    const minSamples = Math.max(1, Math.round(num(s.minSamples, 3)));
-
-    const attacks = ((input && input.attacks) || [])
-      .filter(e => e && e.goldStolen > 0 && isFinite(ms(e.ts)))
-      .map(e => ({ ts: ms(e.ts), held: Math.round(e.goldStolen / rate) }))
-      .sort((a, b) => a.ts - b.ts);
-    const banks = ((input && input.banks) || [])
-      .filter(b => b && b.held > 0 && isFinite(ms(b.ts)))
-      .map(b => ({ ts: ms(b.ts), held: b.held }))
-      .sort((a, b) => a.ts - b.ts);
-    const seenUntil = input && input.attacksSeenUntil != null ? ms(input.attacksSeenUntil) : null;
-
-    // --- attack percentiles (used only when there are hits and no safe holds) ---
-    const windowDays = num(s.riskWindowDays, 7);
-    const hitHeld7d = attacks.filter(a => a.ts >= now - windowDays * 86400000 && a.ts <= now)
-      .map(a => a.held).sort(asc);
-    const hitOk = hitHeld7d.length >= minSamples;
-    const hit = {
-      n: hitHeld7d.length, windowDays,
-      yellow: hitOk ? pct(hitHeld7d, num(s.yellowPercentile, 25)) : null,
-      red: hitOk ? pct(hitHeld7d, num(s.redPercentile, 50)) : null
-    };
-
-    // --- recency window + safe holds ---
-    let winStart = now - num(s.bankWindowHours, 48) * 3600000;
-    const inTime = banks.filter(b => b.ts >= winStart && b.ts <= now);
-    const winCount = Math.max(1, Math.round(num(s.bankWindowCount, 20)));
-    if (inTime.length > winCount) winStart = inTime[inTime.length - winCount].ts;
-    const safeHeld = [];
-    let unconfirmed = 0, hitBanks = 0;
-    for (let i = 1; i < banks.length; i++) {  // the first bank has no "previous" to bound its hold
-      const b = banks[i];
-      if (b.ts < winStart || b.ts > now) continue;
-      if (seenUntil === null || !(seenUntil >= b.ts)) { unconfirmed++; continue; }
-      const prev = banks[i - 1].ts;
-      if (attacks.some(a => a.ts > prev && a.ts <= b.ts)) { hitBanks++; continue; }
-      safeHeld.push(b.held);
-    }
-    safeHeld.sort(asc);
-    const curveHits = attacks.filter(a => a.ts >= winStart && a.ts <= now).map(a => a.held).sort(asc);
-    const safe = {
-      n: safeHeld.length, unconfirmed, hitBanks, hits: curveHits.length,
-      windowHours: Math.round((now - winStart) / 360000) / 10
-    };
-
-    // --- risk curve: scan event values from the top down ---
-    const band = Math.min(0.95, Math.max(0, num(s.hitBand, 25) / 100));
-    const levelAt = G => {
-      const hits = curveHits.filter(h => h <= G && h >= G * (1 - band)).length;
-      const safeAbove = safeHeld.filter(v => v >= G).length;
-      return { gold: G, hits, events: hits + safeAbove, risk: hits + safeAbove ? hits / (hits + safeAbove) : 0 };
-    };
-    const levels = [...new Set(safeHeld.concat(curveHits))].sort((a, b) => b - a)
-      .map(levelAt).filter(l => l.events >= minSamples);
-    const runLow = threshold => {           // lowest level of the top run with risk ≥ threshold
-      let found = null;
-      for (const l of levels) {
-        if (l.risk >= threshold) found = l;
-        else break;
-      }
-      return found;
-    };
-    const curveY = safeHeld.length && curveHits.length ? runLow(num(s.yellowRisk, 25) / 100) : null;
-    const curveR = safeHeld.length && curveHits.length ? runLow(num(s.redRisk, 50) / 100) : null;
-    safe.levels = levels.slice(0, 12);       // top of the curve, for the ⚙ panel / console
-
-    // --- each line: curve → top safe holds → attack percentiles → fallback ---
-    const nth = k => safeHeld.length >= k ? safeHeld[safeHeld.length - k] : null;
-    const topY = nth(minSamples), topR = nth(Math.max(1, minSamples - 1));
-    const pick = (curve, top, rank, hitV, fallbackV) => {
-      if (curve) return { gold: curve.gold, source: 'curve', hits: curve.hits, events: curve.events, capped: false };
-      if (top !== null && safeHeld.length >= minSamples) return { gold: top, source: 'banks', rank, capped: false };
-      if (hitV !== null) return { gold: hitV, source: 'attacks', capped: false };
-      return { gold: fallbackV, source: 'fallback', capped: false };
-    };
-    const yellow = pick(curveY, topY, minSamples, hit.yellow, num(s.fallbackYellowGold, 50000000));
-    const red = pick(curveR, topR, Math.max(1, minSamples - 1), hit.red, num(s.fallbackRedGold, 150000000));
-
-    // --- cap just below the smallest fresh hit ---
-    const capMin = num(s.capMinGold, 5000000);
-    const fresh = attacks.filter(a => a.ts >= now - num(s.capWindowHours, 24) * 3600000 && a.ts <= now && a.held >= capMin);
-    let cap = null;
-    if (fresh.length) {
-      const smallest = fresh.reduce((m, a) => (a.held < m.held ? a : m));
-      cap = { held: smallest.held, ts: new Date(smallest.ts).toISOString(), n: fresh.length,
-        yellowGold: Math.round(smallest.held * num(s.capYellowFactor, 0.8)),
-        redGold: Math.round(smallest.held * num(s.capRedFactor, 0.95)) };
-      if (yellow.gold > cap.yellowGold) { yellow.gold = cap.yellowGold; yellow.capped = true; }
-      if (red.gold > cap.redGold) { red.gold = cap.redGold; red.capped = true; }
-    }
-
-    // --- pinned overrides win outright ---
-    const pinY = num(s.overrideYellowGold, 0), pinR = num(s.overrideRedGold, 0);
-    if (pinY > 0) { yellow.gold = pinY; yellow.source = 'pinned'; yellow.capped = false; }
-    if (pinR > 0) { red.gold = pinR; red.source = 'pinned'; red.capped = false; }
-    // Keep yellow ≤ red: the unpinned line gives way.
-    if (yellow.gold > red.gold) {
-      if (red.source === 'pinned' && yellow.source !== 'pinned') yellow.gold = red.gold;
-      else if (red.source !== 'pinned') red.gold = yellow.gold;
-    }
-
-    return {
-      // overall source: 'curve' | 'banks' | 'attacks' | 'fallback' | 'pinned' when both lines agree, else 'mixed'
-      source: yellow.source === red.source ? yellow.source : 'mixed',
-      sampleSize: hit.n,           // back-compat: steals in the risk window
-      windowDays,
-      yellowGold: yellow.gold,
-      redGold: red.gold,
-      yellow, red, hit, safe, cap
-    };
-  }
-
-  // Storage wrapper around the pure model above.
-  function bankGetRiskModel() {
-    return bankComputeRiskModel({
-      settings: bankGetSettings(),
-      attacks: Object.values(bankGet('attack_events', {})),
-      banks: bankGet('bank_events', []),
-      attacksSeenUntil: bankGet('last_attacklog_visit', null),
-      now: Date.now()
+  // Regular soldiers and covert units, for the fallback income.
+  function fundsReadPersonnel() {
+    const table = document.querySelector('table.table_lines.personnel') ||
+                  findInnermostTable('Trained Attack Soldiers');
+    if (!table) return null;
+    const counts = {};
+    [...table.rows].forEach(row => {
+      if (row.cells.length < 2) return;
+      const val = fundsCleanNumber(row.cells[1].textContent);
+      if (val !== null) counts[row.cells[0].textContent.trim()] = val;
     });
+    const sum = (labels) => labels.reduce((t, l) => t + (counts[l] || 0), 0);
+    const regulars = sum(['Trained Attack Soldiers', 'Trained Defense Soldiers', 'Untrained Soldiers']);
+    const coverts = sum(['Spies', 'Sentries', 'Venomweavers', 'Serpentwardens', 'Thieves', 'Rangers']);
+    return (regulars || coverts) ? { regulars, coverts } : null;
   }
 
-  // One line's provenance in plain words, e.g.
-  // "38.00M — 1 of 4 events at or near 38.00M was a hit (25 % risk)".
-  function bankDescribeLine(model, which) {
-    const line = model[which];
-    const s = bankGetSettings();
-    const y = which === 'yellow';
-    let why;
-    if (line.source === 'pinned') why = 'pinned by you in ⚙';
-    else if (line.source === 'fallback') why = `fallback (fewer than ${s.minSamples} steals and ${s.minSamples} confirmed safe banks)`;
-    else if (line.source === 'curve') why = `${line.hits} of ${line.events} events at or near ${bankFormatGold(line.gold)} ${line.hits === 1 ? 'was a hit' : 'were hits'} (${Math.round(100 * line.hits / line.events)}% risk; ${y ? 'yellow' : 'red'} at ${y ? s.yellowRisk : s.redRisk}%)`;
-    else if (line.source === 'banks') why = `no hits among your top holds — ${line.rank === 1 ? 'your highest' : 'your ' + line.rank + (line.rank === 2 ? 'nd' : line.rank === 3 ? 'rd' : 'th') + '-highest'} of ${model.safe.n} safe holds in ${model.safe.windowHours}h`;
-    else why = `attacks on you (P${y ? s.yellowPercentile : s.redPercentile} of ${model.hit.n} steals in ${model.hit.windowDays}d)`;
-    if (line.capped && model.cap) why += ` · capped by a hit at ${bankFormatGold(model.cap.held)} ${bankFormatTimeAgo(model.cap.ts)}`;
-    return `${bankFormatGold(line.gold)} — ${why}`;
-  }
-
-  function bankRiskBand(gold, model) {
-    if (gold >= model.redGold) return 'red';
-    if (gold >= model.yellowGold) return 'yellow';
-    return 'green';
-  }
-
-  const BANK_BAND_META = {
-    green: { label: 'SAFE', color: '#16a34a', glow: 'rgba(74, 222, 128, 0.35)' },
-    yellow: { label: 'CAUTION', color: '#d97706', glow: 'rgba(251, 191, 36, 0.35)' },
-    red: { label: 'DANGER', color: '#dc2626', glow: 'rgba(248, 113, 113, 0.4)' }
-  };
-  const BANK_BAND_ORDER = { green: 0, yellow: 1, red: 2 };
-
-  function bankGetRiskStatus() {
-    const proj = bankGetProjection();
-    const model = bankGetRiskModel();
-    if (!proj) return { proj: null, model, band: null };
-    const band = bankRiskBand(proj.gold, model);
-    return {
-      proj: proj,
-      model: model,
-      band: band,
-      minsToYellow: band === 'green' ? bankMinutesToGold(model.yellowGold, proj) : 0,
-      minsToRed: band === 'red' ? 0 : bankMinutesToGold(model.redGold, proj)
-    };
-  }
-
-  // ==================== WAKE LOCK ====================
-  // Requested on toggle-on (user gesture), re-requested on visibilitychange (the
-  // browser drops the lock when the tab hides), released on toggle-off.
-  let bankWakeLock = null;
-  let bankVisibilityHooked = false;
-
-  async function bankRequestWakeLock() {
-    if (!('wakeLock' in navigator)) { bankUpdateWakeLockPill(); return false; }
-    if (bankWakeLock) return true;
-    try {
-      bankWakeLock = await navigator.wakeLock.request('screen');
-      bankWakeLock.addEventListener('release', () => {
-        // Fires on our release AND when the browser drops the lock (tab hidden) —
-        // clear the sentinel so the pill reads true state.
-        bankWakeLock = null;
-        bankUpdateWakeLockPill();
-        debugLog('🌙 Banking screen wake lock released');
-      });
-      debugLog('🔆 Banking screen wake lock active');
-      bankUpdateWakeLockPill();
-      return true;
-    } catch (err) {
-      debugLog('⚠️ Banking wake lock request failed:', err && err.message);
-      bankWakeLock = null;
-      bankUpdateWakeLockPill();
-      return false;
-    }
-  }
-
-  async function bankReleaseWakeLock() {
-    if (bankWakeLock) {
-      try { await bankWakeLock.release(); } catch (err) { /* already released */ }
-      bankWakeLock = null;
-    }
-    bankUpdateWakeLockPill();
-  }
-
-  function bankUpdateWakeLockPill() {
-    const pill = document.getElementById('koc-banking-wakelock');
-    if (pill) {
-      pill.textContent = bankWakeLock ? '🔆 screen awake' : '🌙 wake lock off';
-      pill.style.color = bankWakeLock ? '#16a34a' : '#888';
-    }
-  }
-
-  // ==================== NOTIFICATIONS (optional, off by default) ====================
-  // State is PERSISTED ('notify_state'), so reloading the Armory no longer looks like
-  // a fresh green→yellow escalation (that reset, plus the min gap as the only guard,
-  // is what re-alerted every few minutes). A confirmed bank clears it.
-  //   state = { band: band seen last tick, alertBand, alertGold, alertTs }
-  // Pure decision (self-contained, Companion-portable): alert only when the band goes
-  // UP, and then only if it is above the band last alerted, or (re-entering a band
-  // already alerted for, e.g. after the line moved) the gold is materially higher
-  // than last alerted or the min gap has passed.
-  function bankNotifyDecision(band, gold, state, now, settings) {
-    const order = { green: 0, yellow: 1, red: 2 };
-    const st = state || {};
-    const prev = order[st.band] !== undefined ? order[st.band] : 0;
-    const keep = { ...st, band };
-    if (!(order[band] > prev)) return { notify: false, state: keep };
-    const alerted = order[st.alertBand] !== undefined ? order[st.alertBand] : -1;
-    const rise = 1 + ((settings && settings.notifyMaterialRisePct) || 0) / 100;
-    const gapMs = ((settings && settings.notifyMinGapMins) || 0) * 60000;
-    const lastTs = st.alertTs ? new Date(st.alertTs).getTime() : null;
-    const ok = order[band] > alerted ||
-      (st.alertGold != null && gold >= st.alertGold * rise) ||
-      (lastTs !== null && now - lastTs >= gapMs);
-    if (!ok) return { notify: false, state: keep };
-    return { notify: true, state: { band, alertBand: band, alertGold: gold, alertTs: new Date(now).toISOString() } };
-  }
-
-  function bankEnsureNotifyPermission() {
-    const settings = bankGetSettings();
-    if (!settings.notifyEnabled) return;            // don't prompt unless opted in
-    if (!('Notification' in window)) return;
-    if (Notification.permission === 'default') {
-      Notification.requestPermission().then(p => debugLog(`🔔 Banking notification permission: ${p}`));
-    }
-  }
-
-  // Notify on a real escalation only (see bankNotifyDecision). {body, tag}
-  // ONLY — no icon: a remote icon URL would make the display timer fire a request.
-  function bankMaybeNotifyBand(band, gold, model) {
-    const settings = bankGetSettings();
-    if (!settings.notifyEnabled) return;
-    if (!('Notification' in window) || Notification.permission !== 'granted') return;
-    const state = bankGet('notify_state', null);
-    const d = bankNotifyDecision(band, gold, state, Date.now(), settings);
-    if (!state || state.band !== d.state.band || d.notify) bankSet('notify_state', d.state);
-    if (!d.notify) return;
-    try {
-      const line = model && band !== 'green' ? model[band] : null;
-      const why = line ? ` (line ${bankFormatGold(line.gold)}, from ${line.source === 'banks' ? 'your banks' : line.source === 'attacks' ? 'attacks on you' : line.source}${line.capped ? ', capped by a fresh hit' : ''})` : '';
-      new Notification('🏦 KoC Banking Mode', {
-        body: `Risk ${BANK_BAND_META[band].label}: ~${bankFormatGold(gold)} gold exposed${why}. Time to bank!`,
-        tag: 'koc-banking-risk'
-      });
-      debugLog(`🔔 Banking notified: band ${band}`);
-    } catch (err) {
-      debugLog('⚠️ Banking notification failed:', err);
-    }
-  }
-
-  // ==================== POST-ACTION (LAST-BANK) DETECTION ====================
-  // A pending stamp is written when the human submits the real form (observed via
-  // passive listeners); on the armory reload the game performs after the POST, a
-  // funds drop confirms the action and stamps last_bank. No reparenting, no
-  // synthetic events — the forms are only observed.
-  const bankHookedForms = new WeakSet();
-
-  function bankSetPendingAction(type) {
-    // Stamp the PROJECTED funds at submit time, not the raw last reading. With high
-    // income the page-load reading can sit millions below the real balance by the
-    // time the user presses Buy, which would make the post-buy drop look negative and
-    // miss the bank. The projection tracks accrued income up to this moment.
-    const proj = bankGetProjection();
-    const reading = bankGet('gold_reading', null);
-    const goldNow = proj ? proj.gold : (reading ? reading.gold : null);
-    bankSet('pending_action', {
-      type: type,
-      gold: goldNow,
+  // Command Centre: gold on hand, Projected Income and Soldier Per Turn.
+  function fundsReadCommandCentre() {
+    const mo = findInnermostTable('Projected Income');
+    if (!mo) return;
+    const cell = (re) => { const r = fundsFindRow(mo, re); return r && r.cells[1] ? r.cells[1].textContent : ''; };
+    const gold = fundsCleanNumber(cell(/^Available Funds/).match(/([\d,]+)\s+Gold/i)?.[1]);
+    const personnel = fundsReadPersonnel();
+    fundsSet('calibration', {
+      goldPerMin: fundsCleanNumber(cell(/^Projected Income/).match(/([\d,]+)\s+Gold\s+\(in 1 min\)/i)?.[1]),
+      spm: fundsCleanNumber(cell(/^Soldier Per Turn/).match(/([\d,]+)\s+Soldiers/i)?.[1]),
+      regulars: personnel ? personnel.regulars : null,
+      coverts: personnel ? personnel.coverts : null,
       ts: new Date().toISOString()
     });
+    fundsSaveReading(gold, 'Command Centre');
   }
 
-  function bankCheckPendingAction(currentGold) {
-    const pending = bankGet('pending_action', null);
-    if (!pending) return;
-    bankRemove('pending_action'); // one-shot
+  // Armory: the "Available Funds:" banner, and the personnel table for the fallback income.
+  function fundsReadArmory() {
+    const m = document.body.textContent.match(/Available\s+Funds:\s*([\d,]+)\s*Gold/i);
+    if (m) fundsSaveReading(fundsCleanNumber(m[1]), 'Armory');
+    const personnel = fundsReadPersonnel();
+    if (personnel) fundsSet('calibration', { ...fundsGet('calibration', {}), ...personnel });
+  }
 
-    if (Date.now() - new Date(pending.ts).getTime() > 10 * 60000) {
-      debugLog('⏰ Banking pending action expired');
+  function fundsEstimate(nowMs = Date.now()) {
+    const reading = fundsGet('gold_reading', null);
+    if (!reading) return null;
+    const cal = fundsGet('calibration', null) || {};
+    const minutes = Math.max(0, (nowMs - new Date(reading.ts).getTime()) / 60000);
+    const spm = cal.spm || 0;
+
+    let income = (cal.goldPerMin !== null && cal.goldPerMin !== undefined) ? cal.goldPerMin
+      : (cal.regulars !== null && cal.regulars !== undefined)
+        ? FUNDS_TBG_REGULAR * cal.regulars + FUNDS_TBG_COVERT * (cal.coverts || 0)
+        : null;
+    // The income figure is as old as its Command Centre visit: add the soldiers
+    // produced between that visit and the gold reading.
+    if (income !== null && cal.ts && spm) {
+      const ageMin = Math.max(0, (new Date(reading.ts).getTime() - new Date(cal.ts).getTime()) / 60000);
+      income += FUNDS_GOLD_PER_NEW_SOLDIER * spm * ageMin;
+    }
+
+    const gold = income === null ? reading.gold
+      : reading.gold + income * minutes + 0.5 * FUNDS_GOLD_PER_NEW_SOLDIER * spm * minutes * minutes;
+    return { gold: Math.round(gold), income, reading };
+  }
+
+  function fundsPaint() {
+    const goldEl = document.getElementById('koc-funds-gold');
+    const subEl = document.getElementById('koc-funds-sub');
+    if (!goldEl || !subEl) return;
+    const est = fundsEstimate();
+    if (!est) {
+      goldEl.textContent = '???';
+      subEl.textContent = 'Open your Command Centre once to start the estimate.';
       return;
     }
-    if (pending.gold === null || currentGold === null || currentGold === undefined) return;
-
-    const drop = pending.gold - currentGold;
-    // A buy/repair was definitely submitted (pending is only set on a real form
-    // submit), and on armory the sole funds-decreasing action is a purchase, so a
-    // sizable positive drop confirms it. A flat 1M floor clears projection noise
-    // without demanding the old 25%-of-balance spend, which big earners rarely hit
-    // in a single buy (and which silently dropped every smaller purchase).
-    const threshold = pending.type === 'buy' ? 1000000 : 1000;
-    if (drop >= threshold) {
-      const ts = new Date().toISOString();
-      bankSet('last_bank', { ts: ts, spent: drop, action: pending.type });
-      // Bank history for the two-sided risk model: the gold HELD at the press (the
-      // projection stamped at submit), kept 60 days / 600 newest like attack_events.
-      const cutoff = Date.now() - 60 * 86400000;
-      const banks = bankGet('bank_events', [])
-        .concat([{ ts: ts, held: pending.gold, spent: drop }])
-        .filter(b => new Date(b.ts).getTime() >= cutoff)
-        .sort((a, b) => new Date(a.ts) - new Date(b.ts))
-        .slice(-600);
-      bankSet('bank_events', banks);
-      bankSet('notify_state', { band: 'green' }); // re-arm escalation notifications after banking
-      debugLog(`🏦 ✅ Banked! ${drop.toLocaleString()} gold via ${pending.type} (held ${pending.gold.toLocaleString()}) — last_bank stamped`);
-    } else {
-      debugLog(`⏭️ Banking: ${pending.type} pressed but no funds drop (drop ${drop.toLocaleString()})`);
-    }
+    goldEl.textContent = fundsFormatGold(est.gold);
+    goldEl.title = est.gold.toLocaleString() + ' gold (estimate)';
+    subEl.textContent = `${fundsFormatGold(est.reading.gold)} read ${fundsFormatAgo(est.reading.ts)} (${est.reading.source})` +
+      (est.income === null ? ' · no income figure yet: open your Command Centre' : ` + ${fundsFormatGold(est.income)}/min income`);
   }
 
-  // Attach PASSIVE observers to the game's OWN buy/repair forms. We listen for BOTH
-  // 'submit' AND a TRUSTED click on the submit input — KoC buttons often submit via
-  // inline onclick form.submit(), which skips the submit event. We NEVER trigger them.
-  function bankHookFormPending(form, type) {
-    if (!form || bankHookedForms.has(form)) return;
-    bankHookedForms.add(form);
-    const stamp = () => {
-      bankSetPendingAction(type);
-      debugLog(`🏦 Banking: ${type} submitted by user — pending stamp written`);
-    };
-    form.addEventListener('submit', stamp);
-    form.addEventListener('click', e => {
-      if (e.isTrusted && e.target && e.target.type === 'submit') stamp();
-    });
-  }
-
-  function bankHookForms() {
-    // Buy: hook BOTH the one-click Autofill form (buyform) and the per-weapon form
-    // (anotherbuyform). The game serves one and hides the other depending on whether
-    // Armory Autofill is saved server-side — buyform commonly EXISTS but is
-    // display:none while the user actually buys via the visible anotherbuyform.
-    // Hooking only the first one found (buyform) misses every real purchase.
-    const oneClickBuy = document.forms.namedItem('buyform');
-    if (oneClickBuy) bankHookFormPending(oneClickBuy, 'buy');
-    const perWeaponBuy = document.getElementById('anotherbuyform') || document.forms.namedItem('anotherbuyform');
-    if (perWeaponBuy) bankHookFormPending(perWeaponBuy, 'buy');
-
-    // Repair: the form around input[name=repair_all_weapons]
-    const repairBtn = document.querySelector('input[name="repair_all_weapons"]');
-    if (repairBtn && repairBtn.form) bankHookFormPending(repairBtn.form, 'repair');
-  }
-
-  // ==================== INLINE WIDGET UI ====================
-  let bankTickerId = null;
-
-  function bankInjectStyles() {
-    if (document.getElementById('koc-banking-style')) return;
-    const style = document.createElement('style');
-    style.id = 'koc-banking-style';
-    style.textContent = `
-      #koc-banking-inline {
-        margin: 8px 0; text-align: center;
-      }
-      #koc-banking-inline .kb-toggle-row {
-        display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
-        margin-bottom: 10px; padding-bottom: 10px; border-bottom: 1px solid rgba(255,255,255,0.12);
-      }
-      #koc-banking-toggle {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: #fff;
-        border: none; padding: 7px 16px; border-radius: 20px; cursor: pointer;
-        font-size: 13px; font-weight: 600; box-shadow: 0 2px 8px rgba(102,126,234,0.4);
-      }
-      #koc-banking-inline .kb-btn {
-        background: rgba(102,126,234,0.15); color: #4338ca; border: 1px solid rgba(102,126,234,0.4);
-        padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 12px;
-      }
-      #koc-banking-wakelock { font-size: 12px; color: #888; }
-      #koc-banking-body { margin: 0 auto; }
-      /* Native-style box: reuse KoC's own table_lines class so it matches whatever theme is set. */
-      #koc-banking-box { width: 100%; margin: 8px auto; }
-      #koc-banking-th { position: relative; text-align: center; padding: 6px 24px; }
-      #koc-banking-gold { transition: color 0.3s ease; }
-      #koc-banking-gear { position: absolute; right: 10px; top: 50%; transform: translateY(-50%); cursor: pointer; font-size: 15px; user-select: none; opacity: 0.85; }
-      #koc-banking-gear:hover { opacity: 1; }
-      #koc-banking-box .kb-detail { text-align: left; padding: 10px 14px; background: rgba(0,0,0,0.22); font-size: 12px; line-height: 1.5; }
-      #koc-banking-band { font-weight: 700; letter-spacing: 1px; }
-      #koc-banking-inline .kb-stat { font-size: 13px; color: #ccc; margin: 4px 0; }
-      #koc-banking-inline .kb-stat b { color: #FFD700; }
-      #koc-banking-inline a { color: #93c5fd; }
-      #koc-banking-inline .kb-live { color: #4ade80; }
-      @keyframes kb-pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.3; } }
-      #koc-banking-inline .kb-live { animation: kb-pulse 2s infinite; display: inline-block; }
-      .kb-fs-armed { touch-action: manipulation; cursor: zoom-in; -webkit-user-select: none; user-select: none; }
-      #koc-banking-fs {
-        position: fixed; inset: 0; z-index: 2147483000; background: #000; color: #fff;
-        display: flex; flex-direction: column; align-items: center; justify-content: center;
-        text-align: center; padding: 16px; box-sizing: border-box; cursor: pointer;
-        font-family: inherit; -webkit-user-select: none; user-select: none; touch-action: manipulation;
-      }
-      #koc-banking-fs .kb-fs-label { font-size: clamp(18px, 5vw, 32px); color: #ccc; font-weight: 600; }
-      #koc-banking-fs .kb-fs-gold { font-size: clamp(56px, 20vw, 180px); font-weight: 700; line-height: 1.1; margin: 8px 0; transition: color 0.3s ease; }
-      #koc-banking-fs .kb-fs-band { font-size: clamp(16px, 4.5vw, 28px); font-weight: 700; letter-spacing: 1px; }
-      #koc-banking-fs .kb-fs-sub { font-size: clamp(14px, 4vw, 22px); color: #aaa; margin-top: 10px; }
-      #koc-banking-fs .kb-fs-hint { position: absolute; bottom: 24px; left: 0; right: 0; font-size: clamp(13px, 3.5vw, 18px); color: #777; }
-      #koc-banking-fs.kb-fs-loading .kb-fs-hint { color: #FFD700; }
-      #koc-banking-settings { display: block; margin-top: 10px; border-top: 1px solid rgba(255,255,255,0.12); padding-top: 10px; }
-      #koc-banking-settings label {
-        display: flex; justify-content: space-between; align-items: center;
-        font-size: 12px; color: #ccc; margin: 6px 0; gap: 10px;
-      }
-      #koc-banking-settings input[type=number], #koc-banking-settings input[type=text] {
-        background: rgba(0,0,0,0.3); color: #fff; width: 110px;
-        border: 1px solid rgba(255,215,0,0.3); border-radius: 5px; padding: 4px 8px;
-      }
-    `;
-    document.head.appendChild(style);
-  }
-
-  // Locate the table that holds the "Available Funds:" banner (verified live).
-  function bankFindArmoryAnchor() {
-    const fundsEl = [...document.querySelectorAll('b,font,td')]
+  function fundsShowOnArmory() {
+    fundsReadArmory();
+    if (document.getElementById('koc-funds-box')) return;
+    const banner = [...document.querySelectorAll('b,font,td')]
       .find(el => /Available Funds:/.test(el.textContent) && el.textContent.trim().length < 60);
-    return fundsEl ? fundsEl.closest('table') : null;
+    const anchor = banner && banner.closest('table');
+    if (!anchor) return;
+
+    // The game's own table_lines class, so the box matches the page.
+    const box = document.createElement('table');
+    box.id = 'koc-funds-box';
+    box.className = 'table_lines';
+    box.style.cssText = 'width:100%;margin:8px auto;';
+    box.innerHTML = '<tbody><tr><th style="text-align:center;padding:6px;">' +
+      '<font size="4"><b>Estimated Funds:</b></font> <font size="5"><span id="koc-funds-gold">—</span></font>' +
+      '<div id="koc-funds-sub" style="font-weight:normal;font-size:11px;margin-top:3px;"></div>' +
+      '</th></tr></tbody>';
+    anchor.parentNode.insertBefore(box, anchor);
+    fundsPaint();
+    setInterval(fundsPaint, 1000);   // repaints the number only; reads and sends nothing
   }
-
-  function bankBuildWidgets() {
-    if (document.getElementById('koc-banking-inline')) { bankApplyEnabledState(); return; }
-    bankInjectStyles();
-
-    const s = bankGetSettings();
-    const container = document.createElement('div');
-    container.id = 'koc-banking-inline';
-    container.innerHTML = `
-      <div id="koc-banking-body">
-        <table class="table_lines" id="koc-banking-box"><tbody>
-          <tr><th id="koc-banking-th">
-            <font size="4"><b class="kb-ef-label">Estimated Funds:</b></font> <font size="5"><span id="koc-banking-gold">—</span></font>
-            <span id="koc-banking-gear" title="Settings &amp; detail">⚙️</span>
-            <div id="koc-banking-times" style="display:none;font-weight:400;font-size:12px;margin-top:3px;"></div>
-          </th></tr>
-          <tr id="koc-banking-detailrow" style="display:none;"><td class="kb-detail">
-            <div class="kb-toggle-row"><button type="button" id="koc-banking-toggle">🏦 Banking Mode</button><span id="koc-banking-wakelock" style="display:none;">🌙 wake lock off</span></div>
-            <div class="kb-stat" id="koc-banking-band-line"><b id="koc-banking-band">—</b> · <span id="koc-banking-countdowns">—</span></div>
-            <div class="kb-stat">⏱️ Last bank: <b id="koc-banking-lastbank">never</b></div>
-          <div class="kb-stat">📐 Calibration: <b id="koc-banking-cal">—</b></div>
-          <div class="kb-stat">🗡️ Risk model: <b id="koc-banking-risk-src">—</b> · <a href="attacklog.php">visit Attack Log to refresh</a></div>
-          <div class="kb-stat">🟡 Caution line: <b id="koc-banking-line-yellow">—</b></div>
-          <div class="kb-stat">🔴 Danger line: <b id="koc-banking-line-red">—</b></div>
-          <div class="kb-stat">🏦 Vault (not at risk): <b id="koc-banking-vault">—</b></div>
-          <div class="kb-stat"><span class="kb-live">●</span> display refresh only — no automated requests</div>
-          <div id="koc-banking-settings">
-            <div style="color:#FFD700; font-weight:600; margin-bottom:8px;">Settings</div>
-            <label>Show yellow/red times on the box <input type="checkbox" id="kbs-showTimes" ${s.showTimes ? 'checked' : ''}></label>
-            <label>Double-tap the funds box for full screen (tap it to reload the Armory) <input type="checkbox" id="kbs-fullscreenTap" ${s.fullscreenTap ? 'checked' : ''}></label>
-            <label>Steal rate min (0–1) <input type="number" step="0.01" min="0.1" max="1" id="kbs-stealRateMin" value="${s.stealRateMin}"></label>
-            <label>Steal rate max (risk maths uses this; 1.0 = conservative) <input type="number" step="0.01" min="0.1" max="1" id="kbs-stealRateMax" value="${s.stealRateMax}"></label>
-            <label>Risk window (days) <input type="number" min="1" max="60" id="kbs-riskWindowDays" value="${s.riskWindowDays}"></label>
-            <label>Yellow percentile <input type="number" min="1" max="99" id="kbs-yellowPercentile" value="${s.yellowPercentile}"></label>
-            <label>Red percentile <input type="number" min="1" max="99" id="kbs-redPercentile" value="${s.redPercentile}"></label>
-            <label>Fallback yellow gold <input type="text" autocomplete="off" placeholder="e.g. 50m" id="kbs-fallbackYellowGold" value="${bankFormatGoldShort(s.fallbackYellowGold)}"></label>
-            <label>Fallback red gold <input type="text" autocomplete="off" placeholder="e.g. 150m" id="kbs-fallbackRedGold" value="${bankFormatGoldShort(s.fallbackRedGold)}"></label>
-            <div style="color:#FFD700; font-weight:600; margin:10px 0 4px;">Learning from your banks</div>
-            <label>Bank window (hours) <input type="number" min="1" max="1440" id="kbs-bankWindowHours" value="${s.bankWindowHours}"></label>
-            <label>…or the last N banks, if shorter <input type="number" min="1" max="600" id="kbs-bankWindowCount" value="${s.bankWindowCount}"></label>
-            <label>Yellow at risk ≥ (%) <input type="number" min="1" max="99" id="kbs-yellowRisk" value="${s.yellowRisk}"></label>
-            <label>Red at risk ≥ (%) <input type="number" min="1" max="99" id="kbs-redRisk" value="${s.redRisk}"></label>
-            <label>A hit counts up to this % above it <input type="number" min="0" max="95" id="kbs-hitBand" value="${s.hitBand}"></label>
-            <label>Events needed per level <input type="number" min="1" max="50" id="kbs-minSamples" value="${s.minSamples}"></label>
-            <label>Fresh-hit cap window (hours) <input type="number" min="1" max="168" id="kbs-capWindowHours" value="${s.capWindowHours}"></label>
-            <label>Ignore hits on less than (gold) <input type="text" autocomplete="off" placeholder="e.g. 5m" id="kbs-capMinGold" value="${bankFormatGoldShort(s.capMinGold)}"></label>
-            <label>Pin yellow line (blank = learned) <input type="text" autocomplete="off" placeholder="e.g. 30m" id="kbs-overrideYellowGold" value="${s.overrideYellowGold ? bankFormatGoldShort(s.overrideYellowGold) : ''}"></label>
-            <label>Pin red line (blank = learned) <input type="text" autocomplete="off" placeholder="e.g. 40m" id="kbs-overrideRedGold" value="${s.overrideRedGold ? bankFormatGoldShort(s.overrideRedGold) : ''}"></label>
-            <label>TBG gold/turn — regulars <input type="number" step="0.01" id="kbs-tbgRegular" value="${s.tbgRegular}"></label>
-            <label>TBG gold/turn — coverts <input type="number" step="0.01" id="kbs-tbgCovert" value="${s.tbgCovert}"></label>
-            <label>Growth gold/soldier/turn (SPM term) <input type="number" step="0.01" id="kbs-growthGoldPerSoldier" value="${s.growthGoldPerSoldier}"></label>
-            <label>Notifications enabled <input type="checkbox" id="kbs-notifyEnabled" ${s.notifyEnabled ? 'checked' : ''}></label>
-            <label>Notification min gap (mins) <input type="number" min="1" id="kbs-notifyMinGapMins" value="${s.notifyMinGapMins}"></label>
-            <label>Re-alert a band only with this % more gold <input type="number" min="0" max="500" id="kbs-notifyMaterialRisePct" value="${s.notifyMaterialRisePct}"></label>
-            <div style="text-align:right;margin-top:10px;"><button type="button" id="kbs-reset-all" title="Every Banking setting back to its default and both pins cleared. Your bank and attack history stay.">↺ Reset to defaults</button></div>
-          </div>
-        </td></tr>
-        </tbody></table>
-      </div>
-    `;
-
-    const anchor = bankFindArmoryAnchor();
-    if (anchor && anchor.parentNode) {
-      anchor.parentNode.insertBefore(container, anchor);
-    } else {
-      debugLog('⚠️ Banking: "Available Funds:" anchor not found — inserting at page top (re-verify the armory anchor selector)');
-      document.body.insertBefore(container, document.body.firstChild);
-    }
-
-    // SAFETY: on some layouts the "Available Funds:" banner lives inside the
-    // per-weapon buy form (#anotherbuyform), so this widget can end up INSIDE a
-    // game form. Our buttons are type="button" (above) and we swallow Enter on our
-    // own inputs here, so the widget can NEVER submit a game form / spend gold.
-    container.addEventListener('keydown', e => {
-      if (e.key === 'Enter' && e.target && e.target.tagName === 'INPUT') e.preventDefault();
-    });
-
-    // --- wire controls ---
-    container.querySelector('#koc-banking-toggle').addEventListener('click', bankToggle);
-    const gear = container.querySelector('#koc-banking-gear');
-    if (gear) gear.addEventListener('click', () => {
-      const dr = container.querySelector('#koc-banking-detailrow');
-      if (dr) dr.style.display = (dr.style.display === 'none' ? '' : 'none');
-    });
-
-    const numericFields = ['stealRateMin', 'stealRateMax', 'riskWindowDays', 'yellowPercentile',
-      'redPercentile', 'tbgRegular', 'tbgCovert', 'growthGoldPerSoldier', 'notifyMinGapMins',
-      'bankWindowHours', 'bankWindowCount', 'yellowRisk', 'redRisk', 'hitBand', 'minSamples',
-      'capWindowHours', 'notifyMaterialRisePct'];
-    // "Saved" toast (the script's own top-right notification) after every ⚙ change,
-    // named after the setting's label so you can see which one took.
-    const settingName = el => {
-      const lab = el.closest('label');
-      const txt = lab ? [...lab.childNodes].filter(n => n.nodeType === 3).map(n => n.textContent).join(' ') : el.id;
-      return txt.replace(/\s+/g, ' ').trim();
-    };
-    // Every saved change re-marks which settings now differ from their default (↺).
-    const toastSaved = (el, shown) => {
-      ErrorHandler.showNotification(`🏦 Saved — ${settingName(el)}${shown !== undefined ? ': ' + shown : ''}`, 'info');
-      bankMarkChangedSettings(container);
-    };
-
-    numericFields.forEach(field => {
-      const el = container.querySelector('#kbs-' + field);
-      if (el) el.addEventListener('change', e => {
-        const v = parseFloat(e.target.value);
-        if (isNaN(v)) {
-          ErrorHandler.showNotification(`🏦 Not saved — ${settingName(el)} needs a number`, 'warn');
-          return;
-        }
-        bankSaveSettings({ [field]: v });
-        toastSaved(el, v);
-        bankUpdateDisplay();
-      });
-    });
-    // Gold inputs take shorthand ("30m", "1.5b", "750k", "30,000,000"). Blank or 0
-    // clears: a pin goes back to the learned line, a fallback/floor back to its
-    // default. Anything unreadable shows an inline error and saves NOTHING.
-    const pinFields = ['overrideYellowGold', 'overrideRedGold'];
-    pinFields.concat(['fallbackYellowGold', 'fallbackRedGold', 'capMinGold']).forEach(field => {
-      const el = container.querySelector('#kbs-' + field);
-      if (!el) return;
-      const err = document.createElement('div');
-      err.style.cssText = 'display:none;color:#f87171;font-size:11px;margin:-4px 0 6px;text-align:right;';
-      err.textContent = 'Couldn\'t read that — use e.g. 30m, 1.5b, 750k or 30,000,000';
-      el.closest('label').insertAdjacentElement('afterend', err);
-      el.addEventListener('change', e => {
-        const r = bankParseGoldInput(e.target.value);
-        const isPin = pinFields.includes(field);
-        if (r.error) {
-          err.style.display = '';
-          return;                              // old value stays saved
-        }
-        err.style.display = 'none';
-        if (r.clear) {
-          if (isPin) bankSaveSettings({ [field]: 0 });
-          else {                               // back to the default
-            const saved = { ...bankGet('settings', {}) };
-            delete saved[field];
-            bankSet('settings', saved);
-          }
-          if (!isPin) {                        // show the default it went back to
-            const d = bankGetSettings()[field];
-            e.target.value = bankFormatGoldShort(d);
-            toastSaved(el, bankFormatGoldShort(d) + ' (default)');
-            bankUpdateDisplay();
-            return;
-          }
-        } else {
-          bankSaveSettings({ [field]: r.value });
-        }
-        const now = bankGetSettings()[field];
-        e.target.value = now ? bankFormatGoldShort(now) : '';
-        toastSaved(el, now ? bankFormatGoldShort(now) + (r.millions ? ' (a bare number reads as millions)' : '')
-          : (isPin ? 'cleared, the learned line is back' : 'back to the default'));
-        bankUpdateDisplay();
-      });
-    });
-    const notifyEl = container.querySelector('#kbs-notifyEnabled');
-    if (notifyEl) notifyEl.addEventListener('change', e => {
-      bankSaveSettings({ notifyEnabled: e.target.checked });
-      toastSaved(e.target, e.target.checked ? 'on' : 'off');
-      if (e.target.checked) bankEnsureNotifyPermission();
-    });
-    const showTimesEl = container.querySelector('#kbs-showTimes');
-    if (showTimesEl) showTimesEl.addEventListener('change', e => {
-      bankSaveSettings({ showTimes: e.target.checked });
-      toastSaved(e.target, e.target.checked ? 'on' : 'off');
-      bankUpdateDisplay();
-    });
-    const fsTapEl = container.querySelector('#kbs-fullscreenTap');
-    if (fsTapEl) fsTapEl.addEventListener('change', e => {
-      bankSaveSettings({ fullscreenTap: e.target.checked });
-      toastSaved(e.target, e.target.checked ? 'on' : 'off');
-      bankApplyFullscreenTapState();
-    });
-    bankWireFullscreenTap(container.querySelector('#koc-banking-th'));
-    // The native "Available Funds:" box — its own cell, never a wider layout table.
-    const nativeFundsEl = [...document.querySelectorAll('b,font,td,th')]
-      .find(el => /Available Funds:/.test(el.textContent) && el.textContent.trim().length < 60 && !container.contains(el));
-    const nativeFunds = nativeFundsEl && (nativeFundsEl.closest('th,td') || nativeFundsEl);
-    if (nativeFunds) bankWireFullscreenTap(nativeFunds);
-    bankApplyFullscreenTapState();
-
-    // ↺ Reset to defaults (#60) — inline two-click confirm, no confirm() dialog.
-    const resetBtn = container.querySelector('#kbs-reset-all');
-    if (resetBtn) {
-      let armed = null;
-      const disarm = () => {
-        clearTimeout(armed); armed = null;
-        resetBtn.textContent = '↺ Reset to defaults';
-        resetBtn.style.background = '';
-      };
-      resetBtn.addEventListener('click', () => {
-        if (!armed) {
-          resetBtn.textContent = 'Click again to confirm';
-          resetBtn.style.background = '#b91c1c';
-          armed = setTimeout(disarm, 4000);
-          return;
-        }
-        disarm();
-        bankResetSettings();
-        bankRefreshSettingsInputs(container);
-        bankApplyFullscreenTapState();
-        bankUpdateDisplay();
-        ErrorHandler.showNotification('🏦 Saved — every Banking setting is back to its default and both pins are cleared. Your bank and attack history are kept.', 'info');
-      });
-    }
-    bankMarkChangedSettings(container);
-
-    bankApplyEnabledState();
-  }
-
-  // Gold-valued settings show in short form; a pin of 0 shows blank.
-  const BANK_GOLD_FIELDS = ['overrideYellowGold', 'overrideRedGold', 'fallbackYellowGold', 'fallbackRedGold', 'capMinGold'];
-  function bankShowSettingValue(field, v) {
-    if (BANK_GOLD_FIELDS.includes(field)) return field.startsWith('override') && !v ? '' : bankFormatGoldShort(v);
-    return String(v);
-  }
-
-  // Repaint every ⚙ input from the saved settings (after a reset).
-  function bankRefreshSettingsInputs(container) {
-    const s = bankGetSettings();
-    container.querySelectorAll('input[id^="kbs-"]').forEach(el => {
-      const field = el.id.slice(4);
-      if (!(field in BANK_DEFAULT_SETTINGS)) return;
-      if (el.type === 'checkbox') el.checked = !!s[field];
-      else el.value = bankShowSettingValue(field, s[field]);
-      const err = el.closest('label') && el.closest('label').nextElementSibling;
-      if (err && err.tagName === 'DIV' && /Couldn't read/.test(err.textContent)) err.style.display = 'none';
-    });
-    bankMarkChangedSettings(container);
-  }
-
-  // A small ↺ beside each setting that differs from its default; a click puts
-  // just that one back.
-  function bankMarkChangedSettings(container) {
-    const s = bankGetSettings();
-    container.querySelectorAll('input[id^="kbs-"]').forEach(el => {
-      const field = el.id.slice(4);
-      if (!(field in BANK_DEFAULT_SETTINGS)) return;
-      let btn = el.previousElementSibling && el.previousElementSibling.classList.contains('kbs-one-reset')
-        ? el.previousElementSibling : null;
-      if (!btn) {
-        btn = document.createElement('button');
-        btn.type = 'button';
-        btn.className = 'kbs-one-reset';
-        btn.textContent = '↺';
-        btn.style.cssText = 'margin-left:auto;padding:0 5px;font-size:11px;line-height:16px;background:transparent;color:#FFD700;border:1px solid rgba(255,215,0,0.4);border-radius:4px;cursor:pointer;';
-        btn.addEventListener('click', () => {
-          const saved = { ...bankGet('settings', {}) };
-          delete saved[field];
-          bankSet('settings', saved);
-          bankRefreshSettingsInputs(container);
-          if (field === 'fullscreenTap') bankApplyFullscreenTapState();
-          bankUpdateDisplay();
-          const d = BANK_DEFAULT_SETTINGS[field];
-          ErrorHandler.showNotification(`🏦 Saved — back to the default: ${el.type === 'checkbox' ? (d ? 'on' : 'off') : (bankShowSettingValue(field, d) || 'learned')}`, 'info');
-        });
-        el.insertAdjacentElement('beforebegin', btn);
-      }
-      const d = BANK_DEFAULT_SETTINGS[field];
-      btn.title = 'Back to the default (' + (el.type === 'checkbox' ? (d ? 'on' : 'off') : (bankShowSettingValue(field, d) || 'learned line')) + ')';
-      btn.style.display = s[field] !== d ? '' : 'none';
-    });
-  }
-
-  // ---- Full-screen funds view (setting "fullscreenTap", off by default) ----
-  // Double-tap the native Available Funds box (or our Estimated Funds box) →
-  // a black full-screen page with the live Estimated Funds in huge digits.
-  // A single tap on it loads a fresh Armory (GET, never a form re-submit) so
-  // you can buy straight away. DISPLAY ONLY — it never buys or banks anything.
-  function bankWireFullscreenTap(el) {
-    if (!el || el.dataset.kbFsWired) return;
-    el.dataset.kbFsWired = '1';
-    const open = e => {
-      if (!bankGetSettings().fullscreenTap) return false;
-      // Never hijack a tap on a control inside the box (gear, links, inputs).
-      if (e.target && e.target.closest && e.target.closest('a,button,input,select,textarea,#koc-banking-gear')) return false;
-      e.preventDefault();
-      bankOpenFullscreen();
-      return true;
-    };
-    // Phones: catch two taps ourselves (dblclick is unreliable there and the
-    // browser would zoom instead); preventDefault on the 2nd tap stops the zoom.
-    let lastTap = 0;
-    el.addEventListener('touchend', e => {
-      if (e.touches && e.touches.length) return;   // still a multi-finger gesture
-      const now = Date.now();
-      if (now - lastTap < 350) { lastTap = 0; open(e); }
-      else lastTap = now;
-    });
-    // Desktop.
-    el.addEventListener('dblclick', open);
-  }
-
-  function bankApplyFullscreenTapState() {
-    const on = !!bankGetSettings().fullscreenTap;
-    document.querySelectorAll('[data-kb-fs-wired]').forEach(el => {
-      el.classList.toggle('kb-fs-armed', on);
-      if (on) el.title = 'Double-tap for full screen';
-      else if (el.title === 'Double-tap for full screen') el.removeAttribute('title');
-    });
-  }
-
-  function bankOpenFullscreen() {
-    if (document.getElementById('koc-banking-fs')) return;
-    const ov = document.createElement('div');
-    ov.id = 'koc-banking-fs';
-    ov.innerHTML = `
-      <div class="kb-fs-label">Estimated Funds</div>
-      <div class="kb-fs-gold" id="koc-banking-fs-gold">—</div>
-      <div class="kb-fs-band" id="koc-banking-fs-band"></div>
-      <div class="kb-fs-sub" id="koc-banking-fs-sub"></div>
-      <div class="kb-fs-hint" id="koc-banking-fs-hint">Tap to reload the Armory</div>
-    `;
-    let leaving = false;
-    ov.addEventListener('click', e => {
-      e.preventDefault();
-      if (leaving) return;
-      leaving = true;
-      ov.classList.add('kb-fs-loading');
-      const hint = ov.querySelector('#koc-banking-fs-hint');
-      if (hint) hint.textContent = 'Loading the Armory…';
-      // Plain GET of the armory (not location.reload) so a page that came from a
-      // buy POST is never re-submitted.
-      location.href = location.origin + '/armory.php';
-    });
-    document.body.appendChild(ov);
-    // Real browser full screen where allowed (we're inside the double-tap gesture).
-    try {
-      const req = ov.requestFullscreen || ov.webkitRequestFullscreen;
-      if (req) { const p = req.call(ov); if (p && p.catch) p.catch(() => {}); }
-    } catch (_) { /* the fixed overlay still covers the page */ }
-    bankRequestWakeLock();   // keep the screen on while you watch the gold climb
-    bankStartTicker();        // display-only 1s repaint
-    bankUpdateDisplay();
-  }
-
-  function bankUpdateFullscreen(status) {
-    const goldEl = document.getElementById('koc-banking-fs-gold');
-    if (!goldEl) return;
-    const bandEl = document.getElementById('koc-banking-fs-band');
-    const subEl = document.getElementById('koc-banking-fs-sub');
-    if (!status.proj) {
-      goldEl.textContent = '???';
-      goldEl.style.color = '#999';
-      if (bandEl) bandEl.textContent = '';
-      if (subEl) subEl.textContent = 'No calibration yet: visit the Command Centre';
-      return;
-    }
-    const meta = BANK_BAND_META[status.band];
-    goldEl.textContent = bankFormatGold(status.proj.gold);
-    goldEl.style.color = meta.color;
-    goldEl.style.textShadow = `0 0 24px ${meta.glow}`;
-    if (bandEl) {
-      const bits = [meta.label];
-      if (status.band === 'green') bits.push(`🟡 in ${bankFormatMinutes(status.minsToYellow)}`);
-      if (status.band !== 'red') bits.push(`🔴 in ${bankFormatMinutes(status.minsToRed)}`);
-      else bits.push('bank now');
-      bandEl.textContent = bits.join(' · ');
-      bandEl.style.color = meta.color;
-    }
-    if (subEl) {
-      const r = status.proj.reading;
-      subEl.textContent = `Available Funds ${r.gold.toLocaleString()} Gold · read ${bankFormatTimeAgo(r.ts)}`;
-    }
-  }
-
-  // Reflect the persisted enabled flag: show/hide widgets, manage ticker + wake lock.
-  function bankApplyEnabledState() {
-    const enabled = bankGet('enabled', false);
-    const toggle = document.getElementById('koc-banking-toggle');
-    const wlPill = document.getElementById('koc-banking-wakelock');
-
-    if (toggle) {
-      toggle.textContent = enabled ? '🏦 Banking Mode: ON' : '🏦 Banking Mode';
-      toggle.style.background = enabled
-        ? 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)'
-        : 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
-    }
-    if (wlPill) wlPill.style.display = enabled ? '' : 'none';
-
-    if (enabled) {
-      bankHookForms();
-      bankRequestWakeLock();
-      bankStartTicker();
-    } else {
-      bankStopTicker();
-      bankReleaseWakeLock();
-    }
-    // Box is always visible now → always paint the current estimate; the ticker adds live updates when ON.
-    bankUpdateDisplay();
-  }
-
-  // The human press that arms everything (user gesture → wake lock + notify allowed).
-  function bankToggle() {
-    const enabled = bankGet('enabled', false);
-    bankSet('enabled', !enabled);
-    if (!enabled) bankEnsureNotifyPermission();
-    bankApplyEnabledState();
-    debugLog(`🏦 Banking Mode ${!enabled ? 'ON' : 'OFF'}`);
-  }
-
-  // Repaint the readouts (DISPLAY ONLY — no requests, no game actions).
-  function bankUpdateDisplay() {
-    const body = document.getElementById('koc-banking-body');
-    if (!body) return;
-
-    const status = bankGetRiskStatus();
-    bankUpdateFullscreen(status);
-    const goldEl = document.getElementById('koc-banking-gold');
-    const bandEl = document.getElementById('koc-banking-band');
-    const cdEl = document.getElementById('koc-banking-countdowns');
-    if (!goldEl || !bandEl || !cdEl) return;
-
-    if (!status.proj) {
-      goldEl.textContent = '???';
-      goldEl.style.color = '#999';
-      bandEl.textContent = 'NO CALIBRATION';
-      bandEl.style.color = '#999';
-      cdEl.innerHTML = 'Visit the <a href="base.php">Command Centre</a> to calibrate';
-      const tEl = document.getElementById('koc-banking-times'); if (tEl) tEl.style.display = 'none';
-      return;
-    }
-
-    const meta = BANK_BAND_META[status.band];
-    const showTimes = bankGetSettings().showTimes;
-    goldEl.textContent = bankFormatGold(status.proj.gold);
-    goldEl.title = status.proj.gold.toLocaleString() + ' gold';
-    // Default: inherit the native funds-box colour (white) so the box blends into the page.
-    // Only when "show times" is enabled do we tint the value + glow it by risk band.
-    goldEl.style.color = showTimes ? meta.color : '';
-    goldEl.style.textShadow = showTimes ? `0 0 10px ${meta.glow}` : '';
-    bandEl.textContent = meta.label + (status.model.source === 'fallback' ? ' (fallback bands)' : '');
-    bandEl.style.color = meta.color;
-
-    const parts = [];
-    if (status.band === 'green') parts.push(`🟡 yellow in <b>${bankFormatMinutes(status.minsToYellow)}</b>`);
-    if (status.band !== 'red') parts.push(`🔴 red in <b>${bankFormatMinutes(status.minsToRed)}</b>`);
-    if (status.band === 'red') parts.push('🔴 <b>over the red line — bank now</b>');
-    if (status.proj.stale) parts.push('⚠️ calibration stale — visit the <a href="base.php">Command Centre</a>');
-    if (status.proj.noIncome) parts.push('⚠️ no income data — visit the <a href="base.php">Command Centre</a>');
-    cdEl.innerHTML = parts.join(' · ') || '—';
-
-    // Compact countdown on the box itself — setting-gated (off by default to match the native box).
-    const timesEl = document.getElementById('koc-banking-times');
-    if (timesEl) {
-      if (showTimes) {
-        const compact = [];
-        if (status.band === 'green') compact.push(`🟡 ${bankFormatMinutes(status.minsToYellow)}`);
-        if (status.band !== 'red') compact.push(`🔴 ${bankFormatMinutes(status.minsToRed)}`);
-        if (status.band === 'red') compact.push('🔴 bank now');
-        timesEl.innerHTML = compact.join(' · ');
-        timesEl.style.color = meta.color;
-        timesEl.style.display = compact.length ? '' : 'none';
-      } else {
-        timesEl.style.display = 'none';
-      }
-    }
-
-    const lastBank = bankGet('last_bank', null);
-    const lastBankEl = document.getElementById('koc-banking-lastbank');
-    if (lastBankEl) lastBankEl.textContent = lastBank
-      ? `${bankFormatTimeAgo(lastBank.ts)} (${bankFormatGold(lastBank.spent)} via ${lastBank.action})`
-      : 'never';
-
-    const calTs = status.proj.cal && status.proj.cal.ts ? status.proj.cal.ts : null;
-    const calEl = document.getElementById('koc-banking-cal');
-    if (calEl) calEl.textContent =
-      `rates ${calTs ? bankFormatTimeAgo(calTs) : 'never'} (base.php)` +
-      ` · gold reading ${bankFormatTimeAgo(status.proj.reading.ts)} (${status.proj.reading.source})` +
-      (status.proj.goldPerMin !== null ? ` · ${bankFormatGold(status.proj.goldPerMin)}/min · SPM ${status.proj.spm}` : '');
-
-    const riskEl = document.getElementById('koc-banking-risk-src');
-    const m = status.model;
-    if (riskEl) riskEl.textContent =
-      `safe holds n=${m.safe.n}` +
-      (m.safe.hitBanks ? ` (+${m.safe.hitBanks} hit)` : '') +
-      (m.safe.unconfirmed ? ` (+${m.safe.unconfirmed} awaiting an Attack Log visit)` : '') +
-      ` · hits n=${m.safe.hits} in ${m.safe.windowHours}h (${m.hit.n} in ${m.hit.windowDays}d)` +
-      (m.cap ? ` · capped by a hit at ${bankFormatGold(m.cap.held)}` : '');
-    const lyEl = document.getElementById('koc-banking-line-yellow');
-    if (lyEl) lyEl.textContent = bankDescribeLine(m, 'yellow');
-    const lrEl = document.getElementById('koc-banking-line-red');
-    if (lrEl) lrEl.textContent = bankDescribeLine(m, 'red');
-
-    const vault = status.proj.reading.vault;
-    const vaultEl = document.getElementById('koc-banking-vault');
-    if (vaultEl) vaultEl.textContent =
-      vault === null || vault === undefined ? '?' : vault.toLocaleString() + ' gold';
-
-    if (bankGet('enabled', false)) bankMaybeNotifyBand(status.band, status.proj.gold, status.model);
-  }
-
-  // 1-second DISPLAY repaint. Redraws locally-known numbers only — never the network.
-  function bankStartTicker() {
-    if (bankTickerId) return;
-    bankTickerId = setInterval(bankUpdateDisplay, 1000);
-  }
-  function bankStopTicker() {
-    if (bankTickerId) { clearInterval(bankTickerId); bankTickerId = null; }
-  }
-
-  // Armory entrypoint: read state, confirm any pending bank, inject the widgets.
-  function bankOnArmory() {
-    const gold = bankCollectArmoryState();
-    bankCheckPendingAction(gold);
-    bankBuildWidgets();
-
-    if (!bankVisibilityHooked) {
-      bankVisibilityHooked = true;
-      document.addEventListener('visibilitychange', () => {
-        if (document.visibilityState === 'visible' &&
-            bankGet('enabled', false) &&
-            location.pathname.includes('armory.php')) {
-          bankRequestWakeLock();
-        }
-      });
-    }
-  }
-
-  // ==================== BANKING MODE CONSOLE API ====================
-  window.KoCBanking = {
-    enable: () => { if (!bankGet('enabled', false)) bankToggle(); },
-    disable: () => { if (bankGet('enabled', false)) bankToggle(); },
-    status: () => {
-      const st = bankGetRiskStatus();
-      if (st.proj) {
-        console.log(`💰 Projected: ${st.proj.gold.toLocaleString()} gold (${bankFormatTimeAgo(st.proj.reading.ts)} + ${st.proj.dtMin.toFixed(1)}min)`);
-        console.log(`🚦 Band: ${st.band}`);
-        console.log(`🟡 Caution line: ${bankDescribeLine(st.model, 'yellow')}`);
-        console.log(`🔴 Danger line: ${bankDescribeLine(st.model, 'red')}`);
-        console.log(`⏳ Time to red: ${bankFormatMinutes(st.minsToRed)}`);
-      } else {
-        console.log('⚠️ No banking calibration yet — visit base.php');
-      }
-      return st;
-    },
-    calibrate: bankCollectCommandCentre,
-    collectAttackLog: bankCollectAttackLog,
-    projection: bankGetProjection,
-    riskModel: bankGetRiskModel,
-    // Where each line comes from, in words (also shown in the ⚙ panel)
-    lines: () => {
-      const m = bankGetRiskModel();
-      console.log(`🟡 Caution: ${bankDescribeLine(m, 'yellow')}`);
-      console.log(`🔴 Danger: ${bankDescribeLine(m, 'red')}`);
-      return { yellow: m.yellow, red: m.red, safe: m.safe, hit: m.hit, cap: m.cap };
-    },
-    // Pin a line in gold, or pass 0/null to go back to the learned line
-    pin: (yellowGold, redGold) => {
-      const p = {};
-      if (yellowGold !== undefined) p.overrideYellowGold = yellowGold > 0 ? yellowGold : 0;
-      if (redGold !== undefined) p.overrideRedGold = redGold > 0 ? redGold : 0;
-      return bankSaveSettings(p);
-    },
-    banks: () => {
-      const b = bankGet('bank_events', []).slice().reverse();
-      console.table(b);
-      return b;
-    },
-    settings: { get: bankGetSettings, set: bankSaveSettings },
-    events: () => {
-      const ev = Object.values(bankGet('attack_events', {})).sort((a, b) => new Date(b.ts) - new Date(a.ts));
-      console.table(ev);
-      return ev;
-    },
-    clearData: () => {
-      ['enabled', 'settings', 'calibration', 'gold_reading', 'attack_events',
-       'last_bank', 'pending_action', 'last_notify_ts', 'notify_state', 'bank_events', 'last_attacklog_visit']
-        .forEach(k => bankRemove(k));
-      console.log('🗑️ Banking Mode data cleared');
-    }
-  };
 
   // ==================== SABOTAGE TRACKER (attack.php) ====================
   // Tracks YOUR OWN sabotage / revenge-sabotage attempts per target (KoC allows
@@ -11315,13 +9545,12 @@
   //   • "You last sabbed/poisoned/stole" timestamps as colour-coded ages (stats-page style)
   //   • attempts left in the window + a ticking "Can sab again in …" countdown
   //   • sab damage left before the target is maxed (cap − lost in last 24h)
-  // Compliance: display + passive recording only. It listens for missions the
-  // player fires by hand, and reconciles against the counters KoC itself renders.
-  // It never submits, clicks, or fetches anything.
+  // Display + passive recording only. It listens for missions the player fires
+  // by hand and reconciles against the counters KoC itself renders. It never
+  // submits, clicks or fetches anything. (The target's two cap numbers are sent
+  // by a separate step, sendSabCaps, under the "Sabotage caps" share.)
 
   const SAB_LOG_KEY = "KoC_SabLog";
-  const SAB_RESET_KEY = "KoC_SabLogReset";   // which one-time reset this browser has had
-  const SAB_RESET = 1;                       // v2.25.3 — see migrateSabLogOnce
   const SAB_WINDOW_MS = 24 * 60 * 60 * 1000;
   const SAB_DEFAULT_CAP = 10;      // regular sab attempts per target per 24h
   const REV_DEFAULT_CAP = 4;       // revenge sab attempts per target per 24h
@@ -11344,71 +9573,12 @@
     return SafeStorage.set(SAB_LOG_KEY, log);
   }
 
-  /**
-   * ONE-TIME, on this browser's first v2.25.3 run: reset every entry the log
-   * already holds to this moment and mark it a guess.
-   *
-   * v2.25.2 and earlier wrote the attack page's "First sab (last 24hrs)" stamp
-   * into this log as an ordinary attempt — and wrote it in the same bare { t }
-   * shape as a press, so nothing stored tells the two apart. That stamp is a
-   * first SUCCESS of whoever the page means, which can be an alliance mate's
-   * sab up to 24h before anything the member did; a countdown built on it
-   * shows a slot back that much too early. v2.25.3 stopped writing them, but
-   * every member's browser still holds the ones v2.25.2 wrote, for up to 25h
-   * after the update (saveSabLog's grace). Nothing here tries to pick the
-   * stamp rows out of the log: telling them apart is exactly the guess that
-   * went wrong three times, so the whole log is reset instead.
-   *
-   * Moving an entry forward can only push a countdown later, never sooner — a
-   * countdown may be late, never early — and `est` puts these rows first in
-   * reconcileSabLog's guesses-first trim, so the page's own counters replace
-   * them with exact times as report landings and Intelligence files come in.
-   *
-   * The cost, stated in the settings panel and the @description: for up to 24h
-   * after updating, a target sabbed before the update reads "≤ about 24h from
-   * now". Runs once per browser (the marker is stored whether or not there was
-   * anything to move) and writes no log for a member who never tracked a sab.
-   */
-  function migrateSabLogOnce() {
-    if (SafeStorage.get(SAB_RESET_KEY, 0) >= SAB_RESET) return 0;
-    const log = getSabLog();
-    const now = Date.now();
-    let moved = 0;
-    for (const rec of Object.values(log)) {
-      if (!rec || typeof rec !== 'object') continue;
-      for (const kind of ['sab', 'rev']) {
-        const arr = rec[kind];
-        if (!Array.isArray(arr)) continue;
-        for (const e of arr) {
-          if (!e || typeof e.t !== 'number' || isNaN(e.t)) continue;
-          if (e.t < now) e.t = now;          // forward only: never earlier than it was
-          e.est = 1;
-          e.src = 'est';
-          moved++;
-        }
-        arr.sort((a, b) => a.t - b.t);
-      }
-    }
-    // Only call this browser done once the reset is actually stored. If the
-    // write fails (quota, blocked storage), the old times are still in the
-    // log, and marking it done would leave them there for good — the very
-    // countdowns this reset exists to move off. Try again next page instead.
-    if (moved && !saveSabLog(log)) return 0;
-    SafeStorage.set(SAB_RESET_KEY, SAB_RESET);
-    if (moved) debugLog(`🕵️ Sab Tracker: ${moved} attempt(s) tracked before v2.25.3 reset to now — their countdowns read "≤" for up to 24h`);
-    return moved;
-  }
-
   // Each tracked attempt is { t, src, est? }. src says where its time came from:
   //   'click' — the member's own clock at the press (pending: the game may refuse it)
   //   'land'  — the report the member landed on after it: that page's Server Time
   //   'file'  — the target's Intelligence file (the game's own time)
-  //   'first' — the attack page's "First sab (last 24hrs)" stamp. No longer written:
-  //             the stamp places nothing (see reconcileSabLog), and the rows
-  //             v2.25.2 left behind are reset by migrateSabLogOnce.
   //   'est'   — a pad for an attempt the game counted and the tracker never saw (est)
-  // An entry with no src counts as 'click' (nothing writes one now:
-  // migrateSabLogOnce resets the pre-v2.25.3 rows that had none).
+  // An entry with no src counts as 'click'.
   function recordSabAttempt(targetId, kind, tMs, src = 'click') {
     const log = getSabLog();
     const rec = log[targetId] || (log[targetId] = { sab: [], rev: [] });
@@ -11610,20 +9780,11 @@
       sabCap: sabFrac ? sabFrac.cap : SAB_DEFAULT_CAP,
       revAttempts: revFrac ? revFrac.used : null,
       revCap: revFrac ? revFrac.cap : REV_DEFAULT_CAP,
-      // KoC prints the cap with decimals whenever it isn't a whole number —
-      // "(62,522,883,715.60)". Requiring digits-then-bracket meant the regex
-      // failed on exactly those pages, so maxLoss came back null and the
-      // "sab damage left before maxed" line quietly never rendered. Allow the
-      // fraction and drop it (parseInt truncates); whole-gold is the unit.
+      // KoC prints the cap with decimals when it isn't whole, e.g.
+      // (62,522,883,715.60); the fraction is dropped.
       maxLoss: bodyNum(/Maximum Daily Sabotage loss:\s*\(([\d,]+(?:\.\d+)?)\)/i),
       lost24: bodyNum(/Total lost from sabbs in the last 24\s*hours:\s*([\d,]+(?:\.\d+)?)/i),
       lastSabMs: stampMs(/You last sabbed:[^]{0,80}?(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})/i),
-      // native row that appears once there has been a sab in the current window: a
-      // first SUCCESSFUL sab in it (seen live 19 Sep 2026: a failed sab changed neither
-      // stamp). Shown with its age like the other stamps and shared with the roster,
-      // but it shapes no countdown — whose first success it is, is unconfirmed
-      // (see reconcileSabLog).
-      firstSabMs: stampMs(/First sab[^]{0,60}?(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})/i),
       lastRevMs: stampMs(/last successful Reven\w*ge Sab on this player[^]{0,60}?(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})/i),
       revSection: /Revenge Sabotage Mission/i.test(body)
     };
@@ -11661,19 +9822,9 @@
     const log = getSabLog();
     const rec = log[info.targetId] || (log[info.targetId] = { sab: [], rev: [] });
     const now = Date.now();
-    // firstMs is the page's "First sab (last 24hrs)" stamp. It is read, stored
-    // and shown — and it places nothing here. It is the first SUCCESS of
-    // whoever the page means, and nothing on the page says whether that is the
-    // member or any member of the alliance; a stamp that is somebody else's
-    // earlier sab is earlier than anything the member did, so an entry created
-    // or capped at it shows a slot back up to 24h early. Three rounds of
-    // guarding it (only with successes, only when nothing contradicts it, only
-    // when it was older than everything tracked) each left a path where the
-    // entry the guard never looked at was the one that moved. The roster's own
-    // timer dropped the same bound for the same reason (utils/attempt-timers.js,
-    // "the page's own stamps place nothing"). The parameter stays so this
-    // refusal is named where the stamp arrives.
-    const fit = (arr, pageCount, lastMs, firstMs) => {   // firstMs: taken, never used (above)
+    // The page's "First sab (last 24hrs)" stamp is a first success by an
+    // unknown member of the alliance, so nothing is timed from it.
+    const fit = (arr, pageCount, lastMs) => {
       const inWin = (arr || []).filter(e => e && now - e.t < SAB_WINDOW_MS).sort((a, b) => a.t - b.t);
       if (pageCount != null) {
         // Guesses first: the oldest estimated entry, one at a time. A pad stamped
@@ -11706,8 +9857,8 @@
       }
       return inWin;
     };
-    rec.sab = fit(rec.sab, info.sabAttempts, info.lastSabMs, info.firstSabMs);
-    rec.rev = fit(rec.rev, info.revAttempts, info.lastRevMs, null);
+    rec.sab = fit(rec.sab, info.sabAttempts, info.lastSabMs);
+    rec.rev = fit(rec.rev, info.revAttempts, info.lastRevMs);
     rec.seen = now;
     if (info.name) rec.name = info.name;
     saveSabLog(log);
@@ -11851,14 +10002,6 @@
   function initSabTracker() {
     const info = parseSabPageInfo();
     if (!info) return;
-    // Before anything is read from the log: the one-time reset of entries
-    // written before v2.25.3 (migrateSabLogOnce). It runs on a restored page
-    // too — that page draws its countdowns from the log just the same — and
-    // does nothing at all on a browser that has already had it. On the one
-    // page load that is both the reset and a refusal, the refused press is
-    // now a guess, so dropRefusedPress leaves it and reconcileSabLog drops it
-    // as the excess instead: the same answer, by the guesses-first rule.
-    migrateSabLogOnce();
     // A page brought back with Back / Forward shows the counters as they were
     // then: draw from the log as it stands, and neither drop a press nor
     // reconcile against those old numbers.
@@ -11883,29 +10026,23 @@
       target: info.targetId, sab: rec.sab.length, rev: rec.rev.length, maxed: info.maxed
     });
 
-    // Share the two cap numbers with the roster. Nothing else records them,
-    // and together they answer the only question that matters when picking a
-    // target: how much of this player's daily cap is still takeable. The War
-    // Room shows it per player with the reading's age, since the window rolls.
-    // A page brought back with Back / Forward holds the numbers as they were
-    // then, stamped with the clock as it is NOW — an old reading sent as
-    // fresh, which would overwrite a newer one. The target check is skipped
-    // there for the same reason, so this is too.
-    if (restored) {
-      debugLog('🎯 Sab cap status not sent — page restored with Back/Forward');
-    } else if (info.maxLoss != null && info.lost24 != null) {
-      const now = getKoCServerTimeUTC();
-      Promise.resolve(auth.apiCall('players', {
-        id: info.targetId,
-        sabLost24h: info.lost24,
-        sabLost24hTime: now,
-        sabMaxDaily: info.maxLoss,
-        sabMaxDailyTime: now
-      })).catch(function () { /* display-only feature: never break the page */ });
-      debugLog('🎯 Sab cap status sent', {
-        id: info.targetId, lost24: info.lost24, maxLoss: info.maxLoss
-      });
-    }
+  }
+
+  // The target's two cap numbers, sent under the "Sabotage caps" share so the
+  // War Room can show how much of each target's daily cap is left. Not sent
+  // from a page brought back with Back / Forward: its numbers are old.
+  function sendSabCaps() {
+    const info = parseSabPageInfo();
+    if (!info || info.maxLoss == null || info.lost24 == null) return;
+    if (pageNavType() === 'back_forward') return;
+    const now = getKoCServerTimeUTC();
+    Promise.resolve(auth.apiCall('sab-caps', 'players', {
+      id: info.targetId,
+      sabLost24h: info.lost24,
+      sabLost24hTime: now,
+      sabMaxDaily: info.maxLoss,
+      sabMaxDailyTime: now
+    })).catch(() => { /* a failed send never breaks the page */ });
   }
 
   /**
@@ -11978,9 +10115,8 @@
     const now = Date.now();
     const found = { sab: [], rev: [] };
 
-    // Mission Type is found by its header, not by position. The Time column is
-    // two cells ("6" | "hours ago"), which puts Mission Type third — reading
-    // the second cell meant no row ever matched and this backfill never ran.
+    // Mission Type is found by its header: the Time column spans two cells
+    // ("6" | "hours ago").
     for (const row of page.rows) {
       const type = (row.missionText || '').trim().toLowerCase();
       let kind = null;
@@ -12505,14 +10641,14 @@
    *
    * Side: decided per row, from the title over that row's own run — two
    * logs can share one table. A readable title decides. The wording ("you
-   * attacked" / "attacked by", both seen live; a raid is expected to read
+   * attacked" / "attacked by"; a raid is expected to read
    * the same way) is used only when there is no title; when it disagrees
    * with the title the row goes with the title's side and a debug line.
    * Wording nobody has seen never drops a row: with no title either, the
    * row is sent without a side and the server reads the wording it keeps.
    *
-   * Banking Mode's reader (bankCollectAttackLog) and the summary enhancer
-   * (enhanceAttackLog) read the same page on their own, untouched by this.
+   * The summary enhancer (enhanceAttackLog) reads the same page on its own,
+   * untouched by this.
    */
   function parseAttackLogRows() {
     const POS = { action: 2, enemy: 3, result: 4, enemyLosses: 5, yourLosses: 6, hostages: 7, dmgByEnemy: 8, dmgByYou: 9, timestamp: 10 };
@@ -12617,8 +10753,7 @@
    * pressed. A report page lands a second or two later, so a short window
    * ties the report to the mission; anything older is not trusted. Pure.
    *
-   * A guess (est) is not a press: reconcileSabLog's pads and the one-time
-   * reset of pre-v2.25.3 rows (migrateSabLogOnce) both stand at the moment
+   * A guess (est) is not a press: reconcileSabLog's pads stand at the moment
    * the page was opened, which would otherwise read as "just fired at".
    */
   function recentSabTargetId(log, nowMs, windowMs) {
@@ -12706,7 +10841,7 @@
    * the last 2 minutes; otherwise unknown — the report id still ties the row
    * to the same mission in the intel file.
    * The name: "While inside <name>'s armory" (a success) or "Your spies are
-   * spotted inside <name>'s armory" (a failure, seen live 19 Sep 2026).
+   * spotted inside <name>'s armory" (a failure).
    * The time: a sab report prints none. The report the member LANDED on,
    * straight after "Sabotage Now" or "… Again!" (covertReportJustLanded), is
    * the sab just fired, so the Server Time that page rendered (PAGE_KOC_TIME,
@@ -12740,7 +10875,7 @@
 
   /**
    * The text lines of a battle report (detail.php) — [] when the page holds
-   * none. The live page (saved Dec 2025, seen again 18 Sep 2026): a first
+   * none. The live page: a first
    * table holds, on a win, "You stole N gold while raiding <name>'s camp and
    * made off with H hostages (…)." over a "Battle Report" title (a lost
    * battle shows no such line; the defender's own message may sit there
@@ -12757,9 +10892,7 @@
    * made on these lines. The battle is the LAST line that IS that sentence
    * (it starts the line): a defender's message sits in the title's table,
    * above the buttons and the battle, and may quote the sentence — even as a
-   * line of its own. Found by the first mention, a message like that became
-   * "the battle": the member's own report then showed no marks and nothing
-   * was recorded, or the message went to the server as report lines.
+   * line of its own.
    *
    * The lines are the report's own, and nothing a player wrote: its first
    * line, the title, then the battle up to the first table edge after it
@@ -12807,8 +10940,8 @@
 
   /**
    * The label of the button the game renamed for the mission just fought —
-   * "Raid Again!" / "Attack Again!" in the battle report's button row (seen
-   * live 18 Sep 2026) — or null. As printed (the value attribute), not as a
+   * "Raid Again!" / "Attack Again!" in the battle report's button row — or
+   * null. As printed (the value attribute), not as a
    * click may have relabelled it since.
    */
   function battleReportAgainButton() {
@@ -12827,23 +10960,21 @@
    * Launching a battle posts a form — attack.php's Attack / Raid buttons, the
    * ones on a recon, theft or poison report, a battle report's "Raid Again!"
    * / "Attack Again!" — and the game answers with a REDIRECT to this report.
-   * Seen live 19 Sep 2026: two attacks launched from recon reports landed
-   * with Navigation Timing type 'navigate', redirectCount 1 and the recon
-   * report (inteldetail.php) as the referrer. v2.25.1 went by the referrer
-   * alone (attack.php, or another battle report) and knew no recon report,
-   * so both went into Mission history with no time. So, on the navigation
-   * entry:
+   * Attacks launched from recon reports land with Navigation Timing type
+   * 'navigate', redirectCount 1 and the recon report (inteldetail.php) as
+   * the referrer, so the redirect count decides, not the referrer. On the
+   * navigation entry:
    *   - type not 'navigate' (a reload, Back / Forward, a prerender): false —
    *     a revisit keeps the old referrer, but its Server Time is the
    *     revisit's;
    *   - 'navigate' through at least one redirect: true, whichever page
    *     launched the battle;
    *   - 'navigate' with no redirect: a plain link — a report opened later
-   *     from the Attack Log, say (seen live: redirectCount 0, referrer
-   *     attacklog.php) — false; but null when the referrer is attack.php or
-   *     another battle's report (a landing whose redirect the browser did
-   *     not count must never read as old). One exception, kept from v2.25.1
-   *     and not seen live: the game's report addresses carry "suspense" (the
+   *     from the Attack Log, say (redirectCount 0, referrer attacklog.php)
+   *     — false; but null when the referrer is attack.php or another
+   *     battle's report (a landing whose redirect the browser did not count
+   *     must never read as old). One exception: the game's report addresses
+   *     carry "suspense" (the
    *     Attack Log links &suspense=0). If landing goes through a suspense
    *     view of the battle first and then on to the plain report of that
    *     same battle, the referrer is the same report with a non-zero
@@ -12851,14 +10982,13 @@
    *     the battle. (Taken on trust: the Attack Log's links say suspense=0,
    *     so a suspense view is assumed to be the landing's own.)
    * An entry of type 'navigate' that does not count redirects falls back to
-   * v2.25.1's rule: from attack.php, from another battle report (a chain of
+   * the referrer rule: from attack.php, from another battle report (a chain of
    * "… Again!"), or the suspense hop — true; anything else null. No
    * navigation entry (or no type) at all is null. Null, not false: not
    * knowing how the page was reached does not make it a report opened
    * later. A known reload or Back / Forward is false whether or not
    * redirects are counted.
-   * Every report reached logs how (debug mode), so a live landing shows
-   * which way the game really goes.
+   * Logs how the page was reached (debug mode).
    */
   function battleReportJustFought(reportId) {
     let type = null;
@@ -12882,17 +11012,17 @@
     if (type === 'navigate' && redirects !== null) {
       if (redirects >= 1 || suspenseHop) return true;
       // No redirect counted, but reached from a page that launches battles
-      // (attack.php, or another battle's report): v2.25.1 called that a
+      // (attack.php, or another battle's report): the referrer rule says
       // landing. A real landing looks like this only if the browser missed
       // the redirect (a cross-origin hop in the chain, a privacy mode) — and
       // false there would stop the theft coming off the target for good. So
-      // say "cannot tell" (null: the server subtracts as it always did).
-      // The Attack Log (redirectCount 0, referrer attacklog.php — seen live
-      // 19 Sep 2026) and every other plain link stay false.
+      // say "cannot tell" (null: the server subtracts the gold).
+      // The Attack Log (redirectCount 0, referrer attacklog.php) and every
+      // other plain link stay false.
       if (/\/attack\.php(?:[?#]|$)/i.test(ref) || (prev && !sameBattle)) return null;
       return false;
     }
-    // The browser does not say (enough): v2.25.1's rule, its "no" a null.
+    // The browser does not say (enough): the referrer rule, its "no" a null.
     if (type !== 'navigate') return null;
     if (/\/attack\.php(?:[?#]|$)/i.test(ref)) return true;
     if (prev && !sameBattle) return true;
@@ -12904,8 +11034,8 @@
    * ('theft_report.php') is the mission just run — the page the game put the
    * member on after "Sabotage Now", "Steal" or an "… Again!" button — so the
    * Server Time it rendered is that mission's time. true, false, or null when
-   * the browser cannot say. Seen live 19 Sep 2026: both land like battle
-   * reports, a fresh load ('navigate') through ONE redirect from attack.php.
+   * the browser cannot say. Both land like battle reports, a fresh load
+   * ('navigate') through ONE redirect from attack.php.
    *   - a reload, Back / Forward or a prerender: false (the Server Time is the
    *     revisit's);
    *   - 'navigate' through a redirect: true;
@@ -12945,8 +11075,8 @@
    * Only a WON raid says "raid" in its text ("… while raiding <name>'s
    * camp"); a lost raid and a lost attack read the same. The page's button
    * row does say: the game relabels the button for the mission just fought
-   * "Raid Again!" / "Attack Again!" — but not always (a Dec 2025 save shows
-   * plain "Attack!" / "Raid!"). So each field is what the page states, or
+   * "Raid Again!" / "Attack Again!" — but not always (some pages show plain
+   * "Attack!" / "Raid!"). So each field is what the page states, or
    * null — never a guess:
    *   missionText — the "… Again!" button's label; else the "while raiding"
    *                 / "while attacking" phrase of the "You stole" line; else
@@ -13013,20 +11143,19 @@
   /**
    * Whose theft a theft report (theft_report.php) shows: the member's own,
    * or the view the game gives the player who was stolen FROM. Both sides
-   * get the same page — seen live 20 Sep 2026, the member's own failed
-   * theft (report 73851) and the defender's view of Plasticbekertje's theft
-   * on the member (opened from the Theft Log's "Attacks Against You") share
-   * the title "Kings of Chaos :: Battle Report", the header "Theft Battle
-   * Report" and the same buttons, "Steal Again!" among them; and on the
-   * defender's view every form carries the ATTACKER's id as defender_id, so
-   * the victim can steal back. So neither the buttons nor the ids can tell
-   * the views apart. Only the wording can — the same lesson battle reports
-   * taught (battleReportIsOwnAttack).
+   * get the same page — the member's own theft and the defender's view of
+   * another player's theft on the member (opened from the Theft Log's
+   * "Attacks Against You") share the title "Kings of Chaos :: Battle
+   * Report", the header "Theft Battle Report" and the same buttons, "Steal
+   * Again!" among them; and on the defender's view every form carries the
+   * ATTACKER's id as defender_id, so the victim can steal back. So neither
+   * the buttons nor the ids can tell the views apart. Only the wording can,
+   * as with battle reports (battleReportIsOwnAttack).
    *
    * Ours = a line STARTS with one of the member's own two sentences ("You
    * successfully stole N <weapon> from <name>'s camp." / "You failed to
    * steal any <weapon> from <name>'s camp.") and NO line carries a
-   * defender's mark. The marks are the stopped wording seen live ("You
+   * defender's mark. The marks are the game's stopped wording ("You
    * stopped <name>'s plan and saved your armory."), "your armory" and a
    * theft "from your camp" — a lost defence is still unseen, so the
    * wordings it would most likely use are refused too.
@@ -13052,10 +11181,10 @@
 
   /**
    * theft_report.php?report_id=R — the report of a theft the MEMBER made
-   * (page title "Battle Report", header "Theft Battle Report"). Seen live
-   * 19 Sep 2026: "You successfully stole 183 Chariot from TheGodFather-LaCN's
-   * camp." (the name links the target's stats page); a failure reads "You
-   * failed to steal any Chariot from Lord_Hunaman's camp.". Every button form
+   * (page title "Battle Report", header "Theft Battle Report"): "You
+   * successfully stole 183 Chariot from <name>'s camp." (the name links the
+   * target's stats page); a failure reads "You failed to steal any Chariot
+   * from <name>'s camp.". Every button form
    * on it ("Steal Again!", Attack!, Raid!, Poison! …) carries the target as
    * defender_id.
    *
@@ -13232,7 +11361,7 @@
     }
     if (complete) missionLogSent = true;
     return Promise.resolve()
-      .then(() => auth.apiCall('api/war-room/missions', body))
+      .then(() => auth.apiCall('missions', 'api/war-room/missions', body))
       .then((res) => debugLog(`📜 Mission log (${body.source}): ${body.rows ? body.rows.length + ' rows' : 'report ' + body.reportId} sent`, res))
       .catch(() => { /* never break the page */ });
   }
@@ -13357,8 +11486,8 @@
   /**
    * The red line the game shows when the member presses once more after
    * using every attempt of a mission on this target: "You have used the
-   * maximum sabotage attempts against this player in 24 hours." (seen live
-   * 19 Sep 2026; a theft or poison line is expected to read the same way).
+   * maximum sabotage attempts against this player in 24 hours." (a theft or
+   * poison line is expected to read the same way).
    * The mission's word as printed, lower-cased ('sabotage'), or null. It is
    * proof that the MEMBER's attempts on this target are all in use — not
    * that the target is maxed.
@@ -13396,7 +11525,7 @@
    * null when this is not a readable attack page (no target, no boxes — an
    * "Invalid User ID" page, say). Every number the page does not show is
    * null, never 0; the one deliberate 0 is the game's empty "()" brackets,
-   * which it prints for a target sabbed down to nothing (see v2.19.1).
+   * (a target sabbed down to nothing prints empty brackets).
    *
    *   sab.limit      the sentry your spy rating can reach ("can sab up to")
    *   recon.limit    same for recon (x3 rather than x1.5)
@@ -13461,8 +11590,8 @@
     const revWins = frac('revenge', /Successful Revenge Sabbs:?\s*(\d[\d,]*)\s*\/\s*(\d[\d,]*)/i);
 
     // The times the game prints about the member's own SUCCESSFUL missions on
-    // this target (seen live 19 Sep 2026: a failed sab changed neither sab
-    // stamp), each read only in its own box: "First sab (last 24hrs)" and "You
+    // this target (a failed sab changes neither sab stamp), each read only in
+    // its own box: "First sab (last 24hrs)" and "You
     // last sabbed" in the Sabotage box, "You last stole" in the Theft box, "You
     // last poisoned" in the Poison box, and a first-row time for theft or
     // poison should the game ever print one (it does not today).
@@ -13474,7 +11603,7 @@
     };
 
     // The Attack box's first row under its title is the target's name on its
-    // own ("Hooplah"). A stats.php link to this id is the fallback — never
+    // own ("<name>"). A stats.php link to this id is the fallback — never
     // just any stats link, which injected leaderboards can supply.
     let targetName = null;
     const nameRow = (rowsOf.attack || [])[1];
@@ -13532,11 +11661,9 @@
   // ==================== ATTACK PAGE: RANGE WARNINGS ====================
   //
   // The game does not stop a mission that cannot land. It lets a theft on a
-  // target whose vigilance is above your reach fire and fail — the case that
-  // started this: four thefts on Lord_Hunaman, vigilance 249,256,356 against a
-  // 237,874,638 ceiling, all "Failed", nothing stolen. So under each mission's
-  // "can … up to …" line the page now says whether the target is actually in
-  // reach: their rating as last recorded in the alliance roster, against the
+  // target whose vigilance is above your reach fire and fail. So under each
+  // mission's "can … up to …" line the page says whether the target is
+  // actually in reach: their rating as last recorded in the alliance roster, against the
   // ceiling the game printed for you, with how old that reading is. Display
   // only — the game's forms and buttons are never touched or blocked.
 
@@ -13559,9 +11686,8 @@
    *
    * Borderline = within 5% of your ceiling either side AND the reading is at
    * least an hour old (or undated). That is the only case where "may have
-   * changed since" is honest: a reading taken minutes ago is simply right —
-   * Lord_Hunaman's 249.3M was 4.8% over and read just before the thefts that
-   * failed, so it must say out of range, not maybe. Older than 24h the age
+   * changed since" is honest: a reading taken minutes ago is simply right, so
+   * a value 4.8% over says out of range, not maybe. Older than 24h the age
    * reads "old reading".
    */
   function attackRangeVerdict(mission, theirValue, theirTime, myLimit, nowMs) {
@@ -13698,7 +11824,7 @@
     // call shows nothing at all; "not found" just means nobody has read them
     // yet, which is worth saying ("recon first").
     let player = null;
-    try { player = await auth.apiCall(`players/${page.targetId}`); } catch (e) { player = null; }
+    try { player = await auth.apiCall('read', `players/${page.targetId}`); } catch (e) { player = null; }
     if (!player) return;
     if (player.error && !/not found/i.test(String(player.error))) return;
     const rec = player.error ? {} : player;
@@ -13735,10 +11861,10 @@
   // and theft caps is gone, the viewer's own attempt and success counters on
   // them, and the ceilings the game printed for the viewer. The War Room turns
   // it into "seen maxed 4m ago by NAME" — the difference between a target
-  // that WAS maxed at some point and one somebody just confirmed — and, later,
-  // into members' success rates. Automatic only: there is no mark button, and
-  // opening the page is the only thing that records anything.
-  // v2.25.3: a check also carries the times the page prints for the member's
+  // that WAS maxed at some point and one somebody just confirmed. Automatic
+  // only: there is no mark button, and opening the page is the only thing
+  // that records anything.
+  // A check also carries the times the page prints for the member's
   // own first and last SUCCESSFUL sab, theft and poison on the target, the
   // game's "You have used the maximum … attempts" line, and the page's own
   // navigation and Server Time — the War List tab counts down from them when
@@ -13845,7 +11971,7 @@
       return;
     }
     // Not awaited: the range warnings after this step should not wait on it.
-    Promise.resolve(auth.apiCall('api/war-room/checks', payload)).then((res) => {
+    Promise.resolve(auth.apiCall('target-checks', 'api/war-room/checks', payload)).then((res) => {
       if (!res || !res.ok) { debugLog('🎯 Target check not recorded', res); return; }
       const sent = SafeStorage.get(TARGET_CHECK_SENT_KEY, {});
       const keep = (sent && typeof sent === 'object' && !Array.isArray(sent)) ? sent : {};
@@ -13860,211 +11986,158 @@
 
   // ==================== FEATURE REGISTRY & SETTINGS ====================
   //
-  // Every user-facing feature is declared once in FEATURES (name, plain-English
-  // description, where it runs) and executed via the FEATURE_STEPS list in the
-  // page dispatcher below. The Settings panel ("⚙ Data Centre" in the sidebar)
-  // renders straight from FEATURES, so a feature added there automatically gets
-  // a toggle and a description.
+  // Every display feature is declared once in FEATURES (name, plain-English
+  // description, where it runs) and run by the FEATURE_STEPS list below. The
+  // ⚙ Data Centre panel draws its switches from FEATURES and SYNCS, so every
+  // display feature and every share has a switch; the login, the ⚙ link and
+  // reading your own id and name on the Command Centre always run.
   //
-  // Toggle state lives in localStorage[FEATURES_KEY] as {featureId: false} —
-  // only disabled features are stored and a missing entry means enabled, so new
-  // features ship ON and updates never change what existing users see.
+  // Switches live in localStorage[FEATURES_KEY]: {featureId: false} for a
+  // display feature that is off, {'sync:id': false} for a share that is off,
+  // and 'net:send' / 'net:read' for the two hard switches.
 
-  const FEATURES_KEY = "KoC_DataCentre_Features";
-
-  // kind: 'display' = only changes what YOU see; 'sync' = records/shares data
-  // with the alliance roster; 'both' = does both.
+  // Every entry only changes what you see. What a feature reads from or sends
+  // to the Sweet Revenge server is switched separately (SYNCS, NETWORK GATE).
   const FEATURES = [
     // — Everywhere —
     {
-      id: 'server-clock', group: 'Everywhere', kind: 'display',
+      id: 'server-clock', group: 'Everywhere',
       name: 'Live Server Time clock',
       desc: 'Makes the Server Time shown on every page tick forward each second instead of staying frozen at the moment the page loaded.'
     },
     {
-      id: 'era-elapsed', group: 'Everywhere', kind: 'display',
+      id: 'era-elapsed', group: 'Everywhere',
       name: 'Era day counter',
       desc: 'Adds a line under the sidebar Game Time countdown saying which day of the era it is and how long the era has been running (days, hours, minutes, seconds), ticking live.'
     },
     {
-      id: 'vault-tax-warning', group: 'Everywhere', kind: 'display',
+      id: 'vault-tax-warning', group: 'Everywhere',
       name: 'Vault tax warning',
       desc: 'When your sidebar Vault holds gold, a warning appears in the "Era ends in" banner from 15 minutes before each vault tax (5% every 6 hours, at 00:00, 06:00, 12:00 and 18:00 server time), with a live countdown and how much gold you will lose if you don\'t spend your vault.'
     },
     {
-      id: 'sidebar-calculator', group: 'Everywhere', kind: 'both',
+      id: 'sidebar-calculator', group: 'Everywhere',
       name: 'Sidebar XP→Turns calculator',
       desc: 'The calculator box under the sidebar: how many attacks your Experience and Attack Turns are worth, projected gold from them, your banked-% pill with trend graph (📈), the ✏️ manual average-gold override, and the SR logo (click it for the feature-settings popup) with the Login/Logout button. Clicking the box title opens a pop-up calculator.',
-      note: 'Uses the average gold calibrated by the Attack log enhancer; the banked % also needs Own stats sync (income) and attack-log visits (gold lost). While on, the box quietly uploads throttled banking snapshots (banked %, gold on hand, gold lost, projected income) to the alliance server — not only when you open the graph.'
+      note: 'Uses the average gold calibrated by the Attack log enhancer, and attack-log visits for gold lost. The 📈 trend graph needs Read from the server; your own snapshots are sent only while the "Banked % snapshots" share is on.'
     },
     {
-      id: 'rank-neighbor-links', group: 'Everywhere', kind: 'display',
+      id: 'rank-neighbor-links', group: 'Everywhere',
       name: 'Rank-neighbour recon links',
-      desc: 'Turns the "Rating For Previous/Next Rank Gain" numbers into links to the player we believe holds that rank, with a tooltip showing who they are and how fresh our data on them is.'
+      desc: 'Turns the "Rating For Previous/Next Rank Gain" numbers into links to the player we believe holds that rank, with a tooltip showing who they are and how fresh our data on them is.',
+      note: 'Needs Read from the server.'
     },
     {
-      id: 'sab-tracker', group: 'Everywhere', kind: 'both',
+      id: 'sab-tracker', group: 'Everywhere',
       name: 'Sabotage Tracker',
-      desc: 'On attack pages: sab and revenge-sab attempts left on the target in the rolling 24h window, a countdown until your next slot opens, damage left before the target is maxed, and colour-coded ages on "You last sabbed" timestamps. Quietly records sab missions you fire by hand, takes each one\'s exact time from the sab report you land on, and reads the target\'s Intelligence file for exact times. A press the game refuses (\'maximum sabotage attempts\', or a maxed target) is not counted as an attempt. An attempt it never saw counts from the moment you opened the page, so that countdown reads "≤" (at the latest) — late rather than early; the page\'s "First sab" time is a first successful sab and the page never says whose, so nothing is timed from it. Updating to v2.25.3 clears the times this tracker had already stored, once: earlier versions filed that "First sab" time as one of your own attempts and nothing kept in your browser can tell those rows from real ones. So for up to 24 hours after the update, a target you sabbed before it reads "≤ about 24h from now" — too late rather than too early — until the game\'s own times come back from the reports you land on and the target\'s Intelligence file.',
-      note: 'Your log of sab attempts stays in your own browser. What IS sent to the alliance roster is the target\'s two cap numbers from the attack page — "Total lost from sabbs in the last 24hours" and "Maximum Daily Sabotage loss" — so the War Room can show how much of each target\'s daily cap is left.'
-    },
-
-    {
-      id: 'own-tracking', group: 'Everywhere', kind: 'sync',
-      name: 'Own account history (era planning)',
-      desc: 'Keeps a history of your own account for planning the next era’s opening: your sidebar balances (Gold, Safe, Vault, Experience, Experience Bank, Turns, Rank, Recent Logs and the era countdown) on any page, at most every 15 minutes; the tables on your own Command Centre, Armory, Upgrades, Safe, Training, Trade, Rewards, Conquest and Game Logs pages, at most every 5 minutes and only when something changed; and each conquest result as it appears on the Conquest page, with your Strike, repair cost, turns, experience and gold before and after. Only the page you opened is read; nothing is fetched, pressed or shown.',
-      note: 'Sent to the alliance server and kept there for the alliance’s era-planning simulation; you can read your own rows back, and admins can read everyone’s. Nothing about other players is sent: the Officers list and Recent Attacks On You are left out.'
+      desc: 'On attack pages: sab and revenge-sab attempts left on the target in the rolling 24h window, a countdown until your next slot opens, damage left before the target is maxed, and colour-coded ages on "You last sabbed" timestamps. Quietly records sab missions you fire by hand, takes each one\'s exact time from the sab report you land on, and reads the target\'s Intelligence file for exact times. A press the game refuses (\'maximum sabotage attempts\', or a maxed target) is not counted as an attempt. An attempt it never saw counts from the moment you opened the page, so that countdown reads "≤" (at the latest) — late rather than early; the page\'s "First sab" time is a first successful sab and the page never says whose, so nothing is timed from it.',
+      note: 'Your log of sab attempts stays in your own browser. The target\'s two cap numbers are sent only while the "Sabotage caps" share is on.'
     },
 
     // — Command Centre —
     {
-      id: 'top-stats-panel', group: 'Command Centre', kind: 'display',
+      id: 'top-stats-panel', group: 'Command Centre',
       name: 'Sweet Revenge Top Stats panel',
-      desc: 'The alliance dashboard on your Command Centre: mini leaderboards (TIV, Strike, Spy, Defense and more) built from the shared roster, plus who still has recon attempts left (members who have finished their 1,000 Unsuccessful Recons show their own Recon Missions count for the era instead, as a goldenrod 🎯 number). Each column can be shown or hidden.'
+      desc: 'The alliance dashboard on your Command Centre: mini leaderboards (TIV, Strike, Spy, Defense and more) built from the shared roster, plus who still has recon attempts left (members who have finished their 1,000 Unsuccessful Recons show their own Recon Missions count for the era instead, as a goldenrod 🎯 number). Each column can be shown or hidden.',
+      note: 'Needs Read from the server.'
     },
     {
-      id: 'base-collector', group: 'Command Centre', kind: 'sync',
-      name: 'Own stats sync',
-      desc: 'Reads your own Command Centre stats. Most are only cached on your device; what goes to the alliance server is your name, projected income per turn (feeds the banked-% calculator), a last-seen timestamp and your real stat ranks (feeds Stat Hunt).',
-      note: 'Your TIV and combat stats sync from the Armory page, not here.'
-    },
-    {
-      id: 'slaying-comp', group: 'Command Centre', kind: 'both',
+      id: 'slaying-comp', group: 'Command Centre',
       name: 'Slaying competitions',
-      desc: 'Competition panels on the Command Centre with team leaderboards. Captures your attack missions (Rewards page) and gold stolen (Command Centre) and submits them — along with your current Experience, Turns and Gold — to every running competition, unless you switch that competition\'s tracking off in its panel.',
-      note: 'For a submission to count, visit Rewards and then the Command Centre within 30 seconds. Auto-submission runs at most once every 5 minutes per competition; the 📊 Leaderboard button submits fresh stats right away.'
+      desc: 'Competition panels on the Command Centre with team leaderboards. Notes your attack missions (Rewards page) and gold stolen (Command Centre) for every running competition.',
+      note: 'Your entries are sent only while the "Competitions" share is on: at most once every 5 minutes per competition, after a Rewards visit and then a Command Centre visit within 30 seconds, and right away when you press 📊 Leaderboard. The panels and leaderboards need Read from the server.'
     },
 
     // — Armory —
     {
-      id: 'banking-mode', group: 'Armory', kind: 'display',
-      name: 'Banking Mode',
-      desc: 'The "Estimated Funds" widget on the Armory: a live projection of your exposed (stealable) gold, colour-coded steal risk with time-to-yellow/red, screen-awake option and last-bank detection. The Caution/Danger lines learn from your own banks: they sit where the gold you held safely and the gold you were hit for overlap, and drop at once after a fresh hit. Quietly recalibrates from your sidebar gold, Command Centre and attack log. The widget\'s own ⚙ holds its settings and shows where each line comes from.',
-      note: 'Your bank history stays in this browser only — nothing new is sent to the alliance server.'
+      id: 'estimated-funds', group: 'Armory',
+      name: 'Estimated Funds',
+      desc: 'One box on the Armory, above the game’s "Available Funds", estimating the gold you hold right now: the last gold amount the game showed you (sidebar, Command Centre or Armory) plus the income earned since, from your Command Centre’s Projected Income. It says when and where that gold was read. It gives no advice, sends nothing and changes nothing on the page.'
     },
     {
-      id: 'armory-sliders', group: 'Armory', kind: 'display',
+      id: 'armory-sliders', group: 'Armory',
       name: 'Armory preference sliders',
       desc: 'Replaces the armory percentage boxes with auto-balancing sliders, plus one-tap presets: Cheapest first, Optimizer (uses alliance data to pick the best stat per gold), All spy, All defense, and your own saved presets.',
-      note: 'The "Cheapest first" preset needs Rank-up cost display switched on, and the Optimizer\'s gold budget comes from the sidebar XP calculator (it also asks the alliance server, read-only, for the allocation).'
+      note: 'The "Cheapest first" preset needs Rank-up cost display switched on. The Optimizer preset takes its gold budget from the sidebar XP calculator and asks the alliance server for the allocation, sending your gold budget, gold per point and ratings; it needs Read from the server.'
     },
     {
-      id: 'stat-reshuffler', group: 'Armory', kind: 'display',
+      id: 'stat-reshuffler', group: 'Armory',
       name: 'Stat Reshuffler',
       desc: 'The 🔀 Stat Reshuffler banner above the Armory Preferences section opens a what-if calculator: pick weapons (or whole categories) to sell, optionally switch race, and pour the proceeds — plus gold on hand if you tick it — into other stats. Projects the gold recovered, weapons you could buy, your new ratings and your new TIV after the 50% sell tax. Set a Goal (a target rating for one stat) and it also shows the gold still needed to reach it, updating live as you tweak the plan. Pure calculator: it never sells, buys or presses anything.',
       note: 'Uses the same per-stat multipliers as the Gold per Stat Point panel under the Rank Gain table (read from your rating and held weapons on every visit, or pinned by you). Warns when a stat\'s figure dates from before a skill upgrade. Weapons your units can\'t carry count as adding nothing — unless you tick "Ignore carrier caps" because you\'ll train units as needed.'
     },
     {
-      id: 'rank-up-costs', group: 'Armory', kind: 'display',
+      id: 'rank-up-costs', group: 'Armory',
       name: 'Rank-up cost display',
       desc: 'Shows how much gold of weapons you would need to buy to claim the next rank in each stat (the "Next Rank Gain" number), and how many weapons are unheld there and what they would add if held.',
       note: 'Uses the gold per stat point from the Gold per Stat Point panel (your pins still apply with the panel switched off). Its numbers also power the armory sliders\' "Cheapest first" preset.'
     },
     {
-      id: 'gpp-panel', group: 'Armory', kind: 'display',
+      id: 'gpp-panel', group: 'Armory',
       name: 'Gold per Stat Point panel',
       desc: 'A collapsible table under the Rank Gain table (closed by default — click its header to open): each stat\'s gold per point, where it came from (Live, Remembered, Paired or Pinned), how much is unheld and what it would add if held, and a box to pin your own gold/pt. Its "Plan as held" tick works the rank-up costs and the Optimizer out as if every weapon you own were held — for the end-of-era push.',
       note: 'Live readings come from your rating and the weapons the game says are held, on every visit — no purchase needed. A stat you keep unheld keeps its last reading. Poison/Antidote and Theft/Vigilance borrow from each other only at equal skill levels, read when you open the Upgrades page. Pins, the tick and open/closed stay on this device.'
     },
     {
-      id: 'purchase-alerts', group: 'Armory', kind: 'display',
+      id: 'purchase-alerts', group: 'Armory',
       name: 'Purchase check alerts',
       desc: 'After you buy weapons, reads the "You Purchased..." message and notes, without alarm, when a purchase went unheld (no units to hold it yet) — often on purpose.',
-      note: 'Purchases no longer set your gold per stat point: a buy that displaces weapons you already hold reads low. The Gold per Stat Point panel reads it from the page instead.'
-    },
-    {
-      id: 'armory-collector', group: 'Armory', kind: 'sync',
-      name: 'Armory data sync',
-      desc: 'Reads your Armory page and syncs your TIV, all eight stats with timestamps, your real stat ranks and your gold-per-stat efficiency to the alliance roster. Your weapons inventory and spend preferences are only cached on your device.',
-      note: 'The Safe page "Attacked Instead" comparison relies on the locally cached weapon distribution and spend preferences.'
+      note: 'Purchases are not used for gold per stat point (a buy that displaces weapons you already hold reads low); the Gold per Stat Point panel reads it from the page.'
     },
 
     // — Attack & Intel —
     {
-      id: 'attack-collectors', group: 'Attack & Intel', kind: 'sync',
-      name: 'Attack data capture',
-      desc: 'Records TIV sightings from attack pages and your battle reports (attacks and raids) — gold stolen, hostages, casualties on both sides, the trained/untrained soldier counts the report shows for you and the target, and whether you opened the report straight after the battle or later — into the alliance database. This powers everyone\'s target intel. Battle reports of other players attacking you are not recorded.'
-    },
-    {
-      id: 'attack-warnings', group: 'Attack & Intel', kind: 'display',
+      id: 'attack-warnings', group: 'Attack & Intel',
       name: 'Attack page range warnings',
       desc: 'On attack pages, under each mission\'s "can … up to …" line: whether the target is actually in reach — their sentry (sab), antidote (poison), vigilance (theft) and defensive action (attack) as last recorded in the alliance roster, against the limit the game prints for you — with how old that reading is. ✅ in range, ⚠ borderline (close to your limit and not freshly read), ⛔ out of range (the mission will fail; the game lets it fire anyway), ❔ no reading yet (recon first). Also adds a theft-cap line to the Theft box: how much of the target\'s daily theft cap is left, or THEFT MAXED.',
-      note: 'Reads the alliance roster (read-only) for the target\'s last known ratings; nothing is sent. It never blocks or changes the game\'s forms or buttons, and if the roster cannot be reached it shows nothing.'
+      note: 'Reads the target\'s last known ratings from the alliance roster; the read sends only the target\'s id, and needs Read from the server. If the roster cannot be reached only the theft-cap line is shown (it uses the page\'s own numbers). It never blocks or changes the game\'s forms or buttons.'
     },
     {
-      id: 'target-checks', group: 'Attack & Intel', kind: 'sync',
-      name: 'Target check log',
-      desc: 'Every time you open an attack page, records that you checked that target: your name, the target and the time, whether the game showed them maxed, how much of their daily sab and theft caps is used, your own attempt counters for that target (sab, revenge sab, theft, poison, attack, raid, recon) and success counters where the game shows them (sab, revenge sab, theft, poison), and your own Spy, Poison, Theft and Attack ratings with the range limits the game prints for you, and the times the game prints for your own first and last successful sab, steal and poison on that target, the game\'s \'maximum attempts\' line, and when the page was drawn (a page brought back with Back is not sent again). The War Room uses it to show which targets were just seen maxed, and by whom, so nobody spends turns on them; the roster\'s War List tab uses it to count down when your own attempts come back.',
-      note: 'All of that — including your own attempt and success counters for each target you open — is visible to everyone with roster access, and used for members\' success rates. It is recorded only when you open an attack page yourself; the script never fires a mission.'
-    },
-    {
-      id: 'mission-log', group: 'Attack & Intel', kind: 'sync',
-      name: 'Mission history',
-      desc: 'When you open your Intelligence page, a target\'s Intelligence file, the Poison Log, the Theft Log or the Attack Log, records the missions listed on that page to the alliance roster: your own sab, recon, poison, theft, attack and raid missions with their results (success, aborted, failed, defended — and what was stolen or destroyed), and the missions other players ran against you: who, when, what kind, how many spies, and what they took. Stored with them: the unit losses from the Poison Log; the casualties on both sides, the damage both ways and the hostages from the Attack Log; and the attacker\'s alliance and how many of their spies were caught from the Intelligence page. Any sab report you open is recorded too — not only one you just ran — with the report\'s full text: weapons destroyed, spies and sentries executed, and the gold and XP gained. So are the battle reports of your own attacks and raids — the report you land on after an attack or raid (stamped with that moment), or one of yours you open later from the Attack Log: who you hit, whether it was an attack or a raid, the gold you stole or the defeat, and the report\'s full text. Battle reports of other players attacking you are not recorded; those attacks come from the Attack Log. The sab or theft report you land on right after the mission is stamped with the Server Time that page shows. Theft reports are recorded too: what you stole, or that it failed. A theft report showing somebody stealing from you is not recorded. The War Room turns this into success rates per member and per mission type.',
-      note: 'Your success rates, and every mission behind them, are visible to everyone with roster access — as are the missions run against you. Rates are per member and per mission type, never per target. Only the page you open is read: the script never turns a page, opens a report or fetches anything, and these pages are left exactly as the game drew them.'
-    },
-    {
-      id: 'attack-log-enhancer', group: 'Attack & Intel', kind: 'display',
+      id: 'attack-log-enhancer', group: 'Attack & Intel',
       name: 'Attack log enhancer',
       desc: 'Adds your average gold per attack to the attack log\'s 24-hour summary headers, and quietly notes how much gold attackers stole from you. Both numbers are saved only on your device.',
       note: 'The sidebar calculator, Optimizer preset, Safe-page comparison and Upgrades-page slay estimates all build on the average-gold number. The gold-lost figure feeds the sidebar calculator\'s banked-% trend, which does upload snapshots to the alliance server.'
     },
     {
-      id: 'recon-sharing', group: 'Attack & Intel', kind: 'both',
-      name: 'Recon sharing',
-      desc: 'When you recon someone or view their stats page, quietly shares what you saw with the alliance database. From a stats page that includes the Information table\'s Race, Rank, Commander, Supreme Commander, Signup Time and Previous Era Rank (for the Alt Watch list). Opening your Rewards page shares two numbers from it: your Unsuccessful Recons count (with whether that 1,000 goal is done and claimed) and your own Recon Missions count for the era. Opening the War List shares that whole page in one go — everyone\'s sentry, the recommended sab weapon and how many of it they hold, who is on the War List and when (and why) they were added, and your own "My 24hr" sab / poison / theft counters for each player on it, with when the page was drawn (a War List brought back with Back is not sent again). Also fills "???" rows on your recon reports with the alliance\'s last known values.',
-      note: 'The "???" backfill on recon reports belongs to this feature, not Recon display extras — turning this off turns that off too. Your War List "My 24hr" counters are stored under your name, are visible to everyone with roster access, and are used for members\' success rates; switching off Target check log does not stop them — switch off this feature for that. On the War List (and Farm List) the script only reads: the game allows scripts no changes there at all, so nothing on those pages is altered, added or styled.'
-    },
-    {
-      id: 'recon-display', group: 'Attack & Intel', kind: 'display',
+      id: 'recon-display', group: 'Attack & Intel',
       name: 'Recon display extras',
-      desc: 'Fills "???" values on stats pages from the alliance database, adds the freshness age column to Shared Recon Info, and a "max attacks" row on recon reports.',
-      note: 'The matching "???" backfill on recon reports (fresh recon pages) is part of Recon sharing, not this feature.'
+      desc: 'Fills "???" values on stats pages and recon reports from the alliance database, adds the freshness age column to Shared Recon Info, and a "max attacks" row on recon reports.',
+      note: 'Filling "???" needs Read from the server.'
     },
     {
-      id: 'alt-watch-badges', group: 'Attack & Intel', kind: 'both',
+      id: 'alt-watch-badges', group: 'Attack & Intel',
       name: 'Alt Watch badges',
       desc: 'Shows the alliance\'s Alt Watch list where you meet the player: on a stats page, a line in the Information table (🚩 RL OOC · Suspect or Confirmed for flagged accounts, 👥 for accounts on a watched alliance in a past era or this one, 🆕 for accounts made this era), and on the battlefield a 🚩 in the Icons column for accounts flagged Suspect or Confirmed. The stats page also gets an "Alt Watch" dropdown with a Save to Alt Watch button so you can flag the account yourself.',
-      note: 'Pressing Save to Alt Watch sends that flag (and your note, if you type one) to the alliance server under your name; it shows on the /roster Alt Watch tab. It is the script\'s own control: the game\'s "Recognize player as" form and Change Status button are never touched. The badge list is read from the alliance server at most every 10 minutes. A flag is a member\'s call, not proof.'
-    },
-    {
-      id: 'battlefield-collector', group: 'Attack & Intel', kind: 'sync',
-      name: 'Battlefield scanner',
-      desc: 'Quietly records every player you scroll past on the battlefield into the alliance roster — name, alliance and rank only. No gold or army numbers are captured.'
-    },
-    {
-      id: 'inactives-collector', group: 'Attack & Intel', kind: 'sync',
-      name: 'Inactive Accounts sync',
-      desc: 'When you open the in-game Inactive Accounts page, shares the list with the alliance roster: who went into Vacation Mode and exactly when, and who has been deleted. Anyone who has dropped off the list since the last visit is back from vacation. This keeps the dashboard\'s Vacation Watch countdowns exact — the more often someone opens the page, the sooner returns show up. Works while you are logged out too (say, on vacation yourself), using the login saved from your last visit; on that page, logged out, this is the only thing the script does.'
+      note: 'The badges need Read from the server (at most every 10 minutes). The Save to Alt Watch control is shown only while the "Alt Watch flags" share is on. It is the script\'s own control: the game\'s "Recognize player as" form is never touched. A flag is a member\'s call, not proof.'
     },
 
     // — Safe & Upgrades —
     {
-      id: 'safe-forecasts', group: 'Safe & Upgrades', kind: 'display',
+      id: 'safe-forecasts', group: 'Safe & Upgrades',
       name: 'SAFE forecasts',
       desc: 'On the Safe page: how long until your safe reaches 1B / 2B / 5B / 9B / 10B (MAX) at your current deposit rate.'
     },
     {
-      id: 'upgrade-timers', group: 'Safe & Upgrades', kind: 'display',
+      id: 'upgrade-timers', group: 'Safe & Upgrades',
       name: 'Upgrade timers & readiness',
       desc: '"Time to upgrade" and "EXP still needed to be deposited" under every EXP upgrade on the Safe page, and "Upgrade Ready" time and shortfall rows under the gold upgrades on the Upgrades page.',
       note: 'Uses your EXP rate captured on the Upgrades page, your safe deposit rate captured on the Safe page, and the Attack log enhancer\'s average gold for the slay estimate.'
     },
     {
-      id: 'attack-alternative', group: 'Safe & Upgrades', kind: 'display',
+      id: 'attack-alternative', group: 'Safe & Upgrades',
       name: '"Attacked Instead" comparison',
       desc: 'On the Safe page: what your stats would look like if you traded the tech upgrade\'s EXP for turns and spent the stolen gold on weapons instead, split by your actual spend preferences.',
-      note: 'Needs Armory data sync, the Attack log enhancer, and one Armory visit (for your gold per stat point) before it can show numbers.'
+      note: 'Needs the Attack log enhancer, and one Armory visit (for your weapons, spend preferences and gold per stat point) before it can show numbers.'
     },
     {
-      id: 'tech-projector', group: 'Safe & Upgrades', kind: 'display',
+      id: 'tech-projector', group: 'Safe & Upgrades',
       name: 'Tech Level Projector',
       desc: 'Adds a "Project to" dropdown to the tech-upgrade table so you can preview your stats at ANY future tech level, with the total ▲% versus now and the cumulative EXP cost to get there.'
     },
 
     // — Other pages —
     {
-      id: 'training-warnings', group: 'Other pages', kind: 'display',
+      id: 'training-warnings', group: 'Other pages',
       name: 'Training page warnings',
       desc: 'A warning box at the top of the Training page: weapons or tools sitting unheld, more SA/DA weapons than trained soldiers to hold them (those drop to half effectiveness), and a missing mercenary buffer that lets your real soldiers die in combat.'
     }
@@ -14079,9 +12152,12 @@
     return getFeatureFlags()[id] !== false;
   }
 
-  // Shared feeder steps declare several owners; they run while ANY owner is on.
+  // A step's owner is a feature id, 'sync:<SYNCS id>' (runs while that share
+  // is allowed), or 'core' (your own id and name, which every feature needs).
+  // A step with several owners runs while ANY of them is on.
   function stepEnabled(f) {
-    return Array.isArray(f) ? f.some(featureEnabled) : featureEnabled(f);
+    const on = (id) => id === 'core' || (id.startsWith('sync:') ? netAllowed(id.slice(5)) : featureEnabled(id));
+    return Array.isArray(f) ? f.some(on) : on(f);
   }
 
   function setFeatureFlag(id, enabled) {
@@ -14093,12 +12169,6 @@
     }
     SafeStorage.set(FEATURES_KEY, flags);
   }
-
-  const FEATURE_KIND_BADGES = {
-    display: { text: '🖥 display only', tip: 'Only changes what you see — nothing is recorded or shared.' },
-    sync: { text: '📡 alliance sync', tip: 'Records data into the shared alliance roster.' },
-    both: { text: '🖥+📡 display + sync', tip: 'Changes what you see AND records data into the shared alliance roster.' }
-  };
 
   function buildFeatureRow(feat) {
     const row = document.createElement('label');
@@ -14118,15 +12188,8 @@
     name.textContent = feat.name;
     name.style.cssText = 'font-weight:bold;color:#e8edf5;';
 
-    const badgeInfo = FEATURE_KIND_BADGES[feat.kind] || FEATURE_KIND_BADGES.display;
-    const badge = document.createElement('span');
-    badge.textContent = badgeInfo.text;
-    badge.title = badgeInfo.tip;
-    badge.style.cssText = 'margin-left:auto;font-size:10px;color:#8b94a7;white-space:nowrap;';
-
     top.appendChild(cb);
     top.appendChild(name);
-    top.appendChild(badge);
     row.appendChild(top);
 
     const desc = document.createElement('div');
@@ -14158,11 +12221,11 @@
     const header = document.createElement('div');
     header.style.cssText = 'display:flex;align-items:center;gap:8px;padding:10px 12px;border-bottom:1px solid #3a4150;';
     const title = document.createElement('div');
-    // Version, and the update link when the public release is newer (issue #34).
+    // Version, and the update link when the public release is newer.
     const u = scriptUpdate;
     const behind = u && !u.isLatest;
     title.innerHTML = '<b style="color:#e8edf5;">⚙ KoC Data Centre — Features</b> ' +
-      '<span style="color:#8b94a7;font-size:10px;" title="' + (u ? (behind ? 'The public release is v' + escapeHtml(u.latestVersion) : 'Up to date') : 'Could not reach the API to check for updates') + '">v' + escapeHtml(VERSION) + '</span>' +
+      '<span style="color:#8b94a7;font-size:10px;" title="' + (u ? (behind ? 'The public release is v' + escapeHtml(u.latestVersion) : 'Up to date') : 'Could not reach the API to check for updates') + '">v' + escapeHtml(SCRIPT_VERSION) + '</span>' +
       (behind
         ? ' <a href="' + escapeHtml(u.updateUrl) + '" target="_blank" rel="noopener" title="Opens the script in your userscript manager, which will ask you to confirm the update" style="font-size:10px;font-weight:bold;color:#2a2008;background:#f0c674;border-radius:4px;padding:2px 7px;text-decoration:none;">⬆️ v' + escapeHtml(u.latestVersion) + ' available · Update</a>'
         : ' <a href="' + escapeHtml((u && u.updateUrl) || SCRIPT_UPDATE_URL) + '" target="_blank" rel="noopener" title="Opens the script in your userscript manager, which offers to reinstall it" style="font-size:10px;color:#8b94a7;text-decoration:underline;">' + (u ? 'up to date' : 'check for updates') + '</a>');
@@ -14185,12 +12248,12 @@
     masterCb.type = 'checkbox';
     masterCb.style.cssText = 'width:16px;height:16px;flex:0 0 auto;margin:0;';
     const masterLabel = document.createElement('span');
-    masterLabel.innerHTML = '<b style="color:#e8edf5;">All features</b> <span style="color:#8b94a7;">— master switch</span>';
+    masterLabel.innerHTML = '<b style="color:#e8edf5;">All display features</b> <span style="color:#8b94a7;">— master switch</span>';
     masterRow.appendChild(masterCb);
     masterRow.appendChild(masterLabel);
     body.appendChild(masterRow);
 
-    // Script login: where it is, and what it sends (#92)
+    // Script login: where it is, and what it sends
     const loginInfo = document.createElement('div');
     loginInfo.style.cssText = 'padding:8px 12px;border-bottom:1px solid #3a4150;font-size:11px;line-height:1.5;';
     const loginHead = document.createElement('div');
@@ -14212,15 +12275,20 @@
     for (const feat of FEATURES) {
       if (!groups.includes(feat.group)) groups.push(feat.group);
     }
-    for (const group of groups) {
+    const groupHead = (text) => {
       const gh = document.createElement('div');
-      gh.textContent = group;
+      gh.textContent = text;
       gh.style.cssText = 'padding:8px 12px 4px 12px;color:#7ea0c9;font-size:10px;font-weight:bold;letter-spacing:1px;text-transform:uppercase;';
-      body.appendChild(gh);
+      return gh;
+    };
+    for (const group of groups) {
+      body.appendChild(groupHead(group));
       for (const feat of FEATURES) {
         if (feat.group === group) body.appendChild(buildFeatureRow(feat));
       }
     }
+
+    body.appendChild(buildNetworkSection(groupHead));
     panel.appendChild(body);
 
     // Reload notice (revealed on first change)
@@ -14255,6 +12323,11 @@
         });
       } else if (cb.classList.contains('kdc-feature-toggle')) {
         setFeatureFlag(cb.dataset.featureId, cb.checked);
+      } else if (cb.dataset.netKey) {
+        setNetSwitch(cb.dataset.netKey, cb.checked);
+        refreshNetworkSection(body);
+        reloadBar.style.display = 'flex';
+        return;
       } else {
         return;
       }
@@ -14274,6 +12347,72 @@
 
     overlay.appendChild(panel);
     document.body.appendChild(overlay);
+  }
+
+  // ---- ⚙ panel: what the script reads from and sends to the server ----
+
+  function setNetSwitch(key, on) {
+    const flags = getFeatureFlags();
+    if (key.startsWith('sync:') && on) delete flags[key];
+    else flags[key] = on;     // net:send / net:read are stored either way
+    SafeStorage.set(FEATURES_KEY, flags);
+  }
+
+  function netRow(key, checked, title, text) {
+    const row = document.createElement('label');
+    row.style.cssText = 'display:block;padding:8px 12px;border-bottom:1px solid #262c38;cursor:pointer;';
+    const top = document.createElement('div');
+    top.style.cssText = 'display:flex;align-items:center;gap:8px;';
+    const cb = document.createElement('input');
+    cb.type = 'checkbox';
+    cb.checked = checked;
+    cb.dataset.netKey = key;
+    cb.style.cssText = 'width:15px;height:15px;flex:0 0 auto;margin:0;';
+    const name = document.createElement('span');
+    name.textContent = title;
+    name.style.cssText = 'font-weight:bold;color:#e8edf5;';
+    top.appendChild(cb);
+    top.appendChild(name);
+    row.appendChild(top);
+    const desc = document.createElement('div');
+    desc.textContent = text;
+    desc.style.cssText = 'margin:4px 0 0 23px;color:#a7b0c0;line-height:1.45;';
+    row.appendChild(desc);
+    return row;
+  }
+
+  function buildNetworkSection(groupHead) {
+    const wrap = document.createElement('div');
+    wrap.id = 'kdc-net-section';
+
+    wrap.appendChild(groupHead('Read from the Sweet Revenge server'));
+    wrap.appendChild(netRow('net:read', netReadOn(), 'Read alliance data',
+      'Lets the display features fetch what they show from the alliance roster: the Top Stats panel, rank-neighbour links, attack range warnings, "???" backfill, Alt Watch badges, competition panels and leaderboard, the armory Optimizer preset and the 📈 trend. A read sends your login and what it asks for (for example the player whose page you opened). Off: none of these are fetched and those parts stay empty.'));
+
+    wrap.appendChild(groupHead('Data sent to the Sweet Revenge server'));
+    wrap.appendChild(netRow('net:send', netSendOn(), 'Send data (hard switch)',
+      'Off: nothing below is sent, whatever its own switch says, and the script only shows things on your pages. Each share is sent only from a page you opened yourself.'));
+    for (const sync of SYNCS) {
+      const row = netRow('sync:' + sync.id, syncOn(sync.id), sync.name, sync.desc);
+      row.classList.add('kdc-sync-row');
+      wrap.appendChild(row);
+    }
+
+    const always = document.createElement('div');
+    always.style.cssText = 'padding:8px 12px;color:#8b94a7;font-size:11px;line-height:1.45;';
+    always.textContent = 'Always on: the Script login above, and the version check, which sends only the script name and version and answers whether this version may run and whether a newer one exists.';
+    wrap.appendChild(always);
+
+    refreshNetworkSection(wrap);
+    return wrap;
+  }
+
+  // Grey out the share rows while the hard switch is off.
+  function refreshNetworkSection(root) {
+    const sendOn = netSendOn();
+    root.querySelectorAll('.kdc-sync-row').forEach(row => {
+      row.style.opacity = sendOn ? '1' : '0.45';
+    });
   }
 
   // The "⚙ Data Centre" sidebar link is the settings entry point. It is NOT a
@@ -14297,12 +12436,8 @@
     menu.appendChild(wrap);
   }
 
-  window.KoCDataCentre = {
-    settings: openFeatureSettings,
-    features: () => FEATURES.map(f => ({ id: f.id, name: f.name, enabled: featureEnabled(f.id) }))
-  };
 
-  // ==================== PAGE-SPECIFIC INITIALIZERS ====================
+  // ==================== STEP HELPERS ====================
 
   /**
    * Safely execute a feature function with error handling
@@ -14395,8 +12530,7 @@
     }
   }
 
-  // Battlefield pages redraw as you scroll; re-collect (debounced) on DOM churn.
-  // ==================== ALT WATCH BADGES (issue #52) ====================
+  // ==================== ALT WATCH BADGES ====================
   //
   // The alliance's Alt Watch list (the /roster tab) shown where you meet the
   // player: a line in a stats page's Information table, and a 🚩 in the
@@ -14414,7 +12548,7 @@
   async function loadAltWatchBadges(force = false) {
     const cached = SafeStorage.get(AW_BADGES_KEY, null);
     if (!force && cached && cached.at && Date.now() - cached.at < AW_BADGES_TTL_MS) return cached.data;
-    const res = await auth.apiCall('api/war-room/alt-watch/badges');
+    const res = await auth.apiCall('read', 'api/war-room/alt-watch/badges');
     if (res && res.flags && res.side) {
       SafeStorage.set(AW_BADGES_KEY, { at: Date.now(), data: res });
       return res;
@@ -14422,19 +12556,15 @@
     return cached ? cached.data : null;
   }
 
-  function awEsc(s) {
-    return String(s == null ? '' : s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
-  }
-
   /** Badge pills for one account; '' when the list says nothing about it. */
   function altWatchPills(b, id) {
     const pills = [];
     const pill = (text, bg, fg, title) =>
-      `<span title="${awEsc(title)}" style="display:inline-block;margin:2px 3px;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:bold;background:${bg};color:${fg};white-space:nowrap;">${text}</span>`;
+      `<span title="${escapeHtml(title)}" style="display:inline-block;margin:2px 3px;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:bold;background:${bg};color:${fg};white-space:nowrap;">${text}</span>`;
     const f = b.flags[id];
     if (f && f.v !== 'cleared') {
       const hot = f.v === 'confirmed';
-      pills.push(pill(`🚩 ${awEsc(b.label)} · ${AW_VERDICT_WORD[f.v]}${f.linkedName ? ' (thought to be ' + awEsc(f.linkedName) + ')' : ''}`,
+      pills.push(pill(`🚩 ${escapeHtml(b.label)} · ${AW_VERDICT_WORD[f.v]}${f.linkedName ? ' (thought to be ' + escapeHtml(f.linkedName) + ')' : ''}`,
         hot ? '#7a1020' : '#6b4400', hot ? '#ffd0d8' : '#ffe0a8',
         `Flagged ${f.v} on the Alt Watch list${f.by ? ' by ' + f.by : ''}. A member's call, not proof.`));
     } else if (f && f.v === 'cleared') {
@@ -14444,7 +12574,7 @@
     if (s) {
       const bits = (s.eras || []).map((e) => 'E' + e);
       if (s.thisEra) bits.push('this era');
-      if (bits.length) pills.push(pill(`👥 ${awEsc(s.alliance || (b.sideAlliances || [])[0] || 'Watched side')} · ${bits.join(' ')}`,
+      if (bits.length) pills.push(pill(`👥 ${escapeHtml(s.alliance || (b.sideAlliances || [])[0] || 'Watched side')} · ${bits.join(' ')}`,
         '#3a3300', '#ffd700', 'On a watched alliance in these eras (alliance roster archives and history)'));
     }
     if (/^\d+$/.test(String(id)) && Number(id) > Number(b.newAfterId || Infinity)) {
@@ -14481,12 +12611,12 @@
       const f = data.flags[id];
       const sel = f ? f.v : '';
       let h = pills ? `<div style="margin-bottom:4px;">${pills}</div>` : '';
-      if (!own) {
+      if (!own && netAllowed('alt-watch-flags')) {
         h += `<span style="font-size:12px;color:#ccc;">Alt Watch: </span>`
           + `<select id="dc-aw-verdict" style="font-size:12px;">`
           + `<option value=""${sel ? '' : ' selected'}>${f ? 'keep' : 'not flagged'}</option>`
-          + `<option value="suspect"${sel === 'suspect' ? ' selected' : ''}>Suspect ${awEsc(data.label)}</option>`
-          + `<option value="confirmed"${sel === 'confirmed' ? ' selected' : ''}>Confirmed ${awEsc(data.label)}</option>`
+          + `<option value="suspect"${sel === 'suspect' ? ' selected' : ''}>Suspect ${escapeHtml(data.label)}</option>`
+          + `<option value="confirmed"${sel === 'confirmed' ? ' selected' : ''}>Confirmed ${escapeHtml(data.label)}</option>`
           + `<option value="cleared"${sel === 'cleared' ? ' selected' : ''}>Cleared</option>`
           + `</select> `
           + `<input id="dc-aw-note" type="text" maxlength="200" placeholder="why (optional)" style="font-size:12px;width:130px;"> `
@@ -14504,7 +12634,7 @@
         msg.textContent = 'Saving…';
         const body = { playerId: id, verdict };
         if (note) body.note = note;
-        const res = await auth.apiCall('api/war-room/alt-watch/flags', body, 1);
+        const res = await auth.apiCall('alt-watch-flags', 'api/war-room/alt-watch/flags', body, 1);
         btn.disabled = false;
         if (res && res.ok) {
           const fresh = await loadAltWatchBadges(true);
@@ -14550,6 +12680,7 @@
     new MutationObserver(debounce(mark, 300)).observe(host, { childList: true, subtree: true });
   }
 
+  // Battlefield pages redraw as you scroll; re-collect (debounced) on DOM churn.
   function startBattlefieldObserver() {
     const table = document.querySelector("table.battlefield") || document.querySelector("table.table_lines");
     if (!table) return;
@@ -14570,20 +12701,19 @@
   const onPage = (sub) => location.pathname.includes(sub);
   const hasSidebar = () => !!document.querySelector("td.menu_cell");
 
-  // Execution order is behaviour: steps run top-to-bottom exactly as the old
-  // per-page dispatcher did (e.g. Banking Mode's armory widget is injected
-  // before the roster-API armory steps so it never waits on the network, and
-  // competitions are loaded before their capture/panel steps).
+  // Steps run top to bottom and the order matters: e.g. the Estimated Funds
+  // box is drawn before the armory network steps so it never waits, and
+  // competitions load before their capture and panel steps.
   // `f` names the owning FEATURES entry; an array means the step is a shared
   // feeder that runs while ANY of the listed features is enabled.
   const FEATURE_STEPS = [
     // Own-account tracking reads the page FIRST, as the game drew it — before
     // any step below draws on it (the clock included). Not awaited: the read
     // is synchronous and the upload waits for nothing.
-    { f: 'own-tracking', label: 'sendOwnSnapshot', when: hasSidebar, run: () => { sendOwnSnapshot(); } },
-    { f: 'own-tracking', label: 'watchConquestResults', when: () => onPage('conquestv2.php'), run: () => { watchConquestResults(); } },
+    { f: 'sync:own-history', label: 'sendOwnSnapshot', when: hasSidebar, run: () => { sendOwnSnapshot(); } },
+    { f: 'sync:own-history', label: 'watchConquestResults', when: () => onPage('conquestv2.php'), run: () => { watchConquestResults(); } },
     // Conquest attempts left queued by a page closed before its upload
-    { f: 'own-tracking', label: 'flushConquestQueue', when: hasSidebar, run: () => { flushConquestQueue(); } },
+    { f: 'sync:own-history', label: 'flushConquestQueue', when: hasSidebar, run: () => { flushConquestQueue(); } },
     { f: 'server-clock', label: 'startServerClock', when: () => true, run: () => startServerClock() },
     { f: 'era-elapsed', label: 'startEraElapsed', when: () => true, run: () => startEraElapsed() },
     { f: 'vault-tax-warning', label: 'startVaultTaxWarning', when: () => true, run: () => startVaultTaxWarning() },
@@ -14595,12 +12725,12 @@
     // when it was drawn, so it must not wait behind the TIV round trip — a
     // mission fired meanwhile would reach the roster before the look that
     // came before it.
-    { f: 'target-checks', label: 'sendTargetCheck', when: () => onPage("attack.php"), run: () => sendTargetCheck() },
+    { f: 'sync:target-checks', label: 'sendTargetCheck', when: () => onPage("attack.php"), run: () => sendTargetCheck() },
     // Sab and theft reports post FIRST, before any sidebar step: a report
     // reaches the roster ~2.5 s after the mission, and a member re-firing
     // with "… Again!" 1–2 s after landing would otherwise leave before it
     // went. Not awaited; missionLogSent makes the late step below a no-op.
-    { f: 'mission-log', label: 'sendMissionLog (report pages, first)', when: () => ['report', 'theftreport'].includes(missionLogSource()), run: () => { sendMissionLog(); } },
+    { f: 'sync:missions', label: 'sendMissionLog (report pages, first)', when: () => ['report', 'theftreport'].includes(missionLogSource()), run: () => { sendMissionLog(); } },
     // The sab report just landed on gives the Sab Tracker that sab's exact time.
     { f: 'sab-tracker', label: 'confirmSabLanding', when: () => onPage('inteldetail.php'), run: () => confirmSabLandingStep() },
     { f: 'slaying-comp', label: 'loadActiveCompetitions', when: () => onPage("base.php") || onPage("rewards.php"), run: async () => {
@@ -14609,44 +12739,40 @@
           debugLog(`✅ Loaded ${activeCompetitions.length} active competitions`);
         }
       } },
-    { f: 'sidebar-calculator', label: 'initSidebarCalculator', when: () => onPage("base.php"), run: () => initSidebarCalculator() },
     { f: 'top-stats-panel', label: 'insertTopStatsPanel', when: () => onPage("base.php"), run: () => insertTopStatsPanel() },
-    { f: 'base-collector', label: 'collectFromBasePage', when: () => onPage("base.php"), run: () => collectFromBasePage() },
-    // Banking Mode: full recalibration (G0 / income / SPM) from the Command Centre
-    { f: 'banking-mode', label: 'bankCollectCommandCentre', when: () => onPage("base.php"), run: () => bankCollectCommandCentre() },
+    { f: 'core', label: 'collectFromBasePage', when: () => onPage("base.php"), run: () => collectFromBasePage() },
+    { f: 'estimated-funds', label: 'fundsReadCommandCentre', when: () => onPage("base.php"), run: () => fundsReadCommandCentre() },
     { f: 'slaying-comp', label: 'captureCompetitionStatsOnBase', when: () => onPage("base.php"), run: () => captureCompetitionStatsOnBase() },
     { f: 'sidebar-calculator', label: 'initSidebarCalculator (sidebar)', when: hasSidebar, run: () => initSidebarCalculator() },
     { f: 'sidebar-calculator', label: 'hookSidebarPopup', when: hasSidebar, run: () => hookSidebarPopup() },
-    // Banking Mode: opportunistic G0 refresh from the sidebar Gold/Vault cells
-    { f: 'banking-mode', label: 'bankCollectSidebarGold', when: hasSidebar, run: () => bankCollectSidebarGold() },
+    { f: 'estimated-funds', label: 'fundsReadSidebarGold', when: hasSidebar, run: () => fundsReadSidebarGold() },
     // No-ops fast on pages without the "Rating For Previous/Next Rank Gain" table
     { f: 'rank-neighbor-links', label: 'enhanceRankNeighborLinks', when: () => true, run: () => enhanceRankNeighborLinks() },
     { f: 'attack-log-enhancer', label: 'enhanceAttackLog', when: () => onPage("attacklog.php"), run: () => enhanceAttackLog() },
-    // Banking Mode: cache new "Attacks Against You" steals (keyed by attack_id)
-    { f: 'banking-mode', label: 'bankCollectAttackLog', when: () => onPage("attacklog.php"), run: () => bankCollectAttackLog() },
-    { f: 'recon-sharing', label: 'collectFromRewardsPage', when: () => onPage("rewards.php"), run: () => collectFromRewardsPage() },
+    { f: ['sync:recon', 'top-stats-panel'], label: 'collectFromRewardsPage', when: () => onPage("rewards.php"), run: () => collectFromRewardsPage() },
     { f: 'slaying-comp', label: 'captureCompetitionStatsOnRewards', when: () => onPage("rewards.php"), run: () => captureCompetitionStatsOnRewards() },
     { f: 'recon-display', label: 'addMaxAttacksRecon', when: () => onPage("inteldetail.php"), run: () => addMaxAttacksRecon() },
-    { f: 'recon-sharing', label: 'collectFromIntelDetailPage', when: () => onPage("inteldetail.php"), run: () => collectFromIntelDetailPage() },
+    { f: ['sync:recon', 'recon-display'], label: 'collectFromIntelDetailPage', when: () => onPage("inteldetail.php"), run: () => collectFromIntelDetailPage() },
     // Collect visible stats first (before filling ??? from API)
-    { f: 'recon-sharing', label: 'collectFromStatsPage', when: () => onPage("stats.php"), run: () => collectFromStatsPage() },
+    { f: 'sync:recon', label: 'collectFromStatsPage', when: () => onPage("stats.php"), run: () => collectFromStatsPage() },
     { f: 'recon-display', label: 'enhanceSharedReconInfoTable', when: () => onPage("stats.php"), run: () => enhanceSharedReconInfoTable() },
     { f: 'recon-display', label: 'fillSharedReconInfoFromAPI', when: () => onPage("stats.php") && !!new URLSearchParams(location.search).get('id'),
       run: () => fillSharedReconInfoFromAPI(new URLSearchParams(location.search).get('id')) },
     { f: 'alt-watch-badges', label: 'showAltWatchOnStatsPage', when: () => onPage("stats.php") && !!new URLSearchParams(location.search).get('id'), run: () => showAltWatchOnStatsPage() },
-    { f: 'battlefield-collector', label: 'collectFromBattlefield', when: () => onPage("battlefield.php"), run: () => collectFromBattlefield() },
+    { f: 'sync:battlefield', label: 'collectFromBattlefield', when: () => onPage("battlefield.php"), run: () => collectFromBattlefield() },
     { f: 'alt-watch-badges', label: 'showAltWatchOnBattlefield', when: () => onPage("battlefield.php"), run: () => showAltWatchOnBattlefield() },
     // One War List visit refreshes sentry + AAT for the whole list at once.
     // readOnly: the only step allowed to run on the War List (see runFeatures)
     // — it reads the page and never touches it. Deliberately not run on
-    // warlistv4.php: its columns changed and this reader would send nulls.
-    { f: 'recon-sharing', label: 'collectFromWarList', readOnly: true, when: () => onPage("warlist.php"), run: () => collectFromWarList() },
+    // warlistv4.php: its columns differ and this reader would send nulls.
+    { f: 'sync:war-list', label: 'collectFromWarList', readOnly: true, when: () => onPage("warlist.php"), run: () => collectFromWarList() },
     // The game's own list of who is on vacation, and since exactly when.
     // loggedOut: the one step that also runs without a session (see runFeatures).
-    { f: 'inactives-collector', label: 'collectFromInactives', loggedOut: true, when: () => onPage("inactives.php"), run: () => collectFromInactives() },
-    { f: 'battlefield-collector', label: 'battlefieldObserver', when: () => onPage("battlefield.php"), run: () => startBattlefieldObserver() },
-    { f: 'attack-collectors', label: 'collectTIVFromAttackPage', when: () => onPage("attack.php"), run: () => collectTIVFromAttackPage() },
+    { f: 'sync:inactives', label: 'collectFromInactives', loggedOut: true, when: () => onPage("inactives.php"), run: () => collectFromInactives() },
+    { f: 'sync:battlefield', label: 'battlefieldObserver', when: () => onPage("battlefield.php"), run: () => startBattlefieldObserver() },
+    { f: 'sync:attack-pages', label: 'collectTIVFromAttackPage', when: () => onPage("attack.php"), run: () => collectTIVFromAttackPage() },
     { f: 'sab-tracker', label: 'initSabTracker', when: () => onPage("attack.php"), run: () => initSabTracker() },
+    { f: 'sync:sab-caps', label: 'sendSabCaps', when: () => onPage("attack.php"), run: () => sendSabCaps() },
     // (sendTargetCheck runs first on attack.php — see the top of this list.)
     // Last on attack.php: the range rows wait on the roster for the target's ratings
     { f: 'attack-warnings', label: 'initAttackWarnings', when: () => onPage("attack.php"), run: () => initAttackWarnings() },
@@ -14655,14 +12781,13 @@
     // Mission history: the intel file, Intelligence, Poison / Theft / Attack
     // Log and battle-report pages, each read as the member opened it and sent
     // as ONE request. After every other step on those pages (the Sab
-    // Tracker's intel-file read, Banking Mode's attack-log read) and not
-    // awaited: nothing waits on it. A battle
+    // Tracker's intel-file read) and not awaited: nothing waits on it. A battle
     // report is read on the same two passes as collectAttackLog below; the
     // second read sends only if the first did not send the whole report —
     // it found nothing, or found the report before its outcome line
     // (sendMissionLog's readAgain). Sab and theft reports are not read here:
     // they post first (the step near the top of this list).
-    { f: 'mission-log', label: 'sendMissionLog', when: () => missionLogSource() !== null && !['report', 'theftreport'].includes(missionLogSource()), run: () => {
+    { f: 'sync:missions', label: 'sendMissionLog', when: () => missionLogSource() !== null && !['report', 'theftreport'].includes(missionLogSource()), run: () => {
         const battle = missionLogSource() === 'battle';
         sendMissionLog({ readAgain: battle });
         if (battle) setTimeout(() => { sendMissionLog(); }, ATTACK_LOG_DELAY_MS);
@@ -14671,19 +12796,18 @@
     // The delayed read is handed the first read's promise: once that one sent
     // the whole report and the server took it, the delayed read sends nothing
     // (collectAttackLog's after).
-    { f: 'attack-collectors', label: 'collectAttackLog', when: () => onPage("detail.php") && /attack_id=/.test(location.search), run: async () => {
+    { f: 'sync:attack-pages', label: 'collectAttackLog', when: () => onPage("detail.php") && /attack_id=/.test(location.search), run: async () => {
         const first = collectAttackLog();
         setTimeout(async () => await safeExecute('collectAttackLog (delayed)', () => collectAttackLog({ after: first })), ATTACK_LOG_DELAY_MS);
       } },
-    // Banking Mode first on armory: it only reads the DOM/localStorage, so inject the
-    // inline widget promptly rather than making it wait behind the roster-API calls below.
-    { f: 'banking-mode', label: 'bankOnArmory', when: () => onPage("armory.php"), run: () => bankOnArmory() },
+    // First on the Armory: reads only the page, so it never waits behind the network steps below.
+    { f: 'estimated-funds', label: 'fundsShowOnArmory', when: () => onPage("armory.php"), run: () => fundsShowOnArmory() },
     { f: 'purchase-alerts', label: 'scrapePurchaseConfirmation', when: () => onPage("armory.php"), run: () => scrapePurchaseConfirmation() },
     // DOM-only UI steps run before the roster-API collector so they never wait on the network
     { f: ['rank-up-costs', 'gpp-panel'], label: 'renderRankUpAndGpp', when: () => onPage("armory.php"), run: () => renderRankUpAndGpp() },
     { f: 'armory-sliders', label: 'enhanceArmoryPrefsUI', when: () => onPage("armory.php"), run: () => enhanceArmoryPrefsUI() },
     { f: 'stat-reshuffler', label: 'initStatReshuffler', when: () => onPage("armory.php"), run: () => initStatReshuffler() },
-    { f: 'armory-collector', label: 'collectTIVAndStatsFromArmory', when: () => onPage("armory.php"), run: () => collectTIVAndStatsFromArmory() },
+    { f: ['sync:armory', 'attack-alternative'], label: 'collectTIVAndStatsFromArmory', when: () => onPage("armory.php"), run: () => collectTIVAndStatsFromArmory() },
     { f: 'training-warnings', label: 'enhanceTrainingPage', when: () => onPage("training.php"), run: () => enhanceTrainingPage() },
     // Shared feeder: deposit rate powers both SAFE forecasts and the upgrades-page readiness rows
     { f: ['safe-forecasts', 'upgrade-timers'], label: 'collectSafeDepositRate', when: () => onPage("safe.php"), run: () => collectSafeDepositRate() },
@@ -14693,7 +12817,7 @@
     { f: 'tech-projector', label: 'enhanceTechLevelPicker', when: () => onPage("safe.php"), run: () => enhanceTechLevelPicker() },
     { f: 'upgrade-timers', label: 'collectExpPerTurn', when: () => onPage("upgrades.php"), run: () => collectExpPerTurn() },
     // Feeds the gold/pt Paired check and the "before an upgrade" flag (armory)
-    { f: ['rank-up-costs', 'gpp-panel'], label: 'collectSkillLevels', when: () => onPage("upgrades.php"), run: () => collectSkillLevels() },
+    { f: ['rank-up-costs', 'gpp-panel', 'stat-reshuffler', 'armory-sliders', 'attack-alternative'], label: 'collectSkillLevels', when: () => onPage("upgrades.php"), run: () => collectSkillLevels() },
     { f: 'upgrade-timers', label: 'addUpgradeReadyRows', when: () => onPage("upgrades.php"), run: () => addUpgradeReadyRows() }
   ];
 
@@ -14748,14 +12872,8 @@
     try {
       const isReady = await initializeScript();
       if (isReady) {
-        // Check for Data Centre redirect first (before running other features)
-        const isRedirecting = await handleDataCentreRedirect();
-
-        // Only run features if we're not redirecting
-        if (!isRedirecting) {
-          await runFeatures();
-          debugLog("✅ All features initialized");
-        }
+        await runFeatures();
+        debugLog("✅ All features initialized");
       }
     } catch (error) {
       ErrorHandler.log(
@@ -14767,50 +12885,11 @@
     }
   })();
 
-  // ==================== STYLING ====================
-
-  // Not on read-only pages: even an unused <style> element is a change to the
-  // page, and the War List / Farm List must be left exactly as the game drew them.
-  if (!READ_ONLY_PAGE) {
-    const style = document.createElement("style");
-    style.textContent = `
-      a.koc-button img {
-        transition: transform 0.2s ease, filter 0.2s ease;
-      }
-      a.koc-button img:hover {
-        transform: scale(1.05);
-        filter: drop-shadow(0 0 6px gold);
-      }
-    `;
-    document.head.appendChild(style);
+  // ==================== EMBEDDED IMAGE ====================
+  // The Sweet Revenge logo in the sidebar box, kept inside the script so the
+  // page loads nothing from outside the game for it (220 px WebP).
+  function srLogoSrc() {
+    return 'data:image/webp;base64,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';
   }
-
-  // ==================== DEBUG HELPERS ====================
-
-  window.showPlayer = function(id) {
-    debugLog("🔍 showPlayer() called with id:", id);
-    const map = getNameMap();
-
-    if (!id) {
-      debugLog("📊 Full NameMap:", map);
-      return map;
-    }
-
-    debugLog("📊 Player record:", map[id]);
-    return map[id] || null;
-  };
-
-  window.showTivLog = function() {
-    debugLog("📊 Full TIV log requested");
-    const log = getTivLog();
-    debugLog("📊 Log:", log);
-    return log;
-  };
-
-  window.showSabLog = function() {
-    const log = getSabLog();
-    debugLog("🕵️ Sab log:", log);
-    return log;
-  };
 
 })();
