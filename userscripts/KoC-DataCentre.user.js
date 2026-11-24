@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name         KoC Data Centre
 // @namespace    trevo88423
-// @version      2.37.1
-// @description  Sweet Revenge alliance tool: tracks stats, syncs to API, adds dashboards, XP→Turn calculator, mini Top Stats panel. v2.37.1: The old Data Centre link (stats.php?id=datacentre) now opens the Sweet Revenge roster, and your login is no longer put in the web address. Your SR login now renews itself when it runs out, even on a page left open, instead of quietly failing until you reload. v2.37.0: New 💵 Income box in the Command Centre's Sweet Revenge Stats panel — members ranked by projected gold per minute (e.g. 3.7M/m), from the Projected Income each member's own stats sync already shares. Hover a figure for the exact gold and how long ago it was synced; figures more than a day old are dimmed. It has its own show/hide tick like the other boxes. v2.36.1: Pressing Enter in the sidebar Goal box now saves the goal directly instead of pressing the Save button for you, so the script makes no automatic clicks anywhere. v2.36.0: Banking Mode fix — typing a plain number into a gold box in the ⚙ panel now means millions: 60 is 60M and 2.5 is 2.5M. Before, 60 meant 60 gold, so a pinned Caution line of "60" said DANGER — bank now with only 2.1M exposed. This applies to the pinned lines, the fallback lines and the hit floor, for any number under 1,000,000 with no K/M/B/T; type 500k if you really want less than a million. The Saved message shows how it was read. New: a Reset to defaults button at the bottom of the Banking settings (click twice to confirm) puts every setting back and clears both pins, keeping your bank and attack history, and a small ↺ beside any setting you have changed puts just that one back. v2.35.0: Vault tax warning. When your sidebar Vault holds gold, a warning appears in the "Era ends in" banner on every page from 15 minutes before each vault tax (5% every 6 hours, at 00:00, 06:00, 12:00 and 18:00 server time), with a live countdown and the gold you will lose if you don't spend your vault. Toggle: Vault tax warning (Everywhere). v2.34.0: Full-screen funds. New Banking Mode setting (off by default): double-tap the Available Funds or Estimated Funds box on the Armory for a full-screen view of your live Estimated Funds, coloured by risk, with the screen kept awake. Tap anywhere on it to load a fresh Armory so you can buy weapons. v2.33.0: Alt Watch. On a stats page, a new line under the Buddy List shows the alliance's Alt Watch badges (🚩 RL OOC Suspect or Confirmed, 👥 seen on a watched alliance, 🆕 made this era) with a dropdown and Save to Alt Watch button to flag the account yourself (saved to the alliance list only, never to the game). Flagged accounts get a 🚩 in the battlefield Icons column. Stats pages now also share Commander, Supreme Commander, Signup Time and Previous Era Rank. Toggle: Alt Watch badges (Attack & Intel). v2.32.1: Gold per Stat Point no longer reads too cheap for a stat with few tools. Every spy, sentry, venomweaver, serpentwarden, thief and ranger adds a little rating of its own, and the Live reading used to credit all of it to the tools — with 3 spy tools and 1,379 spies, Spy showed 12.3 gold per point when the true figure was 18.0. The units are now counted, so stats at the same skill level show the same gold per point. Attack and Defense are unchanged. v2.32.0: Banking Mode puts its Caution and Danger lines where your safe holds and the hits on you overlap. In v2.30.0 your routine small banks (buying at 7M, say) counted as safe holds and pulled the line down, cancelling out the times you safely held 35–40M. Now, at each gold level, the script weighs the hits on you at or just below that level against your safe holds at or above it: Caution starts where at least 1 in 4 of those was a hit, Danger where at least 1 in 2 was. So if you can bank at 40M but sometimes get hit at 40M, that is where the line sits, and small banks never touch it. With no hits among your top holds, the line sits near the top of what you have held safely (your 3rd-highest safe hold for Caution, your 2nd-highest for Danger), so one lucky big hold doesn't move it. A fresh hit still pulls the line down at once, pins still win, and the ⚙ panel says why, e.g. "38M — 1 of 3 events at or near 38M was a hit". The gold boxes in the ⚙ panel (the pinned lines and the fallback lines) now take shorthand: type 30m, 1.5b or 750k as well as 30,000,000; blank or 0 clears a pin, and anything unreadable is flagged instead of saved. Every change in that panel now shows a short "Saved" message naming the setting and its new value. v2.31.0: Once you have finished the 1,000 Unsuccessful Recons goal, your row in the Command Centre's 🔍 Recons column switches to your own Recon Missions count for the era (the Your Actions row on the Rewards page), shown as 🎯 1,278 in goldenrod. It keeps climbing past its goal and updates each time you open Rewards, so the finished rows double as a friendly "most recons this era" table for the alliance; members still working on their 1,000 stay at the top. Hover a number for its age. v2.30.0: Banking Mode learns from your own banks. Until now its Caution and Danger lines came only from the gold attackers stole from you, so early in an era a few hits on small stacks set the line at ~12M while you were safely holding 40M — and it kept telling you to bank. Now every bank you make on the Armory is remembered with the gold you were holding, and a bank with no hit on you since the bank before counts as a safe hold. Each line is the higher of what your safe holds and the hits on you say, using your recent banks (the last 48 hours or last 20 banks, whichever is shorter) and a low percentile, so one lucky big hold doesn't move it. A fresh hit pulls the line down at once: for 24 hours the lines sit just below the smallest amount you were hit for (hits on less than 5M are ignored). A bank only counts once you have opened the Attack Log after it. The ⚙ panel and KoCBanking.lines() say where each line comes from, and you can pin either line yourself. Alerts are quieter: one per real escalation, kept across page reloads, and re-entering a band only alerts again with 25% more gold or after the minimum gap. Everything stays in your browser; nothing new is sent. v2.28.2: KoC's Server Time is UTC from Era 24 (it was US Eastern), so recon ages, last seen, TIV and stat history times, sab timers and banking times were 5 hours off. They are read correctly now. v2.28.0: Gold goal in the sidebar Turn Trading Calculator — click ✏️ next to 🎯 Goal and set what you're working towards (your next XP upgrade, say) and, if you like, the gold you expect per hit (otherwise your Avg Gold/Atk). Two short lines then show what each hit must bring in to get there with only the turns on hand — no XP trades — and, at your hit size, how many hits it takes and how few XP trades will cover them (or that even trading everything falls short). Hover for the details: XP spent on trades, and how far trading all your XP gets you. Everything you hold — gold on hand, Safe and Vault — counts towards the goal (untick it to leave it out), read from the sidebar on every page, so each hit you land shrinks what is left and what each remaining hit needs. Suggested by Spook-SR. v2.27.1: Own account history now also keeps your Game Logs page — the daily login bonus, the vault tax, your purchases and repairs, Safe withdrawals, hostages, poison losses and weapons lost to sabs and thefts — when it changes, at most every 5 minutes. Only the page you open is read. v2.27.0: Own account history — for planning the next era's opening, the script now keeps a history of your own account on the alliance server: your sidebar balances (Gold, Safe, Vault, Experience, Experience Bank, Turns, Rank, Recent Logs and the era countdown) from any page, at most every 15 minutes; the tables on your own Command Centre, Armory, Upgrades, Safe, Training, Trade, Rewards and Conquest pages when they change, at most every 5 minutes; and every conquest result as it appears on the Conquest page, with your Strike, repair cost, turns, experience and gold before and after, so the cost and payoff of each attempt at each level can be worked out. Only the page you opened is read — nothing is fetched, pressed or shown, and nothing about other players is sent. It has its own switch (Own account history) in the ⚙ Data Centre settings. v2.26.3: Fix — the Recons column on the Command Centre now shows ✅ Done for members who have finished the 1,000 Unsuccessful Recons reward. The game keeps counting past 1,000 once the goal is met (it reads 1,003/1000, say), and the alliance server turned those counts away, so a finished member stayed frozen at their last count below 1,000. The server now accepts them — the next time a finished member opens the Rewards page, on any version of the script, their row shows as done — and the script also reads the reward's ✅ and CLAIMED button. Hover ✅ Done for the count and whether the reward has been claimed. Finished members are listed last. Each count is only as fresh as that member's last Rewards visit the server accepted, so hovering any count now shows how long ago it was updated, and counts more than a day old are dimmed. If the alliance server turns your count away because it does not know the player you are logged in as (for a while after an era reset, say), the browser console now says so — log out and back in from the sidebar. v2.26.2: Game rule fix — Era 24 moved the War List to a new address (warlistv4.php), which the script did not recognise as the War List, so on that page it drew its usual sidebar additions, which the game's rules forbid there. The script now treats every version of the War List as read-only and makes no changes to it. Collecting from the new War List is switched off until the script learns its new layout. v2.26.1: The Gold per Stat Point panel on the Armory now starts closed — one header line with a summary ("8 Live") — and opens with a click; it remembers whether you left it open. Plan as held can be ticked while it is closed. It also has its own switch in the ⚙ Data Centre settings, separate from the rank-up costs. v2.26.0: Gold per stat point stops jumping. The rank-up costs and the Optimizer now take each stat's gold per point from your armory page itself — your rating divided by the weapons the game says are held — read fresh on every visit, instead of learning it from purchase messages. A purchase reads low when it pushes out weapons you already hold (buying Blackpowder Missiles while your soldiers hold Chariots learned Strike at 0.4 of its real value, so Strike looked 2.5 times too expensive) or when part of it goes unheld. A new Gold per Stat Point panel under the Rank Gain table shows each stat's figure and where it came from: Live; Remembered (a stat you keep unheld on purpose keeps its last reading, with its age); Paired (Poison and Antidote, Theft and Vigilance borrow from each other, but only while both skills are at the same upgrade level, read when you open the Upgrades page); or Pinned — type your own gold per point and it stays put until you clear it. Unheld weapons are shown as information, not a warning: how many, and what they would add if held. A Plan as held tick works the rank-up costs and the Optimizer out as if every weapon you own were held — for the end-of-era push; other players' ratings stay as last recorded, and they may be hiding too. A purchase that goes unheld now gets a quiet note instead of an error. The Stat Reshuffler and the Safe page's Attacked Instead table use the same figures, and the Reshuffler now takes the game's own unheld count (untrained soldiers hold weapons too). Also: the roster no longer lets a recon of you overwrite the gold per point your own armory sent. v2.25.3: The roster's War List tab now counts down when your own sab and theft attempts on each target come back — the game's rolling 24 hours, attempt by attempt, from what the game itself showed you. To make those times exact: the attack page now also records the times the game prints for your own first and last successful sab, steal and poison on that target, and the game's "You have used the maximum … attempts" line; and the sab or theft report you land on right after the mission is stamped with the Server Time that page shows. A page brought back with the Back button is not recorded again. Theft reports are now recorded too: what you stole, or that the theft failed. A theft report showing somebody stealing from you is not recorded. Fix — the Sab Tracker counted a press the game refused (one more after your tenth sab, or a sab on a maxed target) as an attempt, and to make room for it dropped your oldest attempt time, even an exact one. A refused press is no longer counted, and the report you land on after a sab now gives the tracker that sab's exact time. The attack page's "First sab" time is a first SUCCESSFUL sab and the page never says whose, so no countdown is built on it any more — anywhere. An attempt the tracker never saw now counts from the moment you opened the page and reads "≤" (at the latest): less exact, but it can only ever run late, never let you fire early. Because earlier versions filed that "First sab" time as one of your own attempts, and nothing stored in your browser can tell those rows from real ones, updating clears the sab times already tracked, once: for up to 24 hours after the update a target you sabbed before it reads "≤ about 24h from now" — too late rather than too early — until the game's own times come back from the reports you land on and the target's Intelligence file. v2.25.2: Fix — the battle report you land on after attacking or raiding now counts in Mission history's 24h and 7-day figures straight away, whichever page you attacked from: the attack page, a recon report, a theft report or an "… Again!" button. Until now only the attack page and the "… Again!" buttons were recognised, so a battle launched from a recon report was stored without its time. Also: a battle report you open later (from the Attack Log, say) no longer takes the stolen gold off the target's current gold estimate: that gold was stolen back when the battle happened, not now. v2.25.1: Fix — raids were stored with no gold and no target. The battle-report reader only knew how an attack's report words its first line ("You stole … gold while attacking …'s camp"); a raid's says "while raiding", so every raid went into the alliance's attack records as 0 gold stolen from "Unknown". Raids now record the gold, the target and the hostages, and a lost battle takes the target's name from the report ("…'s forces overpowered your army!"). Also: your own attacks and raids now count in Mission history straight from the battle report — the one you land on after an attack or raid, or one of yours you open later from the Attack Log — with whether it was an attack or a raid (from the game's own "Raid Again!" / "Attack Again!" button, or the report's wording) and whether you won; the report you land on is also stamped with the time. Also fixed: opening the battle report of another player's attack on you recorded it in the alliance's attack records as your own attack on them. Battle reports of other players attacking you are now not recorded at all — the Attack Log still lists those attacks. As before, only the page you open is read and it is left exactly as the game drew it. v2.25.0: Mission history — the pages that list missions are now read when you open them and shared with the alliance roster: a target's Intelligence file (your recon and sab missions on them, Success or Aborted), the Poison Log and Theft Log (both directions, with what was stolen), your Intelligence page (recon and sab missions run against you, and how many of their spies were caught) and the Attack Log (attacks and raids both ways, with gold stolen and losses). Any sab report you open adds its details too — what it destroyed, spies and sentries executed, gold and XP. This feeds the War Room's new success rates — per member and per mission type, never per target — which are visible to everyone with roster access, as the settings panel now says. The script sends each page's own wording and the server interprets it, so a result nobody has seen yet (a successful poison, say) is kept rather than lost and is sorted out once it turns up. Only the page you open is read: it never turns a page, opens a report or fetches anything, and those pages look exactly as before. Also: the Sab Tracker's Intelligence-file backfill now shares that same read. v2.24.0: Attack page range warnings — under each mission's "can … up to …" line the attack page now says whether the target is actually in reach: their sentry, antidote, vigilance or defensive action as last recorded by the alliance, against the limit the game prints for you, with how old that reading is. ⛔ Out of range means the mission will fail — the game lets an out-of-range theft fire anyway, which is how four thefts on one target all failed. The Theft box also gets a theft-cap line: how much of the target's daily theft cap is left, or THEFT MAXED. New Target check log: every attack page you open records that you checked that target — whether it was maxed, how much of its sab and theft caps is used, and your own attempt and success counters on it — so the War Room can show who saw a target maxed and how long ago; those counters are visible to everyone with roster access and will feed members' success rates. The War List collector now also shares who is on the list, when and why they were added, and your own "My 24hr" counters — and on the War List and Farm List the script now makes no changes at all (no toasts, no styles, no overlays), as the game's rules require. The settings panel now says exactly what the Sab Tracker sends. v2.23.2: Fix — the Sab Tracker vanished on the page the game shows after refusing a sab on a maxed target ("This player has been maxxed…"): that page has no player id in its address, so the tracker, the TIV reading and the sab-cap sharing all quietly gave up — at the one moment the script knew for certain the target was maxed. They now read the target from the page itself. Also fixes the Intelligence-file backfill for the Sab Tracker, which looked for the mission type in the wrong column and so never matched a row; it now finds the column by its header. v2.23.1: Inactive Accounts sync now works while you are logged out — including while you are on vacation and cannot log in — using the login saved from your last visit. On that page, logged out, it is the only thing the script does; every other feature still needs you logged in. Also: a network blip or server restart while renewing your session no longer logs you out of the script. v2.23.0: Inactive Accounts sync — opening the in-game Inactive Accounts page now shares the list with the alliance roster: who went into Vacation Mode and exactly when, and who has been deleted. Anyone who has dropped off the list since the last visit is marked back from vacation. This powers the new Vacation Watch tab on the dashboard, with live countdowns to when each player can return. The script only reads the page you open; the more often members check it, the sooner returns show up. v2.22.0: The War List's "Last Sab" column is now collected too — who last hit each target, for how much, and how long ago — giving the war dashboard a "Last hit" column that shows which targets the alliance is actually working and which nobody has touched, plus a running log of destroyed value for the war. v2.21.2: Fix — TIV readings from the attack page and your Armory were being sent with a timestamp field nothing reads, so they arrived unstamped and skipped the server's "only overwrite if newer" guard, letting an older reading quietly replace a fresher one. v2.21.1: War List collector reads the AAT and Sentry cells from their own DOM nodes instead of the cell's flattened text — those cells hold two numbers separated only by a line break, so any flattening ran "488" and "488,000,000 damage per sab" together into 488 billion. Works on both the Alliance and Single Target lists. v2.21.0: War List collector — opening the War List now records, for every player on it at once, their sentry (stamped with the age the game itself shows, so it never overwrites fresher recon), the weapon the game recommends sabbing them with, and the AAT: how many of that weapon they actually hold plus the gold one full sab would destroy. The war dashboard gets an AAT column and a "Min AAT" filter, so targets who simply do not own enough weapons to be worth organising around can be filtered out in one click. v2.20.1: Fix — race now updates when a player switches race. Race was only ever read from a full recon report, so a race change sat wrong in the roster until somebody spent a recon on that player, even though every visit to their stats page showed the new race in plain sight; the stats-page collector now reads the Information table too (race and rank), and it no longer gives up on players who have no shared recon data. v2.20.0: Sab cap sharing — opening any attack page now records that target's "Total lost from sabbs in the last 24hours" and "Maximum Daily Sabotage loss" to the alliance roster, so the War Room can show how much of every player's daily cap is already gone and how much gold is still worth sabbing, with a share button that copies a Discord-ready line. Also fixes the sab-cap reader: KoC prints the cap with decimals when it isn't a whole number, which the old pattern could not match, so the in-game "sab damage left before maxed" line silently never appeared on those targets. v2.19.1: Fix — a target sabbed flat reads "Total Invested Value: ()" with empty brackets, which the TIV collector could not parse, so the roster kept that player's pre-sab value forever and never stopped asking for a recon that could not land; empty brackets now record as a real 0 (on your own Armory too), while a box the script genuinely cannot read is left alone instead of writing a false zero. v2.19.0: Stat Reshuffler — Goal mode: pick a stat and type a target rating (commas fine, or shorthand like 4.78T) and the calculator shows the gap from your PROJECTED rating — so your sells, race change and re-buys are already counted — plus how many weapons and how much gold on top of the plan would close it, netting off any unspent pool. Warns when your units couldn't hold that many more weapons. The goal is remembered between visits and updates live as you tweak the scenario. v2.18.3: Stat Reshuffler — the launcher moved: it now sits as a full-width banner directly above the "Armory Preferences" header, styled by cloning that header's own theme (background, border, font) so it looks native in any skin; falls back to the old Total Invested Value spot if the header isn't found. v2.18.2: Stat Reshuffler — stale-multiplier warning: a learned weapon multiplier quietly goes wrong after skill/tech upgrades (it only refreshes when you buy), which left phantom rating behind on sell-all scenarios; the reshuffler now compares each learned multiplier against what your live rating implies and flags "⚠ stale multiplier — buy 1 to recalibrate" per stat plus a summary warning, with the multiplier's age shown. v2.18.1: Stat Reshuffler — new "Ignore carrier caps" toggle for when you're happy to train soldiers/covert units as needed: projections then count every weapon as held (including ones currently sitting unheld) and the ⚠ unheld warnings disappear; the choice is remembered. v2.18.0: Stat Reshuffler — a 🔀 button under the Armory's Total Invested Value box opens a full what-if rework calculator: choose weapons (or whole categories) to sell, optionally switch race, and pour the proceeds — plus your on-hand + vault gold if you tick it — into any mix of the eight stats. It projects the gold you'd recover (sales pay 50% and land in your Vault), how many of each weapon you could buy, whether your units can actually carry them (unheld weapons add nothing), your projected new ratings including the race-bonus swing, and your new TIV. Pure calculator — it never sells, buys or presses anything. v2.17.1: Fix — clicking the sidebar Sweet Revenge logo now opens the feature-settings popup (same as the ⚙ Data Centre link) instead of navigating away. Internal cleanup: removed the unused armory sell-value cache (nothing has used it since the v2.11.2 "Upgrade Ready" rework). v2.17.0: Feature Settings — a new "⚙ Data Centre" link in the sidebar opens a settings panel where EVERY feature can be switched on/off individually (or all at once with the master switch), each with a plain-English description of what it does and a badge showing whether it only changes your display or also records data to the alliance roster; toggles apply on the next page load and everything stays ON by default, so nothing changes until you say so. Under the hood the script's ~40 page hooks were rebuilt onto a single feature registry that drives both the dispatcher and the panel, ~600 lines of dead legacy code were removed, and small fixes landed (DST helper deduplicated, script load message now always visible in console, toast animation style no longer re-injected per notification). Also: the sidebar Sweet Revenge logo is now a link to the Data Centre (with a hover glow), and the Top Stats panel's Debug button is gone — debug mode lives in the console via KoCDebug.toggle(). v2.16.0: Sab Tracker learns the exclusivity rule — per target you either regular-sab OR revenge-sab in a 24h window, so the panels now show 🔒 "Regular sabs locked — you revenge-sabbed this target" with an unlock countdown that keeps working after the Revenge section vanishes (target un-maxed — exactly when KoC hides the info), and 🔒 "Revenge locked — you've sabbed this target this window" when the Revenge form is up but unusable; the native "First sab (last 24hrs)" row is age-formatted like the rest (it anchored the "Can sab again in …" countdown from this version until v2.25.3, which stopped using it). v2.15.0: Sabotage Tracker on attack.php — "You last sabbed / poisoned / stole" and the revenge timestamps now show colour-coded ages like the stats pages (hover for the raw server time); the Sabotage and Revenge Sabotage sections get a live status line: attempts left in the rolling 24h window with a ticking "Can sab again in …" countdown when you're out of slots (10 sabs / 4 revenge per target per 24h, tracked automatically whenever you fire a sab and backfilled with exact server times when you open the target's Intelligence file), plus a "sab damage left before maxed" line (Maximum Daily Sabotage loss − lost in last 24h) that flips to TARGET MAXED when the cap is hit. Display-only: it records only missions you fire by hand and never presses anything. v2.14.0: Tech Level Projector — the "Stats After Upgrading Tech" table on safe.php gets a "Project to" dropdown: pick ANY future tech level (up to Obi Bon Kenobi) and the table shows your projected stats at that level, with the total ▲% vs now and the cumulative EXP needed across all the upgrades in between. v2.13.1: Rank-neighbour links now blend into the native table — no dot markers or underline, the numbers just quietly became links (hover tooltip still shows who it is, data age, and gap/stale warnings). v2.13.0: Rank-neighbour recon links — the "Rating For Previous/Next Rank Gain" numbers are now hyperlinks to the player we believe holds that rank (matched by rating value from the roster DB, never by stale DB rank), with a tooltip showing who it is + how fresh their data is; an orange dot means a DB gap (recon upward), a red dot means DB rank/rating disagree (recon me first). Click → recon → DB refreshes; wrong candidates rotate out on the next page load, so the links self-correct toward the true neighbour. v2.11.2: Banking Mode redesigned — your exposed gold now shows in a native-style "Estimated Funds" box that matches the in-game funds boxes, with a ⚙ that holds the Banking Mode toggle, screen-awake, and all settings (including an optional "show yellow/red times" line); a live-ticking Server Time clock on every page; and the Upgrades "Upgrade Ready" row now uses realistic funds (drops full-armory-sell) and shows any shortfall as a slay estimate. v2.10.1: Fix — the slider Armory Preferences now also resync when you press KoC's "Clear Percentage Prefills" button (sliders drop to 0 instead of keeping their old values). v2.10.0: New slider-based Armory Preferences — drag to allocate with auto-balancing, theme-matched styling, and one-tap presets (Cheapest first, Optimizer, All spy, All defense) plus saved presets — replacing the in-game percentage form; rank Optimizer also fixed (weapon efficiency now synced). v2.9.0: "Time to upgrade" + "EXP still needed to be deposited" now show on ALL EXP-cost safe.php upgrades (Increase Soldiers, Economic Development, SAFE Upgrade) — not just Technological Development. v2.8.2: Fix — "EXP still needed to be deposited" now shows cost − Experience Bank (what must still be banked) instead of also subtracting on-hand EXP, so it no longer reads 0 when you hold the EXP but haven't deposited it. v2.8.1: Fix — sidebar abbreviates large gold/safe values (e.g. "2,560M"); getSidebarValue now parses K/M/B/T suffixes so SAFE Forecasts and gold-upgrade rows use real balances (previously read as ~0). SAFE Forecasts also uses the full-precision "Gold in Safe" value. v2.8.0: SAFE Forecasts on safe.php — time for your Safe to reach 1B/2B/5B/9B/10B(MAX) based on current Safe + deposit/min. v2.7.0: Gold upgrade timer — upgrades.php now shows "Upgrade Ready" (liquidation + safe-growth time) and "Gold Needed on top of Safe" under each skill upgrade (uses gold/vault/safe + full armory sell value from Armory + safe deposit rate from Safe). v2.6.0: Tech upgrade timer — safe.php now shows "Time to upgrade" + "EXP still needed to be deposited" under Technological Development (uses EXP on-hand + Experience Bank + your EXP/turn rate, auto-captured from the Upgrades page). v2.5.1: Banking Mode last-bank fix — now watches the per-weapon buy form (anotherbuyform), not just the hidden one-click form, and stamps banks reliably for high-income accounts. v2.5.0: 🏦 Banking Mode on the Armory page — toggleable inline widget that projects your exposed (stealable) gold every second, colour-codes the risk (SAFE/CAUTION/DANGER) from your attack-log steal history, shows time-to-yellow/red, and keeps the screen awake. Display-only: no automated requests, observes (never presses) the buy/repair forms. v2.4.0: Banking trend graph (📈 in the sidebar tracks your banked % over time) + manual override for Avg Gold/Atk (✏️ in the sidebar, survives attack-log recalibration). v2.3.4: Recons panel now shares counts alliance-wide via API (previously localStorage-only — each user only saw themselves). v2.3.0: Added "Stats If You Attacked Instead" table on safe.php to compare tech upgrades vs attacking. v2.2.9: Added optimizer auto-fill for armory (uses roster API to calculate optimal stat allocation). v2.2.8: Minor fixes. v2.1.0: Integrated slaying competition tracker (attack missions & gold stolen tracking, team competitions, leaderboards). v2.0.0: Optimized API architecture, previous versions deprecated.
+// @version      2.38.0
+// @description  Sweet Revenge alliance tool: tracks stats, syncs to API, adds dashboards, XP→Turn calculator, mini Top Stats panel. v2.38.0: New login. The Command Center now has a Sweet Revenge login box under User Info. Press Login once in each browser and it shows a code; send that code to Blackheart-SR in an in-game message yourself, and the box logs you in when an admin has approved it. After that the browser logs itself in. The script keeps working on the old login while you wait. Your login is no longer kept in the browser's long-term storage, and the box lists your browsers so you can sign one out. v2.37.1: The old Data Centre link (stats.php?id=datacentre) now opens the Sweet Revenge roster, and your login is no longer put in the web address. Your SR login now renews itself when it runs out, even on a page left open, instead of quietly failing until you reload. v2.37.0: New 💵 Income box in the Command Centre's Sweet Revenge Stats panel — members ranked by projected gold per minute (e.g. 3.7M/m), from the Projected Income each member's own stats sync already shares. Hover a figure for the exact gold and how long ago it was synced; figures more than a day old are dimmed. It has its own show/hide tick like the other boxes. v2.36.1: Pressing Enter in the sidebar Goal box now saves the goal directly instead of pressing the Save button for you, so the script makes no automatic clicks anywhere. v2.36.0: Banking Mode fix — typing a plain number into a gold box in the ⚙ panel now means millions: 60 is 60M and 2.5 is 2.5M. Before, 60 meant 60 gold, so a pinned Caution line of "60" said DANGER — bank now with only 2.1M exposed. This applies to the pinned lines, the fallback lines and the hit floor, for any number under 1,000,000 with no K/M/B/T; type 500k if you really want less than a million. The Saved message shows how it was read. New: a Reset to defaults button at the bottom of the Banking settings (click twice to confirm) puts every setting back and clears both pins, keeping your bank and attack history, and a small ↺ beside any setting you have changed puts just that one back. v2.35.0: Vault tax warning. When your sidebar Vault holds gold, a warning appears in the "Era ends in" banner on every page from 15 minutes before each vault tax (5% every 6 hours, at 00:00, 06:00, 12:00 and 18:00 server time), with a live countdown and the gold you will lose if you don't spend your vault. Toggle: Vault tax warning (Everywhere). v2.34.0: Full-screen funds. New Banking Mode setting (off by default): double-tap the Available Funds or Estimated Funds box on the Armory for a full-screen view of your live Estimated Funds, coloured by risk, with the screen kept awake. Tap anywhere on it to load a fresh Armory so you can buy weapons. v2.33.0: Alt Watch. On a stats page, a new line under the Buddy List shows the alliance's Alt Watch badges (🚩 RL OOC Suspect or Confirmed, 👥 seen on a watched alliance, 🆕 made this era) with a dropdown and Save to Alt Watch button to flag the account yourself (saved to the alliance list only, never to the game). Flagged accounts get a 🚩 in the battlefield Icons column. Stats pages now also share Commander, Supreme Commander, Signup Time and Previous Era Rank. Toggle: Alt Watch badges (Attack & Intel). v2.32.1: Gold per Stat Point no longer reads too cheap for a stat with few tools. Every spy, sentry, venomweaver, serpentwarden, thief and ranger adds a little rating of its own, and the Live reading used to credit all of it to the tools — with 3 spy tools and 1,379 spies, Spy showed 12.3 gold per point when the true figure was 18.0. The units are now counted, so stats at the same skill level show the same gold per point. Attack and Defense are unchanged. v2.32.0: Banking Mode puts its Caution and Danger lines where your safe holds and the hits on you overlap. In v2.30.0 your routine small banks (buying at 7M, say) counted as safe holds and pulled the line down, cancelling out the times you safely held 35–40M. Now, at each gold level, the script weighs the hits on you at or just below that level against your safe holds at or above it: Caution starts where at least 1 in 4 of those was a hit, Danger where at least 1 in 2 was. So if you can bank at 40M but sometimes get hit at 40M, that is where the line sits, and small banks never touch it. With no hits among your top holds, the line sits near the top of what you have held safely (your 3rd-highest safe hold for Caution, your 2nd-highest for Danger), so one lucky big hold doesn't move it. A fresh hit still pulls the line down at once, pins still win, and the ⚙ panel says why, e.g. "38M — 1 of 3 events at or near 38M was a hit". The gold boxes in the ⚙ panel (the pinned lines and the fallback lines) now take shorthand: type 30m, 1.5b or 750k as well as 30,000,000; blank or 0 clears a pin, and anything unreadable is flagged instead of saved. Every change in that panel now shows a short "Saved" message naming the setting and its new value. v2.31.0: Once you have finished the 1,000 Unsuccessful Recons goal, your row in the Command Centre's 🔍 Recons column switches to your own Recon Missions count for the era (the Your Actions row on the Rewards page), shown as 🎯 1,278 in goldenrod. It keeps climbing past its goal and updates each time you open Rewards, so the finished rows double as a friendly "most recons this era" table for the alliance; members still working on their 1,000 stay at the top. Hover a number for its age. v2.30.0: Banking Mode learns from your own banks. Until now its Caution and Danger lines came only from the gold attackers stole from you, so early in an era a few hits on small stacks set the line at ~12M while you were safely holding 40M — and it kept telling you to bank. Now every bank you make on the Armory is remembered with the gold you were holding, and a bank with no hit on you since the bank before counts as a safe hold. Each line is the higher of what your safe holds and the hits on you say, using your recent banks (the last 48 hours or last 20 banks, whichever is shorter) and a low percentile, so one lucky big hold doesn't move it. A fresh hit pulls the line down at once: for 24 hours the lines sit just below the smallest amount you were hit for (hits on less than 5M are ignored). A bank only counts once you have opened the Attack Log after it. The ⚙ panel and KoCBanking.lines() say where each line comes from, and you can pin either line yourself. Alerts are quieter: one per real escalation, kept across page reloads, and re-entering a band only alerts again with 25% more gold or after the minimum gap. Everything stays in your browser; nothing new is sent. v2.28.2: KoC's Server Time is UTC from Era 24 (it was US Eastern), so recon ages, last seen, TIV and stat history times, sab timers and banking times were 5 hours off. They are read correctly now. v2.28.0: Gold goal in the sidebar Turn Trading Calculator — click ✏️ next to 🎯 Goal and set what you're working towards (your next XP upgrade, say) and, if you like, the gold you expect per hit (otherwise your Avg Gold/Atk). Two short lines then show what each hit must bring in to get there with only the turns on hand — no XP trades — and, at your hit size, how many hits it takes and how few XP trades will cover them (or that even trading everything falls short). Hover for the details: XP spent on trades, and how far trading all your XP gets you. Everything you hold — gold on hand, Safe and Vault — counts towards the goal (untick it to leave it out), read from the sidebar on every page, so each hit you land shrinks what is left and what each remaining hit needs. Suggested by Spook-SR. v2.27.1: Own account history now also keeps your Game Logs page — the daily login bonus, the vault tax, your purchases and repairs, Safe withdrawals, hostages, poison losses and weapons lost to sabs and thefts — when it changes, at most every 5 minutes. Only the page you open is read. v2.27.0: Own account history — for planning the next era's opening, the script now keeps a history of your own account on the alliance server: your sidebar balances (Gold, Safe, Vault, Experience, Experience Bank, Turns, Rank, Recent Logs and the era countdown) from any page, at most every 15 minutes; the tables on your own Command Centre, Armory, Upgrades, Safe, Training, Trade, Rewards and Conquest pages when they change, at most every 5 minutes; and every conquest result as it appears on the Conquest page, with your Strike, repair cost, turns, experience and gold before and after, so the cost and payoff of each attempt at each level can be worked out. Only the page you opened is read — nothing is fetched, pressed or shown, and nothing about other players is sent. It has its own switch (Own account history) in the ⚙ Data Centre settings. v2.26.3: Fix — the Recons column on the Command Centre now shows ✅ Done for members who have finished the 1,000 Unsuccessful Recons reward. The game keeps counting past 1,000 once the goal is met (it reads 1,003/1000, say), and the alliance server turned those counts away, so a finished member stayed frozen at their last count below 1,000. The server now accepts them — the next time a finished member opens the Rewards page, on any version of the script, their row shows as done — and the script also reads the reward's ✅ and CLAIMED button. Hover ✅ Done for the count and whether the reward has been claimed. Finished members are listed last. Each count is only as fresh as that member's last Rewards visit the server accepted, so hovering any count now shows how long ago it was updated, and counts more than a day old are dimmed. If the alliance server turns your count away because it does not know the player you are logged in as (for a while after an era reset, say), the browser console now says so — log out and back in from the sidebar. v2.26.2: Game rule fix — Era 24 moved the War List to a new address (warlistv4.php), which the script did not recognise as the War List, so on that page it drew its usual sidebar additions, which the game's rules forbid there. The script now treats every version of the War List as read-only and makes no changes to it. Collecting from the new War List is switched off until the script learns its new layout. v2.26.1: The Gold per Stat Point panel on the Armory now starts closed — one header line with a summary ("8 Live") — and opens with a click; it remembers whether you left it open. Plan as held can be ticked while it is closed. It also has its own switch in the ⚙ Data Centre settings, separate from the rank-up costs. v2.26.0: Gold per stat point stops jumping. The rank-up costs and the Optimizer now take each stat's gold per point from your armory page itself — your rating divided by the weapons the game says are held — read fresh on every visit, instead of learning it from purchase messages. A purchase reads low when it pushes out weapons you already hold (buying Blackpowder Missiles while your soldiers hold Chariots learned Strike at 0.4 of its real value, so Strike looked 2.5 times too expensive) or when part of it goes unheld. A new Gold per Stat Point panel under the Rank Gain table shows each stat's figure and where it came from: Live; Remembered (a stat you keep unheld on purpose keeps its last reading, with its age); Paired (Poison and Antidote, Theft and Vigilance borrow from each other, but only while both skills are at the same upgrade level, read when you open the Upgrades page); or Pinned — type your own gold per point and it stays put until you clear it. Unheld weapons are shown as information, not a warning: how many, and what they would add if held. A Plan as held tick works the rank-up costs and the Optimizer out as if every weapon you own were held — for the end-of-era push; other players' ratings stay as last recorded, and they may be hiding too. A purchase that goes unheld now gets a quiet note instead of an error. The Stat Reshuffler and the Safe page's Attacked Instead table use the same figures, and the Reshuffler now takes the game's own unheld count (untrained soldiers hold weapons too). Also: the roster no longer lets a recon of you overwrite the gold per point your own armory sent. v2.25.3: The roster's War List tab now counts down when your own sab and theft attempts on each target come back — the game's rolling 24 hours, attempt by attempt, from what the game itself showed you. To make those times exact: the attack page now also records the times the game prints for your own first and last successful sab, steal and poison on that target, and the game's "You have used the maximum … attempts" line; and the sab or theft report you land on right after the mission is stamped with the Server Time that page shows. A page brought back with the Back button is not recorded again. Theft reports are now recorded too: what you stole, or that the theft failed. A theft report showing somebody stealing from you is not recorded. Fix — the Sab Tracker counted a press the game refused (one more after your tenth sab, or a sab on a maxed target) as an attempt, and to make room for it dropped your oldest attempt time, even an exact one. A refused press is no longer counted, and the report you land on after a sab now gives the tracker that sab's exact time. The attack page's "First sab" time is a first SUCCESSFUL sab and the page never says whose, so no countdown is built on it any more — anywhere. An attempt the tracker never saw now counts from the moment you opened the page and reads "≤" (at the latest): less exact, but it can only ever run late, never let you fire early. Because earlier versions filed that "First sab" time as one of your own attempts, and nothing stored in your browser can tell those rows from real ones, updating clears the sab times already tracked, once: for up to 24 hours after the update a target you sabbed before it reads "≤ about 24h from now" — too late rather than too early — until the game's own times come back from the reports you land on and the target's Intelligence file. v2.25.2: Fix — the battle report you land on after attacking or raiding now counts in Mission history's 24h and 7-day figures straight away, whichever page you attacked from: the attack page, a recon report, a theft report or an "… Again!" button. Until now only the attack page and the "… Again!" buttons were recognised, so a battle launched from a recon report was stored without its time. Also: a battle report you open later (from the Attack Log, say) no longer takes the stolen gold off the target's current gold estimate: that gold was stolen back when the battle happened, not now. v2.25.1: Fix — raids were stored with no gold and no target. The battle-report reader only knew how an attack's report words its first line ("You stole … gold while attacking …'s camp"); a raid's says "while raiding", so every raid went into the alliance's attack records as 0 gold stolen from "Unknown". Raids now record the gold, the target and the hostages, and a lost battle takes the target's name from the report ("…'s forces overpowered your army!"). Also: your own attacks and raids now count in Mission history straight from the battle report — the one you land on after an attack or raid, or one of yours you open later from the Attack Log — with whether it was an attack or a raid (from the game's own "Raid Again!" / "Attack Again!" button, or the report's wording) and whether you won; the report you land on is also stamped with the time. Also fixed: opening the battle report of another player's attack on you recorded it in the alliance's attack records as your own attack on them. Battle reports of other players attacking you are now not recorded at all — the Attack Log still lists those attacks. As before, only the page you open is read and it is left exactly as the game drew it. v2.25.0: Mission history — the pages that list missions are now read when you open them and shared with the alliance roster: a target's Intelligence file (your recon and sab missions on them, Success or Aborted), the Poison Log and Theft Log (both directions, with what was stolen), your Intelligence page (recon and sab missions run against you, and how many of their spies were caught) and the Attack Log (attacks and raids both ways, with gold stolen and losses). Any sab report you open adds its details too — what it destroyed, spies and sentries executed, gold and XP. This feeds the War Room's new success rates — per member and per mission type, never per target — which are visible to everyone with roster access, as the settings panel now says. The script sends each page's own wording and the server interprets it, so a result nobody has seen yet (a successful poison, say) is kept rather than lost and is sorted out once it turns up. Only the page you open is read: it never turns a page, opens a report or fetches anything, and those pages look exactly as before. Also: the Sab Tracker's Intelligence-file backfill now shares that same read. v2.24.0: Attack page range warnings — under each mission's "can … up to …" line the attack page now says whether the target is actually in reach: their sentry, antidote, vigilance or defensive action as last recorded by the alliance, against the limit the game prints for you, with how old that reading is. ⛔ Out of range means the mission will fail — the game lets an out-of-range theft fire anyway, which is how four thefts on one target all failed. The Theft box also gets a theft-cap line: how much of the target's daily theft cap is left, or THEFT MAXED. New Target check log: every attack page you open records that you checked that target — whether it was maxed, how much of its sab and theft caps is used, and your own attempt and success counters on it — so the War Room can show who saw a target maxed and how long ago; those counters are visible to everyone with roster access and will feed members' success rates. The War List collector now also shares who is on the list, when and why they were added, and your own "My 24hr" counters — and on the War List and Farm List the script now makes no changes at all (no toasts, no styles, no overlays), as the game's rules require. The settings panel now says exactly what the Sab Tracker sends. v2.23.2: Fix — the Sab Tracker vanished on the page the game shows after refusing a sab on a maxed target ("This player has been maxxed…"): that page has no player id in its address, so the tracker, the TIV reading and the sab-cap sharing all quietly gave up — at the one moment the script knew for certain the target was maxed. They now read the target from the page itself. Also fixes the Intelligence-file backfill for the Sab Tracker, which looked for the mission type in the wrong column and so never matched a row; it now finds the column by its header. v2.23.1: Inactive Accounts sync now works while you are logged out — including while you are on vacation and cannot log in — using the login saved from your last visit. On that page, logged out, it is the only thing the script does; every other feature still needs you logged in. Also: a network blip or server restart while renewing your session no longer logs you out of the script. v2.23.0: Inactive Accounts sync — opening the in-game Inactive Accounts page now shares the list with the alliance roster: who went into Vacation Mode and exactly when, and who has been deleted. Anyone who has dropped off the list since the last visit is marked back from vacation. This powers the new Vacation Watch tab on the dashboard, with live countdowns to when each player can return. The script only reads the page you open; the more often members check it, the sooner returns show up. v2.22.0: The War List's "Last Sab" column is now collected too — who last hit each target, for how much, and how long ago — giving the war dashboard a "Last hit" column that shows which targets the alliance is actually working and which nobody has touched, plus a running log of destroyed value for the war. v2.21.2: Fix — TIV readings from the attack page and your Armory were being sent with a timestamp field nothing reads, so they arrived unstamped and skipped the server's "only overwrite if newer" guard, letting an older reading quietly replace a fresher one. v2.21.1: War List collector reads the AAT and Sentry cells from their own DOM nodes instead of the cell's flattened text — those cells hold two numbers separated only by a line break, so any flattening ran "488" and "488,000,000 damage per sab" together into 488 billion. Works on both the Alliance and Single Target lists. v2.21.0: War List collector — opening the War List now records, for every player on it at once, their sentry (stamped with the age the game itself shows, so it never overwrites fresher recon), the weapon the game recommends sabbing them with, and the AAT: how many of that weapon they actually hold plus the gold one full sab would destroy. The war dashboard gets an AAT column and a "Min AAT" filter, so targets who simply do not own enough weapons to be worth organising around can be filtered out in one click. v2.20.1: Fix — race now updates when a player switches race. Race was only ever read from a full recon report, so a race change sat wrong in the roster until somebody spent a recon on that player, even though every visit to their stats page showed the new race in plain sight; the stats-page collector now reads the Information table too (race and rank), and it no longer gives up on players who have no shared recon data. v2.20.0: Sab cap sharing — opening any attack page now records that target's "Total lost from sabbs in the last 24hours" and "Maximum Daily Sabotage loss" to the alliance roster, so the War Room can show how much of every player's daily cap is already gone and how much gold is still worth sabbing, with a share button that copies a Discord-ready line. Also fixes the sab-cap reader: KoC prints the cap with decimals when it isn't a whole number, which the old pattern could not match, so the in-game "sab damage left before maxed" line silently never appeared on those targets. v2.19.1: Fix — a target sabbed flat reads "Total Invested Value: ()" with empty brackets, which the TIV collector could not parse, so the roster kept that player's pre-sab value forever and never stopped asking for a recon that could not land; empty brackets now record as a real 0 (on your own Armory too), while a box the script genuinely cannot read is left alone instead of writing a false zero. v2.19.0: Stat Reshuffler — Goal mode: pick a stat and type a target rating (commas fine, or shorthand like 4.78T) and the calculator shows the gap from your PROJECTED rating — so your sells, race change and re-buys are already counted — plus how many weapons and how much gold on top of the plan would close it, netting off any unspent pool. Warns when your units couldn't hold that many more weapons. The goal is remembered between visits and updates live as you tweak the scenario. v2.18.3: Stat Reshuffler — the launcher moved: it now sits as a full-width banner directly above the "Armory Preferences" header, styled by cloning that header's own theme (background, border, font) so it looks native in any skin; falls back to the old Total Invested Value spot if the header isn't found. v2.18.2: Stat Reshuffler — stale-multiplier warning: a learned weapon multiplier quietly goes wrong after skill/tech upgrades (it only refreshes when you buy), which left phantom rating behind on sell-all scenarios; the reshuffler now compares each learned multiplier against what your live rating implies and flags "⚠ stale multiplier — buy 1 to recalibrate" per stat plus a summary warning, with the multiplier's age shown. v2.18.1: Stat Reshuffler — new "Ignore carrier caps" toggle for when you're happy to train soldiers/covert units as needed: projections then count every weapon as held (including ones currently sitting unheld) and the ⚠ unheld warnings disappear; the choice is remembered. v2.18.0: Stat Reshuffler — a 🔀 button under the Armory's Total Invested Value box opens a full what-if rework calculator: choose weapons (or whole categories) to sell, optionally switch race, and pour the proceeds — plus your on-hand + vault gold if you tick it — into any mix of the eight stats. It projects the gold you'd recover (sales pay 50% and land in your Vault), how many of each weapon you could buy, whether your units can actually carry them (unheld weapons add nothing), your projected new ratings including the race-bonus swing, and your new TIV. Pure calculator — it never sells, buys or presses anything. v2.17.1: Fix — clicking the sidebar Sweet Revenge logo now opens the feature-settings popup (same as the ⚙ Data Centre link) instead of navigating away. Internal cleanup: removed the unused armory sell-value cache (nothing has used it since the v2.11.2 "Upgrade Ready" rework). v2.17.0: Feature Settings — a new "⚙ Data Centre" link in the sidebar opens a settings panel where EVERY feature can be switched on/off individually (or all at once with the master switch), each with a plain-English description of what it does and a badge showing whether it only changes your display or also records data to the alliance roster; toggles apply on the next page load and everything stays ON by default, so nothing changes until you say so. Under the hood the script's ~40 page hooks were rebuilt onto a single feature registry that drives both the dispatcher and the panel, ~600 lines of dead legacy code were removed, and small fixes landed (DST helper deduplicated, script load message now always visible in console, toast animation style no longer re-injected per notification). Also: the sidebar Sweet Revenge logo is now a link to the Data Centre (with a hover glow), and the Top Stats panel's Debug button is gone — debug mode lives in the console via KoCDebug.toggle(). v2.16.0: Sab Tracker learns the exclusivity rule — per target you either regular-sab OR revenge-sab in a 24h window, so the panels now show 🔒 "Regular sabs locked — you revenge-sabbed this target" with an unlock countdown that keeps working after the Revenge section vanishes (target un-maxed — exactly when KoC hides the info), and 🔒 "Revenge locked — you've sabbed this target this window" when the Revenge form is up but unusable; the native "First sab (last 24hrs)" row is age-formatted like the rest (it anchored the "Can sab again in …" countdown from this version until v2.25.3, which stopped using it). v2.15.0: Sabotage Tracker on attack.php — "You last sabbed / poisoned / stole" and the revenge timestamps now show colour-coded ages like the stats pages (hover for the raw server time); the Sabotage and Revenge Sabotage sections get a live status line: attempts left in the rolling 24h window with a ticking "Can sab again in …" countdown when you're out of slots (10 sabs / 4 revenge per target per 24h, tracked automatically whenever you fire a sab and backfilled with exact server times when you open the target's Intelligence file), plus a "sab damage left before maxed" line (Maximum Daily Sabotage loss − lost in last 24h) that flips to TARGET MAXED when the cap is hit. Display-only: it records only missions you fire by hand and never presses anything. v2.14.0: Tech Level Projector — the "Stats After Upgrading Tech" table on safe.php gets a "Project to" dropdown: pick ANY future tech level (up to Obi Bon Kenobi) and the table shows your projected stats at that level, with the total ▲% vs now and the cumulative EXP needed across all the upgrades in between. v2.13.1: Rank-neighbour links now blend into the native table — no dot markers or underline, the numbers just quietly became links (hover tooltip still shows who it is, data age, and gap/stale warnings). v2.13.0: Rank-neighbour recon links — the "Rating For Previous/Next Rank Gain" numbers are now hyperlinks to the player we believe holds that rank (matched by rating value from the roster DB, never by stale DB rank), with a tooltip showing who it is + how fresh their data is; an orange dot means a DB gap (recon upward), a red dot means DB rank/rating disagree (recon me first). Click → recon → DB refreshes; wrong candidates rotate out on the next page load, so the links self-correct toward the true neighbour. v2.11.2: Banking Mode redesigned — your exposed gold now shows in a native-style "Estimated Funds" box that matches the in-game funds boxes, with a ⚙ that holds the Banking Mode toggle, screen-awake, and all settings (including an optional "show yellow/red times" line); a live-ticking Server Time clock on every page; and the Upgrades "Upgrade Ready" row now uses realistic funds (drops full-armory-sell) and shows any shortfall as a slay estimate. v2.10.1: Fix — the slider Armory Preferences now also resync when you press KoC's "Clear Percentage Prefills" button (sliders drop to 0 instead of keeping their old values). v2.10.0: New slider-based Armory Preferences — drag to allocate with auto-balancing, theme-matched styling, and one-tap presets (Cheapest first, Optimizer, All spy, All defense) plus saved presets — replacing the in-game percentage form; rank Optimizer also fixed (weapon efficiency now synced). v2.9.0: "Time to upgrade" + "EXP still needed to be deposited" now show on ALL EXP-cost safe.php upgrades (Increase Soldiers, Economic Development, SAFE Upgrade) — not just Technological Development. v2.8.2: Fix — "EXP still needed to be deposited" now shows cost − Experience Bank (what must still be banked) instead of also subtracting on-hand EXP, so it no longer reads 0 when you hold the EXP but haven't deposited it. v2.8.1: Fix — sidebar abbreviates large gold/safe values (e.g. "2,560M"); getSidebarValue now parses K/M/B/T suffixes so SAFE Forecasts and gold-upgrade rows use real balances (previously read as ~0). SAFE Forecasts also uses the full-precision "Gold in Safe" value. v2.8.0: SAFE Forecasts on safe.php — time for your Safe to reach 1B/2B/5B/9B/10B(MAX) based on current Safe + deposit/min. v2.7.0: Gold upgrade timer — upgrades.php now shows "Upgrade Ready" (liquidation + safe-growth time) and "Gold Needed on top of Safe" under each skill upgrade (uses gold/vault/safe + full armory sell value from Armory + safe deposit rate from Safe). v2.6.0: Tech upgrade timer — safe.php now shows "Time to upgrade" + "EXP still needed to be deposited" under Technological Development (uses EXP on-hand + Experience Bank + your EXP/turn rate, auto-captured from the Upgrades page). v2.5.1: Banking Mode last-bank fix — now watches the per-weapon buy form (anotherbuyform), not just the hidden one-click form, and stamps banks reliably for high-income accounts. v2.5.0: 🏦 Banking Mode on the Armory page — toggleable inline widget that projects your exposed (stealable) gold every second, colour-codes the risk (SAFE/CAUTION/DANGER) from your attack-log steal history, shows time-to-yellow/red, and keeps the screen awake. Display-only: no automated requests, observes (never presses) the buy/repair forms. v2.4.0: Banking trend graph (📈 in the sidebar tracks your banked % over time) + manual override for Avg Gold/Atk (✏️ in the sidebar, survives attack-log recalibration). v2.3.4: Recons panel now shares counts alliance-wide via API (previously localStorage-only — each user only saw themselves). v2.3.0: Added "Stats If You Attacked Instead" table on safe.php to compare tech upgrades vs attacking. v2.2.9: Added optimizer auto-fill for armory (uses roster API to calculate optimal stat allocation). v2.2.8: Minor fixes. v2.1.0: Integrated slaying competition tracker (attack missions & gold stolen tracking, team competitions, leaderboards). v2.0.0: Optimized API architecture, previous versions deprecated.
 // @author       Blackheart
 // @match        https://www.kingsofchaos.com/*
 // @exclude      https://*.kingsofchaos.com/confirm.login.php*
@@ -59,7 +59,7 @@
   // ==================== VERSION CHECK ====================
   // Check if this script version is allowed to run
   const SCRIPT_NAME = 'koc-data-centre';
-  const SCRIPT_VERSION = '2.37.1'; // Must match @version above
+  const SCRIPT_VERSION = '2.38.0'; // Must match @version above
   const VERSION_CHECK_API = 'https://koc-roster-api-production.up.railway.app';
   // What the API said about the public release: { latestVersion, updateUrl,
   // isLatest }, or null when it could not say. The sidebar box and the ⚙ panel
@@ -164,13 +164,20 @@
   const API_URL = "https://koc-roster-api-production.up.railway.app";
 
   // LocalStorage Keys
-  const TOKEN_KEY = "KoC_SRAUTH";
+  const TOKEN_KEY = "KoC_SRAUTH";               // the OLD login (token in localStorage): read once, then deleted (#92)
+  const LEGACY_ID_KEY = "KoC_SRLegacyLogin";     // { id, name } of the old login, no token; gone with the switch-off (#94)
+  // Login (#92)
+  const DEVICE_DB = "KoC_SR_DEVICE";             // IndexedDB: this browser's key
+  const SESSION_KEY = "KoC_SRSESSION";           // sessionStorage: the current token, this tab only
+  const SESSION_CHANNEL = "KoC_SR_SESSION";      // BroadcastChannel: open tabs pass the token to each other
+  const NOTICE_KEY = "KoC_SRLoginNotice";        // sessionStorage: one message kept across the reload after Login
+  const SR_APPROVER_NAME = "Blackheart-SR";      // whose in-game inbox the login codes go to
   const TIV_KEY = "KoC_DataCentre";
   const MAP_KEY = "KoC_NameMap";
 
   // Authentication & API
   const TOKEN_EXPIRY_MS = 12 * 60 * 60 * 1000; // fallback only — the JWT's exp wins (#96)
-  const TOKEN_EXPIRY_MARGIN_MS = 60 * 1000; // treat the token as expired a minute early
+  const TOKEN_EXPIRY_MARGIN_MS = 2 * 60 * 1000; // renew when the token has under two minutes left
   const RETRY_ATTEMPTS = 2;
   const RETRY_DELAY_BASE_MS = 1000; // 1 second
 
@@ -1154,7 +1161,7 @@
     };
   }
 
-  // ==================== AUTH MANAGER ====================
+  // ==================== OWN IDENTITY ON THE PAGE ====================
 
   // True when an element lives inside script-injected UI (SR stats panel,
   // competition panels, calculators) rather than native KoC markup.
@@ -1167,7 +1174,7 @@
   // stats.php link. Never read identity from the first stats.php link on the
   // page — injected leaderboards and farm lists come first in DOM order, which
   // is how wrong identities (Tobi-SR id='self', 'Members') got stored.
-  function findOwnIdentityOnPage() {
+  function findOwnIdentityRow() {
     for (const row of document.querySelectorAll("tr")) {
       const labelCell = row.querySelector("td, th");
       if (!labelCell || !/^name:?$/i.test(labelCell.innerText.trim())) continue;
@@ -1175,26 +1182,172 @@
       if (!link || isInjectedContent(link)) continue;
       const id = link.href.match(/id=(\d+)/)?.[1];
       const name = link.textContent.trim();
-      if (id && name) return { id, name };
+      if (id && name) return { id, name, row };
     }
     return null;
   }
 
+  function findOwnIdentityOnPage() {
+    const own = findOwnIdentityRow();
+    return own ? { id: own.id, name: own.name } : null;
+  }
+
+  // ==================== SR LOGIN: device key store ====================
+  // Issue #92, design doc §6.1. One record per browser profile, kept in
+  // IndexedDB "KoC_SR_DEVICE" (store "device", key "current"):
+  //   { v, deviceId, playerId, playerName, privateKey, publicJwk, label,
+  //     status: "pending" | "active" | "suspended",
+  //     code, codeExpiresAt, codeExpired, enrolledAt, lastCheckAt, mismatch }
+  // privateKey is a NON-EXTRACTABLE CryptoKey: page code can sign with it but
+  // cannot read it, so a copy of the browser's storage files is not a login.
+  const SrDeviceStore = {
+    _run(mode, fn) {
+      return new Promise((resolve, reject) => {
+        let open;
+        try { open = indexedDB.open(DEVICE_DB, 1); } catch (err) { reject(err); return; }
+        open.onupgradeneeded = () => { open.result.createObjectStore("device"); };
+        open.onerror = () => reject(open.error);
+        open.onsuccess = () => {
+          const idb = open.result;
+          try {
+            const tx = idb.transaction("device", mode);
+            const req = fn(tx.objectStore("device"));
+            tx.oncomplete = () => { idb.close(); resolve(req ? req.result : undefined); };
+            tx.onabort = tx.onerror = () => { idb.close(); reject(tx.error); };
+          } catch (err) { idb.close(); reject(err); }
+        };
+      });
+    },
+    async load() { return (await this._run("readonly", (s) => s.get("current"))) || null; },
+    async save(rec) { await this._run("readwrite", (s) => s.put(rec, "current")); },
+    async clear() { await this._run("readwrite", (s) => s.delete("current")); }
+  };
+
+  // ==================== SR LOGIN: protocol ====================
+  // What the browser says to the API. Nothing here touches the game: every
+  // request goes to the Sweet Revenge server, and the code that proves who
+  // owns the account is sent in an in-game message BY HAND.
+
+  const srOnCommandCentre = () => /\/base\.php/i.test(location.pathname);
+
+  function srB64u(buf) {
+    const bytes = new Uint8Array(buf);
+    let s = "";
+    for (let i = 0; i < bytes.length; i++) s += String.fromCharCode(bytes[i]);
+    return btoa(s).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+  }
+
+  // "Chrome on Windows": so a member can tell their browsers apart in the list.
+  function srBrowserLabel() {
+    const ua = (typeof navigator !== "undefined" && navigator.userAgent) || "";
+    const browser = /Edg\//.test(ua) ? "Edge" : /OPR\//.test(ua) ? "Opera" : /Firefox\//.test(ua) ? "Firefox"
+      : /Chrome\//.test(ua) ? "Chrome" : /Safari\//.test(ua) ? "Safari" : "Browser";
+    const os = /Android/.test(ua) ? "Android" : /iPhone|iPad|iPod/.test(ua) ? "iOS" : /Windows/.test(ua) ? "Windows"
+      : /Mac OS X/.test(ua) ? "Mac" : /Linux/.test(ua) ? "Linux" : "";
+    return os ? `${browser} on ${os}` : browser;
+  }
+
+  // One request to the API. Resolves { status, body } for any HTTP answer and
+  // throws only when the server could not be reached (or took over 15 s).
+  async function srFetch(path, { method = "GET", body, token } = {}) {
+    const headers = { "X-Script-Name": SCRIPT_NAME, "X-Script-Version": SCRIPT_VERSION };
+    if (body !== undefined) headers["Content-Type"] = "application/json";
+    if (token) headers["Authorization"] = "Bearer " + token;
+    const ctl = typeof AbortController !== "undefined" ? new AbortController() : null;
+    const timer = ctl ? setTimeout(() => ctl.abort(), 15000) : null;
+    try {
+      const resp = await fetch(`${API_URL}${path}`, {
+        method,
+        headers,
+        body: body !== undefined ? JSON.stringify(body) : undefined,
+        signal: ctl ? ctl.signal : undefined
+      });
+      return { status: resp.status, body: (await resp.json().catch(() => ({}))) || {} };
+    } finally {
+      if (timer) clearTimeout(timer);
+    }
+  }
+
+  // How long a waiting browser leaves between "am I approved yet?" checks.
+  // The server allows 60 session calls per browser per hour, so the checks
+  // thin out: every 10 s for the first minute, every minute up to ten
+  // minutes, then every two minutes.
+  function srPendingCheckDelay(rec, now) {
+    const age = now - (rec.enrolledAt || 0);
+    return age < 60e3 ? 10e3 : age < 600e3 ? 60e3 : 120e3;
+  }
+
+  const SrDevice = {
+    // A new key pair. extractable = false: the private key cannot be exported.
+    async newKey() {
+      const pair = await crypto.subtle.generateKey({ name: "ECDSA", namedCurve: "P-256" }, false, ["sign"]);
+      const jwk = await crypto.subtle.exportKey("jwk", pair.publicKey);
+      return { privateKey: pair.privateKey, publicJwk: { kty: jwk.kty, crv: jwk.crv, x: jwk.x, y: jwk.y } };
+    },
+
+    // Ask to become a browser for this player. This is everything it sends.
+    enroll(identity, publicJwk) {
+      return srFetch("/auth/device/enroll", {
+        method: "POST",
+        body: { statsId: String(identity.id), name: identity.name, publicKey: publicJwk, label: srBrowserLabel() }
+      });
+    },
+
+    // Fetch a one-time challenge, sign "<prefix><challenge>.<deviceId>" with
+    // the device key (ECDSA P-256, SHA-256, raw 64-byte signature) and post it.
+    async signed(path, rec, prefix, extra) {
+      const c = await srFetch("/auth/challenge");
+      if (c.status !== 200 || !c.body.challenge) return c;
+      const text = `${prefix}${c.body.challenge}.${String(rec.deviceId).toLowerCase()}`;
+      const sig = await crypto.subtle.sign({ name: "ECDSA", hash: "SHA-256" }, rec.privateKey, new TextEncoder().encode(text));
+      return srFetch(path, {
+        method: "POST",
+        body: Object.assign({ deviceId: rec.deviceId, challenge: c.body.challenge, signature: srB64u(sig) }, extra || {})
+      });
+    },
+
+    session(rec) { return this.signed("/auth/device/session", rec, ""); },
+
+    mismatch(rec, pageStatsId) {
+      return this.signed("/auth/device/mismatch", rec, `mismatch:${pageStatsId}:`, { pageStatsId: String(pageStatsId) });
+    },
+
+    list(token) { return srFetch("/auth/devices", { token }); },
+
+    revoke(token, target) { return srFetch("/auth/device/revoke", { method: "POST", token, body: { deviceId: target } }); }
+  };
+
+  // ==================== AUTH MANAGER ====================
+  //
+  // Two logins live here until the switch-off (#94):
+  //   "device": the browser holds an approved key and trades a signature for
+  //             a 15 minute token. This is the login that proves ownership.
+  //   "legacy": the old POST /auth/koc {id, name}. Kept ONLY so nobody loses
+  //             the script while their browser waits for approval, or before
+  //             they have pressed Login (design doc A5).
+  // The token is kept in memory and sessionStorage, never in localStorage.
+  // Open tabs pass it to each other over a BroadcastChannel, so a new tab
+  // does not have to ask the server for its own.
+  //
+  // auth.state.code is what the Command Center box shows:
+  //   signed_out | legacy | pending | code_expired | active | mismatch |
+  //   suspended | revoked | gone | not_allowed | outdated | offline
   class AuthManager {
     constructor() {
       this.token = null;
-      this.authData = null;
+      this.authData = null;   // { token, id, name, role, expiry, kind, deviceId }
+      this.device = null;     // this browser's record from SrDeviceStore
+      this.state = { code: "signed_out" };
       this.initPromise = null;
       this.refreshPromise = null;
       this.listeners = new Map();
+      this.channel = null;
+      this.askWaiter = null;
+      this.lastHeard = null;
+      this.busy = false;
+      this.openChannel();
     }
 
-    // Get stored auth from localStorage
-    getStoredAuth() {
-      return SafeStorage.get(TOKEN_KEY, null);
-    }
-
-    // Save auth to localStorage
     // Decode a JWT payload (base64url). Returns null if it can't be read.
     static decodeJwt(token) {
       try {
@@ -1206,9 +1359,9 @@
       }
     }
 
-    // When to treat the token as expired: the JWT's own exp, a minute early so
-    // a request never goes out on a token about to lapse (#96). Falls back to
-    // TOKEN_EXPIRY_MS only if exp can't be read.
+    // When to treat the token as expired: the JWT's own exp, two minutes
+    // early, so a token is renewed before a request can go out on one about
+    // to lapse (#96, #92). Falls back to TOKEN_EXPIRY_MS only if exp can't be read.
     static expiryFor(token) {
       const payload = AuthManager.decodeJwt(token);
       if (payload && Number.isFinite(payload.exp)) {
@@ -1217,75 +1370,362 @@
       return Date.now() + TOKEN_EXPIRY_MS;
     }
 
-    saveAuth(token, id, name) {
-      const payload = AuthManager.decodeJwt(token);
-      const role = (payload && payload.role) || 'member';
+    // ---- the token, in this tab and across tabs ----
 
-      const authData = {
-        token,
-        id,
-        name,
-        role,  // Include role from JWT
-        expiry: AuthManager.expiryFor(token)
-      };
-
-      const success = SafeStorage.set(TOKEN_KEY, authData);
-      if (!success) {
-        ErrorHandler.showUserError('Failed to save authentication data. Storage may be full.');
+    readSession() {
+      try {
+        const s = JSON.parse(sessionStorage.getItem(SESSION_KEY) || "null");
+        return s && s.token && s.expiry > Date.now() ? s : null;
+      } catch (err) {
         return null;
       }
-
-      this.authData = authData;
-      this.token = token;
-      this.emit('authChanged', authData);
-      return authData;
     }
 
-    // Initialize auth (check stored or refresh)
-    async initialize() {
-      if (this.initPromise) {
-        return this.initPromise;
+    writeSession(s) {
+      try {
+        if (s) sessionStorage.setItem(SESSION_KEY, JSON.stringify(s));
+        else sessionStorage.removeItem(SESSION_KEY);
+      } catch (err) { /* private mode: the token then lives in memory only */ }
+    }
+
+    // Who this tab is logged in as, or null. (The name is historical: nothing
+    // is stored in localStorage any more.)
+    getStoredAuth() {
+      return this.authData || this.readSession();
+    }
+
+    makeSession(token, id, name, kind, deviceId) {
+      const payload = AuthManager.decodeJwt(token);
+      return {
+        token,
+        id: String(id),
+        name,
+        role: (payload && payload.role) || 'member',
+        expiry: AuthManager.expiryFor(token),
+        kind,
+        deviceId: deviceId || null
+      };
+    }
+
+    adopt(session, announce) {
+      this.token = session.token;
+      this.authData = session;
+      this.writeSession(session);
+      if (announce) this.post({ t: "token", session });
+      this.emit('authChanged', session);
+    }
+
+    dropSession(announce) {
+      this.token = null;
+      this.authData = null;
+      this.lastHeard = null;
+      this.writeSession(null);
+      if (announce) this.post({ t: "clear" });
+    }
+
+    // Does this token belong to the login this browser has right now?
+    fits(s, rec) {
+      if (!s || !s.token || !(s.expiry > Date.now())) return false;
+      if (s.kind === "device") return !!rec && rec.status === "active" && rec.deviceId === s.deviceId;
+      const legacy = SafeStorage.get(LEGACY_ID_KEY, null);
+      return s.kind === "legacy" && !!legacy && String(legacy.id) === String(s.id) && (!rec || rec.status === "pending");
+    }
+
+    openChannel() {
+      if (typeof BroadcastChannel === "undefined") return;
+      try {
+        this.channel = new BroadcastChannel(SESSION_CHANNEL);
+        this.channel.onmessage = (ev) => {
+          const m = ev.data || {};
+          if (m.t === "ask") {
+            if (this.authData && this.authData.expiry > Date.now()) this.post({ t: "token", session: this.authData });
+          } else if (m.t === "token" && m.session) {
+            if (m.session.kind === "device" || !this.lastHeard || this.lastHeard.kind !== "device") this.lastHeard = m.session;
+            if (this.askWaiter) this.askWaiter(m.session);
+            // An open tab moves on to the newer token of the same login.
+            const mine = this.authData;
+            if (mine && m.session.kind === mine.kind && m.session.id === mine.id &&
+                m.session.deviceId === mine.deviceId && m.session.expiry > mine.expiry) {
+              this.token = m.session.token;
+              this.authData = m.session;
+              this.writeSession(m.session);
+            }
+          } else if (m.t === "clear") {
+            // Logged out, or a mismatch, in another tab.
+            this.token = null;
+            this.authData = null;
+            this.lastHeard = null;
+            this.writeSession(null);
+            this.emit('authChanged', null);
+          }
+        };
+      } catch (err) {
+        this.channel = null;
       }
+    }
 
-      this.initPromise = (async () => {
-        const stored = this.getStoredAuth();
+    post(message) {
+      try { if (this.channel) this.channel.postMessage(message); } catch (err) { /* channel closed */ }
+    }
 
-        if (!stored) {
-          debugLog("🔒 No stored auth found");
-          return false;
-        }
+    // Ask the other open tabs for a token that `accept` takes; waits 150 ms
+    // at most. (A tab still on the old login may answer first.)
+    askOtherTabs(accept) {
+      if (!this.channel) return Promise.resolve(null);
+      return new Promise((resolve) => {
+        const done = (s) => { this.askWaiter = null; clearTimeout(timer); resolve(s); };
+        const timer = setTimeout(() => done(null), 150);
+        this.askWaiter = (s) => { if (accept(s)) done(s); };
+        this.post({ t: "ask" });
+      });
+    }
 
-        // Check if still valid
-        if (Date.now() < stored.expiry) {
-          this.token = stored.token;
-          this.authData = stored;
-          debugLog("✅ Using cached token for:", stored.id, stored.name);
-          return true;
-        }
+    async findSharedSession(rec) {
+      const here = this.readSession();
+      if (this.fits(here, rec)) return here;
+      return this.askOtherTabs((s) => this.fits(s, rec));
+    }
 
-        // Try to refresh
-        debugLog("🔄 Token expired, attempting refresh for:", stored.id, stored.name);
-        try {
-          const token = await this.requestToken(stored.id, stored.name);
-          this.saveAuth(token, stored.id, stored.name);
-          debugLog("🔄 Token refreshed successfully");
-          return true;
-        } catch (err) {
-          console.warn("⚠️ Auto refresh failed:", err);
-          // Forget the saved identity only when the server rejected it (unknown
-          // player, no longer in the alliance). A network blip, a server
-          // restart or a rate limit is no reason to make somebody log in
-          // again — and a player on vacation cannot; the next page load retries.
-          if ([400, 401, 403, 404].includes(err.status)) this.clearAuth();
-          return false;
-        }
-      })();
+    // One tab at a time asks the server for a token (Web Locks, where the
+    // browser has them); the others then take the token it announces.
+    locked(fn) {
+      const locks = typeof navigator !== "undefined" && navigator.locks;
+      return locks && locks.request ? locks.request("KoC_SR_LOGIN", fn) : fn();
+    }
 
+    // ---- start-up ----
+
+    // The old script kept its login, token included, in localStorage
+    // "KoC_SRAUTH". Remember only who it was for, and delete it.
+    migrateOldLogin() {
+      const old = SafeStorage.get(TOKEN_KEY, null);
+      if (old === null) return;
+      if (old && old.id && old.name && /^\d+$/.test(String(old.id)) && !SafeStorage.get(LEGACY_ID_KEY, null)) {
+        SafeStorage.set(LEGACY_ID_KEY, { id: String(old.id), name: String(old.name) });
+      }
+      SafeStorage.remove(TOKEN_KEY);
+    }
+
+    setState(state) {
+      this.state = state;
+      this.emit('stateChanged', state);
+    }
+
+    async saveDevice(rec) {
+      this.device = rec;
+      try { await SrDeviceStore.save(rec); } catch (err) { console.warn("⚠️ Could not save this browser's login record:", err); }
+    }
+
+    // Forget this browser's key and both logins.
+    async forgetDevice() {
+      this.device = null;
+      try { await SrDeviceStore.clear(); } catch (err) { /* nothing stored */ }
+      SafeStorage.remove(LEGACY_ID_KEY);
+      this.dropSession(true);
+    }
+
+    pendingCheckDue(rec, now = Date.now()) {
+      if (!rec) return false;
+      const since = now - (rec.lastCheckAt || 0);
+      if (rec.status === "pending") return !rec.codeExpired && since >= srPendingCheckDelay(rec, now);
+      if (rec.status === "suspended") return since >= 120e3;
+      return false;
+    }
+
+    // Check stored login, renew it, or work out why there is none.
+    // Resolves true when this tab has a token.
+    initialize() {
+      if (!this.initPromise) this.initPromise = this.start({});
       return this.initPromise;
     }
 
+    start(opts) {
+      return this.runInit(opts).catch((err) => {
+        console.warn("⚠️ SR login check failed:", err);
+        this.token = null;
+        this.authData = null;
+        this.state = { code: "offline" };
+        return false;
+      }).then((ok) => {
+        this.emit('stateChanged', this.state);
+        return ok;
+      });
+    }
+
+    async runInit({ force = false, checkNow = false } = {}) {
+      this.migrateOldLogin();
+      let rec = null;
+      try { rec = await SrDeviceStore.load(); } catch (err) { debugLog("Device store unavailable:", err); }
+      this.device = rec;
+      this.state = { code: "signed_out" };
+
+      // Stats-ID check, Command Center only (the one page that names you).
+      const page = srOnCommandCentre() ? findOwnIdentityOnPage() : null;
+      let legacy = SafeStorage.get(LEGACY_ID_KEY, null);
+      if (page && rec && String(rec.playerId) !== String(page.id)) {
+        return this.handleMismatch(rec, page);
+      }
+      if (page && legacy && String(legacy.id) !== String(page.id)) {
+        // The old login was for another account: never reuse it for this one.
+        SafeStorage.remove(LEGACY_ID_KEY);
+        this.dropSession(true);
+        legacy = null;
+      } else if (page && legacy && legacy.name !== page.name) {
+        legacy = { id: String(page.id), name: page.name };   // renamed in the game
+        SafeStorage.set(LEGACY_ID_KEY, legacy);
+      }
+
+      if (rec && rec.status === "active") {
+        const shared = force ? null : await this.findSharedSession(rec);
+        if (shared) {
+          this.adopt(shared, false);
+          this.state = { code: "active" };
+          return true;
+        }
+        const ok = await this.locked(async () => {
+          if (!force && this.fits(this.lastHeard, rec)) {   // another tab renewed while this one waited
+            this.adopt(this.lastHeard, false);
+            this.state = { code: "active" };
+            return true;
+          }
+          return this.deviceLogin(rec);
+        });
+        if (ok) return true;
+        rec = this.device;
+      } else if (rec && (this.pendingCheckDue(rec) || (checkNow && !rec.codeExpired && Date.now() - (rec.lastCheckAt || 0) >= 10e3))) {
+        if (await this.locked(() => this.deviceLogin(rec))) return true;
+        rec = this.device;
+      } else if (rec) {
+        this.state = { code: rec.status === "suspended" ? "suspended" : rec.codeExpired ? "code_expired" : "pending" };
+      }
+
+      // The old login: only with no browser record yet, or while it waits.
+      legacy = SafeStorage.get(LEGACY_ID_KEY, null);
+      if (legacy && (!rec || rec.status === "pending")) {
+        let session = force ? null : await this.findSharedSession(rec);
+        if (!session) {
+          session = await this.locked(async () => {
+            if (!force && this.fits(this.lastHeard, rec)) return this.lastHeard;
+            const made = await this.legacyLogin(legacy);
+            if (made) this.post({ t: "token", session: made });
+            return made;
+          });
+        }
+        if (session) {
+          this.adopt(session, false);
+          if (!rec) this.state = { code: "legacy" };
+          return true;
+        }
+      }
+
+      this.token = null;
+      this.authData = null;
+      this.writeSession(null);
+      return false;
+    }
+
+    // Trade a signature for a token. Sets this.state; true when logged in.
+    async deviceLogin(rec) {
+      let r = await SrDevice.session(rec);
+      if (r.status === 401) r = await SrDevice.session(rec);   // a challenge can go stale: once more
+      const err = r.body.error;
+      rec.lastCheckAt = Date.now();
+
+      if (r.status === 200 && r.body.accessToken) {
+        rec.status = "active";
+        delete rec.code; delete rec.codeExpiresAt; delete rec.codeExpired; delete rec.mismatch;
+        if (r.body.player && r.body.player.name) rec.playerName = r.body.player.name;
+        await this.saveDevice(rec);
+        this.adopt(this.makeSession(r.body.accessToken, rec.playerId, rec.playerName, "device", rec.deviceId), true);
+        this.state = { code: "active" };
+        return true;
+      }
+      if (r.status === 202) {
+        rec.status = "pending";
+        if (r.body.expiresAt) rec.codeExpiresAt = r.body.expiresAt;
+        await this.saveDevice(rec);
+        this.state = { code: "pending" };
+        return false;
+      }
+      if (r.status === 403 && err === "code_expired") {
+        rec.codeExpired = true;
+        await this.saveDevice(rec);
+        this.state = { code: "code_expired" };
+        return false;
+      }
+      if (r.status === 403 && err === "suspended") {
+        rec.status = "suspended";
+        await this.saveDevice(rec);
+        this.dropSession(true);
+        this.state = { code: "suspended" };
+        return false;
+      }
+      if (r.status === 403 && err === "revoked") {
+        // A revoked key never comes back; Login makes a new one.
+        await this.forgetDevice();
+        this.state = { code: "revoked" };
+        return false;
+      }
+      if (r.status === 403) {
+        await this.saveDevice(rec);
+        this.dropSession(true);
+        this.state = { code: "not_allowed", message: r.body.message };
+        return false;
+      }
+      if (r.status === 401 && rec.status !== "active") {
+        // The request is no longer on the server: rejected, or it ran out.
+        await this.forgetDevice();
+        this.state = { code: "gone" };
+        return false;
+      }
+      if (r.status === 426) {
+        this.state = { code: "outdated", message: r.body.message };
+        return false;
+      }
+      // 429, a server error, or a 401 for an approved browser: keep the key.
+      await this.saveDevice(rec);
+      this.state = { code: rec.status === "pending" ? "pending" : "offline", message: r.body.message };
+      return false;
+    }
+
+    // The page shows one player, this browser is registered to another
+    // (design doc §4.4). Stop, tell the server once, explain.
+    async handleMismatch(rec, page) {
+      this.dropSession(true);
+      SafeStorage.remove(LEGACY_ID_KEY);
+      const told = rec.mismatch && rec.mismatch.told && String(rec.mismatch.pageId) === String(page.id);
+      if (!told) {
+        let settled = false;
+        try {
+          const r = await SrDevice.mismatch(rec, page.id);
+          settled = r.status < 500 && r.status !== 429;   // anything else is retried on the next visit
+        } catch (err) { /* offline: retried on the next visit */ }
+        rec.mismatch = { pageId: String(page.id), pageName: page.name, at: Date.now(), told: settled };
+        rec.status = "suspended";
+        rec.lastCheckAt = Date.now();
+        await this.saveDevice(rec);
+      }
+      this.state = { code: "mismatch", deviceName: rec.playerName, pageName: page.name, pageId: String(page.id) };
+      return false;
+    }
+
+    // POST /auth/koc (the old login). Returns a session, or null. Forgets the
+    // saved identity only when the server rejected it: a network blip, a
+    // restart or a rate limit is no reason to make somebody log in again.
+    async legacyLogin(identity) {
+      try {
+        const token = await this.requestToken(identity.id, identity.name);
+        if (!token) return null;
+        return this.makeSession(token, identity.id, identity.name, "legacy", null);
+      } catch (err) {
+        console.warn("⚠️ Old login failed:", err);
+        if ([400, 401, 403, 404].includes(err.status)) SafeStorage.remove(LEGACY_ID_KEY);
+        return null;
+      }
+    }
+
     // POST /auth/koc and return the token. Throws an Error with .status on a
-    // non-2xx response.
+    // non-2xx response. Removed with the switch-off (#94).
     async requestToken(id, name) {
       const resp = await fetch(`${API_URL}/auth/koc`, {
         method: "POST",
@@ -1305,36 +1745,34 @@
       return data.token || data.accessToken;
     }
 
-    // Get current token (waits for init if needed). A page left open past the
-    // token's expiry refreshes here instead of sending a dead token.
-    async getToken() {
-      if (!this.initPromise) {
-        await this.initialize();
-      } else {
-        await this.initPromise;
+    // ---- tokens for API calls ----
+
+    // Run the login check again, once, however many callers ask at the same time.
+    renew(opts) {
+      if (!this.refreshPromise) {
+        this.refreshPromise = this.start(opts || {}).finally(() => { this.refreshPromise = null; });
+        this.initPromise = this.refreshPromise;
       }
+      return this.refreshPromise;
+    }
+
+    // Get current token (waits for init if needed). A page left open past the
+    // token's expiry renews here instead of sending a dead token.
+    async getToken() {
+      await this.initialize();
       if (this.token && this.authData && Date.now() >= this.authData.expiry) {
-        this.initPromise = null;
-        await this.initialize();
+        await this.renew({});
       }
       return this.token;
     }
 
-    // The server refused `rejectedToken` (401). Refresh once, shared by every
+    // The server refused `rejectedToken` (401). Renew once, shared by every
     // call that hit the same 401; if another call already replaced the token,
     // just use the new one. Returns true when there is a fresh token.
     async refreshAfter401(rejectedToken) {
       if (this.token && this.token !== rejectedToken) return true;
-      if (!this.refreshPromise) {
-        const stored = this.getStoredAuth();
-        if (stored) {
-          stored.expiry = 0; // force initialize() down the refresh path
-          SafeStorage.set(TOKEN_KEY, stored);
-        }
-        this.initPromise = null;
-        this.refreshPromise = this.initialize().finally(() => { this.refreshPromise = null; });
-      }
-      return this.refreshPromise;
+      if (!this.refreshPromise) this.dropSession(false);
+      return this.renew({ force: true });
     }
 
     // Check if authenticated
@@ -1343,66 +1781,130 @@
       return !!token;
     }
 
-    // Login with KoC credentials
+    // ---- the Login and Log out buttons ----
+
+    // Login, pressed in the Command Center box. Makes this browser's key,
+    // asks the server for a code, and leaves the old login running until an
+    // admin has approved the code.
     async login() {
+      if (this.busy) return;
+      this.busy = true;
       try {
-        let id = null;
-        let name = null;
+        const page = srOnCommandCentre() ? findOwnIdentityOnPage() : null;
+        if (!page) {
+          this.setState({ code: this.state.code, message: "Could not read your Stats ID and name. Open your Command Center and press Login there." });
+          return;
+        }
+        let rec = this.device;
+        const sameKey = !!rec && rec.status === "pending" && String(rec.playerId) === String(page.id) && !!rec.privateKey;
+        let keys = sameKey ? { privateKey: rec.privateKey, publicJwk: rec.publicJwk } : await SrDevice.newKey();
+        let r = await SrDevice.enroll(page, keys.publicJwk);
+        if (r.status === 403 && r.body.error === "revoked") {
+          keys = await SrDevice.newKey();
+          r = await SrDevice.enroll(page, keys.publicJwk);
+        }
+        debugLog("🔐 Login request answered:", r.status, r.body.error || r.body.status || "");
 
-        // Only trust the native User Info "Name" row — never arbitrary
-        // stats.php links (injected leaderboards poison the scrape).
-        const identity = findOwnIdentityOnPage();
-        if (identity) {
-          ({ id, name } = identity);
+        if (r.status === 426) {
+          this.setState({ code: "outdated", message: r.body.message });
+          return;
+        }
+        if (r.status === 403 && r.body.error === "suspended") {
+          this.setState({ code: "suspended" });
+          return;
+        }
+        if (r.status >= 500 || r.status === 400) {
+          this.setState({ code: this.state.code, message: r.body.message || "The Sweet Revenge server could not take the login. Try again shortly." });
+          return;
         }
 
-        // Fallback: previously verified identity from localStorage
-        if (!id) id = SafeStorage.get("KoC_MyId", null);
-        if (!name) name = SafeStorage.get("KoC_MyName", null);
-
-        if (!id || !name) {
-          throw new Error("Could not detect your KoC ID/Name — open your Command Center (base.php) and try again");
+        const enrolled = (r.status === 202 || r.status === 200) && !!r.body.deviceId;
+        if (enrolled) {
+          rec = {
+            v: 1,
+            deviceId: r.body.deviceId,
+            playerId: String(page.id),
+            playerName: page.name,
+            privateKey: keys.privateKey,
+            publicJwk: keys.publicJwk,
+            label: srBrowserLabel(),
+            status: r.status === 200 ? "active" : "pending",
+            code: r.body.code,
+            codeExpiresAt: r.body.expiresAt,
+            enrolledAt: Date.now(),
+            lastCheckAt: Date.now()
+          };
+          await this.saveDevice(rec);
         }
 
-        debugLog("🔍 Attempting login with:", { id, name });
+        // The old login keeps the script working meanwhile (A5).
+        SafeStorage.set(LEGACY_ID_KEY, { id: String(page.id), name: page.name });
 
-        const token = await this.requestToken(id, name);
-        this.saveAuth(token, id, name);
-
-        alert("✅ SR Login successful! Refreshing…");
-        location.reload();
+        const wasRunning = !!this.token;
+        if (enrolled && rec.status === "active") {
+          await this.deviceLogin(rec);
+        } else if (enrolled) {
+          this.state = { code: "pending" };
+        } else {
+          // 403 not_allowed, 429 too many requests.
+          const message = r.body.message || "The login was refused. Ask an admin.";
+          this.state = { code: r.status === 403 ? "not_allowed" : this.state.code, message };
+          if (!wasRunning) { try { sessionStorage.setItem(NOTICE_KEY, message); } catch (err) { /* no notice */ } }
+        }
+        if (wasRunning) this.emit('stateChanged', this.state);
+        else location.reload();   // start the features, as Login always has
       } catch (err) {
         ErrorHandler.log(ErrorHandler.LOG_LEVELS.ERROR, 'Login failed', err);
-        ErrorHandler.showUserError(null, err);
-        throw err;
+        this.setState({ code: this.state.code, message: "Could not reach the Sweet Revenge server. Try again shortly." });
+      } finally {
+        this.busy = false;
       }
     }
 
-    // Logout
-    logout() {
-      this.clearAuth();
-      this.emit('authChanged', null);
-      alert("Logged out.");
-      location.reload();
+    // Log out this browser: tell the server to end it, then delete the key.
+    async logout() {
+      if (this.busy) return;
+      this.busy = true;
+      try {
+        const rec = this.device;
+        if (rec && rec.status === "active") {
+          try {
+            const token = await this.getToken();
+            if (token && this.authData && this.authData.kind === "device") await SrDevice.revoke(token, "self");
+          } catch (err) { /* offline: the key is deleted below either way */ }
+        }
+        await this.forgetDevice();
+        this.emit('authChanged', null);
+        location.reload();
+      } finally {
+        this.busy = false;
+      }
     }
 
-    // Clear auth data
+    // This player's browsers (needs the device login).
+    async listDevices() {
+      const token = await this.getToken();
+      if (!token || !this.authData || this.authData.kind !== "device") return { status: 403, body: {} };
+      return SrDevice.list(token);
+    }
+
+    // Sign out one other browser by id, or "all" for every browser.
+    async revokeDevice(target) {
+      const token = await this.getToken();
+      if (!token || !this.authData || this.authData.kind !== "device") return { status: 403, body: {} };
+      const r = await SrDevice.revoke(token, target);
+      if (r.status === 200 && target === "all") {
+        await this.forgetDevice();
+        this.emit('authChanged', null);
+        location.reload();
+      }
+      return r;
+    }
+
+    // Clear auth data (this tab's token only; the browser's key stays).
     clearAuth() {
-      SafeStorage.remove(TOKEN_KEY);
-      this.token = null;
-      this.authData = null;
+      this.dropSession(false);
       this.initPromise = null;
-    }
-
-    // Show token info
-    showToken() {
-      const auth = this.getStoredAuth();
-      if (!auth) {
-        alert("❌ No token stored.");
-        return;
-      }
-      alert(`📜 Token Info:\n\nID: ${auth.id}\nName: ${auth.name}\nExpiry: ${new Date(auth.expiry).toLocaleString()}\n\nToken: ${auth.token.substring(0,40)}...`);
-      debugLog("📜 Full token object:", auth);
     }
 
     // Make authenticated API call with auto-retry
@@ -1556,6 +2058,213 @@
     }
   };
 
+  // ==================== SR LOGIN: Command Center box ====================
+  // The login box under the native User Info table on base.php (#92). It is
+  // drawn from auth.state and redrawn when that changes. Every piece of text
+  // goes in with textContent. Nothing in it links out of the game, and nothing
+  // in it sends the in-game message: the member does that by hand.
+
+  // Plain sentence for the ⚙ panel and the box: what pressing Login sends.
+  const SR_LOGIN_SENDS = 'Login sends your Stats ID, your name, a public key made in this browser and a browser label ("' +
+    srBrowserLabel() + '") to the Sweet Revenge server. The private half of the key never leaves this browser. Nothing is sent to the game.';
+
+  function srLoginStatusText() {
+    const s = auth.state || {};
+    const who = (auth.authData && auth.authData.name) || (auth.device && auth.device.playerName) || "";
+    switch (s.code) {
+      case "active": return `Logged in as ${who}.`;
+      case "legacy": return `Logged in as ${who} with the old login. This browser is not registered yet.`;
+      case "pending": return `Waiting for an admin to approve this browser for ${who}.`;
+      case "code_expired": return "The login code ran out before it was approved.";
+      case "mismatch": return "Stopped: this browser is registered to another account.";
+      case "suspended": return "This browser's login is suspended.";
+      case "revoked": return "This browser was signed out.";
+      case "gone": return "The login request is no longer waiting.";
+      case "not_allowed": return "This account is not approved to use the scripts.";
+      case "outdated": return "The script is too old to log in.";
+      case "offline": return "Could not reach the Sweet Revenge server.";
+      default: return "Not logged in.";
+    }
+  }
+
+  function srEl(tag, css, text) {
+    const e = document.createElement(tag);
+    if (css) e.style.cssText = css;
+    if (text !== undefined && text !== null) e.textContent = text;
+    return e;
+  }
+
+  function srBtn(label, onClick, primary) {
+    const b = srEl("button", "margin:4px 6px 0 0;padding:4px 10px;cursor:pointer;font:bold 12px Arial,sans-serif;border-radius:4px;border:1px solid " +
+      (primary ? "#4a7a3a;background:#2f5d22;color:#fff;" : "#555;background:#222;color:#ddd;"), label);
+    b.type = "button";
+    b.addEventListener("click", onClick);
+    return b;
+  }
+
+  // Looks like a link, is a button: it changes the box, it does not navigate.
+  function srLinkBtn(label, onClick) {
+    const b = srEl("button", "background:none;border:none;padding:0;margin:0;color:#8ab4f8;cursor:pointer;font:12px Arial,sans-serif;text-decoration:underline;", label);
+    b.type = "button";
+    b.addEventListener("click", onClick);
+    return b;
+  }
+
+  let srLoginPollTimer = null;
+  let srDevicesOpen = false;
+
+  function renderSrLoginBox() {
+    if (!onPage("base.php") || READ_ONLY_PAGE) return;
+    let box = document.getElementById("sr-login-box");
+    if (!box) {
+      box = srEl("div", "margin:6px 0;padding:8px 10px;background:#111;color:#ddd;border:1px solid #555;font:12px Arial,sans-serif;text-align:left;line-height:1.5;");
+      box.id = "sr-login-box";
+      box.setAttribute("data-koc-injected", "1");
+      const own = findOwnIdentityRow();
+      const table = own && own.row.closest("table");
+      if (table) table.insertAdjacentElement("afterend", box);
+      else document.body.prepend(box);
+    }
+    box.textContent = "";
+
+    const s = auth.state || { code: "signed_out" };
+    const rec = auth.device;
+    const page = findOwnIdentityOnPage();
+    const add = (node) => { box.appendChild(node); return node; };
+    const line = (text, css) => add(srEl("div", css || "", text));
+    const small = "color:#9aa3b2;font-size:11px;";
+    const warn = "color:#ffb74d;";
+    const loginBtn = (label) => add(srBtn(label, () => auth.login(), true));
+    const who = page ? `${page.name} (Stats ID ${page.id})` : "";
+
+    // A message carried over a reload (a refused Login), shown once.
+    let notice = s.message || null;
+    try {
+      const kept = sessionStorage.getItem(NOTICE_KEY);
+      if (kept) { notice = notice || kept; sessionStorage.removeItem(NOTICE_KEY); }
+    } catch (err) { /* no notice */ }
+
+    if (s.code === "active") {
+      // One status line.
+      const row = add(srEl("div"));
+      row.appendChild(srEl("span", "", `🔓 Sweet Revenge: logged in as ${(auth.authData && auth.authData.name) || (rec && rec.playerName) || ""} · `));
+      row.appendChild(srLinkBtn("devices", () => { srDevicesOpen = !srDevicesOpen; renderSrLoginBox(); }));
+      row.appendChild(srEl("span", "", " · "));
+      row.appendChild(srLinkBtn("log out", () => srConfirmLogout()));
+      if (srDevicesOpen) renderSrDevices(add(srEl("div", "margin-top:6px;")));
+    } else if (s.code === "pending" && rec) {
+      line("🔐 Sweet Revenge script login", "font-weight:bold;");
+      const p = add(srEl("div"));
+      p.appendChild(srEl("span", "", "Send this code in an in-game message to "));
+      p.appendChild(srEl("b", "", SR_APPROVER_NAME));
+      p.appendChild(srEl("span", "", ": "));
+      const code = srEl("span", "font:bold 15px Consolas,monospace;color:#fff;background:#000;border:1px solid #777;padding:1px 6px;letter-spacing:1px;user-select:all;white-space:nowrap;display:inline-block;", rec.code || "(code not saved)");
+      code.id = "sr-login-code";
+      p.appendChild(code);
+      line("This box logs you in once an admin has approved it. You only do this once for each browser.");
+      line("⚠ Only send a code that this box showed you. Never send a code that somebody else gave you.", warn);
+      if (rec.codeExpiresAt) line(`The code runs out ${new Date(rec.codeExpiresAt).toLocaleString()}.`, small);
+      if (auth.token) line("The script keeps working with the old login while you wait.", small);
+      const checked = rec.lastCheckAt ? `Last checked ${new Date(rec.lastCheckAt).toLocaleTimeString()}: still waiting.` : "Not checked yet.";
+      line(checked, small).id = "sr-login-checked";
+      add(srBtn("Check now", () => auth.renew({ checkNow: true })));
+      add(srBtn("Cancel", () => srConfirmLogout()));
+    } else if (s.code === "mismatch") {
+      line("⛔ Sweet Revenge script stopped", "font-weight:bold;color:#ff8a80;");
+      line(`This browser is registered to ${s.deviceName || "another player"}, but you are logged into ${s.pageName} in KoC. This has been recorded for the admins.`);
+      line("Two people who share a computer should each use their own browser profile.", small);
+      line(`If ${s.pageName} is now the only account played in this browser, you can register it again. It needs a new code and an admin's approval.`, small);
+      loginBtn(`Login as ${s.pageName}`);
+    } else if (s.code === "suspended") {
+      line("⛔ Sweet Revenge script login suspended", "font-weight:bold;color:#ff8a80;");
+      line("This browser's login was suspended, most likely because it was used with another account. Ask an admin to re-activate it.");
+    } else if (s.code === "outdated") {
+      line("⚠ Userscript is outdated. Please update.", "font-weight:bold;" + warn);
+      line("Update KoC Data Centre from your userscript manager, then reload this page.", small);
+    } else {
+      // signed_out, legacy, code_expired, revoked, gone, not_allowed, offline
+      line("🔐 Sweet Revenge script login", "font-weight:bold;");
+      if (s.code === "legacy") {
+        line(`Logged in as ${(auth.authData && auth.authData.name) || who} with the old login, which is being switched off.`);
+        line("Press Login to register this browser. You will get a code to send in an in-game message; the script keeps working while you wait.");
+      } else if (s.code === "code_expired") {
+        line("That code ran out before it was approved. Press Login for a new one.");
+      } else if (s.code === "revoked") {
+        line("This browser was signed out, from another of your browsers or by an admin. Press Login to register it again.");
+      } else if (s.code === "gone") {
+        line("That login request is no longer waiting: it was not approved, or it ran out. Press Login to ask again.");
+      } else if (s.code === "not_allowed") {
+        line("This account is not approved to use the scripts with the new login. Ask an admin.");
+        if (auth.token) line("The old login keeps working for now.", small);
+      } else if (s.code === "offline") {
+        line("Could not reach the Sweet Revenge server. Reload the page to try again.");
+      } else {
+        line(who ? `${who}: not logged in.` : "Not logged in.");
+      }
+      if (notice) { line(notice, warn); notice = null; }
+      if (s.code !== "offline" || !rec) {
+        if (page) loginBtn(s.code === "code_expired" ? "Login (new code)" : "Login");
+        else line("Could not read your Stats ID and name from this page.", warn);
+        line(SR_LOGIN_SENDS, small + "margin-top:4px;");
+      }
+      if (s.code === "legacy") add(srBtn("Log out", () => srConfirmLogout()));
+    }
+    if (notice) line(notice, warn);
+
+    // While a code waits for approval, look again now and then (see
+    // srPendingCheckDelay). Only this page does it, and only while it is open.
+    const waiting = !!rec && rec.status === "pending" && !rec.codeExpired;
+    if (waiting && !srLoginPollTimer) {
+      srLoginPollTimer = setInterval(() => {
+        if (document.hidden) return;
+        if (auth.pendingCheckDue(auth.device)) auth.renew({});
+      }, 5000);
+    } else if (!waiting && srLoginPollTimer) {
+      clearInterval(srLoginPollTimer);
+      srLoginPollTimer = null;
+    }
+  }
+
+  function srConfirmLogout() {
+    const rec = auth.device;
+    const msg = rec && rec.status === "active"
+      ? "Log out this browser?\n\nLogging in again needs a new code, sent in an in-game message and approved by an admin."
+      : rec ? "Cancel this login request and log out?" : "Log out?";
+    if (confirm(msg)) auth.logout();
+  }
+
+  // The member's own browsers: which ones are approved, when each was last
+  // used, and a way to sign one out.
+  async function renderSrDevices(holder) {
+    holder.textContent = "Loading your browsers…";
+    let r;
+    try { r = await auth.listDevices(); } catch (err) { r = { status: 0, body: {} }; }
+    holder.textContent = "";
+    if (r.status !== 200 || !Array.isArray(r.body.devices)) {
+      holder.appendChild(srEl("div", "color:#ffb74d;", "Could not load your browsers. Try again shortly."));
+      return;
+    }
+    holder.appendChild(srEl("div", "color:#9aa3b2;font-size:11px;", "Browsers registered to your account. Sign out any you do not recognise, and tell an admin."));
+    for (const d of r.body.devices) {
+      const row = srEl("div", "padding:3px 0;border-top:1px solid #333;");
+      const used = d.lastUsedAt ? `last used ${new Date(d.lastUsedAt).toLocaleString()}` : "never used";
+      const state = d.status === "active" ? "" : d.status === "pending" ? " · waiting for approval" : ` · ${d.status}`;
+      row.appendChild(srEl("span", "", `${d.label || "Browser"}${d.current ? " (this browser)" : ""} · ${used}${state} `));
+      if (!d.current) {
+        row.appendChild(srLinkBtn("sign out", async () => {
+          if (!confirm(`Sign out "${d.label || "Browser"}"? It will need a new code to log in again.`)) return;
+          await auth.revokeDevice(d.id);
+          renderSrLoginBox();
+        }));
+      }
+      holder.appendChild(row);
+    }
+    holder.appendChild(srBtn("Sign out of every browser", async () => {
+      if (!confirm("Sign out of every browser, this one included?\n\nEach will need a new code, approved by an admin, to log in again.")) return;
+      await auth.revokeDevice("all");
+    }));
+  }
+
   // ==================== STORAGE HELPERS ====================
 
   function getTivLog() {
@@ -1644,38 +2353,18 @@
     // Initialize authentication
     const isAuthenticated = await auth.initialize();
 
-    if (!isAuthenticated) {
-      // Show login UI only on base.php
-      if (location.pathname.includes("base.php")) {
-        const box = document.createElement("div");
-        box.style = "padding:12px;background:#111;color:#fff;border:1px solid #555;margin:12px;font-family:Arial;";
-
-        // Check if there's expired/invalid auth in storage
-        const storedAuth = auth.getStoredAuth();
-        const hasExpiredToken = storedAuth !== null;
-
-        box.innerHTML = `
-          <h2>🔒 KoC Data Centre Login</h2>
-          <p>You must log in with SR to enable the script.</p>
-          ${hasExpiredToken ? '<p style="color:#ff9800;"><strong>⚠️ Your session has expired. Please login again.</strong></p>' : ''}
-          <button id="srLoginBtn" style="padding:6px 12px;cursor:pointer;">🔐 Login to SR</button>
-          <button id="srShowTokenBtn" style="padding:6px 12px;margin-left:10px;cursor:pointer;">Show Token</button>
-          ${hasExpiredToken ? '<button id="srClearAuthBtn" style="padding:6px 12px;margin-left:10px;cursor:pointer;background:#dc2626;color:white;border:none;border-radius:4px;">Clear Session</button>' : ''}
-        `;
-        document.body.prepend(box);
-
-        document.getElementById("srLoginBtn").addEventListener("click", () => auth.login());
-        document.getElementById("srShowTokenBtn").addEventListener("click", () => auth.showToken());
-        if (hasExpiredToken) {
-          document.getElementById("srClearAuthBtn").addEventListener("click", () => {
-            auth.clearAuth();
-            alert("✅ Session cleared. Click 'Login to SR' to authenticate again.");
-            location.reload();
-          });
-        }
-      } else {
-        console.warn("🔒 Data Centre disabled — not logged in.");
+    // The login box lives on the Command Center, logged in or not (#92).
+    if (onPage("base.php") && !READ_ONLY_PAGE) {
+      try {
+        renderSrLoginBox();
+        auth.on('stateChanged', () => renderSrLoginBox());
+      } catch (err) {
+        console.warn("⚠️ Could not draw the SR login box:", err);
       }
+    }
+
+    if (!isAuthenticated) {
+      console.warn("🔒 Data Centre disabled — not logged in (" + auth.state.code + ").");
       return false; // Stop initialization
     }
 
@@ -2220,9 +2909,11 @@
       authBtn.addEventListener("click", async () => {
         const isAuthed = auth.getStoredAuth() !== null;
         if (isAuthed) {
-          auth.logout();
-        } else {
+          srConfirmLogout();
+        } else if (onPage("base.php")) {
           await auth.login();
+        } else {
+          alert("Open your Command Center to log in.");
         }
       });
 
@@ -13498,6 +14189,23 @@
     masterRow.appendChild(masterCb);
     masterRow.appendChild(masterLabel);
     body.appendChild(masterRow);
+
+    // Script login: where it is, and what it sends (#92)
+    const loginInfo = document.createElement('div');
+    loginInfo.style.cssText = 'padding:8px 12px;border-bottom:1px solid #3a4150;font-size:11px;line-height:1.5;';
+    const loginHead = document.createElement('div');
+    loginHead.innerHTML = '<b style="color:#e8edf5;">Script login</b>';
+    const loginNow = document.createElement('span');
+    loginNow.style.cssText = 'color:#8b94a7;';
+    loginNow.textContent = ' — ' + srLoginStatusText();
+    loginHead.appendChild(loginNow);
+    const loginWhat = document.createElement('div');
+    loginWhat.style.cssText = 'color:#8b94a7;';
+    loginWhat.textContent = 'Log in and out from the box under User Info in your Command Center. ' + SR_LOGIN_SENDS +
+      ' The server answers with a code that you send to ' + SR_APPROVER_NAME + ' in an in-game message yourself; the script never sends it for you.';
+    loginInfo.appendChild(loginHead);
+    loginInfo.appendChild(loginWhat);
+    body.appendChild(loginInfo);
 
     // Feature groups
     const groups = [];
