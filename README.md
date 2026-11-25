@@ -6,7 +6,7 @@ Userscripts for [Kings of Chaos](https://www.kingsofchaos.com), made for the Swe
 
 ## KoC Data Centre
 
-**Version:** 3.0.1
+**Version:** 3.0.2
 
 [Install KoC Data Centre](https://raw.githubusercontent.com/Trevo88423/koc-userscripts/main/userscripts/KoC-DataCentre.user.js)
 

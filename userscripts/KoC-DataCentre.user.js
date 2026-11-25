@@ -1,12 +1,14 @@
 // ==UserScript==
 // @name         KoC Data Centre
 // @namespace    trevo88423
-// @version      3.0.1
+// @version      3.0.2
 // @description  Sweet Revenge alliance tool for Kings of Chaos. Adds display panels and calculators to game pages, and can share the stats you see with the Sweet Revenge roster. Every feature and every data share can be switched off from ⚙ Data Centre in the sidebar.
 // @author       Blackheart
 // @match        https://www.kingsofchaos.com/*
+// @exclude      https://*.kingsofchaos.com/login.php*
 // @exclude      https://*.kingsofchaos.com/confirm.login.php*
-// @exclude      https://*.kingsofchaos.com/confirm.login.php
+// @exclude      https://*.kingsofchaos.com/
+// @exclude      https://*.kingsofchaos.com/index.php*
 // @exclude      https://*.kingsofchaos.com/security.php*
 // @exclude      https://*.kingsofchaos.com/error.php*
 // @exclude      https://*.kingsofchaos.com/recruit.php*
@@ -59,7 +61,7 @@
   // ==================== VERSION CHECK ====================
   // Check if this script version is allowed to run
   const SCRIPT_NAME = 'koc-data-centre';
-  const SCRIPT_VERSION = '3.0.1'; // Must match @version above
+  const SCRIPT_VERSION = '3.0.2'; // Must match @version above
   const API_URL = "https://koc-roster-api-production.up.railway.app";   // the Sweet Revenge server
   // What the API said about the public release: { latestVersion, updateUrl,
   // isLatest }, or null when it could not say. The sidebar box and the ⚙ panel
