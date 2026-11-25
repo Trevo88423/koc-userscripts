@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         KoC Data Centre
 // @namespace    trevo88423
-// @version      3.0.0
+// @version      3.0.1
 // @description  Sweet Revenge alliance tool for Kings of Chaos. Adds display panels and calculators to game pages, and can share the stats you see with the Sweet Revenge roster. Every feature and every data share can be switched off from ⚙ Data Centre in the sidebar.
 // @author       Blackheart
 // @match        https://www.kingsofchaos.com/*
@@ -59,7 +59,7 @@
   // ==================== VERSION CHECK ====================
   // Check if this script version is allowed to run
   const SCRIPT_NAME = 'koc-data-centre';
-  const SCRIPT_VERSION = '3.0.0'; // Must match @version above
+  const SCRIPT_VERSION = '3.0.1'; // Must match @version above
   const API_URL = "https://koc-roster-api-production.up.railway.app";   // the Sweet Revenge server
   // What the API said about the public release: { latestVersion, updateUrl,
   // isLatest }, or null when it could not say. The sidebar box and the ⚙ panel
@@ -166,7 +166,11 @@
   const SESSION_KEY = "KoC_SRSESSION";           // sessionStorage: the current token, this tab only
   const SESSION_CHANNEL = "KoC_SR_SESSION";      // BroadcastChannel: open tabs pass the token to each other
   const NOTICE_KEY = "KoC_SRLoginNotice";        // sessionStorage: one message kept across the reload after Login
-  const SR_APPROVER_NAME = "Blackheart-SR";      // whose in-game inbox the login codes go to
+  // Whose in-game inbox the login codes can go to. Any one of them will do: the
+  // server lets any Sweet Revenge admin approve any code, so this list is only
+  // what the login box tells members. Two, so a login never waits on one person.
+  const SR_APPROVER_NAMES = ["Blackheart-SR", "Tobi-SR"];
+  const SR_APPROVERS_TEXT = SR_APPROVER_NAMES.join(" or ");
   const MAP_KEY = "KoC_NameMap";
 
   // Authentication & API
@@ -2063,7 +2067,10 @@
       line("🔐 Sweet Revenge script login", "font-weight:bold;");
       const p = add(srEl("div"));
       p.appendChild(srEl("span", "", "Send this code in an in-game message to "));
-      p.appendChild(srEl("b", "", SR_APPROVER_NAME));
+      SR_APPROVER_NAMES.forEach((name, i) => {
+        if (i) p.appendChild(srEl("span", "", " or "));
+        p.appendChild(srEl("b", "", name));
+      });
       p.appendChild(srEl("span", "", ": "));
       const code = srEl("span", "font:bold 15px Consolas,monospace;color:#fff;background:#000;border:1px solid #777;padding:1px 6px;letter-spacing:1px;user-select:all;white-space:nowrap;display:inline-block;", rec.code || "(code not saved)");
       code.id = "sr-login-code";
@@ -3899,15 +3906,9 @@
       return false;
     }
 
-    // Build attack log payload.
-    // fresh: whether this page view is the landing straight after the battle
-    // (battleReportJustFought, the same answer the mission history's `at`
-    // goes by) — true; false for a report opened later (from the Attack Log,
-    // by a reload or Back / Forward); null when the browser cannot say. The
-    // server takes the stolen gold off the target's current gold estimate at
-    // a battle's first sighting; a report first opened days later would take
-    // it off today's estimate, long after that gold was gone. This tells the
-    // server which it is.
+    // Build attack log payload: what the report itself shows. (Up to v3.0.0
+    // this also sent `fresh`, so the server could take the stolen gold off
+    // the target's gold estimate once; that estimate is gone, #138.)
     const attackLog = {
       attackId,
       attackerId: myId,
@@ -3919,8 +3920,7 @@
       enemyCasualties,
       casualties,
       yourArmy,
-      enemyArmy,
-      fresh: battleReportJustFought(attackId)
+      enemyArmy
     };
 
     debugLog("📊 Attack log collected:", attackLog);
@@ -12265,7 +12265,7 @@
     const loginWhat = document.createElement('div');
     loginWhat.style.cssText = 'color:#8b94a7;';
     loginWhat.textContent = 'Log in and out from the box under User Info in your Command Center. ' + SR_LOGIN_SENDS +
-      ' The server answers with a code that you send to ' + SR_APPROVER_NAME + ' in an in-game message yourself; the script never sends it for you.';
+      ' The server answers with a code that you send to ' + SR_APPROVERS_TEXT + ' in an in-game message yourself; the script never sends it for you.';
     loginInfo.appendChild(loginHead);
     loginInfo.appendChild(loginWhat);
     body.appendChild(loginInfo);
