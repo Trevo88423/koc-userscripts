@@ -6,7 +6,7 @@ Userscripts for [Kings of Chaos](https://www.kingsofchaos.com), made for the Swe
 
 ## KoC Data Centre
 
-**Version:** 3.0.0
+**Version:** 3.0.1
 
 [Install KoC Data Centre](https://raw.githubusercontent.com/Trevo88423/koc-userscripts/main/userscripts/KoC-DataCentre.user.js)
 
@@ -72,7 +72,7 @@ With both off, the script only shows things on your own pages. The only requests
 
 The Command Center has a Sweet Revenge login box under User Info:
 1. Press **Login**. The box shows a code.
-2. Send that code to Blackheart-SR in an in-game message yourself.
+2. Send that code to Blackheart-SR or Tobi-SR in an in-game message yourself.
 3. The box logs you in once an admin has approved it.
 
 You do this once per browser. Login sends your Stats ID, your name and a key made in your browser. It never asks for your game password.

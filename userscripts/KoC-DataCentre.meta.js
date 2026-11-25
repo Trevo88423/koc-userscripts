@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         KoC Data Centre
 // @namespace    trevo88423
-// @version      3.0.0
+// @version      3.0.1
 // @description  Sweet Revenge alliance tool for Kings of Chaos. Adds display panels and calculators to game pages, and can share the stats you see with the Sweet Revenge roster. Every feature and every data share can be switched off from ⚙ Data Centre in the sidebar.
 // @author       Blackheart
 // @match        https://www.kingsofchaos.com/*
