@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         KoC Data Centre
 // @namespace    trevo88423
-// @version      3.0.2
+// @version      3.0.3
 // @description  Sweet Revenge alliance tool for Kings of Chaos. Adds display panels and calculators to game pages, and can share the stats you see with the Sweet Revenge roster. Every feature and every data share can be switched off from ⚙ Data Centre in the sidebar.
 // @author       Blackheart
 // @match        https://www.kingsofchaos.com/*
@@ -61,7 +61,7 @@
   // ==================== VERSION CHECK ====================
   // Check if this script version is allowed to run
   const SCRIPT_NAME = 'koc-data-centre';
-  const SCRIPT_VERSION = '3.0.2'; // Must match @version above
+  const SCRIPT_VERSION = '3.0.3'; // Must match @version above
   const API_URL = "https://koc-roster-api-production.up.railway.app";   // the Sweet Revenge server
   // What the API said about the public release: { latestVersion, updateUrl,
   // isLatest }, or null when it could not say. The sidebar box and the ⚙ panel
@@ -9373,11 +9373,16 @@
   // an estimate of the gold on hand right now: the last gold amount the game
   // showed you, plus the income earned since then.
   //
-  //   estimate = G0 + income·t + ½·g·spm·t²      (1 game turn = 1 minute)
+  //   estimate = G0 + income·n + g·spm·n(n−1)/2
+  //     n      = turns since the reading: server-minute boundaries (:00 on the
+  //              Server Time clock) crossed between the page that showed G0 and now
   //     G0     = gold on hand at the last reading (sidebar, Command Centre or Armory)
   //     income = the Command Centre's "Projected Income (in 1 min)"; if that has
   //              never been read, an estimate from soldier counts
   //     g, spm = gold per new soldier per turn, and "Soldier Per Turn"
+  //
+  // The number steps once per turn, on the same tick as the sidebar's Server
+  // Time clock, instead of creeping up every second.
   //
   // Readings come only from pages the player opened. Nothing is sent anywhere,
   // nothing on the game page is changed or pressed, and the box gives no advice.
@@ -9425,10 +9430,22 @@
     return [...table.rows].find(r => r.cells[0] && labelRegex.test(r.cells[0].textContent.trim())) || null;
   }
 
-  // Gold on hand (the vault is kept apart and never added in).
+  // Server clock − this computer's clock, in ms (0 until learned).
+  let fundsClockOffsetMs = 0;
+
+  // The Server Time this page was drawn with (UTC since Era 24), in epoch ms, or null.
+  function fundsPageServerMs() {
+    const s = typeof PAGE_KOC_TIME === 'string' ? PAGE_KOC_TIME : null;
+    const m = s && s.match(/^(\d{4})-(\d{2})-(\d{2}) (\d{2}):(\d{2}):(\d{2})$/);
+    return m ? Date.UTC(+m[1], +m[2] - 1, +m[3], +m[4], +m[5], +m[6]) : null;
+  }
+
+  // Gold on hand (the vault is kept apart and never added in). serverMs is the
+  // page's Server Time: the gold shown is the gold as of that moment.
   function fundsSaveReading(gold, source) {
     if (gold === null || gold === undefined) return;
-    fundsSet('gold_reading', { gold, ts: new Date().toISOString(), source });
+    const serverMs = fundsPageServerMs();
+    fundsSet('gold_reading', { gold, ts: new Date().toISOString(), serverMs, source });
   }
 
   // Sidebar "Gold:" cell, on any page with the left menu. Large amounts are
@@ -9480,11 +9497,16 @@
     if (personnel) fundsSet('calibration', { ...fundsGet('calibration', {}), ...personnel });
   }
 
-  function fundsEstimate(nowMs = Date.now()) {
+  // nowServerMs: the Server Time now, in epoch ms. Turns land on the server
+  // minute, so the estimate counts whole minutes crossed since the reading.
+  function fundsEstimate(nowServerMs = Date.now() + fundsClockOffsetMs) {
     const reading = fundsGet('gold_reading', null);
     if (!reading) return null;
     const cal = fundsGet('calibration', null) || {};
-    const minutes = Math.max(0, (nowMs - new Date(reading.ts).getTime()) / 60000);
+    const readMs = typeof reading.serverMs === 'number' ? reading.serverMs
+      : new Date(reading.ts).getTime() + fundsClockOffsetMs;   // readings saved before 3.0.3
+    const turns = Math.max(0, Math.floor(nowServerMs / 60000) - Math.floor(readMs / 60000));
+    const nextTurnSec = 60 - Math.floor((((nowServerMs % 60000) + 60000) % 60000) / 1000);
     const spm = cal.spm || 0;
 
     let income = (cal.goldPerMin !== null && cal.goldPerMin !== undefined) ? cal.goldPerMin
@@ -9498,16 +9520,17 @@
       income += FUNDS_GOLD_PER_NEW_SOLDIER * spm * ageMin;
     }
 
+    // Soldiers born on a turn earn from the next one: Σ(k−1) for k = 1..n.
     const gold = income === null ? reading.gold
-      : reading.gold + income * minutes + 0.5 * FUNDS_GOLD_PER_NEW_SOLDIER * spm * minutes * minutes;
-    return { gold: Math.round(gold), income, reading };
+      : reading.gold + income * turns + FUNDS_GOLD_PER_NEW_SOLDIER * spm * turns * (turns - 1) / 2;
+    return { gold: Math.round(gold), income, reading, turns, nextTurnSec };
   }
 
-  function fundsPaint() {
+  function fundsPaint(nowServerMs) {
     const goldEl = document.getElementById('koc-funds-gold');
     const subEl = document.getElementById('koc-funds-sub');
     if (!goldEl || !subEl) return;
-    const est = fundsEstimate();
+    const est = fundsEstimate(nowServerMs);
     if (!est) {
       goldEl.textContent = '???';
       subEl.textContent = 'Open your Command Centre once to start the estimate.';
@@ -9516,7 +9539,27 @@
     goldEl.textContent = fundsFormatGold(est.gold);
     goldEl.title = est.gold.toLocaleString() + ' gold (estimate)';
     subEl.textContent = `${fundsFormatGold(est.reading.gold)} read ${fundsFormatAgo(est.reading.ts)} (${est.reading.source})` +
-      (est.income === null ? ' · no income figure yet: open your Command Centre' : ` + ${fundsFormatGold(est.income)}/min income`);
+      (est.income === null ? ' · no income figure yet: open your Command Centre'
+        : ` + ${fundsFormatGold(est.income)}/turn × ${est.turns} · next turn in ${est.nextTurnSec}s`);
+  }
+
+  // Repaint on the sidebar clock's own tick (the game's era countdown, as the
+  // Server Time clock does), so the number steps on the same second the clock
+  // shows :00. No countdown on the page: a local 1 s timer, offset by the
+  // page's Server Time.
+  function fundsStartTicking() {
+    const pageMs = fundsPageServerMs();
+    if (pageMs !== null) fundsClockOffsetMs = pageMs - Date.now();
+    const span = typeof findEraCountdown === 'function' ? findEraCountdown() : null;
+    const end = span ? +span.getAttribute('data-end') : 0;
+    const following = end && onGameTick((r) => {
+      const serverMs = (end - r) * 1000;
+      fundsClockOffsetMs = serverMs - Date.now();
+      fundsPaint(serverMs);
+    });
+    if (following) return;
+    fundsPaint();
+    setInterval(() => fundsPaint(), 1000);   // repaints the number only; reads and sends nothing
   }
 
   function fundsShowOnArmory() {
@@ -9537,8 +9580,7 @@
       '<div id="koc-funds-sub" style="font-weight:normal;font-size:11px;margin-top:3px;"></div>' +
       '</th></tr></tbody>';
     anchor.parentNode.insertBefore(box, anchor);
-    fundsPaint();
-    setInterval(fundsPaint, 1000);   // repaints the number only; reads and sends nothing
+    fundsStartTicking();
   }
 
   // ==================== SABOTAGE TRACKER (attack.php) ====================
