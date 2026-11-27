@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         KoC Data Centre
 // @namespace    trevo88423
-// @version      3.0.3
+// @version      3.1.0
 // @description  Sweet Revenge alliance tool for Kings of Chaos. Adds display panels and calculators to game pages, and can share the stats you see with the Sweet Revenge roster. Every feature and every data share can be switched off from ⚙ Data Centre in the sidebar.
 // @author       Blackheart
 // @match        https://www.kingsofchaos.com/*
@@ -61,7 +61,7 @@
   // ==================== VERSION CHECK ====================
   // Check if this script version is allowed to run
   const SCRIPT_NAME = 'koc-data-centre';
-  const SCRIPT_VERSION = '3.0.3'; // Must match @version above
+  const SCRIPT_VERSION = '3.1.0'; // Must match @version above
   const API_URL = "https://koc-roster-api-production.up.railway.app";   // the Sweet Revenge server
   // What the API said about the public release: { latestVersion, updateUrl,
   // isLatest }, or null when it could not say. The sidebar box and the ⚙ panel
@@ -252,7 +252,7 @@
     { id: 'inactives', name: 'Inactive Accounts',
       desc: 'When you open the Inactive Accounts page: who is on vacation, since when, and who has been deleted.' },
     { id: 'competitions', name: 'Competitions',
-      desc: 'For each running competition you take part in: your attack missions, gold stolen, experience, turns and gold on hand, and your team choice when you pick one.' },
+      desc: 'Only when you press a button on a competition panel: that you joined or left the competition, and your team choice when you pick one. No stats are sent: competitions are scored by the server from the official alliance logs.' },
     { id: 'alt-watch-flags', name: 'Alt Watch flags',
       desc: 'Only when you press Save to Alt Watch on a stats page: the flag you chose and your note.' }
   ];
@@ -7393,63 +7393,23 @@
     }
   }
 
-  // ==================== SLAYING COMPETITION TRACKING ====================
+  // ==================== SLAYING COMPETITIONS ====================
 
   /**
-   * Competition tracking system - tracks attack missions and gold stolen
-   * Supports individual and team competitions
+   * Every competition is scored by the server from the official Alliance API
+   * logs (#152, #165). The script reads nothing from game pages for them and
+   * sends only the member's own Join / Leave (and team choice). Panels and
+   * leaderboards are drawn on the Command Centre.
    */
 
-  const COMP_SETTINGS_PREFIX = "KoC_CompSettings"; // Per-competition settings
-  const COMP_STATS_KEY_PREFIX = "KoC_CompStats"; // Cache stats across pages (per competition)
-  const COMP_LAST_SUBMIT_PREFIX = "KoC_CompLastSubmit"; // Per-competition submission tracking
+  // Keys the self-reported competitions (3.0.x and older) kept in
+  // localStorage. Nothing writes them any more; they are removed on sight.
+  const LEGACY_COMP_KEY_PREFIXES = ["KoC_CompSettings", "KoC_CompStats", "KoC_CompLastSubmit"];
 
-  // Competition settings storage
-  function getCompSettings(competitionId) {
-    if (!competitionId) return {};
-    const key = `${COMP_SETTINGS_PREFIX}_${competitionId}`;
-    try { return JSON.parse(localStorage.getItem(key) || "{}"); }
-    catch { return {}; }
-  }
-
-  function saveCompSettings(competitionId, settings) {
-    if (!competitionId) return;
-    const key = `${COMP_SETTINGS_PREFIX}_${competitionId}`;
-    localStorage.setItem(key, JSON.stringify(settings));
-  }
-
-  function getCompStats(competitionId) {
-    if (!competitionId) return {};
-    const key = `${COMP_STATS_KEY_PREFIX}_${competitionId}`;
-    try { return JSON.parse(localStorage.getItem(key) || "{}"); }
-    catch { return {}; }
-  }
-
-  function saveCompStats(competitionId, stats) {
-    if (!competitionId) return;
-    const key = `${COMP_STATS_KEY_PREFIX}_${competitionId}`;
-    localStorage.setItem(key, JSON.stringify(stats));
-  }
-
-  function clearOldCompData(activeCompIds) {
-    // Clear stats, settings, and submission tracking for competitions not in activeCompIds
-    const keys = Object.keys(localStorage);
-    const activeIdSet = new Set(activeCompIds.map(id => String(id)));
-
-    for (const key of keys) {
-      // Check if it's a competition-related key
-      if (key.startsWith(COMP_STATS_KEY_PREFIX) ||
-          key.startsWith(COMP_SETTINGS_PREFIX) ||
-          key.startsWith(COMP_LAST_SUBMIT_PREFIX)) {
-
-        // Extract competition ID from key
-        const parts = key.split('_');
-        const compId = parts[parts.length - 1];
-
-        // If this competition is not in the active list, remove it
-        if (!activeIdSet.has(compId)) {
-          localStorage.removeItem(key);
-        }
+  function clearLegacyCompData() {
+    for (const key of Object.keys(localStorage)) {
+      if (LEGACY_COMP_KEY_PREFIXES.some(prefix => key.startsWith(prefix + "_"))) {
+        localStorage.removeItem(key);
       }
     }
   }
@@ -7481,78 +7441,34 @@
     return parseKocNumber(parts[1]) || null;
   }
 
-  // Stat extraction functions
-  function extractAttackMissions() {
-    // Look for "Attack Missions" on rewards.php in the "Your Actions" table
-    const cells = document.querySelectorAll('td[align="left"]');
-
-    for (const cell of cells) {
-      if (cell.textContent.includes('Attack Missions')) {
-        const font = cell.querySelector('font[color="goldenrod"]');
-        if (font) {
-          const match = font.textContent.match(/^(\d+)\//);
-          if (match) {
-            return parseInt(match[1], 10);
-          }
-        }
-      }
-    }
-    return null;
+  // apiCall returns the parsed body even for 4xx answers, so a "not joined"
+  // 404 or a refused join comes back as { error: ... }. Only a real row counts.
+  function isRealCompEntry(entry) {
+    return !!entry && typeof entry === "object" && !Array.isArray(entry) && !entry.error;
   }
 
-  function extractGoldStolen() {
-    // Look for "Gold Stolen By You This Era" on base.php
-    const rows = [...document.querySelectorAll("tr")];
-    for (const row of rows) {
-      const text = row.innerText;
-      if (text.includes("Gold Stolen By You This Era")) {
-        const match = text.match(/Gold Stolen By You This Era\s+([\d,]+)/);
-        if (match) {
-          return parseInt(match[1].replace(/,/g, ""), 10);
-        }
-      }
-    }
-    return null;
+  function isJoinedComp(competition) {
+    const entry = myCompEntries.get(competition?.id);
+    return isRealCompEntry(entry) && entry.enabled === true;
   }
 
-  function extractCompCurrentStats(competitionId) {
-    const cached = getCompStats(competitionId);
+  // Names for the competition's scoring_type (the leaderboard's `metric`).
+  // Unknown types still show, title-cased, so a new server metric needs no
+  // script release.
+  const COMP_METRIC_LABELS = {
+    attacks: "⚔️ Attacks",
+    gold: "💰 Gold",
+    precision: "🎯 Precision",
+    ironclad: "🛡️ Ironclad",
+    heavy_hitter: "💥 Heavy Hitter",
+    slayer: "🗡️ Slayer",
+    hostages: "⛓️ Hostage Hunter"
+  };
 
-    // Try to get from current page
-    let attackMissions = extractAttackMissions();
-    let goldStolenEra = extractGoldStolen();
-
-    // If not found on current page, use cached values
-    if (attackMissions === null) attackMissions = cached.attackMissions || null;
-    if (goldStolenEra === null) goldStolenEra = cached.goldStolenEra || null;
-
-    // Update cache if we found new values (with individual timestamps)
-    if (attackMissions !== null || goldStolenEra !== null) {
-      const now = Date.now();
-      const updated = {
-        attackMissions: attackMissions !== null ? attackMissions : cached.attackMissions,
-        goldStolenEra: goldStolenEra !== null ? goldStolenEra : cached.goldStolenEra,
-        attackMissionsTimestamp: attackMissions !== null ? now : cached.attackMissionsTimestamp,
-        goldStolenTimestamp: goldStolenEra !== null ? now : cached.goldStolenTimestamp,
-        lastUpdate: now
-      };
-      saveCompStats(competitionId, updated);
-    }
-
-    const experience = getSidebarValue("Experience");
-    const turns = getSidebarValue("Turns");
-    const gold = getSidebarValue("Gold");
-
-    return { experience, turns, gold, attackMissions, goldStolenEra };
-  }
-
-  // Check if both stats are fresh (captured within threshold seconds of each other)
-  function areCompStatsFresh(cached, thresholdSeconds = 30) {
-    if (!cached.attackMissionsTimestamp || !cached.goldStolenTimestamp) {
-      return false;
-    }
-    const timeDiff = Math.abs(cached.attackMissionsTimestamp - cached.goldStolenTimestamp);
-    return timeDiff <= (thresholdSeconds * 1000);
+  function compMetricLabel(metric) {
+    const key = String(metric || "attacks");
+    if (COMP_METRIC_LABELS[key]) return COMP_METRIC_LABELS[key];
+    return key.replace(/_/g, " ").replace(/\b\w/g, c => c.toUpperCase());
   }
 
   // Active competitions
@@ -7569,14 +7485,13 @@
 
     activeCompetitions = Array.isArray(comps) ? comps : [];
 
-    // Clear old competition data from localStorage
-    const activeIds = activeCompetitions.map(c => c.id);
-    clearOldCompData(activeIds);
+    // Remove what the old self-reported competitions kept in localStorage
+    clearLegacyCompData();
 
     // Load entries for each competition
     for (const comp of activeCompetitions) {
       const entry = await auth.apiCall("read", `competitions/${comp.id}/my-entry`);
-      if (entry) {
+      if (isRealCompEntry(entry)) {
         myCompEntries.set(comp.id, entry);
       }
     }
@@ -7587,7 +7502,7 @@
   // Team management
   async function joinCompTeam(competitionId, teamId) {
     const result = await auth.apiCall("competitions", `competitions/${competitionId}/join-team`, { team_id: teamId });
-    if (result) {
+    if (isRealCompEntry(result)) {
       myCompEntries.set(competitionId, result);
       return true;
     }
@@ -7598,66 +7513,27 @@
     return await auth.apiCall("read", `competitions/${competitionId}/teams`);
   }
 
-  // Submit stats
-  async function submitCompStats(competition) {
-    if (!competition) {
-      debugLog('⚠️ submitCompStats called with no competition');
-      return;
+  // Join / leave a competition (#152, #154). Joining is opt-in: nothing is
+  // sent until the member presses Join, and joining is what puts their name
+  // on the standings. Returns { ok, message }.
+  async function setCompJoined(competition, join) {
+    if (!competition) return { ok: false, message: "No competition." };
+    if (!netAllowed("competitions")) {
+      return { ok: false, message: 'Not sent: "Send data" or the "Competitions" share is off in the ⚙ Data Centre panel.' };
     }
 
-    const settings = getCompSettings(competition.id);
+    const hasEntry = isRealCompEntry(myCompEntries.get(competition.id));
+    const result = (join && !hasEntry)
+      ? await auth.apiCall("competitions", `competitions/${competition.id}/join`, {})
+      : await auth.apiCall("competitions", `competitions/${competition.id}/toggle`, { enabled: !!join });
 
-    // Check if we're enabled
-    if (settings.enabled === false) {
-      debugLog(`ℹ️ Competition "${competition.name}" tracking is disabled`);
-      return;
+    if (isRealCompEntry(result)) {
+      // /toggle may answer with the row or a bare ack; keep a row either way.
+      const prev = myCompEntries.get(competition.id) || {};
+      myCompEntries.set(competition.id, { ...prev, ...result, enabled: result.enabled !== undefined ? result.enabled : !!join });
+      return { ok: true, message: join ? "You joined. You are scored from the competition start." : "You left. Your name is off the standings." };
     }
-
-    const stats = extractCompCurrentStats(competition.id);
-
-    // Only require attack missions for submission
-    if (stats.attackMissions === null) {
-      debugLog(`⚠️ Could not extract Attack Missions for: ${competition.name}`);
-      return;
-    }
-
-    try {
-      debugLog(`📤 Submitting stats for competition "${competition.name}"`, stats);
-      const result = await auth.apiCall(
-        "competitions",
-        `competitions/${competition.id}/entries`,
-        stats
-      );
-
-      if (result) {
-        myCompEntries.set(competition.id, result);
-        debugLog(`✅ Stats submitted successfully for "${competition.name}"`);
-      } else {
-        debugLog(`⚠️ No result returned from API for "${competition.name}"`);
-      }
-    } catch (error) {
-      console.error(`❌ Error submitting stats for "${competition.name}":`, error);
-      throw error; // Re-throw so safeExecute can catch it
-    }
-  }
-
-  // Toggle participation
-  async function toggleCompParticipation(competition, enabled) {
-    if (!competition) return;
-
-    const settings = getCompSettings(competition.id);
-    settings.enabled = enabled;
-    saveCompSettings(competition.id, settings);
-
-    // If we have an entry, update it on the server
-    const entry = myCompEntries.get(competition.id);
-    if (entry) {
-      await auth.apiCall(
-        "competitions",
-        `competitions/${competition.id}/toggle`,
-        { enabled }
-      );
-    }
+    return { ok: false, message: result?.error ? `The server refused: ${result.error}` : "The server did not answer. Try again later." };
   }
 
   // Leaderboard display
@@ -7678,9 +7554,11 @@
       debugLog(`📊 Fetching leaderboard from: ${endpoint}`);
       leaderboard = await auth.apiCall("read", endpoint);
 
-      if (!leaderboard) {
-        console.error(`❌ No leaderboard data returned for competition: ${competition.name}`);
-        alert("Failed to load leaderboard - no data returned from API");
+      if (!Array.isArray(leaderboard)) {
+        console.error(`❌ No leaderboard data returned for competition: ${competition.name}`, leaderboard);
+        alert(leaderboard?.error
+          ? `Failed to load leaderboard: ${leaderboard.error}`
+          : "Failed to load leaderboard - no data returned from API");
         return;
       }
 
@@ -7807,6 +7685,51 @@
           </tr>
         `;
       });
+    } else if (!['attacks', 'gold'].includes(String(competition.scoring_type || leaderboard[0]?.metric || 'attacks'))) {
+      // Individual leaderboard for a metric other than attacks or gold
+      // (precision, ironclad, ... from the API scoring, #153): rank by the
+      // server's `score` under the metric's name.
+      const metric = competition.scoring_type || leaderboard[0]?.metric;
+      const showAttacks = leaderboard.some(e => e.attacks_completed !== undefined && e.attacks_completed !== null);
+      const formatScore = (s) => {
+        if (s === null || s === undefined || s === '') return '—';
+        const num = Number(s);
+        if (!Number.isFinite(num)) return escapeHtml(String(s));
+        return Number.isInteger(num) ? formatNum(num) : num.toLocaleString(undefined, { maximumFractionDigits: 2 });
+      };
+      tableHTML = `
+        <thead>
+          <tr style="background:#222; color:#6f6;">
+            <th style="padding:8px; border:1px solid #444;">Rank</th>
+            <th style="padding:8px; border:1px solid #444;">Player</th>
+            <th style="padding:8px; border:1px solid #444;">${escapeHtml(compMetricLabel(metric))}</th>
+            ${showAttacks ? '<th style="padding:8px; border:1px solid #444;">⚔️ Attacks</th>' : ''}
+          </tr>
+        </thead>
+        <tbody>
+      `;
+
+      const storedAuth = auth.getStoredAuth();
+      leaderboard.forEach((entry, idx) => {
+        const isMe = storedAuth?.id != null && String(entry.player_id) === String(storedAuth.id);
+        const bgColor = isMe ? '#2a2a00' : (idx % 2 === 0 ? '#111' : '#1a1a1a');
+        const rankColor = idx === 0 ? 'gold' : idx === 1 ? 'silver' : idx === 2 ? '#cd7f32' : '#999';
+        const currentMedal = idx === 0 ? ' 🥇' : idx === 1 ? ' 🥈' : idx === 2 ? ' 🥉' : '';
+        const permanentRibbons = entry.ribbons ? ` ${escapeHtml(entry.ribbons)}` : '';
+
+        tableHTML += `
+          <tr style="background:${bgColor};">
+            <td style="padding:8px; border:1px solid #444; color:${rankColor}; font-weight:bold; text-align:center;">${idx + 1}</td>
+            <td style="padding:8px; border:1px solid #444;">
+              ${isMe ? '<strong>' : ''}
+              ${escapeHtml(entry.player_name || 'Unknown')}${currentMedal}${permanentRibbons}
+              ${isMe ? '</strong>' : ''}
+            </td>
+            <td style="padding:8px; border:1px solid #444; text-align:right;">${formatScore(entry.score)}</td>
+            ${showAttacks ? `<td style="padding:8px; border:1px solid #444; text-align:right;">${formatNum(entry.attacks_completed)}</td>` : ''}
+          </tr>
+        `;
+      });
     } else {
       // Individual leaderboard
       tableHTML = `
@@ -7824,7 +7747,7 @@
 
       const storedAuth = auth.getStoredAuth();
       leaderboard.forEach((entry, idx) => {
-        const isMe = entry.player_id === storedAuth?.id;
+        const isMe = storedAuth?.id != null && String(entry.player_id) === String(storedAuth.id);
         const bgColor = isMe ? '#2a2a00' : (idx % 2 === 0 ? '#111' : '#1a1a1a');
         const rankColor = idx === 0 ? 'gold' : idx === 1 ? 'silver' : idx === 2 ? '#cd7f32' : '#999';
         const currentMedal = idx === 0 ? ' 🥇' : idx === 1 ? ' 🥈' : idx === 2 ? ' 🥉' : '';
@@ -7837,7 +7760,6 @@
               ${isMe ? '<strong>' : ''}
               ${escapeHtml(entry.player_name || 'Unknown')}${currentMedal}${permanentRibbons}
               ${isMe ? '</strong>' : ''}
-              ${!entry.enabled ? ' <span style="color:#999;">(hidden)</span>' : ''}
             </td>
             <td style="padding:8px; border:1px solid #444; text-align:right;">${formatNum(entry.attacks_completed)}</td>
             <td style="padding:8px; border:1px solid #444; text-align:right;">${formatNum(entry.gold_stolen)}</td>
@@ -7847,6 +7769,9 @@
       });
     }
 
+    if (leaderboard.length === 0) {
+      tableHTML += `<tr><td colspan="6" style="padding:12px; border:1px solid #444; text-align:center; color:#999;">Nobody has joined yet.</td></tr>`;
+    }
     tableHTML += '</tbody>';
     table.innerHTML = tableHTML;
 
@@ -7862,8 +7787,8 @@
   function addCompetitionPanel(competition, insertAfter) {
     if (!competition) return null;
 
-    const settings = getCompSettings(competition.id);
-    const isEnabled = settings.enabled !== false;
+    // Joined only after the member presses Join (opt-in, #158).
+    const isEnabled = isJoinedComp(competition);
 
     // Check if panel is minimized (per-competition)
     const minimizeKey = `KoC_CompPanelMinimized_${competition.id}`;
@@ -7923,40 +7848,16 @@
       statusText = `🔴 LIVE - Ends in ${hoursUntilEnd} hours (${endDate.toLocaleString('en-US', { timeZone })})`;
     }
 
-    const cached = getCompStats(competition.id);
-    const hasAttackData = cached.attackMissions !== undefined;
-    const hasGoldData = cached.goldStolenEra !== undefined;
-    const lastUpdate = cached.lastUpdate ? new Date(cached.lastUpdate).toLocaleTimeString() : 'Never';
-
-    // Check if data is stale (gold updated but attacks haven't been updated recently)
-    const dataIsFresh = areCompStatsFresh(cached, 30);
-    const goldIsNewer = hasGoldData && hasAttackData &&
-                        cached.goldStolenTimestamp > (cached.attackMissionsTimestamp + 60000); // Gold is >1min newer
-
-    // Calculate current progress using FRESH localStorage data
     const myEntry = myCompEntries.get(competition.id);
-    let attacksDisplay = '';
-    if (myEntry && myEntry.baseline_attack_missions !== null && myEntry.baseline_attack_missions !== undefined) {
-      // Use cached (localStorage) attacks if available, otherwise use server data
-      const currentAttacks = cached.attackMissions || myEntry.current_attack_missions || 0;
-      const attacksGained = currentAttacks - myEntry.baseline_attack_missions;
-
-      let warningText = '';
-      if (!hasAttackData) {
-        warningText = ' <span style="color:#f44;">⚠️ Visit rewards.php</span>';
-      } else if (goldIsNewer) {
-        warningText = ' <span style="color:#ff9800;">⚠️ Attack data needs update</span>';
-      }
-
-      attacksDisplay = `
-        <div style="font-size:10px; color:#6f6;">
-          ⚔️ Attacks: +${attacksGained} ${cached.attackMissions ? '📍' : ''}${warningText}
-        </div>
-        <div style="font-size:9px; color:#666; margin-top:4px;">
-          Last captured: ${lastUpdate} ${dataIsFresh ? '✅' : '⚠️'}
-        </div>
-      `;
-    }
+    const attacksDisplay = `
+      <div style="font-size:10px; color:#999;">
+        📜 Scored by the server from the official alliance logs. Nothing is read from your pages.
+        ${isEnabled
+          ? 'You are on the standings, scored from the competition start.'
+          : 'Joining puts your name on the standings; you are scored from the start even if you join late.'}
+        <div style="margin-top:4px; color:#bbb;">🙋 Know someone without the script who wants in? Ask Blackheart or Tobi to add them.</div>
+      </div>
+    `;
 
     // Team info display
     let teamDisplay = '';
@@ -7984,10 +7885,10 @@
     }
 
     // Scoring type display
-    const scoringType = competition.scoring_type === 'gold' ? '💰 Gold' : '⚔️ Attacks';
+    const scoringType = compMetricLabel(competition.scoring_type);
     const scoringDisplay = `
       <div style="font-size:9px; color:#999; margin-top:4px;">
-        Winner by: ${scoringType}
+        Winner by: ${escapeHtml(scoringType)}
       </div>
     `;
 
@@ -8005,11 +7906,8 @@
         ${scoringDisplay}
       </div>
       <div style="display:flex; gap:8px; margin-bottom:8px;">
-        <button class="comp-toggle-btn" data-comp-id="${escapeHtml(competition.id)}" style="flex:1; padding:6px; cursor:pointer; background:${isEnabled ? '#4CAF50' : '#f44336'}; color:white; border:none; border-radius:4px;">
-          ${isEnabled ? '▶️ Tracking is ON' : '⏸️ Tracking is OFF'}
-        </button>
-        <button class="comp-update-btn" data-comp-id="${escapeHtml(competition.id)}" style="flex:1; padding:6px; cursor:pointer; background:#FF9800; color:white; border:none; border-radius:4px;">
-          🔄 Update Stats
+        <button class="comp-join-btn" data-comp-id="${escapeHtml(competition.id)}" ${hasEnded && !isEnabled ? 'disabled' : ''} style="flex:1; padding:6px; cursor:${hasEnded && !isEnabled ? 'default' : 'pointer'}; background:${isEnabled ? '#f44336' : (hasEnded ? '#555' : '#4CAF50')}; color:white; border:none; border-radius:4px;">
+          ${isEnabled ? '🚪 Leave' : (hasEnded ? 'Ended' : '✅ Join')}
         </button>
         <button class="comp-leaderboard-btn" data-comp-id="${escapeHtml(competition.id)}" style="flex:1; padding:6px; cursor:pointer; background:#2196F3; color:white; border:none; border-radius:4px;">
           📊 Leaderboard
@@ -8029,42 +7927,26 @@
       location.reload();
     });
 
-    const toggleBtn = cell.querySelector(".comp-toggle-btn");
-    toggleBtn?.addEventListener("click", async () => {
-      const newState = !isEnabled;
-      await toggleCompParticipation(competition, newState);
-      location.reload();
-    });
-
-    const updateBtn = cell.querySelector(".comp-update-btn");
-    updateBtn?.addEventListener("click", () => {
-      // Capture gold data from current page (base.php) before leaving
-      const goldStolen = extractGoldStolen();
-      const now = Date.now();
-      if (goldStolen !== null) {
-        const cached = getCompStats(competition.id);
-        cached.goldStolenEra = goldStolen;
-        cached.goldStolenTimestamp = now;
-        cached.lastUpdate = now;
-        saveCompStats(competition.id, cached);
+    // Join / Leave: the member's press is the only thing sent for a
+    // competition (besides a team choice).
+    const joinBtn = cell.querySelector(".comp-join-btn");
+    joinBtn?.addEventListener("click", async () => {
+      const join = !isEnabled;
+      if (!join && !confirm(`Leave ${competition.name}? Your name comes off the standings. You can join again until it ends.`)) return;
+      joinBtn.disabled = true;
+      const r = await setCompJoined(competition, join);
+      if (!r.ok) {
+        alert(r.message);
+        joinBtn.disabled = false;
+        return;
       }
-
-      // Go to rewards.php to capture attack missions (within ~1 second)
-      window.location.href = "rewards.php";
+      location.reload();
     });
 
     const leaderboardBtn = cell.querySelector(".comp-leaderboard-btn");
     leaderboardBtn?.addEventListener("click", async () => {
-      // Force a fresh submission before showing leaderboard to ensure latest data is shown
-      const settings = getCompSettings(competition.id);
-      if (settings.enabled !== false) {
-        const cached = getCompStats(competition.id);
-        if (cached.attackMissions && areCompStatsFresh(cached, 30)) {
-          await submitCompStats(competition);
-          const submitKey = `${COMP_LAST_SUBMIT_PREFIX}_${competition.id}`;
-          localStorage.setItem(submitKey, Date.now().toString());
-        }
-      }
+      // Read only: the standings are shown as the server has them (#84 —
+      // opening the leaderboard no longer submits anything).
       await showCompLeaderboard(competition);
     });
 
@@ -12088,8 +11970,8 @@
     {
       id: 'slaying-comp', group: 'Command Centre',
       name: 'Slaying competitions',
-      desc: 'Competition panels on the Command Centre with team leaderboards. Notes your attack missions (Rewards page) and gold stolen (Command Centre) for every running competition.',
-      note: 'Your entries are sent only while the "Competitions" share is on: at most once every 5 minutes per competition, after a Rewards visit and then a Command Centre visit within 30 seconds, and right away when you press 📊 Leaderboard. The panels and leaderboards need Read from the server.'
+      desc: 'Competition panels on the Command Centre with Join / Leave and leaderboards. Competitions are scored by the server from the official alliance logs; nothing is read from your game pages. Joining is what puts your name on the standings, and you are scored from the start even if you join late.',
+      note: 'Nothing is sent on its own. Join and Leave need the "Competitions" share on. The panels and leaderboards need Read from the server.'
     },
 
     // — Armory —
@@ -12505,73 +12387,11 @@
     }
   }
 
-  // Command Centre leg of competition tracking: capture gold stolen, add the
-  // panels, and auto-submit fresh stats (throttled per competition).
-  async function captureCompetitionStatsOnBase() {
+  // Competition panels on the Command Centre. Nothing is read from the page
+  // and nothing is sent from here (#165).
+  async function showCompetitionPanels() {
     if (activeCompetitions.length === 0) return;
-
-    const goldStolen = extractGoldStolen();
-    if (goldStolen !== null) {
-      const now = Date.now();
-      // Update gold stolen for ALL active competitions
-      for (const comp of activeCompetitions) {
-        const cached = getCompStats(comp.id);
-        cached.goldStolenEra = goldStolen;
-        cached.goldStolenTimestamp = now;
-        cached.lastUpdate = now;
-        saveCompStats(comp.id, cached);
-      }
-    }
-
     await safeExecute('addAllCompetitionPanels', () => addAllCompetitionPanels());
-
-    // Submit stats for each competition if enabled and we have the required data
-    for (const comp of activeCompetitions) {
-      const settings = getCompSettings(comp.id);
-      if (settings.enabled !== false) {
-        const cached = getCompStats(comp.id);
-
-        // Only submit if we have attack missions data and stats are fresh
-        if (cached.attackMissions) {
-          const isFresh = areCompStatsFresh(cached, 30);
-          if (!isFresh) {
-            debugLog(`⚠️ Stats for ${comp.name} are not fresh (captured >30s apart). Skipping auto-submit.`);
-            continue;
-          }
-
-          // Throttle submissions (max once per 5 minutes per competition)
-          const submitKey = `${COMP_LAST_SUBMIT_PREFIX}_${comp.id}`;
-          const lastSubmit = parseInt(localStorage.getItem(submitKey) || "0");
-          const now = Date.now();
-          if (now - lastSubmit > 5 * 60 * 1000) {
-            await safeExecute(`submitCompStats-${comp.id}`, async () => {
-              await submitCompStats(comp);
-              localStorage.setItem(submitKey, now.toString());
-            });
-          }
-        } else {
-          debugLog(`ℹ️ Visit rewards.php to capture Attack Missions data for ${comp.name}`);
-        }
-      }
-    }
-  }
-
-  // Rewards-page leg: capture Attack Missions for every active competition.
-  function captureCompetitionStatsOnRewards() {
-    if (activeCompetitions.length === 0) return;
-
-    const attackMissions = extractAttackMissions();
-    if (attackMissions !== null) {
-      const now = Date.now();
-      for (const comp of activeCompetitions) {
-        const cached = getCompStats(comp.id);
-        cached.attackMissions = attackMissions;
-        cached.attackMissionsTimestamp = now;
-        cached.lastUpdate = now;
-        saveCompStats(comp.id, cached);
-      }
-      debugLog(`✅ Captured Attack Missions: ${attackMissions} for ${activeCompetitions.length} competitions`);
-    }
   }
 
   // ==================== ALT WATCH BADGES ====================
@@ -12777,7 +12597,7 @@
     { f: 'sync:missions', label: 'sendMissionLog (report pages, first)', when: () => ['report', 'theftreport'].includes(missionLogSource()), run: () => { sendMissionLog(); } },
     // The sab report just landed on gives the Sab Tracker that sab's exact time.
     { f: 'sab-tracker', label: 'confirmSabLanding', when: () => onPage('inteldetail.php'), run: () => confirmSabLandingStep() },
-    { f: 'slaying-comp', label: 'loadActiveCompetitions', when: () => onPage("base.php") || onPage("rewards.php"), run: async () => {
+    { f: 'slaying-comp', label: 'loadActiveCompetitions', when: () => onPage("base.php"), run: async () => {
         const hasComps = await loadActiveCompetitions();
         if (hasComps) {
           debugLog(`✅ Loaded ${activeCompetitions.length} active competitions`);
@@ -12786,7 +12606,7 @@
     { f: 'top-stats-panel', label: 'insertTopStatsPanel', when: () => onPage("base.php"), run: () => insertTopStatsPanel() },
     { f: 'core', label: 'collectFromBasePage', when: () => onPage("base.php"), run: () => collectFromBasePage() },
     { f: 'estimated-funds', label: 'fundsReadCommandCentre', when: () => onPage("base.php"), run: () => fundsReadCommandCentre() },
-    { f: 'slaying-comp', label: 'captureCompetitionStatsOnBase', when: () => onPage("base.php"), run: () => captureCompetitionStatsOnBase() },
+    { f: 'slaying-comp', label: 'showCompetitionPanels', when: () => onPage("base.php"), run: () => showCompetitionPanels() },
     { f: 'sidebar-calculator', label: 'initSidebarCalculator (sidebar)', when: hasSidebar, run: () => initSidebarCalculator() },
     { f: 'sidebar-calculator', label: 'hookSidebarPopup', when: hasSidebar, run: () => hookSidebarPopup() },
     { f: 'estimated-funds', label: 'fundsReadSidebarGold', when: hasSidebar, run: () => fundsReadSidebarGold() },
@@ -12794,7 +12614,6 @@
     { f: 'rank-neighbor-links', label: 'enhanceRankNeighborLinks', when: () => true, run: () => enhanceRankNeighborLinks() },
     { f: 'attack-log-enhancer', label: 'enhanceAttackLog', when: () => onPage("attacklog.php"), run: () => enhanceAttackLog() },
     { f: ['sync:recon', 'top-stats-panel'], label: 'collectFromRewardsPage', when: () => onPage("rewards.php"), run: () => collectFromRewardsPage() },
-    { f: 'slaying-comp', label: 'captureCompetitionStatsOnRewards', when: () => onPage("rewards.php"), run: () => captureCompetitionStatsOnRewards() },
     { f: 'recon-display', label: 'addMaxAttacksRecon', when: () => onPage("inteldetail.php"), run: () => addMaxAttacksRecon() },
     { f: ['sync:recon', 'recon-display'], label: 'collectFromIntelDetailPage', when: () => onPage("inteldetail.php"), run: () => collectFromIntelDetailPage() },
     // Collect visible stats first (before filling ??? from API)
